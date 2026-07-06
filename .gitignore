@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.crashdata/
+
+# Logs
+logs/
+
+# Runtime
+host_saves/
+
+# Save data
+saves/
+metadata/
+data/
+
+# Config
+config.json
+games.json
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Build
+*.log

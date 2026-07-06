@@ -1,0 +1,36 @@
+# Auto-detect text files
+* text=auto
+
+# Python
+*.py text
+
+# JavaScript
+*.js text
+*.jsx text
+
+# JSON
+*.json text
+
+# Markdown
+*.md text
+
+# YAML
+*.yml text
+*.yaml text
+
+# Shell
+*.sh text
+
+# Windows scripts
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+
+# Archives
+*.zip binary
