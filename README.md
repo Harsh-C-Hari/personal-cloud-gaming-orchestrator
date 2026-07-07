@@ -96,7 +96,7 @@ In a second terminal (regular user permissions is fine):
 ```bash
 cd frontend
 npm install          # installs Node.js dependencies
-
+                     # ignore Vulnerabilty Errors
 ```
 
 ---
@@ -123,7 +123,7 @@ Open another terminal.
 ```bash
 cd frontend
 
-npm run dev #Ignore Vulnerabilty Errors
+npm run dev
 
 ```
 
