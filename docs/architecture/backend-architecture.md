@@ -13,11 +13,11 @@ Built using FastAPI, it exposes APIs used by the dashboard and coordinates all h
 ```text
 Routes
   ↓
-Controllers
-  ↓
 Services
   ↓
-Host Agent
+Host Components
+  ↓
+Windows Services
 ```
 
 ---

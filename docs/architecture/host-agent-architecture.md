@@ -90,9 +90,12 @@ Additional recovery capabilities:
 
 Supported states:
 
-* Ready
-* Maintenance
-* Recovery Required
+* starting
+* ready
+* busy
+* maintenance
+* recovery
+* degraded
 
 ---
 

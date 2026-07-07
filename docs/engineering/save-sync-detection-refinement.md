@@ -32,7 +32,7 @@ The initial assumption was that every detected file modification represented mea
 
 ## Symptoms
 
-Live Sync triggered every 30 seconds even when no meaningful gameplay progress had changed.
+Live Sync triggered every 15 seconds even when no meaningful gameplay progress had changed.
 
 ---
 

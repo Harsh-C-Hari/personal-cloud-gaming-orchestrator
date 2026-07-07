@@ -23,10 +23,10 @@ Responsibilities:
 Examples:
 
 ```text
-GET /sessions
+GET /sessions/active
 GET /sessions/analytics
 POST /sessions/start
-POST /sessions/stop
+POST /sessions/{session_id}/stop
 ```
 
 ---
@@ -46,11 +46,12 @@ Responsibilities:
 Examples:
 
 ```text
-POST   /games
+POST   /games/
 PUT    /games/{game_id}
 DELETE /games/{game_id}
 POST   /games/validate
 GET /games/{game_id}/validate
+GET /games/list_games
 ```
 
 ---
@@ -68,6 +69,7 @@ Examples:
 ```text
 GET /host/status
 GET /host/metrics
+GET /host/watchdogs
 ```
 
 ---
@@ -85,7 +87,6 @@ Examples:
 ```text
 GET /host/recovery-events
 GET /host/recovery-stats
-GET /host/watchdogs
 ```
 
 ---
@@ -101,8 +102,10 @@ Responsibilities:
 Examples:
 
 ```text
-GET /sunshine/status
-POST /sunshine/restart
+GET /host/status #Sunshine and Tailscale Information is Included There
+POST /host/sunshine/restart
+POST /host/sunshine/start
+POST /host/sunshine/stop
 ```
 
 ---

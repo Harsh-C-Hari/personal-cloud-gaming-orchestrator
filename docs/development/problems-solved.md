@@ -8,7 +8,7 @@ Tailscale could not be reliably recovered using a single restart strategy.
 ### Solution:
 Implemented diagnostic-based state classification and targeted recovery.
 
-![Detailed investigation](docs/engineering/tailscale-state-recovery.md)
+![Detailed investigation](../engineering/tailscale-state-recovery.md)
 
 ---
 
@@ -20,7 +20,7 @@ Browser caching caused stale monitoring data.
 ### Solution:
 Disabled caching on real-time API endpoints.
 
-![Detailed investigation](docs/engineering/dashboard-cache-investigation.md)
+![Detailed investigation](../engineering/dashboard-cache-investigation.md)
 
 ---
 
@@ -32,7 +32,7 @@ Live Sync lifecycle was not migrated from the CLI runner to the FastAPI session 
 Solution:
 Integrated Live Sync startup into the FastAPI session lifecycle.
 
-![Detailed investigation](docs/engineering/live-sync-architecture-migration.md)
+![Detailed investigation](../engineering/live-sync-architecture-migration.md)
 
 ---
 
@@ -44,7 +44,7 @@ Live Sync produced false change detections.
 ### Solution:
 Introduced gameplay-based change detection and consistent hashing.
 
-![Detailed investigation](docs/engineering/save-sync-detection-refinement.md)
+![Detailed investigation](../engineering/save-sync-detection-refinement.md)
 
 ---
 
@@ -140,7 +140,7 @@ Solution:
 
 Implemented a configurable SaveFilters engine supporting prefix, contains, suffix, and AND/OR matching.
 
-[Detailed Investigation](docs/engineering/save-filter-system-migration.md)
+[Detailed Investigation](../engineering/save-filter-system-migration.md)
 
 ## Dynamic Game Management System
 
@@ -152,7 +152,7 @@ Solution:
 
 Implemented a runtime Game Management API with validation, dashboard integration, atomic configuration updates, and runtime reload support.
 
-[Detailed Investigation](docs/engineering/dynamic-game-management.md)
+[Detailed Investigation](../engineering/dynamic-game-management.md)
 
 ## Settings Validation System
 
@@ -166,7 +166,7 @@ Implemented full backend validation handling, configuration synchronization, and
 
 Detailed Investigation:
 
-[Detailed Investigation](docs/engineering/settings-validation-system.md)
+[Detailed Investigation](../engineering/settings-validation-system.md)
 
 ---
 
@@ -182,7 +182,7 @@ Implemented dynamic configuration, validation, and configured-state reporting.
 
 Detailed Investigation:
 
-[Detailed Investigation](docs/engineering/tailscale-configuration-migration.md)
+[Detailed Investigation](../engineering/tailscale-configuration-migration.md)
 
 ---
 
@@ -208,4 +208,4 @@ Major engineering work included:
 
 For detailed engineering documentation, see:
 
-[Detailed Investigation](docs/engineering/release-hardening-and-reliability.md)
+[Detailed Investigation](../engineering/release-hardening-and-reliability.md)

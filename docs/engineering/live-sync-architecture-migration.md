@@ -114,6 +114,8 @@ The investigation confirmed:
 
 The hashing system was therefore ruled out as the source of the problem.
 
+> **Note:** This section documents the previous `whitelist_prefixes` implementation. The current implementation uses the `save_filters` system introduced in the Save Filter System Migration.
+
 ---
 
 ### Live Sync Thread Investigation

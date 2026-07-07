@@ -51,10 +51,12 @@ Supported states:
 
 * starting
 * running
+* stopping
+* cleaning
 * completed
 * failed
-* stopped
 
+`completed` and `failed` are terminal session outcomes, while `starting`, `running`, `stopping`, and `cleaning` represent runtime session states.
 ---
 
 # Session Registry

@@ -102,7 +102,7 @@ During an active session:
 Current synchronization interval:
 
 ```text
-30 seconds
+15 seconds
 ```
 
 ---

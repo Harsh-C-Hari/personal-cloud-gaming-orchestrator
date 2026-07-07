@@ -26,17 +26,33 @@ To prepare the system and run the Host Agent and Dashboard, follow these steps c
 
 ### Prerequisites
 
-- Operating System: Windows 10 or 11 (64-bit) is required. Note: Sunshine (the streaming server) requires Windows 11 or higher, but the Host Agent can run on Windows 10 for local sessions.
+- **Operating System:** Windows 10 or Windows 11 (64-bit)
 
-- Python: Version 3.12+. (Python 3.12.13 was released March 3, 2026.) Ensure you have a 64-bit Python from python.org or the Microsoft Store.
+- **Python:** Python 3.10 or newer (64-bit).
+  - This project was developed and tested using **Python 3.10.11**.
+  - Newer Python versions may work, but compatibility depends on third-party libraries. If you encounter installation issues, Python **3.10.x** is the recommended version for v0.1.
 
-- Node.js: Version 20+ (an LTS release). For example, Node 24 (LTS, May 2025) or Node 22 (LTS, April 2024) are supported. Download from nodejs.org.
+- **Node.js:** Node.js 20+ (LTS recommended)
+  - Developed and tested with Node.js 24.14.1.
 
-- Additional Software:
+- **Additional Software (Optional):**
+  - Sunshine (required only for remote streaming)
+  - Tailscale (required only for remote networking)
 
-Sunshine: (Optional) Install LizardByte’s Sunshine streaming server only if you plan to use Moonlight clients. Sunshine supports Windows 11+.
+---
 
-Tailscale: (Optional) Install Tailscale if you need remote networking. Tailscale runs on Windows, Linux, macOS, etc. It is not required for local sessions in v0.1.
+### Verified Development Environment
+
+The project has been developed and tested with the following environment:
+
+| Component | Version |
+|----------|---------|
+| Windows | Windows 11 |
+| Python | 3.10.11 |
+| Node.js | 24.14.1 |
+| npm | 11.14.1 |
+| FastAPI | 0.135.3 |
+| Uvicorn | 0.35.0 |
 
 ---
 
@@ -111,7 +127,9 @@ npm run dev #Ignore Vulnerabilty Errors
 
 ```
 
-The dashboard will open in your browser at http://localhost:5173.
+Open your browser and navigate to:
+
+http://localhost:5173
 
 ---
 
@@ -296,6 +314,8 @@ Supported capabilities include:
 
 The settings system was redesigned to support dynamic configuration updates and validation directly from the administrative dashboard.
 
+Some configuration changes are applied immediately, while selected storage and host-agent settings require a backend restart. The dashboard indicates when a restart is required.
+
 ![Administrative Settings](assets/screenshots/settings-panel.png)
 
 ---
@@ -416,7 +436,7 @@ Python Host Agent
 * Automatic backup after sessions
 * Save archives and restoration
 * Hash-based save change detection
-* Live save synchronization every 30 seconds
+* Live save synchronization every 15 seconds
 * Configurable game-specific save filtering
 * Prefix, contains, and suffix based file matching
 * AND / OR filtering strategies
@@ -432,15 +452,6 @@ Python Host Agent
 * Host health evaluation
 * Startup validation
 * Lifecycle state management
-
----
-
-### Game Management
-
-- Game registry
-- Configuration management
-- Executable validation
-- Save path validation
 
 ---
 
@@ -745,7 +756,7 @@ The host platform relies on:
 
 - Sunshine
 - Windows process management
-- Windows GPU monitoring
+- Windows GPU monitoring (currently NVIDIA GPUs through GPUtil)
 - Windows save locations
 
 Linux and macOS host support are not currently supported.

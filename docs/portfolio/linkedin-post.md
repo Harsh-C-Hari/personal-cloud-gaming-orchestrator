@@ -33,6 +33,8 @@ Some of the most interesting engineering challenges involved:
 * Solving dashboard synchronization issues caused by browser caching
 * Reducing unnecessary save operations using hash-based change detection
 
-The project is currently around 80–85% complete and continues to evolve toward a complete personal cloud gaming ecosystem.
+The v0.1 Host Foundation Release is complete.
+
+Current development has transitioned to Phase 23 and beyond.
 
 Looking forward to continuing development through authentication, database migration, user applications, deployment tooling, and additional reliability improvements.

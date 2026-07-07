@@ -18,6 +18,9 @@ Future releases may introduce secret masking and role-based access.
 
 ## CORS
 
-The API currently allows unrestricted origins to simplify local dashboard development.
+The API currently allows requests only from:
 
-This configuration will be revisited during the security phase.
+- http://localhost:5173
+- http://127.0.0.1:5173
+
+Additional origins can be configured for future deployments if the frontend is hosted elsewhere.

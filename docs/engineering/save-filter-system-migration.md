@@ -185,12 +185,12 @@ Empty filter categories are ignored in AND mode, allowing only the necessary rul
 
 The migration was tested across different save structures.
 
-### God of War Ragnarök
+### Game A
 
 Configuration:
 
 ```
-OR + Prefix(GOWRSAVE)
+OR + Prefix(RequiredPrefix)
 ```
 
 Result:
@@ -200,12 +200,12 @@ Result:
 
 ---
 
-### Resident Evil Requiem
+### Game B
 
 Configuration:
 
 ```
-AND + Prefix(data) + Contains(Slot) + Suffix(.bin)
+AND + Prefix(RequiredPrefix) + Contains(RequiredContains) + Suffix(.RequiredSuffix)
 ```
 
 Result:
