@@ -289,10 +289,12 @@ export function SessionAnalytics({
             <b>{analytics.recovered_sessions}</b>
           </div>
 
-          <div style={statCard}>
-            <div>Success Rate</div>
-            <b>{analytics.success_rate}%</b>
-          </div>
+          { analytics?.total_sessions != 0 && (
+            <div style={statCard}>
+              <div>Success Rate</div>
+              <b>{analytics.success_rate}%</b>
+            </div>
+          )}
 
           <div style={statCard}>
             <div>Avg Playtime</div>
@@ -303,18 +305,20 @@ export function SessionAnalytics({
             </b>
           </div>
 
-          <div style={statCard}>
-            <div>Reliability</div>
-            <b
-              style={{
-                color: getReliabilityColor(
-                  analytics.system_reliability
-                )
-              }}
-            >
-              {analytics.system_reliability}
-            </b>
-          </div>
+          { analytics?.total_sessions != 0 && (
+            <div style={statCard}>
+              <div>Reliability</div>
+              <b
+                style={{
+                  color: getReliabilityColor(
+                    analytics.system_reliability
+                  )
+                }}
+              >
+                {analytics.system_reliability}
+              </b>
+            </div>
+          )}
         
           <StatList
             title="BY USER"

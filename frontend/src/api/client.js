@@ -101,6 +101,10 @@ export async function fetchGames() {
   return apiFetch("GET", "/games/list_games");
 }
 
+export async function reloadGames() {
+  return apiFetch("GET", "/games/reload");
+}
+
 // ─── Sessions — list ──────────────────────────────────────────────────────
 
 /**

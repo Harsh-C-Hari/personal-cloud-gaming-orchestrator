@@ -999,426 +999,433 @@ export function Dashboard() {
               RECOVERY SYSTEM
             </h2>
 
-            <div
-              style={{
-                padding: "10px",
-                borderRadius: "8px",
-                background: "rgba(2,6,23,0.45)",
-                border: "1px solid rgba(148,163,184,0.12)",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "10px",
-                  color: "#94a3b8",
-                  letterSpacing: "0.08em",
-                  fontFamily: "'JetBrains Mono', monospace",
-                }}
-              >
-                SUNSHINE RECOVERIES
-              </div>
+            {!recoveryStats 
+              ? <span style={{ color:'white' , fontSize: '14px' , fontWeight: 'bold' }}>Loading Recovery Statistics...</span>
+              : (
+            
+              <div>
+                <div
+                  style={{
+                    padding: "10px",
+                    borderRadius: "8px",
+                    background: "rgba(2,6,23,0.45)",
+                    border: "1px solid rgba(148,163,184,0.12)",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "10px",
+                      color: "#94a3b8",
+                      letterSpacing: "0.08em",
+                      fontFamily: "'JetBrains Mono', monospace",
+                    }}
+                  >
+                    SUNSHINE RECOVERIES
+                  </div>
 
-              <div
-                style={{
-                  marginTop: "4px",
-                  fontSize: "20px",
-                  fontWeight: 700,
-                  color: "#22c55e",
-                }}
-              >
-                {recoveryStats?.sunshine_restarts ?? 0}
-              </div>
-            </div>
+                  <div
+                    style={{
+                      marginTop: "4px",
+                      fontSize: "20px",
+                      fontWeight: 700,
+                      color: "#22c55e",
+                    }}
+                  >
+                    {recoveryStats?.sunshine_restarts ?? 0}
+                  </div>
+                </div>
 
-            <div
-              style={{
-                padding: "10px",
-                borderRadius: "8px",
-                background: "rgba(2,6,23,0.45)",
-                border: "1px solid rgba(148,163,184,0.12)",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "10px",
-                  color: "#94a3b8",
-                  letterSpacing: "0.08em",
-                  fontFamily: "'JetBrains Mono', monospace",
-                }}
-              >
-                SUNSHINE FAILURES
-              </div>
+                <div
+                  style={{
+                    padding: "10px",
+                    borderRadius: "8px",
+                    background: "rgba(2,6,23,0.45)",
+                    border: "1px solid rgba(148,163,184,0.12)",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "10px",
+                      color: "#94a3b8",
+                      letterSpacing: "0.08em",
+                      fontFamily: "'JetBrains Mono', monospace",
+                    }}
+                  >
+                    SUNSHINE FAILURES
+                  </div>
 
-              <div
-                style={{
-                  marginTop: "4px",
-                  fontSize: "20px",
-                  fontWeight: 700,
-                  color: "#22c55e",
-                }}
-              >
-                {recoveryStats?.sunshine_failures ?? 0}
-              </div>
-            </div>
+                  <div
+                    style={{
+                      marginTop: "4px",
+                      fontSize: "20px",
+                      fontWeight: 700,
+                      color: "#22c55e",
+                    }}
+                  >
+                    {recoveryStats?.sunshine_failures ?? 0}
+                  </div>
+                </div>
 
-            <div
-              style={{
-                padding: "10px",
-                borderRadius: "8px",
-                background: "rgba(2,6,23,0.45)",
-                border: "1px solid rgba(148,163,184,0.12)",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "10px",
-                  color: "#94a3b8",
-                  letterSpacing: "0.08em",
-                  fontFamily: "'JetBrains Mono', monospace",
-                }}
-              >
-                TAILSCALE RECOVERIES
-              </div>
+                <div
+                  style={{
+                    padding: "10px",
+                    borderRadius: "8px",
+                    background: "rgba(2,6,23,0.45)",
+                    border: "1px solid rgba(148,163,184,0.12)",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "10px",
+                      color: "#94a3b8",
+                      letterSpacing: "0.08em",
+                      fontFamily: "'JetBrains Mono', monospace",
+                    }}
+                  >
+                    TAILSCALE RECOVERIES
+                  </div>
 
-              <div
-                style={{
-                  marginTop: "4px",
-                  fontSize: "20px",
-                  fontWeight: 700,
-                  color: "#22c55e",
-                }}
-              >
-                {recoveryStats?.tailscale_recoveries ?? 0}
-              </div>
-              <button
-                type="button"
-                onClick={() =>
-                  setShowTailscaleRecoveryDetails(
-                    !showTailscaleRecoveryDetails
+                  <div
+                    style={{
+                      marginTop: "4px",
+                      fontSize: "20px",
+                      fontWeight: 700,
+                      color: "#22c55e",
+                    }}
+                  >
+                    {recoveryStats?.tailscale_recoveries ?? 0}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowTailscaleRecoveryDetails(
+                        !showTailscaleRecoveryDetails
+                      )
+                    }
+                    style={{
+                      width: "100%",
+                      marginTop: "8px",
+                      border: "1px solid rgba(148,163,184,0.18)",
+                      background: "rgba(2,6,23,0.45)",
+                      color: "#94a3b8",
+                      borderRadius: "6px",
+                      padding: "6px",
+                      fontSize: "9px",
+                      fontFamily: "'JetBrains Mono', monospace",
+                      letterSpacing: "0.08em",
+                      cursor: "pointer",
+                    }}
+                    onMouseEnter={(e) =>
+                      e.currentTarget.style.background =
+                        "rgba(56, 191, 248, 0.08)"
+                    }
+
+                    onMouseLeave={(e) =>
+                      e.currentTarget.style.background =
+                        "rgba(56, 191, 248, 0)"
+                    }
+                  >
+                    {
+                      showTailscaleRecoveryDetails
+                        ? "HIDE DETAILS"
+                        : "SHOW DETAILS"
+                    }
+                  </button>
+                </div>
+
+                {
+                  showTailscaleRecoveryDetails && (
+                    <section>
+                      <div
+                        style={{
+                          padding: "10px",
+                          borderRadius: "8px",
+                          background: "rgba(2,6,23,0.45)",
+                          border: "1px solid rgba(148,163,184,0.12)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: "10px",
+                            color: "#94a3b8",
+                            letterSpacing: "0.08em",
+                            fontFamily: "'JetBrains Mono', monospace",
+                          }}
+                        >
+                          SERVICE RECOVERIES
+                        </div>
+
+                        <div
+                          style={{
+                            marginTop: "4px",
+                            fontSize: "20px",
+                            fontWeight: 700,
+                            color: "#22c55e",
+                          }}
+                        >
+                          {recoveryStats?.tailscale_service_recoveries ?? 0}
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          padding: "10px",
+                          borderRadius: "8px",
+                          background: "rgba(2,6,23,0.45)",
+                          border: "1px solid rgba(148,163,184,0.12)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: "10px",
+                            color: "#94a3b8",
+                            letterSpacing: "0.08em",
+                            fontFamily: "'JetBrains Mono', monospace",
+                          }}
+                        >
+                          IPN RECOVERIES
+                        </div>
+
+                        <div
+                          style={{
+                            marginTop: "4px",
+                            fontSize: "20px",
+                            fontWeight: 700,
+                            color: "#22c55e",
+                          }}
+                        >
+                          {recoveryStats?.tailscale_ipn_recoveries ?? 0}
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          padding: "10px",
+                          borderRadius: "8px",
+                          background: "rgba(2,6,23,0.45)",
+                          border: "1px solid rgba(148,163,184,0.12)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: "10px",
+                            color: "#94a3b8",
+                            letterSpacing: "0.08em",
+                            fontFamily: "'JetBrains Mono', monospace",
+                          }}
+                        >
+                          UP RECOVERIES
+                        </div>
+
+                        <div
+                          style={{
+                            marginTop: "4px",
+                            fontSize: "20px",
+                            fontWeight: 700,
+                            color: "#22c55e",
+                          }}
+                        >
+                          {recoveryStats?.tailscale_up_recoveries ?? 0}
+                        </div>
+                      </div>
+                    </section>
                   )
                 }
-                style={{
-                  width: "100%",
-                  marginTop: "8px",
-                  border: "1px solid rgba(148,163,184,0.18)",
-                  background: "rgba(2,6,23,0.45)",
-                  color: "#94a3b8",
-                  borderRadius: "6px",
-                  padding: "6px",
-                  fontSize: "9px",
-                  fontFamily: "'JetBrains Mono', monospace",
-                  letterSpacing: "0.08em",
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) =>
-                  e.currentTarget.style.background =
-                    "rgba(56, 191, 248, 0.08)"
-                }
 
-                onMouseLeave={(e) =>
-                  e.currentTarget.style.background =
-                    "rgba(56, 191, 248, 0)"
-                }
-              >
+                <div
+                  style={{
+                    padding: "10px",
+                    borderRadius: "8px",
+                    background: "rgba(2,6,23,0.45)",
+                    border: "1px solid rgba(148,163,184,0.12)",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "10px",
+                      color: "#94a3b8",
+                      letterSpacing: "0.08em",
+                      fontFamily: "'JetBrains Mono', monospace",
+                    }}
+                  >
+                    TAILSCALE FAILURES
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: "4px",
+                      fontSize: "20px",
+                      fontWeight: 700,
+                      color: "#22c55e",
+                    }}
+                  >
+                    {recoveryStats?.tailscale_failures ?? 0}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowTailscaleFailureDetails(
+                        !showTailscaleFailureDetails
+                      )
+                    }
+                    style={{
+                      width: "100%",
+                      marginTop: "8px",
+                      border: "1px solid rgba(148,163,184,0.18)",
+                      background: "rgba(2,6,23,0.45)",
+                      color: "#94a3b8",
+                      borderRadius: "6px",
+                      padding: "6px",
+                      fontSize: "9px",
+                      fontFamily: "'JetBrains Mono', monospace",
+                      letterSpacing: "0.08em",
+                      cursor: "pointer",
+                    }}
+                    onMouseEnter={(e) =>
+                      e.currentTarget.style.background =
+                        "rgba(56, 191, 248, 0.08)"
+                    }
+
+                    onMouseLeave={(e) =>
+                      e.currentTarget.style.background =
+                        "rgba(56, 191, 248, 0)"
+                    }
+                  >
+                    {
+                      showTailscaleFailureDetails
+                        ? "HIDE DETAILS"
+                        : "SHOW DETAILS"
+                    }
+                  </button>
+                </div>
+
                 {
-                  showTailscaleRecoveryDetails
-                    ? "HIDE DETAILS"
-                    : "SHOW DETAILS"
-                }
-              </button>
-            </div>
+                  showTailscaleFailureDetails && (
+                    <section>
+                      <div
+                        style={{
+                          padding: "10px",
+                          borderRadius: "8px",
+                          background: "rgba(2,6,23,0.45)",
+                          border: "1px solid rgba(148,163,184,0.12)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: "10px",
+                            color: "#94a3b8",
+                            letterSpacing: "0.08em",
+                            fontFamily: "'JetBrains Mono', monospace",
+                          }}
+                        >
+                          NOSTATE EVENTS
+                        </div>
 
-            {
-              showTailscaleRecoveryDetails && (
-                <section>
-                  <div
-                    style={{
-                      padding: "10px",
-                      borderRadius: "8px",
-                      background: "rgba(2,6,23,0.45)",
-                      border: "1px solid rgba(148,163,184,0.12)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: "10px",
-                        color: "#94a3b8",
-                        letterSpacing: "0.08em",
-                        fontFamily: "'JetBrains Mono', monospace",
-                      }}
-                    >
-                      SERVICE RECOVERIES
-                    </div>
+                        <div
+                          style={{
+                            marginTop: "4px",
+                            fontSize: "20px",
+                            fontWeight: 700,
+                            color: "#22c55e",
+                          }}
+                        >
+                          {recoveryStats?.tailscale_nostate ?? 0}
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          padding: "10px",
+                          borderRadius: "8px",
+                          background: "rgba(2,6,23,0.45)",
+                          border: "1px solid rgba(148,163,184,0.12)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: "10px",
+                            color: "#94a3b8",
+                            letterSpacing: "0.08em",
+                            fontFamily: "'JetBrains Mono', monospace",
+                          }}
+                        >
+                          STOPPED EVENTS
+                        </div>
 
-                    <div
-                      style={{
-                        marginTop: "4px",
-                        fontSize: "20px",
-                        fontWeight: 700,
-                        color: "#22c55e",
-                      }}
-                    >
-                      {recoveryStats?.tailscale_service_recoveries ?? 0}
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      padding: "10px",
-                      borderRadius: "8px",
-                      background: "rgba(2,6,23,0.45)",
-                      border: "1px solid rgba(148,163,184,0.12)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: "10px",
-                        color: "#94a3b8",
-                        letterSpacing: "0.08em",
-                        fontFamily: "'JetBrains Mono', monospace",
-                      }}
-                    >
-                      IPN RECOVERIES
-                    </div>
+                        <div
+                          style={{
+                            marginTop: "4px",
+                            fontSize: "20px",
+                            fontWeight: 700,
+                            color: "#22c55e",
+                          }}
+                        >
+                          {recoveryStats?.tailscale_stopped ?? 0}
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          padding: "10px",
+                          borderRadius: "8px",
+                          background: "rgba(2,6,23,0.45)",
+                          border: "1px solid rgba(148,163,184,0.12)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: "10px",
+                            color: "#94a3b8",
+                            letterSpacing: "0.08em",
+                            fontFamily: "'JetBrains Mono', monospace",
+                          }}
+                        >
+                          SERVICE STOPPED
+                        </div>
 
-                    <div
-                      style={{
-                        marginTop: "4px",
-                        fontSize: "20px",
-                        fontWeight: 700,
-                        color: "#22c55e",
-                      }}
-                    >
-                      {recoveryStats?.tailscale_ipn_recoveries ?? 0}
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      padding: "10px",
-                      borderRadius: "8px",
-                      background: "rgba(2,6,23,0.45)",
-                      border: "1px solid rgba(148,163,184,0.12)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: "10px",
-                        color: "#94a3b8",
-                        letterSpacing: "0.08em",
-                        fontFamily: "'JetBrains Mono', monospace",
-                      }}
-                    >
-                      UP RECOVERIES
-                    </div>
+                        <div
+                          style={{
+                            marginTop: "4px",
+                            fontSize: "20px",
+                            fontWeight: 700,
+                            color: "#22c55e",
+                          }}
+                        >
+                          {recoveryStats?.tailscale_service_stopped ?? 0}
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          padding: "10px",
+                          borderRadius: "8px",
+                          background: "rgba(2,6,23,0.45)",
+                          border: "1px solid rgba(148,163,184,0.12)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: "10px",
+                            color: "#94a3b8",
+                            letterSpacing: "0.08em",
+                            fontFamily: "'JetBrains Mono', monospace",
+                          }}
+                        >
+                          IPN MISSING
+                        </div>
 
-                    <div
-                      style={{
-                        marginTop: "4px",
-                        fontSize: "20px",
-                        fontWeight: 700,
-                        color: "#22c55e",
-                      }}
-                    >
-                      {recoveryStats?.tailscale_up_recoveries ?? 0}
-                    </div>
-                  </div>
-                </section>
-              )
-            }
-
-            <div
-              style={{
-                padding: "10px",
-                borderRadius: "8px",
-                background: "rgba(2,6,23,0.45)",
-                border: "1px solid rgba(148,163,184,0.12)",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "10px",
-                  color: "#94a3b8",
-                  letterSpacing: "0.08em",
-                  fontFamily: "'JetBrains Mono', monospace",
-                }}
-              >
-                TAILSCALE FAILURES
-              </div>
-
-              <div
-                style={{
-                  marginTop: "4px",
-                  fontSize: "20px",
-                  fontWeight: 700,
-                  color: "#22c55e",
-                }}
-              >
-                {recoveryStats?.tailscale_failures ?? 0}
-              </div>
-              <button
-                type="button"
-                onClick={() =>
-                  setShowTailscaleFailureDetails(
-                    !showTailscaleFailureDetails
+                        <div
+                          style={{
+                            marginTop: "4px",
+                            fontSize: "20px",
+                            fontWeight: 700,
+                            color: "#22c55e",
+                          }}
+                        >
+                          {recoveryStats?.tailscale_ipn_missing ?? 0}
+                        </div>
+                      </div>
+                    </section>
                   )
                 }
-                style={{
-                  width: "100%",
-                  marginTop: "8px",
-                  border: "1px solid rgba(148,163,184,0.18)",
-                  background: "rgba(2,6,23,0.45)",
-                  color: "#94a3b8",
-                  borderRadius: "6px",
-                  padding: "6px",
-                  fontSize: "9px",
-                  fontFamily: "'JetBrains Mono', monospace",
-                  letterSpacing: "0.08em",
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) =>
-                  e.currentTarget.style.background =
-                    "rgba(56, 191, 248, 0.08)"
-                }
 
-                onMouseLeave={(e) =>
-                  e.currentTarget.style.background =
-                    "rgba(56, 191, 248, 0)"
-                }
-              >
-                {
-                  showTailscaleFailureDetails
-                    ? "HIDE DETAILS"
-                    : "SHOW DETAILS"
-                }
-              </button>
-            </div>
-
-            {
-              showTailscaleFailureDetails && (
-                <section>
-                  <div
-                    style={{
-                      padding: "10px",
-                      borderRadius: "8px",
-                      background: "rgba(2,6,23,0.45)",
-                      border: "1px solid rgba(148,163,184,0.12)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: "10px",
-                        color: "#94a3b8",
-                        letterSpacing: "0.08em",
-                        fontFamily: "'JetBrains Mono', monospace",
-                      }}
-                    >
-                      NOSTATE EVENTS
-                    </div>
-
-                    <div
-                      style={{
-                        marginTop: "4px",
-                        fontSize: "20px",
-                        fontWeight: 700,
-                        color: "#22c55e",
-                      }}
-                    >
-                      {recoveryStats?.tailscale_nostate ?? 0}
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      padding: "10px",
-                      borderRadius: "8px",
-                      background: "rgba(2,6,23,0.45)",
-                      border: "1px solid rgba(148,163,184,0.12)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: "10px",
-                        color: "#94a3b8",
-                        letterSpacing: "0.08em",
-                        fontFamily: "'JetBrains Mono', monospace",
-                      }}
-                    >
-                      STOPPED EVENTS
-                    </div>
-
-                    <div
-                      style={{
-                        marginTop: "4px",
-                        fontSize: "20px",
-                        fontWeight: 700,
-                        color: "#22c55e",
-                      }}
-                    >
-                      {recoveryStats?.tailscale_stopped ?? 0}
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      padding: "10px",
-                      borderRadius: "8px",
-                      background: "rgba(2,6,23,0.45)",
-                      border: "1px solid rgba(148,163,184,0.12)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: "10px",
-                        color: "#94a3b8",
-                        letterSpacing: "0.08em",
-                        fontFamily: "'JetBrains Mono', monospace",
-                      }}
-                    >
-                      SERVICE STOPPED
-                    </div>
-
-                    <div
-                      style={{
-                        marginTop: "4px",
-                        fontSize: "20px",
-                        fontWeight: 700,
-                        color: "#22c55e",
-                      }}
-                    >
-                      {recoveryStats?.tailscale_service_stopped ?? 0}
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      padding: "10px",
-                      borderRadius: "8px",
-                      background: "rgba(2,6,23,0.45)",
-                      border: "1px solid rgba(148,163,184,0.12)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: "10px",
-                        color: "#94a3b8",
-                        letterSpacing: "0.08em",
-                        fontFamily: "'JetBrains Mono', monospace",
-                      }}
-                    >
-                      IPN MISSING
-                    </div>
-
-                    <div
-                      style={{
-                        marginTop: "4px",
-                        fontSize: "20px",
-                        fontWeight: 700,
-                        color: "#22c55e",
-                      }}
-                    >
-                      {recoveryStats?.tailscale_ipn_missing ?? 0}
-                    </div>
-                  </div>
-                </section>
-              )
-            }
-
+              </div>
+            )}
           </section>
           <section
             style={{
@@ -1441,166 +1448,172 @@ export function Dashboard() {
               RECOVERY EVENTS
             </h2>
 
-            {displayedRecoveryEvents
-              .map((event) => {
+            {!recoveryStats 
+              ? <span style={{ color:'white' , fontSize: '14px' , fontWeight: 'bold' }}>Loading Recovery Events...</span>
+              : (
+              <div>
+                {displayedRecoveryEvents
+                  .map((event) => {
 
-                const badgeColor =
-                  event.event === "restart_success"
-                    ? "#22c55e"
-                    : event.event === "restart_failed"
-                    ? "#ef4444"
-                    : event.event === "restart_attempt"
-                    ? "#f59e0b"
-                    : "#38bdf8";
-                return (
-                  <div
-                    key={`${event.time}-${event.event}`}
-                    style={{
-                      padding: "10px",
-                      borderRadius: "8px",
-                      background: "rgba(2,6,23,0.45)",
-                      border: "1px solid rgba(148,163,184,0.12)",
-                      marginBottom: "8px",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <div>
+                    const badgeColor =
+                      event.event === "restart_success"
+                        ? "#22c55e"
+                        : event.event === "restart_failed"
+                        ? "#ef4444"
+                        : event.event === "restart_attempt"
+                        ? "#f59e0b"
+                        : "#38bdf8";
+                    return (
                       <div
+                        key={`${event.time}-${event.event}`}
                         style={{
-                          color: "#e2e8f0",
-                          fontSize: "11px",
-                          fontWeight: 700,
-                          fontFamily: "'JetBrains Mono', monospace",
+                          padding: "10px",
+                          borderRadius: "8px",
+                          background: "rgba(2,6,23,0.45)",
+                          border: "1px solid rgba(148,163,184,0.12)",
+                          marginBottom: "8px",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
                         }}
                       >
-                        {event.service.toUpperCase()}
-                      </div>
+                        <div>
+                          <div
+                            style={{
+                              color: "#e2e8f0",
+                              fontSize: "11px",
+                              fontWeight: 700,
+                              fontFamily: "'JetBrains Mono', monospace",
+                            }}
+                          >
+                            {event.service.toUpperCase()}
+                          </div>
 
-                      <div
-                        style={{
-                          color: "#e2e8f0",
-                          fontSize: "11px",
-                          fontWeight: 700,
-                          fontFamily: "'JetBrains Mono', monospace",
-                        }}
-                      >
-                        {event.event.replaceAll("_", " ")}
-                        {event.details?.failure_mode != null &&
-                          event.event == "failure_detected" && (
+                          <div
+                            style={{
+                              color: "#e2e8f0",
+                              fontSize: "11px",
+                              fontWeight: 700,
+                              fontFamily: "'JetBrains Mono', monospace",
+                            }}
+                          >
+                            {event.event.replaceAll("_", " ")}
+                            {event.details?.failure_mode != null &&
+                              event.event == "failure_detected" && (
+                              <div
+                                style={{
+                                  color: "#64748b",
+                                  fontSize: "9px",
+                                  marginTop: "2px",
+                                  fontFamily: "'JetBrains Mono', monospace",
+                                }}
+                              >
+                                Mode: {event.details.failure_mode}
+                              </div>
+                            )}
+                            {event.details?.state != null && 
+                              event.event == "initial_state" && (
+                              <div
+                                style={{
+                                  color: "#64748b",
+                                  fontSize: "9px",
+                                  marginTop: "2px",
+                                  fontFamily: "'JetBrains Mono', monospace",
+                                }}
+                              >
+                                State: {event.details.state}
+                              </div>
+                            )}
+                          </div>
+
                           <div
                             style={{
                               color: "#64748b",
                               fontSize: "9px",
-                              marginTop: "2px",
+                              marginTop: "3px",
                               fontFamily: "'JetBrains Mono', monospace",
                             }}
                           >
-                            Mode: {event.details.failure_mode}
+                            {new Date(
+                              event.time * 1000
+                            ).toLocaleString()}
                           </div>
-                        )}
-                        {event.details?.state != null && 
-                          event.event == "initial_state" && (
-                          <div
-                            style={{
-                              color: "#64748b",
-                              fontSize: "9px",
-                              marginTop: "2px",
-                              fontFamily: "'JetBrains Mono', monospace",
-                            }}
-                          >
-                            State: {event.details.state}
-                          </div>
-                        )}
-                      </div>
 
-                      <div
-                        style={{
-                          color: "#64748b",
-                          fontSize: "9px",
-                          marginTop: "3px",
-                          fontFamily: "'JetBrains Mono', monospace",
-                        }}
-                      >
-                        {new Date(
-                          event.time * 1000
-                        ).toLocaleString()}
-                      </div>
+                          {event.details?.attempt != null && 
+                            event.details?.attempt != 0 && (
+                            <div
+                              style={{
+                                color: "#64748b",
+                                fontSize: "9px",
+                                marginTop: "2px",
+                                fontFamily: "'JetBrains Mono', monospace",
+                              }}
+                            >
+                              Attempt: {event.details.attempt}
+                            </div>
+                          )}
+                        </div>
 
-                      {event.details?.attempt != null && 
-                        event.details?.attempt != 0 && (
                         <div
                           style={{
-                            color: "#64748b",
+                            padding: "3px 8px",
+                            borderRadius: "999px",
+                            background: `${badgeColor}22`,
+                            border: `1px solid ${badgeColor}55`,
+                            color: badgeColor,
                             fontSize: "9px",
-                            marginTop: "2px",
+                            fontWeight: 700,
+                            letterSpacing: "0.08em",
                             fontFamily: "'JetBrains Mono', monospace",
+                            textTransform: "uppercase",
                           }}
                         >
-                          Attempt: {event.details.attempt}
+                          {event.event
+                            .replaceAll("_", " ")}
                         </div>
-                      )}
-                    </div>
-
-                    <div
+                      </div>
+                    );
+                  })}
+                  {recoveryEvents.length > 3 && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowAllRecoveryEvents(
+                          !showAllRecoveryEvents
+                        )
+                      }
                       style={{
-                        padding: "3px 8px",
-                        borderRadius: "999px",
-                        background: `${badgeColor}22`,
-                        border: `1px solid ${badgeColor}55`,
-                        color: badgeColor,
+                        width: "100%",
+                        marginTop: "8px",
+                        border: "1px solid rgba(148,163,184,0.18)",
+                        background: "rgba(2,6,23,0.45)",
+                        color: "#94a3b8",
+                        borderRadius: "6px",
+                        padding: "6px",
                         fontSize: "9px",
-                        fontWeight: 700,
-                        letterSpacing: "0.08em",
                         fontFamily: "'JetBrains Mono', monospace",
-                        textTransform: "uppercase",
+                        letterSpacing: "0.08em",
+                        cursor: "pointer",
                       }}
-                    >
-                      {event.event
-                        .replaceAll("_", " ")}
-                    </div>
-                  </div>
-                );
-              })}
-              {recoveryEvents.length > 3 && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setShowAllRecoveryEvents(
-                      !showAllRecoveryEvents
-                    )
-                  }
-                  style={{
-                    width: "100%",
-                    marginTop: "8px",
-                    border: "1px solid rgba(148,163,184,0.18)",
-                    background: "rgba(2,6,23,0.45)",
-                    color: "#94a3b8",
-                    borderRadius: "6px",
-                    padding: "6px",
-                    fontSize: "9px",
-                    fontFamily: "'JetBrains Mono', monospace",
-                    letterSpacing: "0.08em",
-                    cursor: "pointer",
-                  }}
-                  onMouseEnter={(e) =>
-                    e.currentTarget.style.background =
-                      "rgba(56, 191, 248, 0.08)"
-                  }
+                      onMouseEnter={(e) =>
+                        e.currentTarget.style.background =
+                          "rgba(56, 191, 248, 0.08)"
+                      }
 
-                  onMouseLeave={(e) =>
-                    e.currentTarget.style.background =
-                      "rgba(56, 191, 248, 0)"
-                  }
-                >
-                  {
-                    showAllRecoveryEvents
-                      ? "SHOW LESS"
-                      : `SHOW ALL (${recoveryEvents.length})`
-                  }
-                </button>
-              )}
+                      onMouseLeave={(e) =>
+                        e.currentTarget.style.background =
+                          "rgba(56, 191, 248, 0)"
+                      }
+                    >
+                      {
+                        showAllRecoveryEvents
+                          ? "SHOW LESS"
+                          : `SHOW ALL (${recoveryEvents.length})`
+                      }
+                    </button>
+                  )}
+              </div>
+            )}
 
           </section>
           <SessionAnalytics refreshKey={historyRefreshKey} />

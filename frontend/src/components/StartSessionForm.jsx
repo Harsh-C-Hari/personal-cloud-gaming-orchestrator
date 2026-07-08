@@ -56,6 +56,8 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
   const gamesReady = Object.keys(games).length > 0;
   // ── Load game list ────────────────────────────────────────────────────
 
+  const entries = Object.entries(games || {});
+
   useEffect(() => {
     if (
       formErr === "Cannot launch: Sunshine is not running." &&
@@ -551,27 +553,40 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
         <FieldLabel>Game</FieldLabel>
         
           <>
-            <select
-              style={{ ...inputStyle, cursor: "pointer", appearance: "none" }}
-              value={form.game_id}
-              disabled={!gamesReady}
-              onChange={(e) => set("game_id", e.target.value)}
-              onFocus={focusBorder}
-              onBlur={blurBorder}
-            >
-              <option value="">
-                Select a game to play
-              </option>
-              
-              {!gamesReady
-                ? <option>No games found. Loading...</option>
-                : Object.entries(games).map(([id, g]) => (
-                    <option key={id} value={id}>
-                      {g.name ?? id}
-                    </option>
-                  ))
-              }
-            </select>
+            {entries.length == 0 
+              ? <span style={{
+                  width: "100%",
+                  marginTop: "8px",
+                  background: "rgba(2,6,23,0.45)",
+                  color: "#ef880a",
+                  padding: "6px",
+                  fontSize: "11px",
+                  fontFamily: "'JetBrains Mono', monospace",
+                  letterSpacing: "0.08em",
+                }}>No games found</span>
+              : (
+                <select
+                  style={{ ...inputStyle, cursor: "pointer", appearance: "none" }}
+                  value={form.game_id}
+                  disabled={!gamesReady}
+                  onChange={(e) => set("game_id", e.target.value)}
+                  onFocus={focusBorder}
+                  onBlur={blurBorder}
+                >
+                  <option value="">
+                    Select a game to play
+                  </option>
+                  
+                  {!gamesReady
+                    ? <option>No games found. Loading...</option>
+                    : Object.entries(games).map(([id, g]) => (
+                        <option key={id} value={id}>
+                          {g.name ?? id}
+                        </option>
+                      ))
+                  }
+                </select>
+            )}
 
             <button
               type="button"
@@ -844,7 +859,8 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
         {submitting ? "Checking / Launching..." : "Launch Session"}
       </button>
 
-      {sessionBlocked && (
+      {sessionBlocked && 
+        hostStatus?.host_ready_reason != null && (
         <div
           style={{
             marginTop: "8px",

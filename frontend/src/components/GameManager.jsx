@@ -39,7 +39,8 @@ export function GameManager({
 
   const [gameForm, setGameForm] = useState(DEFAULT_GAME);
 
-
+  const entries = Object.entries(games || {});
+  
   function setField(
     key,
     value,
@@ -388,78 +389,80 @@ export function GameManager({
       </button>
     </div>
 
-      <div style={dropdownRow}>
-        <select
-          style={{
-            ...input,
-            flex: 1,
-          }}
-          value={editingGame || ""}
-          onChange={(e) => {
-            const gameId = e.target.value;
+      {entries.length != 0 && (
+        <div style={dropdownRow}>
+          <select
+            style={{
+              ...input,
+              flex: 1,
+            }}
+            value={editingGame || ""}
+            onChange={(e) => {
+              const gameId = e.target.value;
 
-            if (!gameId) {
-              setShowForm(false);
-              setEditingGame(null);
-              return;
-            }
+              if (!gameId) {
+                setShowForm(false);
+                setEditingGame(null);
+                return;
+              }
 
-            setEditingGame(gameId);
+              setEditingGame(gameId);
 
-            const selectedGame = {
-              id: gameId,
-              ...games[gameId],
-            };
+              const selectedGame = {
+                id: gameId,
+                ...games[gameId],
+              };
 
-            setOriginalGame(
-              JSON.parse(JSON.stringify(selectedGame))
-            );
+              setOriginalGame(
+                JSON.parse(JSON.stringify(selectedGame))
+              );
 
-            setGameForm(selectedGame);
+              setGameForm(selectedGame);
 
-            clearMessages();
-            setShowForm(true)
-          }}
-        >
-          <option value="">
-            Select game to edit
-          </option>
-
-          {Object.entries(games ?? {}).map(
-            ([id, game]) => (
-              <option
-                key={id}
-                value={id}
-              >
-                {game.name || id}
-              </option>
-            )
-          )}
-        </select>
-
-        {editingGame && (
-          <button
-            style={deleteButton}
-            onClick={handleDeleteGame}
-            disabled={deleting}
-            onMouseEnter={(e) =>
-              e.currentTarget.style.background =
-                "rgba(225, 44, 44, 0.15)"
-            }
-
-            onMouseLeave={(e) =>
-              e.currentTarget.style.background =
-                "rgba(225, 44, 44, 0)"
-            }
+              clearMessages();
+              setShowForm(true)
+            }}
           >
-            {
-              deleting
-                ? "..."
-                : "🗑"
-            }
-          </button>
-        )}
-      </div>
+            <option value="">
+              Select game to edit
+            </option>
+
+            {Object.entries(games ?? {}).map(
+              ([id, game]) => (
+                <option
+                  key={id}
+                  value={id}
+                >
+                  {game.name || id}
+                </option>
+              )
+            )}
+          </select>
+
+          {editingGame && (
+            <button
+              style={deleteButton}
+              onClick={handleDeleteGame}
+              disabled={deleting}
+              onMouseEnter={(e) =>
+                e.currentTarget.style.background =
+                  "rgba(225, 44, 44, 0.15)"
+              }
+
+              onMouseLeave={(e) =>
+                e.currentTarget.style.background =
+                  "rgba(225, 44, 44, 0)"
+              }
+            >
+              {
+                deleting
+                  ? "..."
+                  : "🗑"
+              }
+            </button>
+          )}
+        </div>
+      )}
       
       {
         showForm && (

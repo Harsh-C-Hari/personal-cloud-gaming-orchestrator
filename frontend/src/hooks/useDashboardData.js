@@ -11,6 +11,7 @@ import {
     fetchRecoveryEvents,
     fetchRecoveryStats,
     fetchGames,
+    reloadGames,
     fetchTailscaleStatus,
 } from "../api/client.js";
 
@@ -69,6 +70,7 @@ export function useDashboardData() {
 
             try {
 
+                await reloadGames();
                 const data =
                     await fetchGames();
 
