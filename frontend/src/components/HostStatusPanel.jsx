@@ -376,7 +376,7 @@ export function HostStatusPanel({
       </div>
 
       <div style={row}>
-        <span>Moonlight Clients</span>
+        <span>Sunshine Paired Clients</span>
         <b>
           {status.sunshine_client_count == null
             ? "N/A"

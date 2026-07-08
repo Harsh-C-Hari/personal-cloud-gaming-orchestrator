@@ -72,7 +72,7 @@ def get_sunshine_clients():
 
     try:
         response = requests.get(
-            f"{api_url}/api/config",
+            f"{api_url}/api/clients/list",
             auth=HTTPBasicAuth(
                 username,
                 password,
@@ -92,7 +92,7 @@ def get_sunshine_clients():
 
         return {
             "reachable": bool(data.get("status")),
-            "clients": [],
+            "clients": data.get("named_certs", []),
             "error": "",
         }
 
