@@ -154,3 +154,165 @@ def get_sunshine_apps():
             "apps": [],
             "error": str(error),
         }
+
+def get_sunshine_auth():
+    sunshine = get_sunshine_config()
+
+    username = sunshine.get("username", "")
+    password = sunshine.get("password", "")
+
+    return (
+        username,
+        password,
+    )
+
+def pair_client(
+    pin: str,
+):
+    sunshine = get_sunshine_config()
+
+    api_url = sunshine.get(
+        "api_url",
+        "https://localhost:47990",
+    ).rstrip("/")
+
+    username, password = (
+        get_sunshine_auth()
+    )
+
+    verify_ssl = sunshine.get(
+        "verify_ssl",
+        False,
+    )
+
+    try:
+        response = requests.post(
+            f"{api_url}/api/pin",
+            json={
+                "pin": pin,
+            },
+            auth=HTTPBasicAuth(
+                username,
+                password,
+            ),
+            verify=verify_ssl,
+            timeout=10,
+        )
+
+        success = (
+            response.status_code == 200
+        )
+
+        return {
+            "success": success,
+            "status_code":
+                response.status_code,
+            "message":
+                response.text,
+        }
+
+    except Exception as error:
+        return {
+            "success": False,
+            "status_code": None,
+            "message": str(error),
+        }
+
+def unpair_client(
+    uuid: str,
+):
+    sunshine = get_sunshine_config()
+
+    api_url = sunshine.get(
+        "api_url",
+        "https://localhost:47990",
+    ).rstrip("/")
+
+    username, password = (
+        get_sunshine_auth()
+    )
+
+    verify_ssl = sunshine.get(
+        "verify_ssl",
+        False,
+    )
+
+    try:
+        response = requests.post(
+            f"{api_url}/api/clients/unpair",
+            json={
+                "uuid": uuid,
+            },
+            auth=HTTPBasicAuth(
+                username,
+                password,
+            ),
+            verify=verify_ssl,
+            timeout=10,
+        )
+
+        success = (
+            response.status_code == 200
+        )
+
+        return {
+            "success": success,
+            "status_code":
+                response.status_code,
+            "message":
+                response.text,
+        }
+
+    except Exception as error:
+        return {
+            "success": False,
+            "status_code": None,
+            "message": str(error),
+        }
+
+def unpair_all_clients():
+    sunshine = get_sunshine_config()
+
+    api_url = sunshine.get(
+        "api_url",
+        "https://localhost:47990",
+    ).rstrip("/")
+
+    username, password = (
+        get_sunshine_auth()
+    )
+
+    verify_ssl = sunshine.get(
+        "verify_ssl",
+        False,
+    )
+
+    try:
+        response = requests.post(
+            f"{api_url}/api/clients/unpair-all",
+            auth=HTTPBasicAuth(
+                username,
+                password,
+            ),
+            verify=verify_ssl,
+            timeout=10,
+        )
+
+        success = (
+            response.status_code == 200
+        )
+
+        return {
+            "success": success,
+            "status_code":
+                response.status_code,
+            "message":
+                response.text,
+        }
+
+    except Exception as error:
+        return {
+            "success": False,
+            "status_code": None,
+            "message": str(error),
+        }

@@ -268,3 +268,38 @@ def tailscale_status():
         tailscale_controller
         .detailed_status()
     )
+
+@router.post(
+    "/sunshine/pair"
+)
+def pair_sunshine_client(
+    pin: str,
+):
+    return (
+        sunshine_controller
+        .pair_client(pin)
+    )
+
+@router.post(
+    "/sunshine/unpair"
+)
+def unpair_sunshine_client(
+    uuid: str,
+):
+    return (
+        sunshine_controller
+        .unpair_client(uuid)
+    )
+
+@router.post(
+    "/sunshine/unpair-all"
+)
+def unpair_all_sunshine_clients():
+    return (
+        sunshine_controller
+        .unpair_all_clients()
+    )
+
+@router.get("/sunshine/clients")
+def get_sunshine_clients_route():
+    return sunshine_controller.get_clients()

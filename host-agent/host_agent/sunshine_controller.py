@@ -6,6 +6,9 @@ from api.services.sunshine_service import (
     get_sunshine_clients,
     is_sunshine_process_running,
     get_sunshine_config,
+    pair_client,
+    unpair_client,
+    unpair_all_clients,
 )
 from host_agent.logging_config import configure_logger
 
@@ -216,3 +219,23 @@ class SunshineController:
             if path
             else None
         )
+
+    def pair_client(
+        self,
+        pin: str,
+    ):
+        return pair_client(pin)
+
+    def unpair_client(
+        self,
+        uuid: str,
+    ):
+        return unpair_client(uuid)
+
+    def unpair_all_clients(
+        self,
+    ):
+        return unpair_all_clients()
+
+    def get_clients(self):
+        return get_sunshine_clients()
