@@ -118,7 +118,7 @@ Completed:
 
 ### Phase 23
 
-Session Persistence & Reconnection
+Sunshine Integration Layer
 
 ### Phase 24
 

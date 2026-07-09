@@ -61,19 +61,18 @@ Subsequent phases focus on extending the platform beyond a host-only administrat
 
 # Phase 23
 
-## Session Persistence & Reconnection
+## Sunshine Integration Layer
 
 Goals:
 
-* Persist active session state
-* Recover interrupted sessions
-* Reconnect clients after temporary failures
-* Improve crash resilience
+* Automated sunshine Paring
+* Starting tream on session launch
+* Disconnect stream on session end
+* Automated sunshine trusted/paired client clearing
 
 Expected Benefits:
 
-* Better user experience
-* Reduced session interruption impact
+* Realiable Streaming Support
 
 ---
 

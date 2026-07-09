@@ -154,7 +154,7 @@ Features such as multi-host orchestration, public sharing, billing systems, paym
 
 Following completion of the current MVP, planned development phases include:
 
-- Phase 23: Session Persistence & Reconnection
+- Phase 23: Sunshine Integration Layer
 - Phase 24: Authentication & Authorization
 - Phase 25: Database Migration
 - Phase 26: User App Foundation

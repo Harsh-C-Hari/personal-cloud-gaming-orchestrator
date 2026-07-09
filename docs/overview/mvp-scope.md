@@ -192,7 +192,7 @@ The MVP remains focused on a reliable single-host cloud gaming platform.
 
 The following phases are planned after the current core platform stabilization work:
 
-- Phase 23: Session Persistence & Reconnection
+- Phase 23: Sunshine Integration Layer
 - Phase 24: Authentication & Authorization
 - Phase 25: Database Migration
 - Phase 26: User App Foundation

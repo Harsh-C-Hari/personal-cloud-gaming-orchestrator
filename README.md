@@ -656,9 +656,9 @@ Current development is focused on:
 
 Upcoming phases:
 
-### Phase 23 — Session Persistence & Reconnection
+### Phase 23 — Sunshine Integration Layer
 
-Improve resilience by allowing interrupted sessions to be recovered.
+Add streming features and control them using Sunshine's Officialy Documented Api.
 
 ### Phase 24 — Authentication & Authorization
 
