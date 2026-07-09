@@ -34,6 +34,9 @@ from host_agent.watchdogs.sunshine_watchdog import (
 from host_agent.watchdogs.tailscale_watchdog import (
     TailscaleWatchdog,
 )
+from host_agent.sunshine_stream_tracker import (
+    sunshine_stream_tracker,
+)
 
 sunshine_watchdog = (
     SunshineWatchdog()

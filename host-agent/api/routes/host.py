@@ -16,6 +16,7 @@ from api.dependencies import (
     lifecycle_manager,
     sunshine_watchdog,
     tailscale_watchdog,
+    sunshine_stream_tracker,
 )
 from host_agent.recovery_event_manager import (
     get_recovery_events,
@@ -303,3 +304,17 @@ def unpair_all_sunshine_clients():
 @router.get("/sunshine/clients")
 def get_sunshine_clients_route():
     return sunshine_controller.get_clients()
+
+@router.get(
+    "/sunshine/stream"
+)
+def sunshine_stream_status():
+
+    return JSONResponse(
+        content=
+            sunshine_stream_tracker.get_state(),
+        headers={
+            "Cache-Control":
+                "no-store, no-cache, must-revalidate"
+        },
+    )

@@ -36,6 +36,17 @@ FILES = {
         "total_playtime_seconds": 0,
     },
 
+    "data/sunshine_stream_state.json": {
+        "state": "idle",
+        "app_name": None,
+        "started_at": None,
+        "ended_at": None,
+        "width": None,
+        "height": None,
+        "fps": None,
+        "hdr": None,
+    },
+
     "games.json": DEFAULT_GAMES,
 }
 CONFIG_FILE = "config.json"
