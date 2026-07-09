@@ -51,6 +51,17 @@ def is_sunshine_process_running() -> bool:
         return False
 
 
+def get_sunshine_auth():
+    sunshine = get_sunshine_config()
+    
+    username = sunshine.get("username", "")
+    password = sunshine.get("password", "")
+
+    return (
+        username,
+        password,
+    )
+
 def get_sunshine_clients():
     sunshine = get_sunshine_config()
 
@@ -59,8 +70,9 @@ def get_sunshine_clients():
         "https://localhost:47990",
     ).rstrip("/")
 
-    username = sunshine.get("username", "")
-    password = sunshine.get("password", "")
+    username, password = (
+        get_sunshine_auth()
+    )
     verify_ssl = sunshine.get("verify_ssl", False)
 
     if not username or not password:
@@ -111,8 +123,9 @@ def get_sunshine_apps():
         "https://localhost:47990",
     ).rstrip("/")
 
-    username = sunshine.get("username", "")
-    password = sunshine.get("password", "")
+    username, password = (
+        get_sunshine_auth()
+    )
     verify_ssl = sunshine.get("verify_ssl", False)
 
     if not username or not password:
@@ -157,7 +170,7 @@ def get_sunshine_apps():
 
 def get_sunshine_auth():
     sunshine = get_sunshine_config()
-
+    
     username = sunshine.get("username", "")
     password = sunshine.get("password", "")
 
@@ -170,7 +183,7 @@ def pair_client(
     pin: str,
 ):
     sunshine = get_sunshine_config()
-
+    
     api_url = sunshine.get(
         "api_url",
         "https://localhost:47990",
@@ -179,6 +192,13 @@ def pair_client(
     username, password = (
         get_sunshine_auth()
     )
+
+    if not username or not password:
+        return {
+            "reachable": False,
+            "clients": [],
+            "error": "Sunshine username/password not configured",
+        }
 
     verify_ssl = sunshine.get(
         "verify_ssl",
@@ -232,6 +252,13 @@ def unpair_client(
         get_sunshine_auth()
     )
 
+    if not username or not password:
+        return {
+            "reachable": False,
+            "clients": [],
+            "error": "Sunshine username/password not configured",
+        }
+
     verify_ssl = sunshine.get(
         "verify_ssl",
         False,
@@ -281,6 +308,13 @@ def unpair_all_clients():
     username, password = (
         get_sunshine_auth()
     )
+
+    if not username or not password:
+        return {
+            "reachable": False,
+            "clients": [],
+            "error": "Sunshine username/password not configured",
+        }
 
     verify_ssl = sunshine.get(
         "verify_ssl",
