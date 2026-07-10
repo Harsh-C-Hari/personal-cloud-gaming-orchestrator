@@ -228,6 +228,7 @@ export function Dashboard() {
       hostStatus,
       hostMetrics,
       tailscaleStatus,
+      streamStatus,
 
       hostLoading,
       hostError,
@@ -747,6 +748,7 @@ export function Dashboard() {
               handleRevalidate={handleRevalidate}
               revalidating={revalidating}
               tailscaleStatus={tailscaleStatus}
+              streamStatus={streamStatus}
             />
 
             {sessionHealth && (

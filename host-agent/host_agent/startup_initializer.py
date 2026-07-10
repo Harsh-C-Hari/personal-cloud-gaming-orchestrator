@@ -41,6 +41,7 @@ FILES = {
         "app_name": None,
         "started_at": None,
         "ended_at": None,
+        "duration_seconds": None,
         "width": None,
         "height": None,
         "fps": None,

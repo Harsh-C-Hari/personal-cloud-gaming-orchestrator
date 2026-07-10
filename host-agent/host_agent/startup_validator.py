@@ -237,6 +237,7 @@ def validate_startup():
             "app_name",
             "started_at",
             "ended_at",
+            "duration_seconds",
             "width",
             "height",
             "fps",

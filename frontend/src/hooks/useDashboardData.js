@@ -13,6 +13,7 @@ import {
     fetchGames,
     reloadGames,
     fetchTailscaleStatus,
+    getSunshineStream,
 } from "../api/client.js";
 
 export function useDashboardData() {
@@ -47,6 +48,8 @@ export function useDashboardData() {
     const [lastUpdated, setLastUpdated] =
         useState(null);
 
+    const [streamStatus, setStreamStatus] = useState(null);
+    
     const loadSessionHealth =
         useCallback(async () => {
 
@@ -104,10 +107,12 @@ export function useDashboardData() {
                     statusData,
                     metricsData,
                     tailscaleData,
+                    streamData,
                 ] = await Promise.all([
                     fetchHostStatus(),
                     fetchHostMetrics(),
                     fetchTailscaleStatus(),
+                    getSunshineStream(),
                 ]);
 
                 // Apply immediately
@@ -118,6 +123,10 @@ export function useDashboardData() {
                 setTailscaleStatus(
                     tailscaleData
                 );
+
+                setStreamStatus(streamData);
+
+
 
                 //
                 // Secondary dashboard data
@@ -221,6 +230,7 @@ export function useDashboardData() {
         hostStatus,
         hostMetrics,
         tailscaleStatus,
+        streamStatus,
 
         hostLoading,
         hostError,

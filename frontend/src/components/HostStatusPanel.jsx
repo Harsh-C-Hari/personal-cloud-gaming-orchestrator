@@ -1,4 +1,3 @@
-import {useState} from "react";
 export function HostStatusPanel({
   status,
   metrics,
@@ -15,15 +14,37 @@ export function HostStatusPanel({
   handleRevalidate,
   revalidating,
   tailscaleStatus,
+  streamStatus,
 }) {
-  const [showtailscaleStatus, setShowTailscaleStatus] = useState(false);
-  
   if (error && !status) {
     return <div style={box}>Host status unavailable</div>;
   }
 
   if (!status) {
     return <div style={box}>Checking host...</div>;
+  }
+
+  function formatStreamDuration(seconds) {
+    if (seconds == null) return "--";
+
+    const totalSeconds = Math.max(
+      0,
+      Math.floor(seconds)
+    );
+
+    const hours = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+
+    if (hours > 0) {
+      return `${hours}h ${mins}m`;
+    }
+
+    if (mins > 0) {
+      return `${mins}m ${secs}s`;
+    }
+
+    return `${secs}s`;
   }
   
   return (
@@ -395,6 +416,87 @@ export function HostStatusPanel({
         </div>
       )}
 
+      <div
+        style={{
+          marginTop: "10px",
+          marginBottom: "10px",
+          borderTop: "1px solid #111620",
+        }}
+      />
+      
+      <div style={row}>
+        <span>Stream State</span>
+        <b>{streamStatus.state == "streaming" 
+          ? "STREAMING" 
+          : "IDLE"}
+        </b>
+      </div>
+      
+      {streamStatus.state == "streaming" && (
+        <div>
+          <div style={row}>
+            <span>Application</span>
+            <b>{streamStatus.app_name}</b>
+          </div>
+
+          <div style={row}>
+            <span>Started At</span>
+            <b>{new Date(streamStatus.started_at * 1000).toLocaleString()}</b>
+          </div>
+          
+          <div style={row}>
+            <span>Duration</span>
+            <b>{formatStreamDuration(streamStatus.duration_seconds)}</b>
+          </div>
+
+          <div style={row}>
+            <span>Resolution</span>
+            <b>{streamStatus.width}x{streamStatus.height}</b>
+          </div>
+
+          <div style={row}>
+            <span>FPS</span>
+            <b>{streamStatus.fps}</b>
+          </div>
+
+          <div style={row}>
+            <span>HDR</span>
+            <b>{streamStatus.hdr ? "Enabled" : "Disabled"}</b>
+          </div>
+        </div>
+      )}
+      
+      {streamStatus.state == "idle" && (
+        <div>
+          <div style={row}>
+            <span>Last Application</span>
+            <b>{streamStatus.app_name}</b>
+          </div>
+
+          <div style={row}>
+            <span>Last Stream Started At</span>
+            <b>{new Date(streamStatus.started_at * 1000).toLocaleString()}</b>
+          </div>
+
+          <div style={row}>
+            <span>Last Duration</span>
+            <b>{formatStreamDuration(streamStatus.duration_seconds)}</b>
+          </div>
+          
+          <div style={row}>
+            <span>Ended At</span>
+            <b>{new Date(streamStatus.ended_at * 1000).toLocaleString()}</b>
+          </div>
+        </div>
+      )}
+      <div
+        style={{
+          marginTop: "10px",
+          marginBottom: "10px",
+          borderTop: "1px solid #111620",
+        }}
+      />
+      
       <div style={row}>
         <span>Tailscale</span>
         <b style={status.tailscale_running ? ok : bad}>
@@ -402,84 +504,49 @@ export function HostStatusPanel({
         </b>
       </div>
       
-      <button
-        type="button"
-        onClick={() =>
-          setShowTailscaleStatus(
-            !showtailscaleStatus
-          )
-        }
-        style={{
-            marginTop: "6px",
-            border: "1px solid rgba(148,163,184,0.18)",
-            background: "rgba(2,6,23,0.45)",
-            color: "#94a3b8",
-            borderRadius: "6px",
-            padding: "4px 7px",
-            fontSize: "9px",
-            fontFamily: "'JetBrains Mono', monospace",
-            cursor: "pointer",
-        }}
-        onMouseEnter={(e) =>
-          e.currentTarget.style.background =
-            "rgba(56, 191, 248, 0.08)"
-        }
 
-        onMouseLeave={(e) =>
-          e.currentTarget.style.background =
-            "rgba(56, 191, 248, 0)"
-        }
-      >
-        {
-          showtailscaleStatus
-            ? "HIDE DETAILS"
-            : "SHOW DETAILS"
-        }
-      </button>
-      
+      <div style={row}>
+        <span>Configured</span>
+        <b style={tailscaleStatus?.configured ? ok : bad}>
+          {tailscaleStatus?.configured ? "Yes" : "No"}
+        </b>
+      </div>
 
-      {
-        showtailscaleStatus && (
-          <div>
-            <div style={row}>
-              <span>Configured</span>
-              <b style={tailscaleStatus?.configured ? ok : bad}>
-                {tailscaleStatus?.configured ? "Yes" : "No"}
-              </b>
-            </div>
-            <div style={row}>
-              <span>Service Running</span>
-              <b style={tailscaleStatus?.service_running ? ok : bad}>
-                {tailscaleStatus?.service_running ? "Yes" : "No"}
-              </b>
-            </div>
-            <div style={row}>
-              <span>IPN Running</span>
-              <b style={tailscaleStatus?.ipn_running ? ok : bad}>
-                {tailscaleStatus?.ipn_running ? "Yes" : "No"}
-              </b>
-            </div>
-            <div style={row}>
-              <span>Backend Running</span>
-              <b style={tailscaleStatus?.backend_state ? ok : bad}>
-                {tailscaleStatus?.backend_state ? "Yes" : "No"}
-              </b>
-            </div>
-            <div style={row}>
-              <span>Authenticated</span>
-              <b style={tailscaleStatus?.user_authenticated ? ok : bad}>
-                {tailscaleStatus?.user_authenticated ? "Yes" : "No"}
-              </b>
-            </div>
-            <div style={row}>
-              <span>Recovery</span>
-              <b style={tailscaleStatus?.ipn_recovery_enabled ? ok : bad}>
-                {tailscaleStatus?.ipn_recovery_enabled ? "Enabled" : "Disabled"}
-              </b>
-            </div>
-          </div>
-        )
-      }
+      <div style={row}>
+        <span>Service Running</span>
+        <b style={tailscaleStatus?.service_running ? ok : bad}>
+          {tailscaleStatus?.service_running ? "Yes" : "No"}
+        </b>
+      </div>
+
+      <div style={row}>
+        <span>IPN Running</span>
+        <b style={tailscaleStatus?.ipn_running ? ok : bad}>
+          {tailscaleStatus?.ipn_running ? "Yes" : "No"}
+        </b>
+      </div>
+
+      <div style={row}>
+        <span>Backend Running</span>
+        <b style={tailscaleStatus?.backend_state ? ok : bad}>
+          {tailscaleStatus?.backend_state ? "Yes" : "No"}
+        </b>
+      </div>
+
+      <div style={row}>
+        <span>Authenticated</span>
+        <b style={tailscaleStatus?.user_authenticated ? ok : bad}>
+          {tailscaleStatus?.user_authenticated ? "Yes" : "No"}
+        </b>
+      </div>
+
+      <div style={row}>
+        <span>Recovery</span>
+        <b style={tailscaleStatus?.ipn_recovery_enabled ? ok : bad}>
+          {tailscaleStatus?.ipn_recovery_enabled ? "Enabled" : "Disabled"}
+        </b>
+      </div>
+        
 
       <div
         style={{

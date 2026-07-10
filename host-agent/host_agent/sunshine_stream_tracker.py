@@ -28,6 +28,7 @@ class SunshineStreamTracker:
                 "app_name": None,
                 "started_at": None,
                 "ended_at": None,
+                "duration_seconds": None,
                 "width": None,
                 "height": None,
                 "fps": None,
@@ -107,13 +108,27 @@ class SunshineStreamTracker:
 
         state["state"] = "idle"
         state["ended_at"] = time.time()
+        state["duration_seconds"] = (
+            state["ended_at"]
+            - state["started_at"]
+        )
 
         self.write(state)
 
     def get_state(
         self,
     ):
-        return self.read()
+        state = self.read()
+        if (
+            state["state"] == "streaming"
+            and state["started_at"]
+        ):
+            state["duration_seconds"] = (
+                time.time()
+                - state["started_at"]
+            )
+
+        return state
 
 
 sunshine_stream_tracker = (

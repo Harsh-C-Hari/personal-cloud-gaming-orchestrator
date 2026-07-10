@@ -444,3 +444,11 @@ export async function getLogSessions() {
 export function getApiUrl(path) {
     return BASE_URL + path;
 }
+
+export async function getSunshineStream() {
+
+    return apiFetch(
+        "GET",
+        "/host/sunshine/stream"
+    );
+}
