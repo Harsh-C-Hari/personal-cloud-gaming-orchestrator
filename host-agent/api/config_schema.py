@@ -1,4 +1,12 @@
 CONFIG_SCHEMA = {
+    "backend": {
+        "internal_api_url": {
+            "editable": True,
+            "requires_restart": True,
+            "type": str,
+        },
+    },
+    
     "sunshine": {
         "api_url": {
             "editable": True,
@@ -16,6 +24,12 @@ CONFIG_SCHEMA = {
             "type": str,
         },
         "path": {
+            "editable": True,
+            "requires_restart": False,
+            "type": str,
+        },
+
+        "log_path": {
             "editable": True,
             "requires_restart": False,
             "type": str,

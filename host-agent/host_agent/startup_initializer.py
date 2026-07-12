@@ -28,6 +28,8 @@ FILES = {
 
     "data/recovery_events.json": [],
 
+    "data/sunshine_stream_history.json": [],
+
     "data/session_stats.json": {
         "total_sessions": 0,
         "successful_sessions": 0,

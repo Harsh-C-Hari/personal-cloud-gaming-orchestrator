@@ -20,6 +20,12 @@ class SunshineStreamTracker:
             / "sunshine_stream_state.json"
         )
 
+        self.history_path = (
+            PROJECT_ROOT
+            / "data"
+            / "sunshine_stream_history.json"
+        )
+
     def read(self):
 
         if not self.path.exists():
@@ -78,6 +84,66 @@ class SunshineStreamTracker:
             self.path
         )
 
+    def read_history(self):
+
+        if not self.history_path.exists():
+            return []
+
+        with open(
+            self.history_path,
+            "r",
+            encoding="utf-8",
+        ) as file:
+            return json.load(file)
+
+    def write_history(
+        self,
+        history,
+    ):
+
+        self.history_path.parent.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+
+        temp = self.history_path.with_suffix(
+            ".tmp"
+        )
+
+        with open(
+            temp,
+            "w",
+            encoding="utf-8",
+        ) as file:
+
+            json.dump(
+                history,
+                file,
+                indent=4,
+            )
+
+            file.flush()
+
+            os.fsync(
+                file.fileno()
+            )
+
+        temp.replace(
+            self.history_path
+        )
+
+    def append_history(
+        self,
+        stream,
+    ):
+        history = self.read_history()
+
+        history.append(stream)
+
+        self.write_history(
+            history
+        )
+    
     def stream_started(
         self,
         app_name,
@@ -93,6 +159,7 @@ class SunshineStreamTracker:
         state["app_name"] = app_name
         state["started_at"] = time.time()
         state["ended_at"] = None
+        state["duration_seconds"] = 0
         state["width"] = width
         state["height"] = height
         state["fps"] = fps
@@ -108,12 +175,42 @@ class SunshineStreamTracker:
 
         state["state"] = "idle"
         state["ended_at"] = time.time()
-        state["duration_seconds"] = (
-            state["ended_at"]
-            - state["started_at"]
-        )
+        if state["started_at"]:
+
+            state["duration_seconds"] = (
+                state["ended_at"]
+                - state["started_at"]
+            )
+        else:
+            state["duration_seconds"] = None
 
         self.write(state)
+
+        history_entry = {
+            "recorded_at":
+                time.time(),
+            "app_name":
+                state["app_name"],
+            "started_at":
+                state["started_at"],
+            "ended_at":
+                state["ended_at"],
+            "duration_seconds":
+                state["duration_seconds"],
+            "width":
+                state["width"],
+            "height":
+                state["height"],
+            "fps":
+                state["fps"],
+            "hdr":
+                state["hdr"],
+            "stream_ended_intentionally": True,
+        }
+
+        self.append_history(
+            history_entry
+        )
 
     def get_state(
         self,

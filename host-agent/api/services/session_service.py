@@ -15,6 +15,7 @@ from api.dependencies import (
     game_launcher,
     cleanup_manager,
     lifecycle_manager,
+    sunshine_stream_tracker,
 )
 from host_agent.logging_config import (
     configure_logger,
@@ -301,6 +302,10 @@ class SessionService:
                 )
             )
 
+            stream_state = (
+                sunshine_stream_tracker.get_state()
+            )
+            
             session_thread = threading.Thread(
                 target=self._run_session,
                 args=(
@@ -326,8 +331,51 @@ class SessionService:
                     "duration": request.duration,
                     "warning": request.warning,
                     "warning_sent": False,
+                    "expires_at":
+                        time.time()
+                        + request.duration * 60,
+
+                    "warning_at":
+                        (
+                            time.time()
+                            + request.duration * 60
+                            - request.warning * 60
+                        ),
                     "skip_timer": request.skip_timer,
+                    
+                    "stream_active":
+                        stream_state["state"]
+                        == "streaming",
+
+                    "transport_connected":
+                        stream_state["state"]
+                        == "streaming",
+
+                    "awaiting_reconnect":
+                        False,
+
+                    "stream_started_at":
+                        stream_state.get(
+                            "started_at"
+                        ),
+
+                    "stream_ended_at":
+                        stream_state.get(
+                            "ended_at"
+                        ),
+
+                    "stream_app":
+                        stream_state.get(
+                            "app_name"
+                        ),
+
+                    "last_disconnect_at":
+                        None,
+
+                    "last_reconnect_at": None,
                 }
+
+            self._persist_active_sessions()
 
             self._append_session_event(
                 session_id,
@@ -360,7 +408,18 @@ class SessionService:
                     "game_ended_at": session.get("game_ended_at"),
                     "duration": session.get("duration"),
                     "warning": session.get("warning"),
+                    "expires_at": session.get("expires_at"),
+                    "warning_at": session.get("warning_at"),
+                    "warning_sent": session.get("warning_sent"),
                     "skip_timer": session.get("skip_timer"),
+                    "stream_active": session.get("stream_active"),
+                    "stream_started_at": session.get("stream_started_at"),
+                    "stream_ended_at": session.get("stream_ended_at"),
+                    "stream_app": session.get("stream_app"),
+                    "transport_connected": session.get("transport_connected"),
+                    "awaiting_reconnect": session.get("awaiting_reconnect"),
+                    "last_disconnect_at": session.get("last_disconnect_at"),
+                    "last_reconnect_at": session.get("last_reconnect_at"),
                 }
 
         self._safe_write_json(
@@ -440,101 +499,9 @@ class SessionService:
 
                 time.sleep(5)
 
-            game_ended_at = time.time()
-
-            with registry_lock:
-                if session_id in active_sessions:
-                    started_at = active_sessions[session_id].get(
-                        "started_at",
-                        game_ended_at,
-                    )
-
-                    active_sessions[session_id]["game_ended_at"] = game_ended_at
-                    active_sessions[session_id]["played_seconds"] = round(
-                        game_ended_at - started_at,
-                        2,
-                    )
-                    active_sessions[session_id]["status"] = "cleaning"
-                        
-            self._persist_active_sessions()
-            
-            self._append_session_event(
-                session_id,
-                "cleaning",
-                "Game process ended, cleaning saves",
-            )
-            
-            asyncio.run(
-                websocket_manager.broadcast(
-                    {
-                        "type": "status_update",
-                        "session_id": session_id,
-                        "status": "cleaning",
-                    }
-                )
-            )
-            
-            cleanup_manager.safe_cleanup(
+            self._finalize_session(
                 session_id,
                 process_name,
-            )
-
-            ended_at = time.time()
-
-            with registry_lock:
-                if session_id in active_sessions:
-                    started_at = active_sessions[session_id].get(
-                        "started_at",
-                        ended_at,
-                    )
-
-                    active_sessions[session_id]["status"] = "completed"
-                    active_sessions[session_id]["ended_at"] = ended_at
-                    active_sessions[session_id]["played_seconds"] = active_sessions[
-                        session_id
-                    ].get("played_seconds")
-
-            self._persist_active_sessions()
-            
-            self._append_session_event(
-                session_id,
-                "completed",
-                "Session completed",
-            )
-            
-            asyncio.run(
-                websocket_manager.broadcast(
-                    {
-                        "type": "status_update",
-                        "session_id": session_id,
-                        "status": "completed",
-                    }
-                )
-            )
-
-            with registry_lock:
-                session = active_sessions.get(session_id)
-                played_seconds = (
-                    session.get("played_seconds", 0)
-                    if session else 0
-                )
-
-            try:
-                self._append_session_history(session_id)
-                session_stats_manager.record_session(
-                    status="completed",
-                    played_seconds=played_seconds,
-                )
-            except Exception as history_error:
-                logger.error(
-                    f"Failed to append session history: {history_error}",
-                    extra={"session_id": session_id},
-                )
-            
-            time.sleep(3)
-
-            self._cleanup_registry_entry(
-                session_id
             )
 
         except Exception as error:
@@ -625,6 +592,39 @@ class SessionService:
                 session_id
             )
 
+    def _restore_session_monitor(
+        self,
+        session_id,
+        process_name,
+    ):
+        logger.warning(
+            f"Monitoring resurrected session "
+            f"{session_id}"
+        )
+
+        while True:
+
+            if not game_launcher.is_process_running(
+                process_name
+            ):
+                break
+
+            self._check_session_timeout(
+                session_id
+            )
+
+            time.sleep(5)
+
+        logger.warning(
+            f"Resurrected session ended: "
+            f"{session_id}"
+        )
+
+        self._finalize_session(
+            session_id,
+            process_name,
+        )
+    
     def get_active_sessions(self):
 
         sessions = []
@@ -652,6 +652,124 @@ class SessionService:
 
         return sessions
 
+    def _finalize_session(
+        self,
+        session_id: str,
+        process_name: str,
+    ):
+        game_ended_at = time.time()
+
+        with registry_lock:
+
+            if session_id not in active_sessions:
+                return
+
+            started_at = active_sessions[
+                session_id
+            ].get(
+                "started_at",
+                game_ended_at,
+            )
+
+            active_sessions[
+                session_id
+            ]["game_ended_at"] = game_ended_at
+
+            active_sessions[
+                session_id
+            ]["played_seconds"] = round(
+                game_ended_at - started_at,
+                2,
+            )
+
+            active_sessions[
+                session_id
+            ]["status"] = "cleaning"
+
+        self._persist_active_sessions()
+
+        self._append_session_event(
+            session_id,
+            "cleaning",
+            "Game process ended, cleaning saves",
+        )
+
+        asyncio.run(
+            websocket_manager.broadcast(
+                {
+                    "type": "status_update",
+                    "session_id": session_id,
+                    "status": "cleaning",
+                }
+            )
+        )
+
+        cleanup_manager.safe_cleanup(
+            session_id,
+            process_name,
+        )
+
+        ended_at = time.time()
+
+        with registry_lock:
+
+            if session_id in active_sessions:
+
+                active_sessions[
+                    session_id
+                ]["status"] = "completed"
+
+                active_sessions[
+                    session_id
+                ]["ended_at"] = ended_at
+
+        self._persist_active_sessions()
+
+        self._append_session_event(
+            session_id,
+            "completed",
+            "Session completed",
+        )
+
+        asyncio.run(
+            websocket_manager.broadcast(
+                {
+                    "type": "status_update",
+                    "session_id": session_id,
+                    "status": "completed",
+                }
+            )
+        )
+
+        with registry_lock:
+            session = active_sessions.get(
+                session_id
+            )
+
+            played_seconds = (
+                session.get(
+                    "played_seconds",
+                    0,
+                )
+                if session
+                else 0
+            )
+
+        self._append_session_history(
+            session_id
+        )
+
+        session_stats_manager.record_session(
+            status="completed",
+            played_seconds=played_seconds,
+        )
+
+        time.sleep(3)
+
+        self._cleanup_registry_entry(
+            session_id
+        )
+    
     def get_session_status(
         self,
         session_id,
@@ -674,15 +792,12 @@ class SessionService:
 
         if not session["skip_timer"]:
 
-            elapsed_minutes = (
-                time.time()
-                - session["started_at"]
-            ) / 60
-
             remaining = max(
                 0,
-                session["duration"]
-                - elapsed_minutes,
+                (
+                    session["expires_at"]
+                    - time.time()
+                ) / 60
             )
 
         return {
@@ -800,7 +915,7 @@ class SessionService:
         self,
         session_id,
     ):
-
+        
         with registry_lock:
 
             session = active_sessions.get(
@@ -808,11 +923,16 @@ class SessionService:
             )
 
         if session is None:
-
             return
 
+        if session["status"] in (
+            "stopping",
+            "cleaning",
+            "completed",
+        ):
+            return
+        
         if session["skip_timer"]:
-
             return
 
         started_at = session["started_at"]
@@ -821,13 +941,10 @@ class SessionService:
 
         warning = session["warning"]
 
-        elapsed_minutes = (
-            time.time() - started_at
-        ) / 60
-
         remaining = (
-            duration - elapsed_minutes
-        )
+            session["expires_at"]
+            - time.time()
+        ) / 60
 
         if (
             remaining <= warning
@@ -862,9 +979,59 @@ class SessionService:
                 },
             )
 
-            self.stop_session(
-                session_id
+            stream_state = (
+                sunshine_stream_tracker.get_state()
             )
+
+            if (
+                stream_state["state"]
+                == "streaming"
+            ):
+
+                logger.warning(
+                    "Closing Sunshine stream "
+                    "due to session timeout.",
+                    extra={
+                        "session_id": session_id
+                    },
+                )
+
+                from api.dependencies import (
+                    sunshine_controller,
+                )
+
+                result = (
+                    sunshine_controller
+                    .close_stream()
+                )
+
+                if not result["success"]:
+
+                    logger.error(
+                        "Failed to close stream. "
+                        "Falling back to session stop.",
+                        extra={
+                            "session_id": session_id
+                        },
+                    )
+
+                    self.stop_session(
+                        session_id
+                    )
+
+            else:
+
+                logger.warning(
+                    "No active stream detected. "
+                    "Stopping session directly.",
+                    extra={
+                        "session_id": session_id
+                    },
+                )
+                
+                self.stop_session(
+                    session_id
+                )
 
     def _append_session_history(
         self,
@@ -1149,7 +1316,6 @@ class SessionService:
 
     def recover_sessions_on_startup(self):
         
-        recovery_failed = False
         logger.info(
             "Checking for recoverable sessions on startup."
         )
@@ -1161,10 +1327,73 @@ class SessionService:
         )
 
         if not snapshot:
-            return
+            snapshot = {}
 
+        if save_manager.lock_manager.is_locked():
+
+            lock = (
+                save_manager.lock_manager.read_lock()
+            )
+
+            if lock is None:
+
+                logger.warning(
+                    "Corrupt lock found during startup."
+                )
+
+                save_manager.lock_manager.force_release()
+
+            elif lock.session_id not in snapshot:
+
+                logger.warning(
+                    f"Orphaned lock detected: "
+                    f"{lock.session_id}"
+                )
+
+                try:
+
+                    meta = (
+                        save_manager
+                        .metadata_manager
+                        .get_session(
+                            lock.session_id
+                        )
+                    )
+
+                    if meta is not None:
+
+                        save_manager.restore_original_saves(
+                            lock.session_id
+                        )
+
+                except Exception as error:
+
+                    logger.error(
+                        f"Failed orphan recovery: "
+                        f"{error}"
+                    )
+
+                finally:
+
+                    try:
+
+                        temp_dir = (
+                            save_manager.host_saves
+                            / lock.session_id
+                        )
+
+                        if temp_dir.exists():
+                            shutil.rmtree(
+                                temp_dir,
+                                ignore_errors=True,
+                            )
+
+                    except Exception:
+                        pass
+
+                    save_manager.lock_manager.force_release()
+        
         recovered_history = []
-        failed_sessions = []
         
         for session_id, session in snapshot.items():
             status = session.get("status")
@@ -1173,6 +1402,92 @@ class SessionService:
                 "completed",
                 "failed",
             ):
+                continue
+
+            game = save_manager.game_configs.get(
+                session["game_id"]
+            )
+
+            if not game:
+
+                logger.error(
+                    f"Unknown game during recovery: "
+                    f"{session['game_id']}"
+                )
+
+                continue
+
+            process_name = game.process_name
+
+            running = (
+                game_launcher.is_process_running(
+                    process_name
+                )
+            )
+
+            if running:
+
+                logger.warning(
+                    f"Resurrecting session "
+                    f"{session_id}"
+                )
+
+                session["status"] = "running"
+
+                if session["skip_timer"]:
+                    session["warning_sent"] = False
+                else:
+                    session["warning_sent"] = (
+                        time.time()
+                        >= session["warning_at"]
+                    )
+
+                with registry_lock:
+
+                    active_sessions[
+                        session_id
+                    ] = session
+
+                save_manager.live_sync.start(
+                    session_id
+                )
+
+                session_thread = threading.Thread(
+                    target=
+                        self._restore_session_monitor,
+                    args=(
+                        session_id,
+                        process_name,
+                    ),
+                    daemon=True,
+                )
+
+                with registry_lock:
+
+                    active_sessions[
+                        session_id
+                    ]["thread"] = (
+                        session_thread
+                    )
+
+                self._persist_active_sessions()
+                
+                session_thread.start()
+                
+                recovered_history.append(
+                    session_id
+                )
+
+                stats = session_stats_manager.read()
+                stats["recovered_sessions"] += 1
+                session_stats_manager.write(stats)
+                
+                self._append_session_event(
+                    session_id,
+                    "running",
+                    "Session resurrected after backend restart",
+                )
+
                 continue
 
             try:
@@ -1197,6 +1512,22 @@ class SessionService:
                             session_id
                         )
 
+                        temp_dir = (
+                            save_manager.host_saves
+                            / session_id
+                        )
+
+                        if temp_dir.exists():
+
+                            shutil.rmtree(
+                                temp_dir,
+                                ignore_errors=True,
+                            )
+
+                        save_manager.release_session_lock(
+                            session_id
+                        )
+
                         logger.warning(
                             f"Host saves restored for "
                             f"stale session {session_id}"
@@ -1204,99 +1535,52 @@ class SessionService:
 
             except Exception as error:
 
-                recovery_failed = True
-
-                failed_sessions.append(
-                    session_id
-                )
-
                 logger.error(
                     f"Startup restore recovery failed "
                     f"for {session_id}: {error}"
                 )
-
-            started_at = session.get("started_at") or time.time()
             ended_at = time.time()
 
-            played_seconds = session.get("played_seconds")
+            session["status"] = "failed"
+            session["ended_at"] = ended_at
+            session["played_seconds"] = round(
+                ended_at - session["started_at"],
+                2,
+            )
+            session["error"] = (
+                "Backend restarted while game process "
+                "was no longer running."
+            )
 
-            if played_seconds is None:
-                played_seconds = round(
-                    ended_at - started_at,
-                    2,
-                )
-
-            record = {
-                "session_id": session_id,
-                "user_id": session.get("user_id"),
-                "game_id": session.get("game_id"),
-                "status": "failed",
-                "started_at": started_at,
-                "ended_at": ended_at,
-                "played_seconds": played_seconds,
-                "game_ended_at": session.get("game_ended_at"),
-                "error": "Recovered after backend restart",
-                "integrity_verified": False,
-                "latest_manifest_verified": None,
-                "backup_manifest_verified": None,
-                "archive_verified": None,
-                "backup_path": None,
-                "archive_path": None,
-                "restore_verified": None,
-                "restore_source": None,
-            }
-
-            recovered_history.append(record)
+            with registry_lock:
+                active_sessions[session_id] = session
+            
+            self._persist_active_sessions()
+            
+            self._append_session_history(
+                session_id
+            )
 
             session_stats_manager.record_session(
                 status="failed",
-                played_seconds=played_seconds,
-                recovered=True,
+                played_seconds=session["played_seconds"],
             )
 
             self._append_session_event(
                 session_id,
                 "failed",
-                "Recovered after backend restart",
+                "Session could not be resurrected."
             )
 
-        if recovery_failed:
-
-            lifecycle_manager.enable_recovery(
-                f"Failed recovering "
-                f"{len(failed_sessions)} "
-                f"session(s): "
-                f"{', '.join(failed_sessions)}"
+            self._cleanup_registry_entry(
+                session_id
             )
-
-        else:
-
-            lifecycle_manager.disable_recovery()
+            
         
-        history_path = Path("data/session_history.json")
-
-        history = self._safe_read_json(
-            history_path,
-            [],
-        )
-
-        history.extend(recovered_history)
-
-        history = history[-500:]
-
-        self._safe_write_json(
-            history_path,
-            history,
-        )
-
-        self._safe_write_json(
-            path,
-            {},
-        )
-        
-        logger.warning(
-            f"Recovered {len(recovered_history)} unfinished session(s)."
-        )
+        if recovered_history:
+            logger.info(
+                f"Recovered {len(recovered_history)} unfinished session(s)."
+            )
 
     def force_unlock_session(self):
         with registry_lock:
@@ -1384,5 +1668,29 @@ class SessionService:
             "history_count": len(history),
             "event_count": len(events),
         }
+
+    def get_active_session(
+        self,
+    ):
+        with registry_lock:
+
+            if not active_sessions:
+                return None
+
+            session_id = next(
+                iter(active_sessions)
+            )
+
+            session = dict(
+                active_sessions[
+                    session_id
+                ]
+            )
+
+            session[
+                "session_id"
+            ] = session_id
+
+            return session
 
 session_service = SessionService()

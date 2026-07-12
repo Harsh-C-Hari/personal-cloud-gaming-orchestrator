@@ -1,9 +1,14 @@
 DEFAULT_CONFIG = {
+    "backend": {
+        "internal_api_url": "http://127.0.0.1:8100"
+    },
+    
     "sunshine": {
         "api_url": "https://localhost:47990",
         "username": "",
         "password": "",
         "path": "",
+        "log_path": "",
         "verify_ssl": False,
         "enabled": True,
         "close_stream_on_game_exit": True,

@@ -1,3 +1,4 @@
+import { SunshineStreamCard } from "./SunshineStreamCard.jsx";
 export function HostStatusPanel({
   status,
   metrics,
@@ -424,71 +425,10 @@ export function HostStatusPanel({
         }}
       />
       
-      <div style={row}>
-        <span>Stream State</span>
-        <b>{streamStatus.state == "streaming" 
-          ? "STREAMING" 
-          : "IDLE"}
-        </b>
-      </div>
+      <SunshineStreamCard
+        streamStatus={streamStatus}
+      />
       
-      {streamStatus.state == "streaming" && (
-        <div>
-          <div style={row}>
-            <span>Application</span>
-            <b>{streamStatus.app_name}</b>
-          </div>
-
-          <div style={row}>
-            <span>Started At</span>
-            <b>{new Date(streamStatus.started_at * 1000).toLocaleString()}</b>
-          </div>
-          
-          <div style={row}>
-            <span>Duration</span>
-            <b>{formatStreamDuration(streamStatus.duration_seconds)}</b>
-          </div>
-
-          <div style={row}>
-            <span>Resolution</span>
-            <b>{streamStatus.width}x{streamStatus.height}</b>
-          </div>
-
-          <div style={row}>
-            <span>FPS</span>
-            <b>{streamStatus.fps}</b>
-          </div>
-
-          <div style={row}>
-            <span>HDR</span>
-            <b>{streamStatus.hdr ? "Enabled" : "Disabled"}</b>
-          </div>
-        </div>
-      )}
-      
-      {streamStatus.state == "idle" && (
-        <div>
-          <div style={row}>
-            <span>Last Application</span>
-            <b>{streamStatus.app_name}</b>
-          </div>
-
-          <div style={row}>
-            <span>Last Stream Started At</span>
-            <b>{new Date(streamStatus.started_at * 1000).toLocaleString()}</b>
-          </div>
-
-          <div style={row}>
-            <span>Last Duration</span>
-            <b>{formatStreamDuration(streamStatus.duration_seconds)}</b>
-          </div>
-          
-          <div style={row}>
-            <span>Ended At</span>
-            <b>{new Date(streamStatus.ended_at * 1000).toLocaleString()}</b>
-          </div>
-        </div>
-      )}
       <div
         style={{
           marginTop: "10px",

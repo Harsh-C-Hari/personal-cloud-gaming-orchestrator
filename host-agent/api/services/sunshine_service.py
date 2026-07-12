@@ -1,10 +1,14 @@
 import json
 import subprocess
+import shutil
 from pathlib import Path
 import urllib3
 import requests
 from requests.auth import HTTPBasicAuth
-
+from host_agent.logging_config import (
+    configure_logger,
+)
+logger = configure_logger()
 
 urllib3.disable_warnings(
     urllib3.exceptions.InsecureRequestWarning
@@ -28,6 +32,14 @@ def get_sunshine_config():
 
     return config.get(
         "sunshine",
+        {},
+    )
+
+def get_backend_config():
+    config = load_config()
+
+    return config.get(
+        "backend",
         {},
     )
 
@@ -349,4 +361,142 @@ def unpair_all_clients():
             "success": False,
             "status_code": None,
             "message": str(error),
+        }
+
+def _safe_read_json(
+    path: Path,
+    default,
+):
+
+    if not path.exists():
+        return default
+
+    last_error = None
+
+    for _ in range(5):
+
+        try:
+
+            with path.open(
+                "r",
+                encoding="utf-8",
+            ) as file:
+
+                return json.load(file)
+
+        except PermissionError as error:
+
+            last_error = error
+            time.sleep(0.2)
+
+        except json.JSONDecodeError as error:
+
+            logger.error(
+                f"Corrupted JSON file {path}: {error}"
+            )
+
+            backup_path = path.with_suffix(
+                path.suffix + ".corrupt"
+            )
+
+            try:
+
+                shutil.copy2(
+                    path,
+                    backup_path,
+                )
+
+            except Exception:
+                pass
+
+            return default
+
+        except Exception as error:
+
+            logger.error(
+                f"Failed to read JSON file {path}: {error}"
+            )
+
+            return default
+
+    logger.error(
+        f"Failed to read JSON file {path} after retries: {last_error}"
+    )
+
+    return default
+
+def get_stream_history(
+        limit: int = 50,
+    ):
+
+        history_path = Path("data/sunshine_stream_history.json")
+
+        history = _safe_read_json(
+            history_path,
+            [],
+        )
+
+        return list(reversed(history[-limit:]))
+
+def close_stream():
+
+    sunshine = get_sunshine_config()
+
+    api_url = sunshine.get(
+        "api_url",
+        "https://localhost:47990",
+    ).rstrip("/")
+
+    username = sunshine.get(
+        "username",
+        "",
+    )
+
+    password = sunshine.get(
+        "password",
+        "",
+    )
+
+    verify_ssl = sunshine.get(
+        "verify_ssl",
+        False,
+    )
+
+    if not username or not password:
+        return {
+            "success": False,
+            "error":
+                "Sunshine username/password not configured",
+        }
+
+    try:
+
+        response = requests.post(
+            f"{api_url}/api/apps/close",
+            auth=HTTPBasicAuth(
+                username,
+                password,
+            ),
+            verify=verify_ssl,
+            timeout=10,
+        )
+
+        if response.status_code != 200:
+            return {
+                "success": False,
+                "error":
+                    f"Sunshine close API returned "
+                    f"{response.status_code}",
+            }
+
+        return {
+            "success": True,
+            "error": "",
+        }
+
+    except Exception as error:
+
+        return {
+            "success": False,
+            "error": str(error),
         }

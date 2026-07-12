@@ -36,8 +36,6 @@ class StartupManager:
             "Starting host initialization."
         )
         
-        self.save_manager.recover_stale_session()
-
         session_service.recover_sessions_on_startup()
 
         self.startup_issues = (

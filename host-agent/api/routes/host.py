@@ -25,6 +25,9 @@ from host_agent.recovery_event_manager import (
 from host_agent.logging_config import (
     configure_logger,
 )
+from api.services.session_service import (
+    session_service,
+)
 logger = configure_logger()
 
 router = APIRouter(
@@ -310,11 +313,336 @@ def get_sunshine_clients_route():
 )
 def sunshine_stream_status():
 
+    stream = (
+        sunshine_stream_tracker.get_state()
+    )
+
+    session = (
+        session_service
+        .get_active_session()
+    )
+    
+    if session:
+
+        stream[
+            "stream_active"
+        ] = session.get(
+            "stream_active",
+            False,
+        )
+
+        stream[
+            "transport_connected"
+        ] = session.get(
+            "transport_connected",
+            False,
+        )
+
+        stream[
+            "awaiting_reconnect"
+        ] = session.get(
+            "awaiting_reconnect",
+            False,
+        )
+
+        stream[
+            "stream_started_at"
+        ] = session.get(
+            "stream_started_at"
+        )
+
+        stream[
+            "stream_ended_at"
+        ] = session.get(
+            "stream_ended_at"
+        )
+
+        stream[
+            "stream_app"
+        ] = session.get(
+            "stream_app"
+        )
+
+        stream[
+            "last_disconnect_at"
+        ] = session.get(
+            "last_disconnect_at"
+        )
+
+        stream[
+            "last_reconnect_at"
+        ] = session.get(
+            "last_reconnect_at"
+        )
+
     return JSONResponse(
-        content=
-            sunshine_stream_tracker.get_state(),
+        content=stream,
         headers={
             "Cache-Control":
                 "no-store, no-cache, must-revalidate"
         },
     )
+
+@router.get("/sunshine/history")
+def get_sunshine_stream_history(
+    limit: int = 50,
+):
+    
+    streams = sunshine_controller.get_stream_history(
+        limit=limit,
+    )
+
+    return JSONResponse(
+        content={
+            "count": len(streams),
+            "streams": streams,
+        },
+        headers={
+            "Cache-Control":
+                "no-store, no-cache, must-revalidate"
+        },
+    )
+
+@router.post(
+    "/sunshine/close-stream"
+)
+def close_sunshine_stream():
+
+    return (
+        sunshine_controller
+        .close_stream()
+    )
+
+@router.post(
+    "/sunshine/stream-ended"
+)
+def stream_ended():
+
+    sessions = (
+        session_service
+        .get_active_sessions()
+    )
+
+    if not sessions:
+        return {
+            "success": True,
+            "message":
+                "No active session."
+        }
+
+    session_id = sessions[0][
+        "session_id"
+    ]
+
+    session = (
+        session_service
+        .get_session_status(
+            session_id
+        )
+    )
+
+    if session["status"] in (
+        "stopping",
+        "cleaning",
+        "completed",
+    ):
+        return {
+            "success": True,
+            "message": "Session already stopping."
+        }
+
+    with registry_lock:
+
+        active_sessions[
+            session_id
+        ][
+            "stream_active"
+        ] = False
+
+        active_sessions[
+            session_id
+        ][
+            "stream_ended_at"
+        ] = time.time()
+
+        active_sessions[
+            session_id
+        ][
+            "transport_connected"
+        ] = False
+
+        active_sessions[
+            session_id
+        ][
+            "awaiting_reconnect"
+        ] = False
+    
+    session_service._persist_active_sessions()
+    
+    session_service.stop_session(
+        session_id
+    )
+
+    return {
+        "success": True,
+        "message":
+            "Session stopped due to stream termination."
+    }
+
+@router.post(
+    "/sunshine/stream-started"
+)
+def stream_started():
+
+    sessions = (
+        session_service
+        .get_active_sessions()
+    )
+    
+    if not sessions:
+        return {
+            "success": True,
+            "message": "No active session."
+        }
+
+    session_id = sessions[0][
+        "session_id"
+    ]
+
+    with registry_lock:
+
+        active_sessions[
+            session_id
+        ][
+            "stream_active"
+        ] = True
+
+        active_sessions[
+            session_id
+        ][
+            "stream_started_at"
+        ] = time.time()
+
+        active_sessions[
+            session_id
+        ]["stream_ended_at"] = None
+        
+        active_sessions[
+            session_id
+        ][
+            "stream_app"
+        ] = "Desktop"
+
+        active_sessions[
+            session_id
+        ][
+            "transport_connected"
+        ] = True
+
+        active_sessions[
+            session_id
+        ][
+            "awaiting_reconnect"
+        ] = False
+
+        active_sessions[
+            session_id
+        ][
+            "last_reconnect_at"
+        ] = False
+
+    session_service._persist_active_sessions()
+
+    return {
+        "success": True
+    }
+
+@router.post(
+    "/sunshine/transport-disconnected"
+)
+def transport_disconnected():
+
+    sessions = (
+        session_service
+        .get_active_sessions()
+    )
+
+    if not sessions:
+        return {
+            "success": True
+        }
+
+    session_id = sessions[0][
+        "session_id"
+    ]
+
+    with registry_lock:
+
+        active_sessions[
+            session_id
+        ][
+            "transport_connected"
+        ] = False
+
+        active_sessions[
+            session_id
+        ][
+            "awaiting_reconnect"
+        ] = True
+
+        active_sessions[
+            session_id
+        ][
+            "last_disconnect_at"
+        ] = time.time()
+
+    session_service._persist_active_sessions()
+
+    return {
+        "success": True
+    }
+
+@router.post(
+    "/sunshine/transport-connected"
+)
+def transport_connected():
+
+    sessions = (
+        session_service
+        .get_active_sessions()
+    )
+
+    if not sessions:
+        return {
+            "success": True
+        }
+
+    session_id = sessions[0][
+        "session_id"
+    ]
+
+    with registry_lock:
+
+        active_sessions[
+            session_id
+        ][
+            "transport_connected"
+        ] = True
+
+        active_sessions[
+            session_id
+        ][
+            "awaiting_reconnect"
+        ] = False
+
+        active_sessions[
+            session_id
+        ][
+            "last_reconnect_at"
+        ] = time.time()
+
+    session_service._persist_active_sessions()
+
+    return {
+        "success": True
+    }

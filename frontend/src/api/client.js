@@ -452,3 +452,17 @@ export async function getSunshineStream() {
         "/host/sunshine/stream"
     );
 }
+
+export async function fetchStreamHistory(limit = 20) {
+  return apiFetch(
+    "GET",
+    `/host/sunshine/history?limit=${limit}`
+  );
+}
+
+export async function closeSunshineStream() {
+    return apiFetch(
+        "POST",
+        "/host/sunshine/close-stream"
+    );
+}

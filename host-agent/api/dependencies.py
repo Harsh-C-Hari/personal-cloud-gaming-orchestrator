@@ -38,6 +38,14 @@ from host_agent.sunshine_stream_tracker import (
     sunshine_stream_tracker,
 )
 
+from host_agent.sunshine_transport_monitor import (
+    SunshineTransportMonitor,
+)
+
+sunshine_transport_monitor = (
+    SunshineTransportMonitor()
+)
+
 sunshine_watchdog = (
     SunshineWatchdog()
 )

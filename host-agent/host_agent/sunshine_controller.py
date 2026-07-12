@@ -9,6 +9,8 @@ from api.services.sunshine_service import (
     pair_client,
     unpair_client,
     unpair_all_clients,
+    get_stream_history,
+    close_stream,
 )
 from host_agent.logging_config import configure_logger
 
@@ -239,3 +241,23 @@ class SunshineController:
 
     def get_clients(self):
         return get_sunshine_clients()
+
+    def get_stream_history(
+        self,
+        limit: int = 50,
+    ):
+        return get_stream_history(limit=limit)
+
+    def close_stream(self):
+
+        result = close_stream()
+
+        return {
+            "success":
+                result["success"],
+            "message": (
+                "Stream closed successfully"
+                if result["success"]
+                else result["error"]
+            ),
+        }

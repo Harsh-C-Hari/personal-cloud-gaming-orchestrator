@@ -2235,12 +2235,23 @@ class SaveManager:
         archives = []
 
         if archives_dir.exists():
-            archives = sorted(
-                item.name
+
+            archives = [
+                item
                 for item in archives_dir.iterdir()
                 if item.is_file()
                 and item.suffix.lower() == ".zip"
+            ]
+
+            archives.sort(
+                key=lambda item: item.stat().st_mtime,
+                reverse=True,
             )
+
+            archives = [
+                item.name
+                for item in archives
+            ]
 
         backups = []
 

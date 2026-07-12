@@ -8,11 +8,16 @@ from host_agent.logging_config import configure_logger
 logger = configure_logger()
 
 REQUIRED_CONFIG = {
+    "backend": [
+        "internal_api_url",
+    ],
+    
     "sunshine": [
         "api_url",
         "username",
         "password",
         "path",
+        "log_path",
         "verify_ssl",
         "enabled",
         "close_stream_on_game_exit",
@@ -259,6 +264,7 @@ def validate_startup():
             "data/session_history.json": list,
             "data/session_events.json": list,
             "data/recovery_events.json": list,
+            "data/sunshine_stream_history.json": list,
         }
 
         for file_path, expected_type in checks.items():

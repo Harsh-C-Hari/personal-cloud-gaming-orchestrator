@@ -1,5 +1,7 @@
 from pathlib import Path
 import sys
+import json
+import time
 
 PROJECT_ROOT = (
     Path(__file__)
@@ -14,6 +16,7 @@ sys.path.insert(
 )
 
 import os
+import requests
 
 from host_agent.sunshine_stream_tracker import (
     sunshine_stream_tracker,
@@ -25,6 +28,47 @@ action = (
     if len(sys.argv) > 1
     else None
 )
+
+PROJECT_ROOT = (
+    Path(__file__)
+    .resolve()
+    .parent
+)
+
+CONFIG_PATH = (
+    PROJECT_ROOT
+    / "config.json"
+)
+
+internal_api_url = (
+    "http://127.0.0.1:8100"
+)
+
+try:
+    if CONFIG_PATH.exists():
+
+        with open(
+            CONFIG_PATH,
+            "r",
+            encoding="utf-8",
+        ) as file:
+
+            config = json.load(file)
+
+        internal_api_url = (
+            config
+            .get(
+                "backend",
+                {}
+            )
+            .get(
+                "internal_api_url",
+                "http://127.0.0.1:8100"
+            )
+        )
+
+except Exception:
+    pass
 
 if action == "start":
 
@@ -59,6 +103,32 @@ if action == "start":
         ),
     )
 
-elif action == "stop":
+    try:
 
-    sunshine_stream_tracker.stream_stopped()
+        requests.post(
+            f"{internal_api_url}/host/sunshine/stream-started",
+            timeout=5,
+        )
+
+    except Exception:
+        pass
+
+elif action == "stop":
+    
+    try:
+
+        sunshine_stream_tracker.stream_stopped()
+        
+        requests.post(
+            f"{internal_api_url}/host/sunshine/stream-ended",
+            timeout=5,
+        )
+
+    except Exception as e:
+        with open(
+            PROJECT_ROOT / "stream_hook_error.txt",
+            "a",
+        ) as f:
+            f.write(
+                f"{time.time()} {e}\n"
+            )

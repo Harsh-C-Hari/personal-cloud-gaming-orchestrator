@@ -2,6 +2,7 @@ import {
     useCallback,
     useEffect,
     useState,
+    useRef,
 } from "react";
 
 import {
@@ -14,6 +15,7 @@ import {
     reloadGames,
     fetchTailscaleStatus,
     getSunshineStream,
+    fetchStreamHistory,
 } from "../api/client.js";
 
 export function useDashboardData() {
@@ -39,6 +41,8 @@ export function useDashboardData() {
     const [recoveryEvents, setRecoveryEvents] =
         useState([]);
 
+    const [recoveryEventsLoading, setRecoveryEventsLoading] = useState(true);
+    
     const [recoveryStats, setRecoveryStats] =
         useState(null);
 
@@ -49,6 +53,10 @@ export function useDashboardData() {
         useState(null);
 
     const [streamStatus, setStreamStatus] = useState(null);
+
+    const [streamHistory, setStreamHistory] = useState([]);
+    
+    const [streamHistoryLoading, setStreamHistoryLoading ] = useState(true);
     
     const loadSessionHealth =
         useCallback(async () => {
@@ -68,6 +76,8 @@ export function useDashboardData() {
 
         }, []);
 
+    const isLoadedRef = useRef(false);
+    
     const loadGames =
         useCallback(async () => {
 
@@ -125,9 +135,7 @@ export function useDashboardData() {
                 );
 
                 setStreamStatus(streamData);
-
-
-
+                
                 //
                 // Secondary dashboard data
                 //
@@ -136,10 +144,12 @@ export function useDashboardData() {
                     healthResult,
                     recoveryEventsResult,
                     recoveryStatsResult,
+                    streamHistoryResult,
                 ] = await Promise.allSettled([
                     fetchSessionHealth(),
                     fetchRecoveryEvents(),
                     fetchRecoveryStats(),
+                    fetchStreamHistory(),
                 ]);
 
                 if (
@@ -172,6 +182,16 @@ export function useDashboardData() {
                     );
                 }
 
+                if (
+                    streamHistoryResult.status ===
+                    "fulfilled"
+                ) {
+
+                    setStreamHistory(
+                        streamHistoryResult.value.streams ?? []
+                    );
+                }
+
                 setHostError("");
 
                 setLastUpdated(
@@ -193,6 +213,8 @@ export function useDashboardData() {
             } finally {
 
                 setHostLoading(false);
+                setStreamHistoryLoading(false);
+                setRecoveryEventsLoading(false);
 
             }
 
@@ -215,8 +237,10 @@ export function useDashboardData() {
 
     useEffect(() => {
 
+        if (isLoadedRef.current) return;
+        
         loadGames();
-
+        isLoadedRef.current = true;
     }, [loadGames]);
 
     useEffect(() => {
@@ -233,12 +257,15 @@ export function useDashboardData() {
         streamStatus,
 
         hostLoading,
+        streamHistoryLoading,
         hostError,
 
         sessionHealth,
 
         recoveryEvents,
+        recoveryEventsLoading,
         recoveryStats,
+        streamHistory,
 
         games,
 

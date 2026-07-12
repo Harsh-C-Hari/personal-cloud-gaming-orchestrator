@@ -23,6 +23,7 @@ from api.dependencies import (
     sunshine_watchdog,
     tailscale_watchdog,
     startup_manager,
+    sunshine_transport_monitor,
 )
 
 ALLOWED_ORIGINS = [
@@ -88,3 +89,4 @@ def startup_recovery():
     startup_manager.run()
     sunshine_watchdog.start()
     tailscale_watchdog.start()
+    sunshine_transport_monitor.start()
