@@ -332,20 +332,6 @@ def sunshine_stream_status():
         )
 
         stream[
-            "transport_connected"
-        ] = session.get(
-            "transport_connected",
-            False,
-        )
-
-        stream[
-            "awaiting_reconnect"
-        ] = session.get(
-            "awaiting_reconnect",
-            False,
-        )
-
-        stream[
             "stream_started_at"
         ] = session.get(
             "stream_started_at"
@@ -361,18 +347,6 @@ def sunshine_stream_status():
             "stream_app"
         ] = session.get(
             "stream_app"
-        )
-
-        stream[
-            "last_disconnect_at"
-        ] = session.get(
-            "last_disconnect_at"
-        )
-
-        stream[
-            "last_reconnect_at"
-        ] = session.get(
-            "last_reconnect_at"
         )
 
     return JSONResponse(
@@ -509,6 +483,10 @@ def stream_started():
         "session_id"
     ]
 
+    stream_app = sunshine_stream_tracker.get_state()["app_name"]
+    
+    sunshine_stream_tracker.transport_connected()
+    
     with registry_lock:
 
         active_sessions[
@@ -531,7 +509,7 @@ def stream_started():
             session_id
         ][
             "stream_app"
-        ] = "Desktop"
+        ] = stream_app
 
         active_sessions[
             session_id
@@ -549,7 +527,7 @@ def stream_started():
             session_id
         ][
             "last_reconnect_at"
-        ] = False
+        ] = None
 
     session_service._persist_active_sessions()
 
@@ -562,6 +540,8 @@ def stream_started():
 )
 def transport_disconnected():
 
+    sunshine_stream_tracker.transport_disconnected()
+    
     sessions = (
         session_service
         .get_active_sessions()
@@ -607,6 +587,8 @@ def transport_disconnected():
 )
 def transport_connected():
 
+    sunshine_stream_tracker.transport_connected()
+    
     sessions = (
         session_service
         .get_active_sessions()

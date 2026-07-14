@@ -348,11 +348,16 @@ class SessionService:
                         == "streaming",
 
                     "transport_connected":
-                        stream_state["state"]
-                        == "streaming",
+                        stream_state.get(
+                            "transport_connected",
+                            False,
+                        ),
 
                     "awaiting_reconnect":
-                        False,
+                        stream_state.get(
+                            "awaiting_reconnect",
+                            False,
+                        ),
 
                     "stream_started_at":
                         stream_state.get(
@@ -370,9 +375,14 @@ class SessionService:
                         ),
 
                     "last_disconnect_at":
-                        None,
+                        stream_state.get(
+                            "last_disconnect_at"
+                        ),
 
-                    "last_reconnect_at": None,
+                    "last_reconnect_at":
+                        stream_state.get(
+                            "last_reconnect_at"
+                        ),
                 }
 
             self._persist_active_sessions()

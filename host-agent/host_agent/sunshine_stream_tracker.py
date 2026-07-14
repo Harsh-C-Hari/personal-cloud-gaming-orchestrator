@@ -39,6 +39,10 @@ class SunshineStreamTracker:
                 "height": None,
                 "fps": None,
                 "hdr": None,
+                "transport_connected": False,
+                "awaiting_reconnect": False,
+                "last_disconnect_at": None,
+                "last_reconnect_at": None,
             }
 
         with open(
@@ -226,6 +230,26 @@ class SunshineStreamTracker:
             )
 
         return state
+
+    def transport_connected(self):
+        state = self.read()
+
+        state["transport_connected"] = True
+        state["awaiting_reconnect"] = False
+
+        if state["last_disconnect_at"] is not None:
+            state["last_reconnect_at"] = time.time()
+
+        self.write(state)
+
+    def transport_disconnected(self):
+        state = self.read()
+
+        state["transport_connected"] = False
+        state["awaiting_reconnect"] = True
+        state["last_disconnect_at"] = time.time()
+
+        self.write(state)
 
 
 sunshine_stream_tracker = (

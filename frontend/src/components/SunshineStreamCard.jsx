@@ -37,43 +37,47 @@ export function SunshineStreamCard({
             
             {streamStatus?.state == "streaming" && (
                 <div>
-                    <div style={row}>
-                        <span>Transport</span>
+                    {streamStatus.transport_connected != null && (
+                        <div>
+                            <div style={row}>
+                                <span>Transport</span>
 
-                        <b
-                            style={{
-                                color:
-                                    streamStatus?.transport_connected
-                                        ? "#10d98a"
-                                        : "#facc15"
-                            }}
-                        >
-                            {
-                                streamStatus?.transport_connected
-                                    ? "CONNECTED"
-                                    : "DISCONNECTED"
-                            }
-                        </b>
-                    </div>
+                                <b
+                                    style={{
+                                        color:
+                                            streamStatus?.transport_connected
+                                                ? "#10d98a"
+                                                : "#facc15"
+                                    }}
+                                >
+                                    {
+                                        streamStatus?.transport_connected
+                                            ? "CONNECTED"
+                                            : "DISCONNECTED"
+                                    }
+                                </b>
+                            </div>
 
-                    <div style={row}>
-                        <span>Awaiting Reconnect</span>
+                            <div style={row}>
+                                <span>Awaiting Reconnect</span>
 
-                        <b
-                            style={{
-                                color:
-                                    streamStatus?.awaiting_reconnect
-                                        ? "#facc15"
-                                        : "#10d98a"
-                            }}
-                        >
-                            {
-                                streamStatus?.awaiting_reconnect
-                                    ? "YES"
-                                    : "NO"
-                            }
-                        </b>
-                    </div>
+                                <b
+                                    style={{
+                                        color:
+                                            streamStatus?.awaiting_reconnect
+                                                ? "#facc15"
+                                                : "#10d98a"
+                                    }}
+                                >
+                                    {
+                                        streamStatus?.awaiting_reconnect
+                                            ? "YES"
+                                            : "NO"
+                                    }
+                                </b>
+                            </div>
+                        </div>
+                    )}
                     
                     <div style={row}>
                         <span>Application</span>
