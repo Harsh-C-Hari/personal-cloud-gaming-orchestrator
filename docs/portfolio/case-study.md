@@ -4,7 +4,7 @@
 
 ### Overview
 
-Personal Cloud Gaming Orchestrator is a single-host cloud gaming platform designed to transform a personal gaming PC into a remotely accessible gaming server.
+Personal Cloud Gaming Orchestrator is a single-host cloud gaming orchestration platform designed to transform a personal gaming PC into a remotely accessible gaming server.
 
 The project combines remote game access, save synchronization, session management, monitoring, diagnostics, and recovery systems into a unified platform.
 

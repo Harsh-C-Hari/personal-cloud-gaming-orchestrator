@@ -89,3 +89,34 @@ Identified and resolved browser caching issues that caused stale monitoring info
 ### State-Aware Tailscale Recovery
 
 Implemented a diagnostic-driven Tailscale recovery system capable of identifying different failure states and applying appropriate recovery workflows instead of relying on a single restart strategy.
+
+---
+
+### Session Persistence Architecture
+
+Implemented backend restart resilience through session resurrection and persistent session state recovery.
+
+---
+
+### Stream Lifecycle Tracking
+
+Introduced independent stream state management, stream history tracking, and Sunshine hook integration.
+
+---
+
+### Transport Monitoring
+
+Implemented real-time transport monitoring using Sunshine logs and reconnect detection.
+
+---
+
+### Lifecycle Separation
+
+Separated:
+
+- Game lifecycle
+- Session lifecycle
+- Stream lifecycle
+- Transport lifecycle
+
+allowing each layer to survive failures independently.

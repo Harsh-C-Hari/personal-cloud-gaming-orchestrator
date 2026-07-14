@@ -4,7 +4,7 @@
 
 This document defines what is included and excluded from the Personal Cloud Gaming Orchestrator v0.1 MVP.
 
-The goal is to prevent scope creep and maintain focus on delivering a stable single-host cloud gaming platform.
+The goal is to prevent scope creep and maintain focus on delivering a stable single-host cloud gaming orchestration platform.
 
 ---
 
@@ -186,7 +186,7 @@ The MVP will be considered complete when:
 * Testing is complete
 * Deployment preparation is complete
 
-The MVP remains focused on a reliable single-host cloud gaming platform.
+The MVP remains focused on a reliable single-host cloud gaming orchestration platform.
 
 ## Planned MVP Expansion
 

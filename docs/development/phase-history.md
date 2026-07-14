@@ -114,15 +114,36 @@ Completed:
 
 ---
 
-## Planned Phases
+## Phase 23: Session Persistence & Reconnection
 
-### Phase 23
+Completed:
 
-Sunshine Integration Layer
+* Session resurrection after backend restart
+* Persistent active session registry
+* Shared session finalization workflow
+* Absolute expiration timestamps
+* Warning state preservation
+* Live Sync resurrection
+* Startup recovery redesign
+* Session lock persistence improvements
+* Recovery analytics integration
+* Stream lifecycle tracking
+* Sunshine transport monitoring
+* Disconnect and reconnect detection
+* Session ↔ Stream ownership tracking
+* Transport state persistence
+
+---
+
+## Current Phase
 
 ### Phase 24
 
 Authentication & Authorization
+
+---
+
+## Planned Phases
 
 ### Phase 25
 

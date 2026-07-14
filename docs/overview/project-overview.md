@@ -16,7 +16,7 @@ The platform is built using FastAPI, React, Sunshine, Tailscale, and a custom Py
 
 The primary goal of the project is to provide a reliable personal cloud gaming experience with:
 
-* Remote game launching
+* Remote gaming infrastructure orchestration
 * Save synchronization
 * Session lifecycle management
 * Session timers
@@ -81,6 +81,19 @@ Implemented:
 - Configuration synchronization.
 - Service configuration integration.
 - Restart requirement indicators.
+
+---
+
+## Session Persistence Architecture
+
+One of the major architectural achievements of v0.1 is the separation of:
+
+- Game lifecycle
+- Session lifecycle
+- Stream lifecycle
+- Transport lifecycle
+
+This enables the platform to recover from backend crashes while preserving active gameplay sessions and forms the basis for future reconnect functionality.
 
 ---
 

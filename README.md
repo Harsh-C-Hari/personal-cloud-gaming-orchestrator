@@ -1,6 +1,6 @@
 # Personal Cloud Gaming Orchestrator v0.1
 
-Personal Cloud Gaming Orchestrator is a single-host cloud gaming platform that transforms a Windows gaming PC into a remotely accessible gaming server through session orchestration, save synchronization, monitoring, diagnostics, and automated recovery systems.
+Personal Cloud Gaming Orchestrator is a single-host cloud gaming orchestration platform that transforms a Windows gaming PC into a remotely accessible gaming server through session orchestration, save synchronization, monitoring, diagnostics, and automated recovery systems.
 
 ---
 
@@ -452,6 +452,20 @@ Python Host Agent
 * Host health evaluation
 * Startup validation
 * Lifecycle state management
+
+---
+
+## Session Persistence & Recovery
+
+The v0.1 release includes persistent session infrastructure capable of:
+
+- Recovering sessions after backend restarts
+- Restoring session monitoring threads
+- Restoring timers and expiration state
+- Restoring Live Sync operations
+- Preserving save ownership
+
+This architecture forms the basis for future reconnect support and cloud gaming functionality.
 
 ---
 

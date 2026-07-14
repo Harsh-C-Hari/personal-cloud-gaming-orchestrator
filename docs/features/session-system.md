@@ -208,3 +208,26 @@ This ensures historical records remain accurate after unexpected failures.
 * Automation
 * Traceability
 * Recoverability
+
+---
+
+## Session Resurrection
+
+The session system supports recovery after backend restart by inspecting persisted session state and verifying process ownership.
+
+---
+
+## Persistent Timers
+
+Session expiration uses absolute timestamps rather than relative durations.
+
+---
+
+## Shared Finalization
+
+Session cleanup is centralized through a shared finalization path used by:
+
+- Normal completion
+- Timeout expiration
+- Manual stop
+- Session resurrection

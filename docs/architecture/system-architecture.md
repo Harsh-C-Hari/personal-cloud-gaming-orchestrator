@@ -2,7 +2,7 @@
 
 ## Overview
 
-Personal Cloud Gaming Orchestrator v0.1 is designed as a single-host cloud gaming platform.
+Personal Cloud Gaming Orchestrator v0.1 is designed as a single-host cloud gaming orchestration platform.
 
 The architecture separates user interaction, backend orchestration, host management, monitoring, and recovery systems into distinct layers.
 
