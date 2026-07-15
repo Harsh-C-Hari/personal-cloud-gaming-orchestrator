@@ -6,7 +6,25 @@ CONFIG_SCHEMA = {
             "type": str,
         },
     },
-    
+
+    "auth": {
+        "jwt_secret_key": {
+            "editable": True,
+            "requires_restart": True,
+            "type": str,
+        },
+        "jwt_algorithm": {
+            "editable": True,
+            "requires_restart": True,
+            "type": str,
+        },
+        "access_token_expire_minutes": {
+            "editable": True,
+            "requires_restart": True,
+            "type": int,
+        },
+    },
+
     "sunshine": {
         "api_url": {
             "editable": True,

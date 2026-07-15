@@ -2,6 +2,12 @@ DEFAULT_CONFIG = {
     "backend": {
         "internal_api_url": "http://127.0.0.1:8100"
     },
+
+    "auth": {
+        "jwt_secret_key": "REPLACE_WITH_LONG_RANDOM_SECRET",
+        "jwt_algorithm": "HS256",
+        "access_token_expire_minutes": 1440
+    },
     
     "sunshine": {
         "api_url": "https://localhost:47990",

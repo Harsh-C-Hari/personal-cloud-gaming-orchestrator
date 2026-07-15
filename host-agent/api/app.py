@@ -25,6 +25,9 @@ from api.dependencies import (
     startup_manager,
     sunshine_transport_monitor,
 )
+from api.routes.auth import (
+    router as auth_router,
+)
 
 ALLOWED_ORIGINS = [
     "http://localhost:5173",
@@ -51,6 +54,7 @@ app.include_router(saves_router)
 app.include_router(host_router)
 app.include_router(system_router)
 app.include_router(config_router)
+app.include_router(auth_router)
 app.include_router(
     admin_router,
     prefix="/admin",
