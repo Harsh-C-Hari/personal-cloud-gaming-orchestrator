@@ -158,6 +158,104 @@ class UserManager:
 
         return user
 
+    def list_users(self):
+        return self.read()
+
+    def admin_count(self):
+        users = self.read()
+
+        return len(
+            [
+                user
+                for user in users
+                if user["role"] == "admin"
+            ]
+        )
+
+    def delete_user(
+        self,
+        username,
+    ):
+        users = self.read()
+
+        target = None
+
+        for user in users:
+            if user["username"] == username:
+                target = user
+                break
+
+        if target is None:
+            raise RuntimeError(
+                "User not found."
+            )
+
+        if (
+            target["role"] == "admin"
+            and self.admin_count() <= 1
+        ):
+            raise RuntimeError(
+                "Cannot delete last admin account."
+            )
+
+        users.remove(target)
+
+        self.write(users)
+
+    def change_password(
+        self,
+        username,
+        password_hash,
+    ):
+        users = self.read()
+
+        found = False
+
+        for user in users:
+            if user["username"] == username:
+                user["password_hash"] = password_hash
+                found = True
+                break
+
+        if not found:
+            raise RuntimeError(
+                "User not found."
+            )
+
+        self.write(users)
+
+    def bootstrap_required(
+        self,
+    ):
+        return self.admin_count() == 0
+
+    def delete_all_except_last_admin(
+        self,
+    ):
+        users = self.read()
+
+        admins = [
+            user
+            for user in users
+            if user["role"] == "admin"
+        ]
+
+        if not admins:
+            self.write([])
+            return
+
+        keep_admin = min(
+            admins,
+            key=lambda user:
+                user["created_at"]
+        )
+
+        self.write(
+            [
+                keep_admin
+            ]
+        )
+
 user_manager = (
     UserManager()
 )

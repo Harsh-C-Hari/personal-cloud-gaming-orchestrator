@@ -1,13 +1,27 @@
 from pathlib import Path
 
 from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import HTTPException
+from api.auth import get_current_user
 
 router = APIRouter(
     prefix="/system",
     tags=["system"],
 )
 
-def create_dialog():
+def create_dialog(
+    current_user=Depends(
+        get_current_user
+    ),
+):
+
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
 
     import tkinter as tk
     root = tk.Tk()
@@ -22,8 +36,19 @@ def create_dialog():
     return root
 
 @router.get("/select-file")
-def select_file():
+def select_file(
+    current_user=Depends(
+        get_current_user
+    ),
+):
 
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     from tkinter import filedialog
     root = create_dialog()
 
@@ -58,8 +83,19 @@ def select_file():
         root.destroy()
 
 @router.get("/select-folder")
-def select_folder():
+def select_folder(
+    current_user=Depends(
+        get_current_user
+    ),
+):
 
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     from tkinter import filedialog
     root = create_dialog()
 

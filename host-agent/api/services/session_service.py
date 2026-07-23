@@ -233,6 +233,7 @@ class SessionService:
     def start_session(
         self,
         request,
+        user_id: str,
     ):
 
         with self.session_start_lock:
@@ -276,7 +277,7 @@ class SessionService:
             )
 
             save_manager.validate_load_save_exists(
-                user_id=request.user_id,
+                user_id=user_id,
                 game_id=game_id,
                 load_save=load_save,
             )
@@ -296,7 +297,7 @@ class SessionService:
             
             session_id = (
                 save_manager.inject_saves(
-                    user_id=request.user_id,
+                    user_id=user_id,
                     game_id=game_id,
                     load_save=load_save,
                 )
@@ -311,6 +312,7 @@ class SessionService:
                 args=(
                     session_id,
                     request,
+                    user_id,
                 ),
                 daemon=True,
             )
@@ -321,7 +323,7 @@ class SessionService:
                     session_id
                 ] = {
                     "thread": session_thread,
-                    "user_id": request.user_id,
+                    "user_id": user_id,
                     "game_id": game_id,
                     "status": "starting",
                     "started_at": time.time(),
@@ -383,6 +385,11 @@ class SessionService:
                         stream_state.get(
                             "last_reconnect_at"
                         ),
+
+                    "restart_requested": False,
+                    "restart_in_progress": False,
+                    "restart_count": 0,
+                    "last_restart_time": None,
                 }
 
             self._persist_active_sessions()
@@ -430,6 +437,10 @@ class SessionService:
                     "awaiting_reconnect": session.get("awaiting_reconnect"),
                     "last_disconnect_at": session.get("last_disconnect_at"),
                     "last_reconnect_at": session.get("last_reconnect_at"),
+                    "restart_requested": session.get("restart_requested"),
+                    "restart_in_progress": session.get("restart_in_progress"),
+                    "restart_count": session.get("restart_count"),
+                    "last_restart_time": session.get("last_restart_time"),
                 }
 
         self._safe_write_json(
@@ -441,6 +452,7 @@ class SessionService:
         self,
         session_id,
         request,
+        user_id,
     ):
 
         game = save_manager.game_configs[
@@ -451,12 +463,21 @@ class SessionService:
 
         try:
 
-            game_launcher.launch_game(
-                executable_path=game.exe_path,
-                session_id=session_id,
-                game_id=request.game_id,
-                user_id=request.user_id,
-            )
+            try:
+                game_launcher.launch_game(
+                    executable_path=game.exe_path,
+                    session_id=session_id,
+                    game_id=request.game_id,
+                    user_id=user_id,
+                )
+
+            except Exception:
+                with registry_lock:
+                    active_sessions[session_id]["restart_requested"] = False
+                    active_sessions[session_id]["restart_in_progress"] = False
+
+                self._persist_active_sessions()
+                raise
 
             save_manager._set_state(
                 session_id,
@@ -500,6 +521,83 @@ class SessionService:
                 )
 
                 if not running:
+
+                    with registry_lock:
+
+                        restart_requested = (
+                            active_sessions[
+                                session_id
+                            ].get(
+                                "restart_requested",
+                                False,
+                            )
+                        )
+
+                    if restart_requested:
+
+                        logger.warning(
+                            f"Restarting game for "
+                            f"session "
+                            f"{session_id}"
+                        )
+
+                        game_launcher.launch_game(
+                            executable_path=
+                                game.exe_path,
+                            session_id=session_id,
+                            game_id=request.game_id,
+                            user_id=user_id,
+                        )
+
+                        with registry_lock:
+
+                            active_sessions[
+                                session_id
+                            ][
+                                "restart_requested"
+                            ] = False
+
+                            active_sessions[
+                                session_id
+                            ][
+                                "restart_in_progress"
+                            ] = False
+
+                            active_sessions[
+                                session_id
+                            ]["status"] = "running"
+                            
+                            active_sessions[
+                                session_id
+                            ][
+                                "restart_count"
+                            ] += 1
+
+                            active_sessions[
+                                session_id
+                            ][
+                                "last_restart_time"
+                            ] = time.time()
+
+                        self._persist_active_sessions()
+
+                        self._append_session_event(
+                            session_id,
+                            "restarted",
+                            "Game restarted"
+                        )
+
+                        asyncio.run(
+                            websocket_manager.broadcast(
+                                {
+                                    "type":"status_update",
+                                    "session_id":session_id,
+                                    "status":"running",
+                                }
+                            )
+                        )
+
+                        continue
 
                     break
 
@@ -558,6 +656,8 @@ class SessionService:
                         2,
                     )
                     active_sessions[session_id]["error"] = str(error)
+                    active_sessions[session_id]["restart_requested"] = False
+                    active_sessions[session_id]["restart_in_progress"] = False
 
             self._persist_active_sessions()
             
@@ -635,7 +735,10 @@ class SessionService:
             process_name,
         )
     
-    def get_active_sessions(self):
+    def get_active_sessions(
+        self,
+        user_id=None,
+    ):
 
         sessions = []
 
@@ -660,7 +763,14 @@ class SessionService:
                     }
                 )
 
-        return sessions
+        if user_id is None:
+            return sessions
+        
+        return [
+            session
+            for session in sessions
+            if session["user_id"] == user_id
+        ]
 
     def _finalize_session(
         self,
@@ -810,6 +920,14 @@ class SessionService:
                 ) / 60
             )
 
+        cooldown = 0
+
+        if session.get("last_restart_time"):
+            cooldown = max(
+                0,
+                30 - int(time.time() - session["last_restart_time"])
+            )
+        
         return {
 
             "session_id": session_id,
@@ -822,9 +940,7 @@ class SessionService:
 
             "remaining_minutes": remaining,
 
-            "warning_sent": session[
-                "warning_sent"
-            ],
+            "warning_sent": session["warning_sent"],
             
             "error": session.get("error"),
 
@@ -835,6 +951,14 @@ class SessionService:
             "played_seconds": session.get("played_seconds"),
             
             "game_ended_at": session.get("game_ended_at"),
+
+            "restart_in_progress": session.get("restart_in_progress", False),
+
+            "restart_count": session.get("restart_count", 0),
+
+            "last_restart_time": session.get("last_restart_time"),
+
+            "restart_cooldown_remaining": cooldown,
         }
 
     def _cleanup_registry_entry(
@@ -1087,6 +1211,8 @@ class SessionService:
                 "archive_path": getattr(meta, "archive_path", None),
                 "restore_verified": getattr(meta, "restore_verified", None),
                 "restore_source": getattr(meta, "restore_source", None),
+                "restart_count": session.get("restart_count", 0),
+                "last_restart_time": session.get("last_restart_time"),
             }
 
         history = self._safe_read_json(
@@ -1116,6 +1242,7 @@ class SessionService:
     def get_session_history(
         self,
         limit: int = 20,
+        user_id=None,
     ):
 
         history_path = Path("data/session_history.json")
@@ -1125,12 +1252,25 @@ class SessionService:
             [],
         )
 
-        return list(reversed(history[-limit:]))
+        if user_id is not None:
+
+            history = [
+                item
+                for item in history
+                if item.get("user_id") == user_id
+            ]
+
+        return list(
+            reversed(
+                history[-limit:]
+            )
+        )
 
     def get_session_events(
         self,
         limit: int = 50,
         session_id: str | None = None,
+        user_id=None,
     ):
         events_path = Path("data/session_events.json")
 
@@ -1139,6 +1279,14 @@ class SessionService:
             [],
         )
 
+        if user_id is not None:
+
+            events = [
+                event
+                for event in events
+                if event.get("user_id") == user_id
+            ]
+        
         if session_id:
             events = [
                 event for event in events
@@ -1151,35 +1299,64 @@ class SessionService:
             )
         )
 
-    def get_session_analytics(self):
-        history = self.get_session_history(limit=10000)
+    def get_session_analytics(
+        self,
+        user_id: str | None = None,
+    ):
+        history = self.get_session_history(
+            limit=10000,
+            user_id=user_id,
+        )
 
-        stats = session_stats_manager.read()
+        #
+        # Host analytics
+        #
 
-        total_sessions = stats[
-            "total_sessions"
-        ]
+        if user_id is None:
 
-        total_played_seconds = stats[
-            "total_playtime_seconds"
-        ]
+            stats = session_stats_manager.read()
 
-        successful_sessions = stats[
-            "successful_sessions"
-        ]
+            total_sessions = stats["total_sessions"]
+            total_played_seconds = stats["total_playtime_seconds"]
+            successful_sessions = stats["successful_sessions"]
+            failed_sessions = stats["failed_sessions"]
+            recovered_sessions = stats["recovered_sessions"]
 
-        failed_sessions = stats[
-            "failed_sessions"
-        ]
+        #
+        # User analytics
+        #
 
-        recovered_sessions = stats[
-            "recovered_sessions"
-        ]
+        else:
+
+            total_sessions = len(history)
+
+            total_played_seconds = round(
+                sum(
+                    item.get("played_seconds") or 0
+                    for item in history
+                ),
+                2,
+            )
+
+            successful_sessions = sum(
+                item.get("status") == "completed"
+                for item in history
+            )
+
+            failed_sessions = sum(
+                item.get("status") == "failed"
+                for item in history
+            )
+
+            recovered_sessions = sum(
+                1
+                for item in history
+                if (item.get("restart_count") or 0) > 0
+            )
 
         average_playtime_seconds = (
             round(
-                total_played_seconds
-                / total_sessions,
+                total_played_seconds / total_sessions,
                 2,
             )
             if total_sessions > 0
@@ -1206,28 +1383,42 @@ class SessionService:
 
         else:
             system_reliability = "Poor"
-        
+
         by_user = {}
         by_game = {}
         by_user_game = {}
 
         for item in history:
+
             try:
-                user_id = item.get("user_id") or "unknown"
+
+                current_user = item.get("user_id") or "unknown"
                 game_id = item.get("game_id") or "unknown"
                 played = item.get("played_seconds") or 0
 
-                if user_id not in by_user:
-                    by_user[user_id] = {
-                        "user_id": user_id,
-                        "sessions": 0,
-                        "played_seconds": 0,
-                    }
+                #
+                # Host only
+                #
 
-                by_user[user_id]["sessions"] += 1
-                by_user[user_id]["played_seconds"] += played
+                if user_id is None:
+
+                    if current_user not in by_user:
+
+                        by_user[current_user] = {
+                            "user_id": current_user,
+                            "sessions": 0,
+                            "played_seconds": 0,
+                        }
+
+                    by_user[current_user]["sessions"] += 1
+                    by_user[current_user]["played_seconds"] += played
+
+                #
+                # Game stats
+                #
 
                 if game_id not in by_game:
+
                     by_game[game_id] = {
                         "game_id": game_id,
                         "sessions": 0,
@@ -1237,18 +1428,25 @@ class SessionService:
                 by_game[game_id]["sessions"] += 1
                 by_game[game_id]["played_seconds"] += played
 
-                key = f"{user_id}::{game_id}"
+                #
+                # Host only
+                #
 
-                if key not in by_user_game:
-                    by_user_game[key] = {
-                        "user_id": user_id,
-                        "game_id": game_id,
-                        "sessions": 0,
-                        "played_seconds": 0,
-                    }
+                if user_id is None:
 
-                by_user_game[key]["sessions"] += 1
-                by_user_game[key]["played_seconds"] += played
+                    key = f"{current_user}::{game_id}"
+
+                    if key not in by_user_game:
+
+                        by_user_game[key] = {
+                            "user_id": current_user,
+                            "game_id": game_id,
+                            "sessions": 0,
+                            "played_seconds": 0,
+                        }
+
+                    by_user_game[key]["sessions"] += 1
+                    by_user_game[key]["played_seconds"] += played
 
             except Exception as error:
 
@@ -1259,31 +1457,38 @@ class SessionService:
                 continue
 
         def add_average(items):
+
             for item in items:
+
                 sessions = item.get("sessions", 0)
 
                 item["average_played_seconds"] = (
-                    item["played_seconds"] / sessions
+                    round(
+                        item["played_seconds"] / sessions,
+                        2,
+                    )
                     if sessions > 0
                     else 0
                 )
 
             return items
-        
+
         def sort_items(items):
+
             return sorted(
                 items,
                 key=lambda item: item["played_seconds"],
                 reverse=True,
             )
 
-        return {
+        response = {
+
             "total_sessions":
                 total_sessions,
 
             "total_played_seconds":
                 total_played_seconds,
-            
+
             "successful_sessions":
                 successful_sessions,
 
@@ -1298,16 +1503,9 @@ class SessionService:
 
             "average_playtime_seconds":
                 average_playtime_seconds,
-            
+
             "system_reliability":
                 system_reliability,
-            
-            "by_user":
-                add_average(
-                    sort_items(
-                        list(by_user.values())
-                    )
-                ),
 
             "by_game":
                 add_average(
@@ -1315,14 +1513,27 @@ class SessionService:
                         list(by_game.values())
                     )
                 ),
-
-            "by_user_game":
-                add_average(
-                    sort_items(
-                        list(by_user_game.values())
-                    )
-                ),
         }
+
+        #
+        # Host-only analytics
+        #
+
+        if user_id is None:
+
+            response["by_user"] = add_average(
+                sort_items(
+                    list(by_user.values())
+                )
+            )
+
+            response["by_user_game"] = add_average(
+                sort_items(
+                    list(by_user_game.values())
+                )
+            )
+
+        return response
 
     def recover_sessions_on_startup(self):
         
@@ -1700,6 +1911,127 @@ class SessionService:
             session[
                 "session_id"
             ] = session_id
+
+            return session
+
+    def restart_session(
+        self,
+        session_id,
+        user_id,
+    ):
+
+        with registry_lock:
+
+            session = active_sessions.get(
+                session_id
+            )
+
+            if not session:
+                raise ValueError(
+                    "Session not found."
+                )
+
+            if (
+                session["user_id"]
+                != user_id
+            ):
+                raise ValueError(
+                    "Cannot restart another user's session."
+                )
+
+            if session["status"] != "running":
+                raise ValueError(
+                    "Only running sessions can be restarted."
+                )
+
+            if session.get("restart_in_progress"):
+                raise ValueError(
+                    "Restart already in progress."
+                )
+
+            if (
+                session["last_restart_time"]
+                and
+                time.time()
+                - session["last_restart_time"]
+                < 30
+            ):
+                remaining = int(
+                    30
+                    -
+                    (
+                        time.time()
+                        -
+                        session["last_restart_time"]
+                    )
+                )
+
+                raise ValueError(
+                    f"Restart available in {remaining} seconds."
+                )
+
+            session["restart_requested"] = True
+
+            session["restart_in_progress"] = True
+
+            session["status"] = "running"
+
+        self._persist_active_sessions()
+        
+        game = save_manager.game_configs[
+            session["game_id"]
+        ]
+
+        logger.warning(
+            f"Restart requested "
+            f"for session "
+            f"{session_id}"
+        )
+
+        game_launcher.force_close_game(
+            game.process_name,
+            session_id=session_id,
+            game_id=session["game_id"],
+            user_id=user_id,
+        )
+
+    def get_user_session_ids(
+        self,
+        user_id: str,
+    ):
+        history_path = Path("data/session_history.json")
+
+        history = self._safe_read_json(
+            history_path,
+            [],
+        )
+
+        session_ids = []
+
+        for item in history:
+
+            if item.get("user_id") != user_id:
+                continue
+
+            session_id = item.get("session_id")
+
+            if session_id and session_id not in session_ids:
+                session_ids.append(session_id)
+
+        return session_ids
+
+    def get_session(
+        self,
+        session_id,
+    ):
+        with registry_lock:
+
+            session = active_sessions.get(session_id)
+
+            if session is None:
+                raise ValueError(
+                    "Session not found."
+                )
 
             return session
 

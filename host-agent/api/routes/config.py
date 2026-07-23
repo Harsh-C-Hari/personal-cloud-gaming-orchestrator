@@ -1,6 +1,6 @@
 import copy
 from fastapi import APIRouter, HTTPException
-
+from fastapi import Depends
 from host_agent.config_manager import config_manager
 from api.config_schema import CONFIG_SCHEMA
 from host_agent.logging_config import configure_logger
@@ -10,6 +10,7 @@ from api.config_validator import (
 from host_agent.config_runtime import (
     apply_config_changes,
 )
+from api.auth import get_current_user
 
 router = APIRouter(
     prefix="/config",
@@ -20,8 +21,19 @@ router = APIRouter(
 logger = configure_logger()
 
 @router.get("/")
-def get_config():
+def get_config(
+    current_user=Depends(
+        get_current_user
+    ),
+):
 
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     config = config_manager.get_all()
 
     response = {}
@@ -55,8 +67,19 @@ def get_config():
     return response
 
 @router.post("/reload")
-def reload_configuration():
+def reload_configuration(
+    current_user=Depends(
+        get_current_user
+    ),
+):
 
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     config_manager.reload()
 
     logger.warning(
@@ -73,8 +96,18 @@ def reload_configuration():
 def update_config(
     section: str,
     values: dict,
+    current_user=Depends(
+        get_current_user
+    ),
 ):
 
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     current_config = config_manager.get_all()
 
     if section not in current_config:

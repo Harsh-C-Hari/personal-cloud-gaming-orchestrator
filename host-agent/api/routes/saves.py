@@ -1,5 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from api.dependencies import save_manager
+from fastapi import Depends
+from api.auth import get_current_user
 
 router = APIRouter(
     prefix="/saves",
@@ -7,11 +9,15 @@ router = APIRouter(
 )
 
 
-@router.get("/{user_id}/{game_id}")
+@router.get("/{game_id}")
 def list_saves(
-    user_id: str,
     game_id: str,
+    current_user=Depends(
+        get_current_user
+    ),
 ):
+    user_id = current_user["username"]
+    
     try:
         return save_manager.list_user_saves(
             user_id=user_id,
@@ -30,13 +36,17 @@ def list_saves(
             detail=str(error),
         )
 
-@router.delete("/{user_id}/{game_id}/{save_type}/{save_name}")
+@router.delete("/{game_id}/{save_type}/{save_name}")
 def delete_save(
-    user_id: str,
     game_id: str,
     save_type: str,
     save_name: str,
+    current_user=Depends(
+        get_current_user
+    ),
 ):
+    user_id = current_user["username"]
+    
     try:
         return save_manager.delete_user_save(
             user_id=user_id,
@@ -63,11 +73,15 @@ def delete_save(
             detail=str(error),
         )
 
-@router.post("/{user_id}/{game_id}/force-unlock")
+@router.post("/{game_id}/force-unlock")
 def force_unlock_save(
-    user_id: str,
     game_id: str,
+    current_user=Depends(
+        get_current_user
+    ),
 ):
+    user_id = current_user["username"]
+    
     try:
 
         save_root = save_manager._user_save_dir(

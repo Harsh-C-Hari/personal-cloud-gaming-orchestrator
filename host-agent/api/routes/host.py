@@ -1,7 +1,8 @@
 import os
 import time
 from fastapi import APIRouter
-
+from fastapi import Depends
+from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from api.session_registry import (
     active_sessions,
@@ -28,6 +29,7 @@ from host_agent.logging_config import (
 from api.services.session_service import (
     session_service,
 )
+from api.auth import get_current_user
 logger = configure_logger()
 
 router = APIRouter(
@@ -36,7 +38,11 @@ router = APIRouter(
 )
 
 @router.get("/status")
-def get_host_status():
+def get_host_status(
+    current_user=Depends(
+        get_current_user
+    ),
+):   
     with registry_lock:
         active_count = len(active_sessions)
     sunshine = sunshine_controller.status()
@@ -119,9 +125,45 @@ def get_host_status():
         },
     )
 
-@router.get("/metrics")
-def get_host_metrics():
+@router.get("/user-status")
+def get_user_host_status(
+    current_user=Depends(
+        get_current_user
+    ),
+):
+    startup = startup_manager.startup_status()
 
+    metrics = host_monitor.get_metrics()
+
+    health = host_monitor.get_health_summary()
+
+    capabilities = host_monitor.get_capabilities()
+
+    sunshine = sunshine_controller.status()
+
+    tailscale_connected = tailscale_controller.status()
+
+    return JSONResponse(
+        content=lifecycle_manager.get_user_host_status(
+            startup=startup,
+            sunshine=sunshine,
+            tailscale_connected=tailscale_connected,
+            metrics=metrics,
+            health=health,
+            capabilities=capabilities,
+        ),
+        headers={
+            "Cache-Control":
+                "no-store, no-cache, must-revalidate"
+        },
+    )
+
+@router.get("/metrics")
+def get_host_metrics(
+    current_user=Depends(
+        get_current_user
+    ),
+):
     return JSONResponse(
         content=host_monitor.get_metrics(),
         headers={
@@ -131,22 +173,66 @@ def get_host_metrics():
     )
 
 @router.post("/sunshine/start")
-def start_sunshine():
+def start_sunshine(
+    current_user=Depends(
+        get_current_user
+    ),
+):
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     return sunshine_controller.start()
 
 @router.post("/sunshine/stop")
-def stop_sunshine():
+def stop_sunshine(
+    current_user=Depends(
+        get_current_user
+    ),
+):
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     return sunshine_controller.stop()
 
 @router.post("/sunshine/restart")
-def restart_sunshine():
+def restart_sunshine(
+    current_user=Depends(
+        get_current_user
+    ),
+):
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     return sunshine_controller.restart()
 
 @router.post(
     "/maintenance/enable"
 )
-def enable_maintenance():
+def enable_maintenance(
+    current_user=Depends(
+        get_current_user
+    ),
+):
 
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     with registry_lock:
         active_count = len(active_sessions)
 
@@ -167,8 +253,19 @@ def enable_maintenance():
 @router.post(
     "/maintenance/disable"
 )
-def disable_maintenance():
+def disable_maintenance(
+    current_user=Depends(
+        get_current_user
+    ),
+):
 
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     lifecycle_manager.disable_maintenance()
 
     return {
@@ -179,8 +276,19 @@ def disable_maintenance():
 @router.post(
     "/recovery/enable"
 )
-def enable_recovery():
+def enable_recovery(
+    current_user=Depends(
+        get_current_user
+    ),
+):
 
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     lifecycle_manager.enable_recovery()
 
     return {
@@ -191,8 +299,19 @@ def enable_recovery():
 @router.post(
     "/recovery/disable"
 )
-def disable_recovery():
+def disable_recovery(
+    current_user=Depends(
+        get_current_user
+    ),
+):
 
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     lifecycle_manager.disable_recovery()
 
     return {
@@ -203,8 +322,19 @@ def disable_recovery():
 @router.post(
     "/revalidate"
 )
-def revalidate_host():
+def revalidate_host(
+    current_user=Depends(
+        get_current_user
+    ),
+):
 
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     startup_manager.startup_issues = (
         startup_manager.validate_host()
     )
@@ -216,8 +346,20 @@ def revalidate_host():
     }
 
 @router.get("/recovery-events")
-def recovery_events(limit: int = 50):
+def recovery_events(
+    limit: int = 50,
+    current_user=Depends(
+        get_current_user
+    ),
+):
 
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     events = get_recovery_events(limit)
 
     return JSONResponse(
@@ -234,9 +376,19 @@ def recovery_events(limit: int = 50):
 @router.get(
     "/recovery-stats"
 )
-def recovery_stats():
+def recovery_stats(
+    current_user=Depends(
+        get_current_user
+    ),
+):
 
-    
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+
     return JSONResponse(
         content=get_recovery_stats(),
         headers={
@@ -248,7 +400,18 @@ def recovery_stats():
 @router.get(
     "/watchdogs"
 )
-def get_watchdogs():
+def get_watchdogs(
+    current_user=Depends(
+        get_current_user
+    ),
+):
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     return {
         "sunshine":
             sunshine_watchdog.status(),
@@ -257,8 +420,19 @@ def get_watchdogs():
     }
 
 @router.get("/debug")
-def debug():
+def debug(
+    current_user=Depends(
+        get_current_user
+    ),
+):
 
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     return {
         "pid": os.getpid(),
         "time": time.time(),
@@ -266,8 +440,12 @@ def debug():
 @router.get(
     "/tailscale/status"
 )
-def tailscale_status():
-
+def tailscale_status(
+    current_user=Depends(
+        get_current_user
+    ),
+):
+    
     return (
         tailscale_controller
         .detailed_status()
@@ -278,7 +456,17 @@ def tailscale_status():
 )
 def pair_sunshine_client(
     pin: str,
+    current_user=Depends(
+        get_current_user
+    ),
 ):
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     return (
         sunshine_controller
         .pair_client(pin)
@@ -289,7 +477,17 @@ def pair_sunshine_client(
 )
 def unpair_sunshine_client(
     uuid: str,
+    current_user=Depends(
+        get_current_user
+    ),
 ):
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     return (
         sunshine_controller
         .unpair_client(uuid)
@@ -298,21 +496,47 @@ def unpair_sunshine_client(
 @router.post(
     "/sunshine/unpair-all"
 )
-def unpair_all_sunshine_clients():
+def unpair_all_sunshine_clients(
+    current_user=Depends(
+        get_current_user
+    ),
+):
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     return (
         sunshine_controller
         .unpair_all_clients()
     )
 
 @router.get("/sunshine/clients")
-def get_sunshine_clients_route():
+def get_sunshine_clients_route(
+    current_user=Depends(
+        get_current_user
+    ),
+):
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     return sunshine_controller.get_clients()
 
 @router.get(
     "/sunshine/stream"
 )
-def sunshine_stream_status():
-
+def sunshine_stream_status(
+    current_user=Depends(
+        get_current_user
+    ),
+):
+    
     stream = (
         sunshine_stream_tracker.get_state()
     )
@@ -360,7 +584,17 @@ def sunshine_stream_status():
 @router.get("/sunshine/history")
 def get_sunshine_stream_history(
     limit: int = 50,
+    current_user=Depends(
+        get_current_user
+    ),
 ):
+    
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
     
     streams = sunshine_controller.get_stream_history(
         limit=limit,
@@ -380,8 +614,12 @@ def get_sunshine_stream_history(
 @router.post(
     "/sunshine/close-stream"
 )
-def close_sunshine_stream():
-
+def close_sunshine_stream(
+    current_user=Depends(
+        get_current_user
+    ),
+):
+    
     return (
         sunshine_controller
         .close_stream()
@@ -391,7 +629,7 @@ def close_sunshine_stream():
     "/sunshine/stream-ended"
 )
 def stream_ended():
-
+    
     sessions = (
         session_service
         .get_active_sessions()
@@ -467,7 +705,7 @@ def stream_ended():
     "/sunshine/stream-started"
 )
 def stream_started():
-
+    
     sessions = (
         session_service
         .get_active_sessions()
@@ -539,7 +777,7 @@ def stream_started():
     "/sunshine/transport-disconnected"
 )
 def transport_disconnected():
-
+    
     sunshine_stream_tracker.transport_disconnected()
     
     sessions = (
@@ -586,7 +824,7 @@ def transport_disconnected():
     "/sunshine/transport-connected"
 )
 def transport_connected():
-
+    
     sunshine_stream_tracker.transport_connected()
     
     sessions = (

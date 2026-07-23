@@ -15,6 +15,7 @@ import {
   enableMaintenance,
   disableMaintenance,
   revalidateHost,
+  clearToken,
 } from "../api/client.js";
 import { HostStatusPanel } from "../components/HostStatusPanel.jsx";
 import { EventLog } from "../components/EventLog.jsx";
@@ -30,6 +31,7 @@ import { LogPanel } from "../components/LogPanel.jsx";
 import { SunshineStreamHistory } from "../components/SunshineStreamHistory.jsx";
 import { RecoveryStats } from "../components/RecoveryStats.jsx";
 import { RecoveryEvents } from "../components/RecoveryEvents.jsx";
+import { UserPanel } from "../components/UserPanel.jsx";
 const MAX_LOG_EVENTS = 8;
 const WS_EVENTS_STORAGE_KEY = "pcgo_ws_events";
 
@@ -91,6 +93,13 @@ function SectionHeader({ title, count, onRefresh }) {
       )}
     </div>
   );
+}
+
+function logout() {
+
+  clearToken();
+
+  window.location.reload();
 }
 
 function InfoRow({
@@ -227,6 +236,17 @@ export function Dashboard() {
   const [showTailscaleFailureDetails, setShowTailscaleFailureDetails] = useState(false);
   const [showGameManager, setShowGameManager] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showUsers, setShowUsers] = useState(false);
+  const username =
+    localStorage.getItem(
+      "username"
+    );
+  const role =
+    localStorage.getItem(
+      "role"
+    );
+  const isAdmin =
+    role === "admin";
   const {
       hostStatus,
       hostMetrics,
@@ -601,6 +621,53 @@ export function Dashboard() {
                 : "--"
             }
           </div>
+
+          <div
+            style={{
+                fontSize: "9px",
+                color: "#64748b",
+                letterSpacing: "0.08em",
+                fontFamily:
+                    "'JetBrains Mono', monospace",
+                textTransform:
+                    "uppercase",
+            }}
+          >
+            USER {
+                username?.toUpperCase() || "UNKNOWN"
+            } (
+            {
+                role?.toUpperCase() || "USER"
+            }
+            )
+          </div>
+
+          <button
+            onClick={logout}
+            style={{
+              padding: "6px 12px",
+              border: "1px solid rgba(244,63,94,0.35)",
+              background: "rgba(244,63,94,0.08)",
+              color: "#fb7185",
+              borderRadius: "6px",
+              fontSize: "9px",
+              fontFamily: "'JetBrains Mono', monospace",
+              letterSpacing: "0.08em",
+              cursor: "pointer",
+              textTransform: "uppercase",
+            }}
+            onMouseEnter={(e) =>
+              e.currentTarget.style.background =
+                "rgba(244,63,94,0.18)"
+            }
+            onMouseLeave={(e) =>
+              e.currentTarget.style.background =
+                "rgba(244,63,94,0.08)"
+            }
+          >
+            Logout
+          </button>
+
         </div>
       </header>
 
@@ -623,101 +690,177 @@ export function Dashboard() {
             flex: 1,
             minHeight: 0,
           }}>
-            <div style={{ marginBottom: "20px" }}>
-              <button
-                onClick={() =>
-                    setShowSettings(
-                      !showSettings
-                    )
-                }
-                style={{
-                  width: "100%",
-                  border: "1px solid rgba(148,163,184,0.18)",
-                  background: "rgba(2,6,23,0.45)",
-                  color: "#94a3b8",
-                  borderRadius: "6px",
-                  padding: "8px",
-                  fontSize: "9px",
-                  fontFamily: "'JetBrains Mono', monospace",
-                  letterSpacing: "0.08em",
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) =>
-                  e.currentTarget.style.background =
-                    "rgba(56, 191, 248, 0.08)"
-                }
+            {isAdmin && (
+              <div style={{ marginBottom: "20px" }}>
+                <button
+                  onClick={() =>
+                      setShowSettings(
+                        !showSettings
+                      )
+                  }
+                  style={{
+                    width: "100%",
+                    border: "1px solid rgba(148,163,184,0.18)",
+                    background: "rgba(2,6,23,0.45)",
+                    color: "#94a3b8",
+                    borderRadius: "6px",
+                    padding: "8px",
+                    fontSize: "9px",
+                    fontFamily: "'JetBrains Mono', monospace",
+                    letterSpacing: "0.08em",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) =>
+                    e.currentTarget.style.background =
+                      "rgba(56, 191, 248, 0.08)"
+                  }
 
-                onMouseLeave={(e) =>
-                  e.currentTarget.style.background =
-                    "rgba(56, 191, 248, 0)"
-                }
-              >
+                  onMouseLeave={(e) =>
+                    e.currentTarget.style.background =
+                      "rgba(56, 191, 248, 0)"
+                  }
+                >
+                  {
+                    showSettings
+                      ? "HIDE SETTINGS"
+                      : "SETTINGS"
+                  }
+                </button>
+
                 {
-                  showSettings
-                    ? "HIDE SETTINGS"
-                    : "SETTINGS"
-                }
-              </button>
-
-              {
-                showSettings && (
-                    <div style={{ marginTop: "10px" }}>
-                      <SettingsPanel />
-                    </div>
-                )
-              }
-            </div>
-            
-            <div style={{ marginBottom: "20px" }}>
-
-              <button
-                type="button"
-                onClick={() =>
-                  setShowGameManager(
-                    !showGameManager
+                  showSettings && (
+                      <div style={{ marginTop: "10px" }}>
+                        <SettingsPanel />
+                      </div>
                   )
                 }
-                style={{
-                  width: "100%",
-                  border: "1px solid rgba(148,163,184,0.18)",
-                  background: "rgba(2,6,23,0.45)",
-                  color: "#94a3b8",
-                  borderRadius: "6px",
-                  padding: "8px",
-                  fontSize: "9px",
-                  fontFamily: "'JetBrains Mono', monospace",
-                  letterSpacing: "0.08em",
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) =>
-                  e.currentTarget.style.background =
-                    "rgba(56, 191, 248, 0.08)"
-                }
+              </div>
+            )}
 
-                onMouseLeave={(e) =>
-                  e.currentTarget.style.background =
-                    "rgba(56, 191, 248, 0)"
-                }
-              >
-                {
-                  showGameManager
-                    ? "HIDE GAME MANAGER"
-                    : "MANAGE GAMES"
-                }
-              </button>
+            {
+              role === "admin" && (
+                  <div
+                      style={{
+                          marginBottom:
+                              "20px",
+                      }}
+                  >
+                      <button
+                          onClick={() =>
+                              setShowUsers(
+                                  !showUsers
+                              )
+                          }
+                          style={{
+                              width: "100%",
+                              border:
+                                  "1px solid rgba(148,163,184,0.18)",
+                              background:
+                                  "rgba(2,6,23,0.45)",
+                              color:
+                                  "#94a3b8",
+                              borderRadius:
+                                  "6px",
+                              padding:
+                                  "8px",
+                              fontSize:
+                                  "9px",
+                              fontFamily:
+                                      "'JetBrains Mono', monospace",
+                              letterSpacing:
+                                  "0.08em",
+                              cursor:
+                                  "pointer",
+                          }}
+                          onMouseEnter={(e) =>
+                            e.currentTarget.style.background =
+                              "rgba(56, 191, 248, 0.08)"
+                          }
 
-              {
-                showGameManager && (
-                  <div style={{ marginTop: "10px" }}>
-                    <GameManager
-                      games={games}
-                      refreshGames={loadGames}
-                    />
+                          onMouseLeave={(e) => {
+
+                              e.currentTarget.style.background =
+                                  "rgba(2,6,23,0.45)";
+
+                              e.currentTarget.style.border =
+                                  "1px solid rgba(148,163,184,0.18)";
+                          }}
+                      >
+                          {
+                              showUsers
+                                  ? "HIDE USERS"
+                                  : "USER MANAGEMENT"
+                          }
+                      </button>
+
+                      {
+                          showUsers && (
+                              <div
+                                  style={{
+                                      marginTop:
+                                          "10px",
+                                  }}
+                              >
+                                  <UserPanel />
+                              </div>
+                          )
+                      }
                   </div>
-                )
-              }
+              )
+            }
+            
+            {isAdmin && (
+              <div style={{ marginBottom: "20px" }}>
 
-            </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowGameManager(
+                      !showGameManager
+                    )
+                  }
+                  style={{
+                    width: "100%",
+                    border: "1px solid rgba(148,163,184,0.18)",
+                    background: "rgba(2,6,23,0.45)",
+                    color: "#94a3b8",
+                    borderRadius: "6px",
+                    padding: "8px",
+                    fontSize: "9px",
+                    fontFamily: "'JetBrains Mono', monospace",
+                    letterSpacing: "0.08em",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) =>
+                    e.currentTarget.style.background =
+                      "rgba(56, 191, 248, 0.08)"
+                  }
+
+                  onMouseLeave={(e) =>
+                    e.currentTarget.style.background =
+                      "rgba(56, 191, 248, 0)"
+                  }
+                >
+                  {
+                    showGameManager
+                      ? "HIDE GAME MANAGER"
+                      : "MANAGE GAMES"
+                  }
+                </button>
+
+                {
+                  showGameManager && (
+                    <div style={{ marginTop: "10px" }}>
+                      <GameManager
+                        games={games}
+                        refreshGames={loadGames}
+                      />
+                    </div>
+                  )
+                }
+
+              </div>
+            )}
             <div style={{
               fontSize: "9.5px",
               color: "#475569",
@@ -736,22 +879,24 @@ export function Dashboard() {
               hostStatus={hostStatus}
             />
 
-            <HostStatusPanel
-              status={hostStatus}
-              metrics={hostMetrics}
-              loading={hostLoading}
-              error={hostError}
-              sunshineAction={sunshineAction}
-              onStartSunshine={handleSunshineStart}
-              onRestartSunshine={handleSunshineRestart}
-              handleMaintenanceToggle={handleMaintenanceToggle}
-              maintenanceAction={maintenanceAction}
-              sessionHealth={sessionHealth}
-              handleRevalidate={handleRevalidate}
-              revalidating={revalidating}
-              tailscaleStatus={tailscaleStatus}
-              streamStatus={streamStatus}
-            />
+            {isAdmin && (
+              <HostStatusPanel
+                status={hostStatus}
+                metrics={hostMetrics}
+                loading={hostLoading}
+                error={hostError}
+                sunshineAction={sunshineAction}
+                onStartSunshine={handleSunshineStart}
+                onRestartSunshine={handleSunshineRestart}
+                handleMaintenanceToggle={handleMaintenanceToggle}
+                maintenanceAction={maintenanceAction}
+                sessionHealth={sessionHealth}
+                handleRevalidate={handleRevalidate}
+                revalidating={revalidating}
+                tailscaleStatus={tailscaleStatus}
+                streamStatus={streamStatus}
+              />
+            )}
 
             {sessionHealth && (
               <div
@@ -779,6 +924,7 @@ export function Dashboard() {
             {
               sessionHealth?.lock_exists && 
               hostStatus?.active_session_count === 0 &&
+              isAdmin &&
               (
                 <button
                   type="button"
@@ -982,24 +1128,30 @@ export function Dashboard() {
             </section>
           )}
 
-          <RecoveryStats
-            recoveryStats={recoveryStats}
-            showTailscaleRecoveryDetails={showTailscaleRecoveryDetails}
-            setShowTailscaleRecoveryDetails={setShowTailscaleRecoveryDetails}
-            showTailscaleFailureDetails={showTailscaleFailureDetails}
-            setShowTailscaleFailureDetails={setShowTailscaleFailureDetails}
-          />
-          <RecoveryEvents
-            recoveryEvents={recoveryEvents}
-            recoveryEventsLoading={recoveryEventsLoading}
-            showAllRecoveryEvents={showAllRecoveryEvents}
-            setShowAllRecoveryEvents={setShowAllRecoveryEvents}
-          />
-          <SessionAnalytics refreshKey={historyRefreshKey} />
-          <SunshineStreamHistory
+          {isAdmin && (
+            <RecoveryStats
+              recoveryStats={recoveryStats}
+              showTailscaleRecoveryDetails={showTailscaleRecoveryDetails}
+              setShowTailscaleRecoveryDetails={setShowTailscaleRecoveryDetails}
+              showTailscaleFailureDetails={showTailscaleFailureDetails}
+              setShowTailscaleFailureDetails={setShowTailscaleFailureDetails}
+            />
+          )}
+          {isAdmin && (
+            <RecoveryEvents
+              recoveryEvents={recoveryEvents}
+              recoveryEventsLoading={recoveryEventsLoading}
+              showAllRecoveryEvents={showAllRecoveryEvents}
+              setShowAllRecoveryEvents={setShowAllRecoveryEvents}
+            />
+          )}
+          {isAdmin && (
+            <SunshineStreamHistory
               streams={streamHistory}
               loading={streamHistoryLoading}
-          />
+            />
+          )}
+          <SessionAnalytics refreshKey={historyRefreshKey} />
           <SessionHistory refreshKey={historyRefreshKey} />
           <LogPanel />
         </main>

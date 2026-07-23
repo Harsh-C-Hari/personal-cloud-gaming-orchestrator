@@ -185,3 +185,149 @@ class LifecycleManager:
             host_health=
                 metrics["health"],
         )
+
+    def get_user_host_status(
+        self,
+        startup,
+        sunshine,
+        tailscale_connected,
+        metrics,
+        health,
+        capabilities,
+    ):
+        from api.session_registry import (
+            active_sessions,
+            registry_lock,
+        )
+
+        with registry_lock:
+            active_count = len(active_sessions)
+
+        state = self.get_state(
+            active_sessions=active_count,
+            sunshine_running=sunshine["running"],
+            sunshine_api_reachable=sunshine["reachable"],
+            tailscale_connected=tailscale_connected,
+            host_health=metrics["health"],
+        )
+
+        alerts = []
+
+        ready = True
+        reason = "Host Ready"
+        reason_code = "ready"
+
+        # Startup
+        if not startup["startup_completed"]:
+            ready = False
+            reason = "Host startup not completed."
+            reason_code = "startup"
+
+            alerts.append({
+                "severity": "critical",
+                "code": "startup",
+                "message": "Host startup has not completed."
+            })
+
+        # Maintenance
+        if self.maintenance_mode:
+            ready = False
+            reason = "Host is in maintenance mode."
+            reason_code = "maintenance"
+
+            alerts.append({
+                "severity": "critical",
+                "code": "maintenance",
+                "message": "Host is under maintenance."
+            })
+
+        # Recovery
+        if self.recovery_required:
+            ready = False
+            reason = self.recovery_reason or "Recovery required."
+            reason_code = "recovery"
+
+            alerts.append({
+                "severity": "critical",
+                "code": "recovery",
+                "message": self.recovery_reason or "Recovery mode enabled."
+            })
+
+        # Host health
+        if metrics["health"] == "warning":
+            alerts.append({
+                "severity": "warning",
+                "code": "host_warning",
+                "message": "High CPU or RAM usage."
+            })
+
+        if metrics["health"] == "critical":
+            ready = False
+            reason = "Host health is critical."
+            reason_code = "host_health"
+
+            alerts.append({
+                "severity": "critical",
+                "code": "host_health",
+                "message": "Host health is critical."
+            })
+
+        # Sunshine
+        if not sunshine["running"]:
+            alerts.append({
+                "severity": "warning",
+                "code": "sunshine",
+                "message": "Sunshine is not running."
+            })
+
+        if not sunshine["reachable"]:
+            alerts.append({
+                "severity": "warning",
+                "code": "sunshine_api",
+                "message": "Sunshine API is not reachable."
+            })
+
+        if sunshine["app_count"] == 0:
+            alerts.append({
+                "severity": "warning",
+                "code": "sunshine_apps",
+                "message": "No Sunshine applications configured."
+            })
+
+        # Tailscale
+        if not tailscale_connected:
+            alerts.append({
+                "severity": "warning",
+                "code": "tailscale",
+                "message": "Tailscale is offline."
+            })
+
+        return {
+            "ready": ready,
+            "reason": reason,
+            "reason_code": reason_code,
+
+            "host_state": state,
+
+            "startup_completed": startup["startup_completed"],
+            "startup_issues": startup["startup_issues"],
+
+            "maintenance_mode": self.maintenance_mode,
+            "recovery_required": self.recovery_required,
+            "recovery_reason": self.recovery_reason,
+
+            "active_session_count": active_count,
+
+            "health": health,
+
+            "alerts": alerts,
+
+            "capabilities": {
+                "gpu_available": capabilities["gpu_available"],
+                "sunshine_running": sunshine["running"],
+                "sunshine_api_reachable": sunshine["reachable"],
+                "sunshine_apps_count": sunshine["app_count"],
+                "sunshine_client_count": sunshine["client_count"],
+                "tailscale_running": tailscale_connected,
+            }
+        }

@@ -346,22 +346,22 @@ export function SessionHistory({
                         </div>
                       ) : (
                         (sessionEvents[item.session_id] || []).map((event) => (
-                        <div
-                            key={`${event.session_id}-${event.status}-${event.time}`}
-                            style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            gap: "10px",
-                            fontSize: "10px",
-                            color: "#94a3b8",
-                            fontFamily: "'JetBrains Mono', monospace",
-                            }}
-                        >
-                            <span>{event.status?.toUpperCase()}</span>
-                            <span>{new Date(event.time * 1000).toLocaleTimeString()}</span>
-                        </div>
-                          ))
-                        )}
+                            <div
+                              key={`${event.session_id}-${event.status}-${event.time}`}
+                              style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              gap: "10px",
+                              fontSize: "10px",
+                              color: "#94a3b8",
+                              fontFamily: "'JetBrains Mono', monospace",
+                              }}
+                            >
+                              <span>{event.status?.toUpperCase()}</span>
+                              <span>{new Date(event.time * 1000).toLocaleTimeString()}</span>
+                            </div>
+                        ))
+                      )}
                   </div>
                 )}
               </div>

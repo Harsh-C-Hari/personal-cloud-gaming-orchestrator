@@ -53,6 +53,28 @@ export function LogPanel() {
     const [searchInput, setSearchInput] =
         useState("");
 
+    const [showMenu, setShowMenu] =
+        useState(false);
+
+    const [compactMode, setCompactMode] =
+        useState(
+            window.innerWidth < 900
+        );
+
+    const [mobileMode, setMobileMode] =
+        useState(
+            window.innerWidth < 650
+        );
+
+    const current_user =
+        localStorage.getItem("username");
+
+    const role =
+        localStorage.getItem("role");
+    
+    const isAdmin =
+        role === "admin";
+    
     async function loadLogs() {
 
         try {
@@ -262,6 +284,34 @@ export function LogPanel() {
         search,
     ]);
 
+    useEffect(() => {
+
+        function handleResize() {
+
+            setCompactMode(
+                window.innerWidth < 900
+            );
+
+            setMobileMode(
+                window.innerWidth < 650
+            );
+        }
+
+        window.addEventListener(
+            "resize",
+            handleResize
+        );
+
+        handleResize();
+
+        return () =>
+            window.removeEventListener(
+                "resize",
+                handleResize
+            );
+
+    }, []);
+
     function jumpBottom() {
 
         if (!logRef.current) {
@@ -281,6 +331,51 @@ export function LogPanel() {
         });        
     }
 
+    async function downloadLogs() {
+
+        const endpoint =
+            isAdmin
+                ? "/admin/logs/download"
+                : "/admin/my-logs/download";
+
+        const response = await fetch(
+            getApiUrl(endpoint),
+            {
+                headers: {
+                    Authorization:
+                        `Bearer ${localStorage.getItem("access_token")}`,
+                },
+            }
+        );
+
+        if (!response.ok) {
+            alert("Failed to download logs.");
+            return;
+        }
+
+        const blob = await response.blob();
+
+        const url =
+            URL.createObjectURL(blob);
+
+        const link =
+            document.createElement("a");
+
+        link.href = url;
+        const file_name = (
+            isAdmin
+                ? "host_logs"
+                : `${current_user}_logs`
+        );
+        link.download = file_name;
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        URL.revokeObjectURL(url);
+    }
+    
     function downloadFiltered() {
 
         const blob =
@@ -338,8 +433,13 @@ export function LogPanel() {
 
         if (parts.length === 0) {
 
+            const file_name = (
+                isAdmin
+                    ? "host_logs"
+                    : `${current_user}_logs`
+            );
             parts.push(
-                "host_logs"
+                file_name
             );
         }
 
@@ -394,118 +494,367 @@ export function LogPanel() {
                     Host Logs
                 </h2>
 
-                <div style={controlsStyle}>
+                <div style={controlsContainer}>
 
-                    <select
-                        value={level}
-                        onChange={(e) =>
-                            setLevel(
-                                e.target.value
-                            )
-                        }
-                        style={selectStyle}
-                    >
-                        <option value="ALL">
-                            ALL
-                        </option>
+                    {/* ================= LARGE ================= */}
 
-                        <option value="INFO">
-                            INFO
-                        </option>
+                    {
+                        !compactMode && (
 
-                        <option value="WARNING">
-                            WARNING
-                        </option>
+                            <div style={controlsRow}>
 
-                        <option value="ERROR">
-                            ERROR
-                        </option>
-                    </select>
+                                <select
+                                    value={level}
+                                    onChange={(e) =>
+                                        setLevel(e.target.value)
+                                    }
+                                    style={selectStyle}
+                                >
+                                    <option value="ALL">ALL</option>
+                                    <option value="INFO">INFO</option>
+                                    <option value="WARNING">WARNING</option>
+                                    <option value="ERROR">ERROR</option>
+                                </select>
 
-                    <select
-                        value={sessionFilter}
-                        onChange={(e) =>
-                            setSessionFilter(
-                                e.target.value
-                            )
-                        }
-                        style={selectStyle}
-                    >
-
-                        <option value="ALL">
-                            ALL SESSIONS
-                        </option>
-
-                        {
-                            sessions.map(
-                                session => (
-
-                                    <option
-                                        key={session}
-                                        value={session}
-                                    >
-                                        {session}
+                                <select
+                                    value={sessionFilter}
+                                    onChange={(e) =>
+                                        setSessionFilter(
+                                            e.target.value
+                                        )
+                                    }
+                                    style={selectStyle}
+                                >
+                                    <option value="ALL">
+                                        ALL SESSIONS
                                     </option>
 
-                                )
-                            )
-                        }
+                                    {
+                                        sessions.map(session => (
+                                            <option
+                                                key={session}
+                                                value={session}
+                                            >
+                                                {session}
+                                            </option>
+                                        ))
+                                    }
 
-                    </select>
+                                </select>
 
-                    <input
-                        placeholder="Search..."
-                        value={searchInput}
-                        onChange={(e) =>
-                            setSearchInput(
-                                e.target.value
-                            )
-                        }
-                        style={selectStyle}
-                    />
+                                <input
+                                    placeholder="Search..."
+                                    value={searchInput}
+                                    onChange={(e) =>
+                                        setSearchInput(
+                                            e.target.value
+                                        )
+                                    }
+                                    style={searchStyle}
+                                />
 
-                    <button
-                        style={
-                            autoRefresh
-                                ? activeButton
-                                : buttonStyle
-                        }
-                        onClick={() =>
-                            setAutoRefresh(
-                                !autoRefresh
-                            )
-                        }
-                    >
-                        {
-                            autoRefresh
-                                ? "LIVE"
-                                : "PAUSED"
-                        }
-                    </button>
+                                <button
+                                    style={
+                                        autoRefresh
+                                            ? activeButton
+                                            : buttonStyle
+                                    }
+                                    onClick={() =>
+                                        setAutoRefresh(
+                                            !autoRefresh
+                                        )
+                                    }
+                                >
+                                    {
+                                        autoRefresh
+                                            ? "LIVE"
+                                            : "PAUSED"
+                                    }
+                                </button>
 
-                    <button
-                        style={buttonStyle}
-                        onClick={loadLogs}
-                    >
-                        REFRESH
-                    </button>
+                                <button
+                                    style={buttonStyle}
+                                    onClick={loadLogs}
+                                >
+                                    REFRESH
+                                </button>
 
-                    <a
-                        href={getApiUrl("/admin/logs/download")}
-                        target="_blank"
-                        style={buttonStyle}
-                    >
-                        DOWNLOAD
-                    </a>
+                                <button
+                                    style={buttonStyle}
+                                    onClick={downloadLogs}
+                                >
+                                    DOWNLOAD
+                                </button>
 
-                    <button
-                        style={buttonStyle}
-                        onClick={
-                            downloadFiltered
-                        }
-                    >
-                        EXPORT
-                    </button>
+                                <button
+                                    style={buttonStyle}
+                                    onClick={
+                                        downloadFiltered
+                                    }
+                                >
+                                    EXPORT
+                                </button>
+
+                            </div>
+
+                        )
+                    }
+
+                    {/* ================= MEDIUM ================= */}
+
+                    {
+                        compactMode &&
+                        !mobileMode && (
+
+                            <>
+
+                                <div style={controlsRow}>
+
+                                    <select
+                                        value={level}
+                                        onChange={(e) =>
+                                            setLevel(
+                                                e.target.value
+                                            )
+                                        }
+                                        style={selectStyle}
+                                    >
+                                        <option value="ALL">ALL</option>
+                                        <option value="INFO">INFO</option>
+                                        <option value="WARNING">WARNING</option>
+                                        <option value="ERROR">ERROR</option>
+                                    </select>
+
+                                    <select
+                                        value={sessionFilter}
+                                        onChange={(e) =>
+                                            setSessionFilter(
+                                                e.target.value
+                                            )
+                                        }
+                                        style={selectStyle}
+                                    >
+                                        <option value="ALL">
+                                            ALL SESSIONS
+                                        </option>
+
+                                        {
+                                            sessions.map(session => (
+                                                <option
+                                                    key={session}
+                                                    value={session}
+                                                >
+                                                    {session}
+                                                </option>
+                                            ))
+                                        }
+
+                                    </select>
+
+                                    <input
+                                        placeholder="Search..."
+                                        value={searchInput}
+                                        onChange={(e) =>
+                                            setSearchInput(
+                                                e.target.value
+                                            )
+                                        }
+                                        style={selectStyle}
+                                    />
+
+                                </div>
+
+                                <div style={controlsRow}>
+
+                                    <button
+                                        style={
+                                            autoRefresh
+                                                ? activeButton
+                                                : buttonStyle
+                                        }
+                                        onClick={() =>
+                                            setAutoRefresh(
+                                                !autoRefresh
+                                            )
+                                        }
+                                    >
+                                        {
+                                            autoRefresh
+                                                ? "LIVE"
+                                                : "PAUSED"
+                                        }
+                                    </button>
+
+                                    <button
+                                        style={buttonStyle}
+                                        onClick={loadLogs}
+                                    >
+                                        REFRESH
+                                    </button>
+
+                                    <button
+                                        style={buttonStyle}
+                                        onClick={downloadLogs}
+                                    >
+                                        DOWNLOAD
+                                    </button>
+
+                                    <button
+                                        style={buttonStyle}
+                                        onClick={
+                                            downloadFiltered
+                                        }
+                                    >
+                                        EXPORT
+                                    </button>
+
+                                </div>
+
+                            </>
+
+                        )
+                    }
+
+                    {/* ================= MOBILE ================= */}
+
+                    {
+                        mobileMode && (
+
+                            <>
+
+                                <div style={controlsRow}>
+
+                                    <select
+                                        value={level}
+                                        onChange={(e) =>
+                                            setLevel(
+                                                e.target.value
+                                            )
+                                        }
+                                        style={selectStyle}
+                                    >
+                                        <option value="ALL">ALL</option>
+                                        <option value="INFO">INFO</option>
+                                        <option value="WARNING">WARNING</option>
+                                        <option value="ERROR">ERROR</option>
+                                    </select>
+
+                                    <select
+                                        value={sessionFilter}
+                                        onChange={(e) =>
+                                            setSessionFilter(
+                                                e.target.value
+                                            )
+                                        }
+                                        style={selectStyle}
+                                    >
+                                        <option value="ALL">
+                                            ALL SESSIONS
+                                        </option>
+
+                                        {
+                                            sessions.map(session => (
+                                                <option
+                                                    key={session}
+                                                    value={session}
+                                                >
+                                                    {session}
+                                                </option>
+                                            ))
+                                        }
+
+                                    </select>
+
+                                    <input
+                                        placeholder="Search..."
+                                        value={searchInput}
+                                        onChange={(e) =>
+                                            setSearchInput(
+                                                e.target.value
+                                            )
+                                        }
+                                        style={selectStyle}
+                                    />
+
+                                    <button
+                                        style={buttonStyle}
+                                        onClick={() =>
+                                            setShowMenu(
+                                                !showMenu
+                                            )
+                                        }
+                                    >
+                                        ⋮ More
+                                    </button>
+
+                                </div>
+
+                                {
+                                    showMenu && (
+
+                                        <div style={menuStyle}>
+
+                                            <button
+                                                style={menuButton}
+                                                onClick={() => {
+
+                                                    setAutoRefresh(
+                                                        !autoRefresh
+                                                    );
+
+                                                    setShowMenu(false);
+
+                                                }}
+                                            >
+                                                {
+                                                    autoRefresh
+                                                        ? "LIVE"
+                                                        : "PAUSED"
+                                                }
+                                            </button>
+
+                                            <button
+                                                style={menuButton}
+                                                onClick={() => {
+
+                                                    loadLogs();
+
+                                                    setShowMenu(false);
+
+                                                }}
+                                            >
+                                                REFRESH
+                                            </button>
+
+                                            <button
+                                                style={buttonStyle}
+                                                onClick={downloadLogs}
+                                            >
+                                                DOWNLOAD
+                                            </button>
+
+                                            <button
+                                                style={menuButton}
+                                                onClick={() => {
+
+                                                    downloadFiltered();
+
+                                                    setShowMenu(false);
+
+                                                }}
+                                            >
+                                                EXPORT
+                                            </button>
+
+                                        </div>
+
+                                    )
+                                }
+
+                            </>
+
+                        )
+                    }
 
                 </div>
 
@@ -682,25 +1031,25 @@ const panelStyle = {
 const headerStyle = {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "15px",
+    alignItems: "flex-start",
+    gap: "12px",
+    flexWrap: "wrap",
 };
 
 const titleStyle = {
     margin: 0,
 };
 
-const controlsStyle = {
+const controlsContainer = {
     display: "flex",
+    flexDirection: "column",
     gap: "8px",
 };
 
-const selectStyle = {
-    background: "#05070b",
-    border: "1px solid #1c2130",
-    color: "#e2e8f0",
-    padding: "8px",
-    borderRadius: "6px",
+const controlsRow = {
+    display: "flex",
+    gap: "8px",
+    flexWrap: "wrap",
 };
 
 const buttonStyle = {
@@ -712,6 +1061,42 @@ const buttonStyle = {
     cursor: "pointer",
     fontFamily:
         "'JetBrains Mono', monospace",
+};
+
+const menuStyle = {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+
+    padding: "8px",
+
+    background: "#05070b",
+
+    border: "1px solid #1c2130",
+
+    borderRadius: "8px",
+};
+
+const menuButton = {
+    ...buttonStyle,
+
+    width: "100%",
+
+    textAlign: "left",
+};
+
+const selectStyle = {
+    background: "#05070b",
+    border: "1px solid #1c2130",
+    color: "#e2e8f0",
+    padding: "8px",
+    borderRadius: "6px",
+};
+
+const searchStyle = {
+    ...selectStyle,
+    flex: 1,
+    minWidth: "180px",
 };
 
 const activeButton = {
@@ -734,16 +1119,22 @@ const logContainer = {
     padding: "12px",
     height: "600px",
     overflowY: "auto",
+    overflowX: "hidden",
 };
 
 const logStyle = {
-    fontFamily:
-        "'JetBrains Mono', monospace",
+    fontFamily: "'JetBrains Mono', monospace",
     fontSize: "12px",
+
     whiteSpace: "pre-wrap",
+    overflowWrap: "anywhere",
+    wordBreak: "break-word",
+
+    width: "100%",
+    boxSizing: "border-box",
+
     marginBottom: "6px",
-    borderBottom:
-        "1px solid rgba(255,255,255,0.03)",
+    borderBottom: "1px solid rgba(255,255,255,0.03)",
     paddingBottom: "6px",
 };
 

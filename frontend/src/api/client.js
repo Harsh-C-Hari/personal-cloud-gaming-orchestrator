@@ -16,6 +16,40 @@
 // In production point this at the actual host-agent origin.
 const BASE_URL = "http://127.0.0.1:8100";
 
+export function getToken() {
+  return localStorage.getItem(
+    "access_token"
+  );
+}
+
+export function setToken(
+  token,
+) {
+  localStorage.setItem(
+    "access_token",
+    token,
+  );
+}
+
+export function clearToken() {
+
+  localStorage.removeItem(
+      "access_token"
+  );
+
+  localStorage.removeItem(
+      "username"
+  );
+
+  localStorage.removeItem(
+      "role"
+  );
+}
+
+export function isLoggedIn() {
+  return !!getToken();
+}
+
 // ─── Core fetch wrapper ────────────────────────────────────────────────────
 
 /**
@@ -49,12 +83,24 @@ function formatApiError(data, fallback) {
 
 async function apiFetch(method, path, body) {
 
+  const token = getToken();
+
+  const headers = {};
+
+  if (body) {
+    headers["Content-Type"] =
+      "application/json";
+  }
+
+  if (token) {
+    headers["Authorization"] =
+      `Bearer ${token}`;
+  }
+
   const init = {
     method,
     cache: "no-store",
-    headers: body
-      ? { "Content-Type": "application/json" }
-      : {},
+    headers,
     body: body
       ? JSON.stringify(body)
       : undefined,
@@ -77,6 +123,16 @@ async function apiFetch(method, path, body) {
   }
 
   if (!res.ok) {
+
+    if (
+        res.status === 401 &&
+        path !== "/auth/login"
+    ) {
+        clearToken();
+
+        window.location.href =
+            "/login";
+    }
 
     throw new Error(
       formatApiError(
@@ -166,33 +222,37 @@ export async function stopSession(sessionId) {
 }
 
 export async function fetchSaves(
-  userId,
-  gameId,
+    gameId,
 ) {
-  if (!userId || !gameId) {
-    return {
-      latest_exists: false,
-      archives: [],
-      backups: [],
-    };
-  }
+    if (!gameId) {
+        return {
+            latest_exists: false,
+            archives: [],
+            backups: [],
+        };
+    }
 
-  return apiFetch(
-      "GET",
-      `/saves/${encodeURIComponent(userId)}/${encodeURIComponent(gameId)}`
-  );
+    return apiFetch(
+        "GET",
+        `/saves/${encodeURIComponent(gameId)}`
+    );
 }
 
 export async function deleteSave(
-  userId,
-  gameId,
-  saveType,
-  saveName,
+    gameId,
+    saveType,
+    saveName,
 ) {
-  return apiFetch(
-      "DELETE",
-      `/saves/${encodeURIComponent(userId)}/${encodeURIComponent(gameId)}/${encodeURIComponent(saveType)}/${encodeURIComponent(saveName)}`
-  );
+    return apiFetch(
+        "DELETE",
+        `/saves/${
+            encodeURIComponent(gameId)
+        }/${
+            encodeURIComponent(saveType)
+        }/${
+            encodeURIComponent(saveName)
+        }`
+    );
 }
 
 export async function validateGame(
@@ -219,35 +279,66 @@ export async function fetchHostMetrics() {
 }
 
 export async function fetchSessionHistory(limit = 20) {
-  return apiFetch(
-    "GET",
-    `/sessions/history?limit=${limit}`
-  );
+
+    const role =
+        localStorage.getItem("role");
+
+    const endpoint =
+        role === "admin"
+            ? "/sessions/history"
+            : "/sessions/my-history";
+
+    return apiFetch(
+        "GET",
+        `${endpoint}?limit=${limit}`
+    );
 }
 
 export async function fetchSessionEvents({
-  limit = 50,
-  sessionId = "",
+    limit = 50,
+    sessionId = "",
 } = {}) {
-  const params = new URLSearchParams();
 
-  params.set("limit", String(limit));
+    const role =
+        localStorage.getItem("role");
 
-  if (sessionId) {
-    params.set("session_id", sessionId);
-  }
+    const endpoint =
+        role === "admin"
+            ? "/sessions/events"
+            : "/sessions/my-events";
 
-  return apiFetch(
-    "GET",
-    `/sessions/events?${params.toString()}`
-  );
+    const params =
+        new URLSearchParams();
+
+    params.set(
+        "limit",
+        String(limit)
+    );
+
+    if (sessionId) {
+        params.set(
+            "session_id",
+            sessionId
+        );
+    }
+
+    return apiFetch(
+        "GET",
+        `${endpoint}?${params.toString()}`
+    );
 }
 
 export async function fetchSessionAnalytics() {
-  return apiFetch(
-    "GET",
-    "/sessions/analytics"
-  );
+
+    const role =
+        localStorage.getItem("role");
+
+    return apiFetch(
+        "GET",
+        role === "admin"
+            ? "/sessions/analytics"
+            : "/sessions/my-analytics"
+    );
 }
 
 export async function forceUnlockSession() {
@@ -401,6 +492,14 @@ export async function getLogs(
     search = null,
 ) {
 
+    const role =
+        localStorage.getItem("role");
+
+    const endpoint =
+        role === "admin"
+            ? "/admin/logs"
+            : "/admin/my-logs";
+  
     const params =
         new URLSearchParams();
 
@@ -429,15 +528,20 @@ export async function getLogs(
 
     return apiFetch(
         "GET",
-        `/admin/logs?${params}`
+        `${endpoint}?${params}`
     );
 }
 
 export async function getLogSessions() {
 
+    const role =
+        localStorage.getItem("role");
+
     return apiFetch(
         "GET",
-        "/admin/log-sessions"
+        role === "admin"
+            ? "/admin/log-sessions"
+            : "/admin/my-log-sessions"
     );
 }
 
@@ -464,5 +568,101 @@ export async function closeSunshineStream() {
     return apiFetch(
         "POST",
         "/host/sunshine/close-stream"
+    );
+}
+
+export async function login(
+  username,
+  password,
+) {
+  return apiFetch(
+    "POST",
+    "/auth/login",
+    {
+      username,
+      password,
+    }
+  );
+}
+
+export async function fetchUsers() {
+    return apiFetch(
+        "GET",
+        "/auth/users"
+    );
+}
+
+export async function createUser(
+    request,
+) {
+    return apiFetch(
+        "POST",
+        "/auth/users",
+        request,
+    );
+}
+
+export async function deleteUser(
+    username,
+) {
+    return apiFetch(
+        "DELETE",
+        `/auth/users/${encodeURIComponent(
+            username
+        )}`
+    );
+}
+
+export async function deleteAllUsers() {
+    return apiFetch(
+        "DELETE",
+        "/auth/users"
+    );
+}
+
+export async function changePassword(
+    request,
+) {
+    return apiFetch(
+        "PUT",
+        "/auth/change-password",
+        request,
+    );
+}
+
+export async function bootstrapRequired() {
+    return apiFetch(
+        "GET",
+        "/auth/bootstrap-required"
+    );
+}
+
+export async function bootstrapAdmin(
+    username,
+    password,
+) {
+    return apiFetch(
+        "POST",
+        "/auth/bootstrap-admin",
+        {
+            username,
+            password,
+        }
+    );
+}
+
+export async function restartSession(
+    sessionId,
+) {
+    return apiFetch(
+        "POST",
+        `/sessions/${sessionId}/restart`
+    );
+}
+
+export async function fetchUserHostStatus() {
+    return apiFetch(
+        "GET",
+        "/host/user-status"
     );
 }

@@ -2,6 +2,7 @@ import json
 import re
 import os
 import threading
+from fastapi import Depends
 from fastapi import APIRouter, HTTPException
 from api.dependencies import save_manager
 from pathlib import Path
@@ -17,6 +18,7 @@ from host_agent.config_manager import config_manager
 from api.services.session_service import (
     session_service,
 )
+from api.auth import get_current_user
 
 router = APIRouter(prefix="/games", tags=["games"])
 
@@ -213,8 +215,18 @@ def compare_configs(
 @router.post("/")
 def add_game(
     game: GameCreateRequest,
+    current_user=Depends(
+        get_current_user
+    ),
 ):
 
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     with games_config_lock:
     
         data = read_games_json()
@@ -266,8 +278,18 @@ def add_game(
 def update_game(
     game_id: str,
     game: GameUpdateRequest,
+    current_user=Depends(
+        get_current_user
+    ),
 ):
 
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     ensure_game_not_active(
         game_id
     )
@@ -328,8 +350,18 @@ def update_game(
 @router.delete("/{game_id}")
 def delete_game(
     game_id: str,
+    current_user=Depends(
+        get_current_user
+    ),
 ):
 
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     ensure_game_not_active(
         game_id
     )
@@ -382,7 +414,10 @@ def list_games():
 @router.get("/{game_id}/validate")
 def validate_game(
     game_id: str,
-):
+    current_user=Depends(
+        get_current_user
+    ),
+):    
     game_configs = save_manager.game_configs
 
     if game_id not in game_configs:
@@ -425,13 +460,27 @@ def validate_game(
     }
 
 @router.get("/reload")
-def reload_game_config():
+def reload_game_config(
+    current_user=Depends(
+        get_current_user
+    ),
+):
     return save_manager.reload_game_configs()
 
 @router.post("/validate")
 def validate_game_config(
     request: GameValidationRequest,
+    current_user=Depends(
+        get_current_user
+    ),
 ):
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     errors = []
 
     if not Path(request.exe_path).exists():

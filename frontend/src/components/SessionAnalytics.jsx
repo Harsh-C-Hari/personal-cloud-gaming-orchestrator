@@ -99,6 +99,9 @@ function StatList({ title, items, labelKey }) {
 export function SessionAnalytics({
   refreshKey = 0,
 }) {
+  const isAdmin =
+    localStorage.getItem("role") === "admin";
+  
   const [analytics, setAnalytics] = useState({
     total_sessions: 0,
     total_played_seconds:0,
@@ -305,7 +308,8 @@ export function SessionAnalytics({
             </b>
           </div>
 
-          { analytics?.total_sessions != 0 && (
+          { analytics?.total_sessions != 0 &&
+            isAdmin && (
             <div style={statCard}>
               <div>Reliability</div>
               <b
@@ -320,11 +324,13 @@ export function SessionAnalytics({
             </div>
           )}
         
-          <StatList
-            title="BY USER"
-            items={analytics.by_user}
-            labelKey="user_id"
-          />
+          {isAdmin && (
+              <StatList
+                  title="BY USER"
+                  items={analytics.by_user}
+                  labelKey="user_id"
+              />
+          )}
 
           <StatList
             title="BY GAME"
@@ -332,11 +338,13 @@ export function SessionAnalytics({
             labelKey="game_id"
           />
 
-          <StatList
-            title="BY USER + GAME"
-            items={analytics.by_user_game}
-            labelKey="user_game"
-          />
+          {isAdmin && (
+              <StatList
+                  title="BY USER + GAME"
+                  items={analytics.by_user_game}
+                  labelKey="user_game"
+              />
+          )}
         </div>
       )}
     </section>

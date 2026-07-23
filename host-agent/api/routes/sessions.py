@@ -1,10 +1,12 @@
 from fastapi import APIRouter
-import re
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
+from fastapi import Depends
+
 from api.models.requests import (
     StartSessionRequest,
 )
+from api.auth import get_current_user
 
 from api.models.responses import (
     SessionStartResponse,
@@ -34,10 +36,6 @@ from host_agent.logging_config import (
 )
 logger = configure_logger()
 
-USER_ID_PATTERN = re.compile(
-    r"^[a-zA-Z0-9_-]+$"
-)
-
 router = APIRouter(
     prefix="/sessions",
     tags=["sessions"]
@@ -50,6 +48,9 @@ router = APIRouter(
 )
 def start_session(
     request: StartSessionRequest,
+    current_user=Depends(
+        get_current_user
+    ),
 ):
     save_manager.reload_game_configs()
     try:
@@ -95,20 +96,10 @@ def start_session(
                 ),
             )
         
-        if not USER_ID_PATTERN.match(
-            request.user_id
-        ):
-            raise HTTPException(
-                status_code=409,
-                detail=(
-                    "Invalid user_id. "
-                    "Only letters, numbers, hyphens and underscores are allowed."
-                ),
-            )
-        
         session_id = (
             session_service.start_session(
-                request
+                request=request,
+                user_id=current_user["username"],
             )
         )
 
@@ -132,11 +123,13 @@ def start_session(
     "/active",
     response_model=ActiveSessionsResponse,
 )
-def get_active_sessions():
+def get_active_sessions(
+    current_user=Depends(
+        get_current_user
+    ),
+):
 
-    sessions = (
-        session_service.get_active_sessions()
-    )
+    sessions = session_service.get_active_sessions()
 
     return ActiveSessionsResponse(
         sessions=[
@@ -148,6 +141,9 @@ def get_active_sessions():
 @router.get("/history")
 def get_session_history(
     limit: int = 20,
+    current_user=Depends(
+        get_current_user
+    ),
 ):
     
     return JSONResponse(
@@ -166,6 +162,9 @@ def get_session_history(
 def get_session_events(
     limit: int = 50,
     session_id: str | None = None,
+    current_user=Depends(
+        get_current_user
+    ),
 ):
     return JSONResponse(
         content={
@@ -181,7 +180,11 @@ def get_session_events(
     )
 
 @router.get("/analytics")
-def get_session_analytics():
+def get_session_analytics(
+    current_user=Depends(
+        get_current_user
+    ),
+):
     
     return JSONResponse(
         content=session_service.get_session_analytics(),
@@ -191,15 +194,91 @@ def get_session_analytics():
         },
     )
 
+@router.get("/my-history")
+def get_my_session_history(
+    limit: int = 20,
+    current_user=Depends(
+        get_current_user
+    ),
+):
+
+    return JSONResponse(
+        content={
+            "history": session_service.get_session_history(
+                limit=limit,
+                user_id=current_user["username"],
+            )
+        },
+        headers={
+            "Cache-Control":
+                "no-store, no-cache, must-revalidate"
+        },
+    )
+
+@router.get("/my-events")
+def get_my_session_events(
+    limit: int = 50,
+    session_id: str | None = None,
+    current_user=Depends(
+        get_current_user
+    ),
+):
+
+    return JSONResponse(
+        content={
+            "events": session_service.get_session_events(
+                limit=limit,
+                session_id=session_id,
+                user_id=current_user["username"],
+            )
+        },
+        headers={
+            "Cache-Control":
+                "no-store, no-cache, must-revalidate"
+        },
+    )
+
+@router.get("/my-analytics")
+def get_my_session_analytics(
+    current_user=Depends(
+        get_current_user
+    ),
+):
+
+    return JSONResponse(
+        content=session_service.get_session_analytics(
+            user_id=current_user["username"],
+        ),
+        headers={
+            "Cache-Control":
+                "no-store, no-cache, must-revalidate"
+        },
+    )
+
 @router.get("/health")
-def get_session_health():
+def get_session_health(
+    current_user=Depends(
+        get_current_user
+    ),
+):
     return session_service.get_session_health()
 
 # DEV ONLY:
 # Forcefully removes session lock if a stale lock blocks testing.
 # Protect with admin auth before production use.
 @router.post("/unlock")
-def force_unlock_session():
+def force_unlock_session(
+    current_user=Depends(
+        get_current_user
+    ),
+):
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     return session_service.force_unlock_session()
 
 @router.get(
@@ -208,19 +287,23 @@ def force_unlock_session():
 )
 def get_session_status(
     session_id: str,
+    current_user=Depends(
+        get_current_user
+    ),
 ):
 
     try:
 
-        session = (
-            session_service.get_session_status(
-                session_id
-            )
+        session = session_service.get_session_status(
+            session_id
         )
 
         return SessionStatusResponse(
             **session
         )
+
+    except HTTPException:
+        raise
 
     except Exception as error:
 
@@ -235,9 +318,26 @@ def get_session_status(
 )
 def stop_session(
     session_id: str,
+    current_user=Depends(
+        get_current_user
+    ),
 ):
 
     try:
+
+        session = session_service.get_session(
+            session_id
+        )
+
+        if (
+            current_user["role"] != "admin"
+            and
+            session["user_id"] != current_user["username"]
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail="You do not have access to this session.",
+            )
 
         session_service.stop_session(
             session_id
@@ -246,6 +346,69 @@ def stop_session(
         return SessionStopResponse(
             success=True,
             message="Session stopped",
+        )
+
+    except HTTPException:
+        raise
+
+    except Exception as error:
+
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
+
+@router.post(
+    "/{session_id}/restart"
+)
+def restart_session(
+    session_id: str,
+    current_user=Depends(
+        get_current_user
+    ),
+):
+
+    try:
+        
+        session = session_service.get_session(
+            session_id
+        )
+
+        if (
+            current_user["role"] != "admin"
+            and
+            session["user_id"] != current_user["username"]
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail="You do not have access to this session.",
+            )
+
+        restart_user = (
+            session["user_id"]
+            if current_user["role"] == "admin"
+            else current_user["username"]
+        )
+
+        session_service.restart_session(
+            session_id,
+            restart_user,
+        )
+
+        return {
+            "success": True,
+            "message":
+                "Game restart requested.",
+        }
+
+    except HTTPException:
+        raise
+
+    except ValueError as error:
+
+        raise HTTPException(
+            status_code=409,
+            detail=str(error),
         )
 
     except Exception as error:

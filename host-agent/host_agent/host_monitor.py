@@ -311,3 +311,16 @@ class HostMonitor:
                 round((used_bytes / total_bytes) * 100, 1) if total_bytes > 0 else 0
             ),
         }
+
+    def get_health_summary(self):
+
+        metrics = self.get_metrics()
+
+        return {
+            "state": metrics["health"],
+            "cpu_percent": metrics["cpu_percent"],
+            "ram_percent": metrics["ram_percent"],
+            "gpu_percent": metrics["gpu_percent"],
+            "gpu_temp": metrics["gpu_temp"],
+            "disk_free_gb": metrics["disk_free_gb"],
+        }

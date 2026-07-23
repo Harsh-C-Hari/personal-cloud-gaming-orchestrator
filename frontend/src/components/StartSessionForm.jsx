@@ -2,7 +2,6 @@
  * components/StartSessionForm.jsx
  *
  * Controlled form that maps directly to StartSessionRequest (pydantic model):
- *   user_id    : str           (required)
  *   game_id    : str           (required — chosen from GET /games/)
  *   duration   : int = 60
  *   warning    : int = 5
@@ -23,7 +22,6 @@ import { deleteSave, fetchSaves, startSession, validateGame } from "../api/clien
 import { SaveBrowser } from "./SaveBrowser.jsx";
 import { GameLibrary } from "./GameLibrary.jsx";
 const DEFAULT_FORM = {
-  user_id:    "",
   game_id:    "",
   duration:   60,
   warning:    5,
@@ -34,7 +32,6 @@ const DEFAULT_FORM = {
 
 export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions}) {
   const [form, setForm] = useState(DEFAULT_FORM);
-  const [debouncedUserId, setDebouncedUserId] = useState("");
   const [submitting,  setSubmitting] = useState(false);
   const [formErr,     setFormErr]    = useState(null);
   const [launchedId,  setLaunchedId] = useState(null);
@@ -69,26 +66,9 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
   
 
   useEffect(() => {
-
-      const timer =
-          setTimeout(() => {
-
-              setDebouncedUserId(
-                  form.user_id.trim()
-              );
-
-          }, 400);
-
-      return () =>
-          clearTimeout(timer);
-
-  }, [form.user_id]);
-  
-  useEffect(() => {
-    const userId = debouncedUserId;
     const gameId = form.game_id;
 
-    if (!userId || !gameId) {
+    if (!gameId) {
       setSaves({
         latest_exists: false,
         archives: [],
@@ -106,8 +86,7 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
 
       try {
         const data = await fetchSaves(
-          userId,
-          gameId
+          gameId,
         );
 
         if (!cancelled) {
@@ -132,7 +111,7 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
     return () => {
       cancelled = true;
     };
-  }, [debouncedUserId, form.game_id]);
+  }, [form.game_id]);
 
   useEffect(() => {
     if (!form.game_id) {
@@ -238,7 +217,7 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
 
       setSavesErr("");
 
-  }, [form.user_id, form.game_id]);
+  }, [form.game_id]);
 
   useEffect(() => {
 
@@ -273,7 +252,6 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
   // ── Submit ────────────────────────────────────────────────────────────
 
   async function refreshSaves() {
-    const userId = form.user_id.trim();
     const gameId = form.game_id;
 
     if (!userId || !gameId) {
@@ -281,15 +259,13 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
     }
 
     const data = await fetchSaves(
-      userId,
-      gameId
+      gameId,
     );
 
     setSaves(data);
   }
   
   async function handleDeleteSave() {
-    const userId = form.user_id.trim();
     const gameId = form.game_id;
 
     if (
@@ -312,7 +288,6 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
 
     try {
       await deleteSave(
-        userId,
         gameId,
         form.save_type,
         form.save_name.trim()
@@ -340,10 +315,6 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
     setLaunchedSeen(false);
 
     try {
-      if (!form.user_id.trim()) {
-        setFormErr("User ID is required.");
-        return;
-      }
 
       if (!form.game_id) {
         setFormErr("Select a game.");
@@ -425,7 +396,6 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
         : Number(form.warning);
       
       const payload = {
-        user_id: form.user_id.trim(),
         game_id: form.game_id,
         duration: duration,
         warning: warning,
@@ -440,13 +410,11 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
       const res = await startSession(payload);
       
       setLaunchedId(res.session_id);
-      setLastLaunchUserId(form.user_id.trim());
       setLastLaunchGameId(form.game_id);
       setLaunchedSeen(false);
 
       setForm((f) => ({
         ...f,
-        user_id: "",
         save_type: "latest",
         save_name: "",
       }));
@@ -535,19 +503,6 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-      {/* User ID */}
-      <div>
-        <FieldLabel>User ID</FieldLabel>
-        <input
-          style={inputStyle}
-          value={form.user_id}
-          placeholder="user_id"
-          onChange={(e) => set("user_id", e.target.value)}
-          onFocus={focusBorder}
-          onBlur={blurBorder}
-        />
-      </div>
-
       {/* Game */}
       <div>
         <FieldLabel>Game</FieldLabel>
@@ -696,7 +651,7 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
       </div>
 
       {/* Load Save */}
-      {debouncedUserId && form.game_id ? (
+      {form.game_id ? (
       <SaveBrowser
         type={form.save_type}
         name={form.save_name}
@@ -724,7 +679,7 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
           fontFamily: "'JetBrains Mono', monospace",
         }}
       >
-        Enter user ID and select game to load saves.
+        Select a game to load your saves.
       </div>
     )}
 

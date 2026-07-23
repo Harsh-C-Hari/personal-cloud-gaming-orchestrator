@@ -5,6 +5,10 @@
  * Kept intentionally thin — all layout lives in Dashboard.
  */
 
+import {
+    isLoggedIn,
+} from "./api/client";
+import Login from "./pages/Login";
 import { Dashboard } from "./pages/Dashboard.jsx";
 
 const GLOBAL_CSS = `
@@ -38,7 +42,34 @@ const GLOBAL_CSS = `
   select option { background: #0f1117; color: #e2e8f0; }
 
   /* Thin scrollbars */
-  ::-webkit-scrollbar       { width: 4px; height: 4px; }
+  /* Firefox */
+  * {
+      scrollbar-width: thin;
+      scrollbar-color: #1c2130 transparent;
+  }
+
+  /* Chromium */
+  *::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+      background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+      background: #1c2130;
+      border-radius: 999px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+  }
+
+  *::-webkit-scrollbar-corner {
+      background: transparent;
+  }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #1c2130; border-radius: 2px; }
 
@@ -55,6 +86,15 @@ const GLOBAL_CSS = `
 `;
 
 export default function App() {
+  if (!isLoggedIn()) {
+    return (
+      <>
+        <style>{GLOBAL_CSS}</style>
+        <Login />
+      </>
+    );
+  }
+  
   return (
     <>
       <style>{GLOBAL_CSS}</style>

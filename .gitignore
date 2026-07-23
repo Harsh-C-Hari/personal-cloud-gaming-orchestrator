@@ -9,6 +9,7 @@ logs/
 
 # Runtime
 host_saves/
+stream_hook_error.txt
 
 # Save data
 saves/

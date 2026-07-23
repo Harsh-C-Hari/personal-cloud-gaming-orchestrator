@@ -18,7 +18,9 @@
  */
 
 const STATUS_COLORS = {
+  starting:   "#00aaff",
   running:   "#10d98a",
+  restarted:   "#179f69",
   stopping: "#e46612",
   cleaning: "#4d2cf4",
   completed: "#38bdf8",

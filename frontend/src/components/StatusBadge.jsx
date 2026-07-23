@@ -13,13 +13,15 @@
 
 /** @type {Record<string, { label: string, color: string, glow: string, pulse: boolean }>} */
 const STATUS_CONFIG = {
-  starting:  { label: "STARTING",  color: "#0a39f5", glow: "rgba(245,158,11,0.5)",  pulse: true  },
-  running:   { label: "RUNNING",   color: "#10d98a", glow: "rgba(16,217,138,0.55)", pulse: true  },
-  stopping:  { label: "STOPPING",  color: "#e46612", glow: "rgba(244,63,94,0.5)",   pulse: false },
-  cleaning:  { label: "CLEANING",  color: "#4d2cf4", glow: "rgba(56,189,248,0.45)", pulse: false },
-  completed: { label: "COMPLETED",  color: "#5d696f", glow: "rgba(56,189,248,0.45)", pulse: false },
-  failed:    { label: "FAILED",    color: "#de193a", glow: "rgba(244,63,94,0.5)",   pulse: false },
-  stopped:   { label: "STOPPED",   color: "#e6a822", glow: "rgba(100,116,139,0.3)", pulse: false },
+  starting:     { label: "STARTING",  color: "#0a39f5", glow: "rgba(245,158,11,0.5)",  pulse: true  },
+  running:      { label: "RUNNING",   color: "#10d98a", glow: "rgba(16,217,138,0.55)", pulse: true  },
+  restarting:   { label: "RESTARTING",   color: "#2410d9", glow: "rgba(16, 23, 217, 0.55)", pulse: true  },
+  restarted:    { label: "RESTARTED",   color: "#1ab778", glow: "rgba(16,217,138,0.55)", pulse: true  },
+  stopping:     { label: "STOPPING",  color: "#e46612", glow: "rgba(244,63,94,0.5)",   pulse: false },
+  cleaning:     { label: "CLEANING",  color: "#4d2cf4", glow: "rgba(56,189,248,0.45)", pulse: false },
+  completed:    { label: "COMPLETED",  color: "#5d696f", glow: "rgba(56,189,248,0.45)", pulse: false },
+  failed:       { label: "FAILED",    color: "#de193a", glow: "rgba(244,63,94,0.5)",   pulse: false },
+  stopped:      { label: "STOPPED",   color: "#e6a822", glow: "rgba(100,116,139,0.3)", pulse: false },
 };
 
 const FALLBACK = { label: "UNKNOWN", color: "#475569", glow: "transparent", pulse: false };

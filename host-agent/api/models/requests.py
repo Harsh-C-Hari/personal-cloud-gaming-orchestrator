@@ -3,8 +3,6 @@ from pydantic import BaseModel
 
 class StartSessionRequest(BaseModel):
 
-    user_id: str
-
     game_id: str
 
     duration: int = 60

@@ -138,6 +138,9 @@ export function LiveCountdown({
         : status === "cleaning"
           ? "CLEANING"
 
+        : status === "restarted"
+          ? "RESTARTED"
+
         : display
       }
     </span>

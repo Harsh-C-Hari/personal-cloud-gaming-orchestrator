@@ -10,6 +10,7 @@ def read_logs(
     session=None,
     search=None,
     limit=200,
+    allowed_sessions=None,
 ):
 
     if not LOG_FILE.exists():
@@ -28,6 +29,20 @@ def read_logs(
 
         lines = file.readlines()
 
+    if allowed_sessions is not None:
+
+        allowed_sessions = set(allowed_sessions)
+
+        lines = [
+            line
+            for line in lines
+            if any(
+                f"[session={session_id}]"
+                in line
+                for session_id in allowed_sessions
+            )
+        ]
+    
     if level:
 
         lines = [
@@ -77,7 +92,9 @@ def read_logs(
         "errors": errors,
     }
 
-def available_sessions():
+def available_sessions(
+    allowed_sessions=None,
+):
 
     sessions = []
 
@@ -101,6 +118,12 @@ def available_sessions():
 
                 session = match.group(1)
 
+                if (
+                    allowed_sessions is not None
+                    and session not in allowed_sessions
+                ):
+                    continue
+                
                 if (
                     session and
                     session != "-" and
