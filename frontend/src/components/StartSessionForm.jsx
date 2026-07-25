@@ -18,6 +18,17 @@
  */
 
 import { useEffect, useState } from "react";
+import {
+  FaChevronDown,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaExclamationTriangle,
+  FaGamepad,
+  FaClock,
+  FaBell,
+  FaRocket,
+  FaInfoCircle,
+} from "react-icons/fa";
 import { deleteSave, fetchSaves, startSession, validateGame } from "../api/client.js";
 import { SaveBrowser } from "./SaveBrowser.jsx";
 import { GameLibrary } from "./GameLibrary.jsx";
@@ -441,404 +452,556 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
 
   // ── Shared style primitives ───────────────────────────────────────────
 
-  const inputStyle = {
-    width:        "100%",
-    padding:      "9px 12px",
-    background:   "#080a0f",
-    border:       "1px solid #1c2130",
-    borderRadius: "5px",
-    color:        "#e2e8f0",
-    fontSize:     "13px",
-    fontFamily:   "inherit",
-    outline:      "none",
-    boxSizing:    "border-box",
-    transition:   "border-color 0.2s",
+  const palette = {
+    bg: "#080a0f",
+    card: "rgba(3, 2, 2, 0.55)",
+    border: "#1c2130",
+    borderStrong: "rgba(148,163,184,0.18)",
+    text: "#e2e8f0",
+    dim: "#94a3b8",
+    faint: "#64748b",
+    muted: "#475569",
+    accent: "#38bdf8",
+    success: "#10d98a",
+    warning: "#f5a524",
+    danger: "#f43f5e",
+    mono: "'JetBrains Mono', monospace",
   };
 
-  const hostWarningBox = {
-    marginTop: "10px",
-    fontSize: "10px",
-    color: "#f59e0b",
-    fontFamily: "'JetBrains Mono', monospace",
-    lineHeight: 1.5,
+  const inputStyle = {
+    width: "100%",
+    padding: "10px 12px",
+    background: palette.bg,
+    border: `1px solid ${palette.border}`,
+    borderRadius: "7px",
+    color: palette.text,
+    fontSize: "13px",
+    fontFamily: "inherit",
+    outline: "none",
+    boxSizing: "border-box",
+    transition: "border-color 0.2s, box-shadow 0.2s",
+  };
+
+  const cardSection = {
+    padding: "16px",
+    borderRadius: "10px",
+    border: `1px solid ${palette.border}`,
+    background: palette.card,
   };
 
   const validationText = {
-    marginTop: "8px",
-    fontSize: "10px",
-    color: "#475569",
-    fontFamily: "'JetBrains Mono', monospace",
+    marginTop: "9px",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    fontSize: "10.5px",
+    color: palette.faint,
+    fontFamily: palette.mono,
   };
 
-  const validationOk = {
-    ...validationText,
-    color: "#10d98a",
+  const validationOk = { ...validationText, color: palette.success };
+  const validationBad = { ...validationText, color: palette.danger };
+
+  const focusBorder = (e) => {
+    e.target.style.borderColor = "rgba(56,189,248,0.5)";
+    e.target.style.boxShadow = "0 0 0 3px rgba(56,189,248,0.08)";
+  };
+  const blurBorder = (e) => {
+    e.target.style.borderColor = palette.border;
+    e.target.style.boxShadow = "none";
   };
 
-  const validationBad = {
-    ...validationText,
-    color: "#f43f5e",
-  };
-
-  const focusBorder  = (e) => { e.target.style.borderColor = "rgba(56,189,248,0.45)"; };
-  const blurBorder   = (e) => { e.target.style.borderColor = "#1c2130"; };
-
-  function FieldLabel({ children }) {
+  function FieldLabel({ icon, children }) {
     return (
-      <span style={{
-        display:       "block",
-        fontSize:      "9.5px",
-        color:         "#475569",
-        letterSpacing: "0.13em",
-        textTransform: "uppercase",
-        fontFamily:    "'JetBrains Mono', monospace",
-        marginBottom:  "7px",
-      }}>
+      <span
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+          fontSize: "9.5px",
+          color: palette.muted,
+          letterSpacing: "0.13em",
+          textTransform: "uppercase",
+          fontFamily: palette.mono,
+          marginBottom: "8px",
+        }}
+      >
+        {icon}
         {children}
       </span>
     );
   }
 
+  function SectionHeading({ children }) {
+    return (
+      <div
+        style={{
+          fontSize: "10px",
+          color: palette.muted,
+          letterSpacing: "0.15em",
+          textTransform: "uppercase",
+          fontFamily: palette.mono,
+          marginBottom: "12px",
+        }}
+      >
+        {children}
+      </div>
+    );
+  }
+
+  const launchDisabled =
+    submitting || !gamesReady || gameValidationLoading || sessionBlocked;
+
   // ── Render ────────────────────────────────────────────────────────────
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-      {/* Game */}
-      <div>
-        <FieldLabel>Game</FieldLabel>
-        
-          <>
-            {entries.length == 0 
-              ? <span style={{
-                  width: "100%",
-                  marginTop: "8px",
-                  background: "rgba(2,6,23,0.45)",
-                  color: "#ef880a",
-                  padding: "6px",
-                  fontSize: "11px",
-                  fontFamily: "'JetBrains Mono', monospace",
-                  letterSpacing: "0.08em",
-                }}>No games found</span>
-              : (
-                <select
-                  style={{ ...inputStyle, cursor: "pointer", appearance: "none" }}
-                  value={form.game_id}
-                  disabled={!gamesReady}
-                  onChange={(e) => set("game_id", e.target.value)}
-                  onFocus={focusBorder}
-                  onBlur={blurBorder}
-                >
-                  <option value="">
-                    Select a game to play
-                  </option>
-                  
-                  {!gamesReady
-                    ? <option>No games found. Loading...</option>
-                    : Object.entries(games).map(([id, g]) => (
-                        <option key={id} value={id}>
-                          {g.name ?? id}
-                        </option>
-                      ))
-                  }
-                </select>
-            )}
-
-            <button
-              type="button"
-              onClick={() =>
-                setShowGameDetails(
-                  !showGameDetails
-                )
-              }
-              style={{
-                width: "100%",
-                marginTop: "8px",
-                border: "1px solid rgba(148,163,184,0.18)",
-                background: "rgba(2,6,23,0.45)",
-                color: "#94a3b8",
-                borderRadius: "6px",
-                padding: "6px",
-                fontSize: "9px",
-                fontFamily: "'JetBrains Mono', monospace",
-                letterSpacing: "0.08em",
-                cursor: "pointer",
-              }}
-              onMouseEnter={(e) =>
-                e.currentTarget.style.background =
-                  "rgba(56, 191, 248, 0.08)"
-              }
-
-              onMouseLeave={(e) =>
-                e.currentTarget.style.background =
-                  "rgba(56, 191, 248, 0)"
-              }
-            >
-              {
-                showGameDetails
-                  ? "HIDE DETAILS"
-                  : "SHOW DETAILS"
-              }
-            </button>
-            
-            { showGameDetails && (
-              <div style={{ marginTop: "10px" }}>
-                <GameLibrary
-                  games={games}
-                  selectedGameId={form.game_id}
-                  onSelectGame={(gameId) =>
-                    set("game_id", gameId)
-                  }
-                />
-              </div>
-            )}
-          </>
-
-        {gameValidationLoading && (
-          <div style={validationText}>
-            Checking game config…
-          </div>
-        )}
-
-        {gameValidationErr && (
-          <div style={validationBad}>
-            Game validation unavailable.
-          </div>
-        )}
-
-        {gameValidation && (
-          <div
-            style={
-              gameValidation.valid
-                ? validationOk
-                : validationBad
-            }
-          >
-            {gameValidation.valid
-              ? "Game config ready."
-              : gameValidation.errors.join(" ")}
-          </div>
-        )}
-      </div>
-
-      {/* Duration + Warning */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-        <div>
-          <FieldLabel>Duration (min)</FieldLabel>
-          <input
-            type="number"
-            min={1} max={480}
-            style={{ ...inputStyle, opacity: form.skip_timer ? 0.35 : 1 }}
-            value={form.duration}
-            disabled={form.skip_timer}
-            onChange={(e) => set("duration", e.target.value)}
-            onFocus={focusBorder}
-            onBlur={blurBorder}
-          />
-        </div>
-        <div>
-          <FieldLabel>Warning (min)</FieldLabel>
-          <input
-            type="number"
-            min={1} max={60}
-            style={{ ...inputStyle, opacity: form.skip_timer ? 0.35 : 1 }}
-            value={form.warning}
-            disabled={form.skip_timer}
-            onChange={(e) => set("warning", e.target.value)}
-            onFocus={focusBorder}
-            onBlur={blurBorder}
-          />
-        </div>
-      </div>
-
-      {/* Load Save */}
-      {form.game_id ? (
-      <SaveBrowser
-        type={form.save_type}
-        name={form.save_name}
-        saves={saves}
-        loading={savesLoading}
-        error={savesErr}
-        deleting={deletingSave}
-        onTypeChange={(value) => {
-          set("save_type", value);
-          set("save_name", "");
-        }}
-        onNameChange={(value) =>
-          set("save_name", value)
-        }
-        onDelete={handleDeleteSave}
-      />
-    ) : (
+    <div
+      style={{
+        border: `1px solid ${palette.border}`,
+        borderRadius: "12px",
+        background: "rgba(0, 0, 0, 0.5)",
+        overflow: "hidden",
+      }}
+    >
+      {/* Header */}
       <div
         style={{
-          padding: "10px",
-          border: "1px dashed #1c2130",
-          borderRadius: "6px",
-          color: "#475569",
-          fontSize: "10px",
-          fontFamily: "'JetBrains Mono', monospace",
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          padding: "16px 20px",
+          borderBottom: `1px solid ${palette.border}`,
+          background: "rgb(1, 3, 10)",
         }}
       >
-        Select a game to load your saves.
-      </div>
-    )}
-
-      {/* Skip Timer toggle */}
-      <div
-        role="checkbox"
-        aria-checked={form.skip_timer}
-        tabIndex={0}
-        onClick={() => set("skip_timer", !form.skip_timer)}
-        onKeyDown={(e) => { if (e.key === " " || e.key === "Enter") set("skip_timer", !form.skip_timer); }}
-        style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", userSelect: "none", padding: "4px 0" }}
-      >
-        {/* Track */}
-        <div style={{
-          width: "36px", height: "20px",
-          borderRadius: "10px",
-          background:   form.skip_timer ? "rgba(56,189,248,0.15)" : "#111620",
-          border:       `1px solid ${form.skip_timer ? "rgba(56,189,248,0.5)" : "#1c2130"}`,
-          position: "relative",
-          transition: "all 0.25s",
-          flexShrink: 0,
-        }}>
-          {/* Thumb */}
-          <div style={{
-            position: "absolute",
-            top: "2px",
-            left: form.skip_timer ? "16px" : "2px",
-            width: "14px", height: "14px",
-            borderRadius: "50%",
-            background: form.skip_timer ? "#38bdf8" : "#2d3748",
-            boxShadow: form.skip_timer ? "0 0 8px rgba(56,189,248,0.6)" : "none",
-            transition: "all 0.25s",
-          }} />
-        </div>
-        <span style={{ fontSize: "12px", color: "#475569", fontFamily: "'JetBrains Mono', monospace" }}>
-          Skip Timer
-        </span>
-      </div>
-
-      {/* Form error */}
-      {formErr && (
-        <div style={{
-          padding: "10px 14px",
-          background: "rgba(244,63,94,0.07)",
-          border: "1px solid rgba(244,63,94,0.3)",
-          borderRadius: "5px",
-          color: "#f43f5e",
-          fontSize: "12px",
-          fontFamily: "'JetBrains Mono', monospace",
-        }}>
-          ✕ {formErr}
-        </div>
-      )}
-
-      {/* Launch success */}
-      {launchedId && (
-        <div style={{
-          padding: "10px 14px",
-          background: "rgba(16,217,138,0.06)",
-          border: "1px solid rgba(16,217,138,0.25)",
-          borderRadius: "5px",
-          color: "#10d98a",
-          fontSize: "11px",
-          fontFamily: "'JetBrains Mono', monospace",
-          letterSpacing: "0.03em",
-          animation: "card-in 0.2s ease forwards",
-        }}>
-          ✓ launched: {launchedId}
-        </div>
-      )}
-
-      {hostStatus && (
-        <div style={hostWarningBox}>
-          {!hostStatus.sunshine_running && (
-            <div>Warning: Sunshine is not running.</div>
-          )}
-
-          {!hostStatus.tailscale_running && (
-            <div>Warning: Tailscale is not running.</div>
-          )}
-
-          {hostStatus.sunshine_api_reachable === false && (
-            <div>Warning: Sunshine API is not reachable.</div>
-          )}
-
-          {hostStatus.sunshine_apps_count === 0 && (
-            <div>Warning: Sunshine has no configured apps.</div>
-          )}
-        </div>
-      )}
-      
-      {/* Launch button */}
-      <button
-        onClick={handleLaunch}
-        disabled={
-          submitting ||
-          !gamesReady ||
-          gameValidationLoading ||
-          sessionBlocked
-        }
-        style={{
-          padding:       "12px",
-          background:    submitting ? "rgba(56,189,248,0.05)" : "rgba(56,189,248,0.1)",
-          border:        "1px solid rgba(56,189,248,0.38)",
-          borderRadius:  "5px",
-          color:         "#38bdf8",
-          fontSize:      "11px",
-          fontFamily:    "'JetBrains Mono', monospace",
-          fontWeight:    700,
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
-          cursor:
-            submitting ||
-            !gamesReady ||
-            gameValidationLoading ||
-            sessionBlocked
-              ? "not-allowed"
-              : "pointer",
-          textShadow:    "0 0 14px rgba(56,189,248,0.4)",
-          transition:    "background 0.2s",
-          opacity:
-            (
-              !gamesReady ||
-              sessionBlocked
-            )
-              ? 0.5
-              : 1,
-        }}
-        onMouseEnter={(e) => { if (!submitting && gamesReady) e.currentTarget.style.background = "rgba(56,189,248,0.16)"; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = submitting ? "rgba(56,189,248,0.05)" : "rgba(56,189,248,0.1)"; }}
-      >
-        {submitting ? "Checking / Launching..." : "Launch Session"}
-      </button>
-
-      {sessionBlocked && 
-        hostStatus?.host_ready_reason != null && (
         <div
           style={{
-            marginTop: "8px",
-            fontSize: "10px",
-            color: "#facc15",
-            fontFamily:
-              "'JetBrains Mono', monospace",
+            width: "30px",
+            height: "30px",
+            borderRadius: "8px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "rgba(56,189,248,0.12)",
+            border: "1px solid rgba(56,189,248,0.3)",
+            color: palette.accent,
+            fontSize: "13px",
           }}
         >
-          {
-            hostState === "maintenance"
+          <FaRocket />
+        </div>
+        <div>
+          <div
+            style={{
+              fontSize: "13.5px",
+              fontWeight: 700,
+              color: palette.text,
+              fontFamily: "'Rajdhani', sans-serif",
+              letterSpacing: "0.02em",
+            }}
+          >
+            Launch a Session
+          </div>
+          <div style={{ fontSize: "10px", color: palette.faint, fontFamily: palette.mono, marginTop: "1px" }}>
+            Pick a game, set your timer, and go
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "16px", padding: "20px" }}>
+        {/* Game */}
+        <div style={cardSection}>
+          <FieldLabel icon={<FaGamepad size={10} />}>Game</FieldLabel>
+
+          {entries.length === 0 ? (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "10px 12px",
+                borderRadius: "7px",
+                background: "rgba(245,165,36,0.08)",
+                border: "1px solid rgba(245,165,36,0.3)",
+                color: palette.warning,
+                fontSize: "11px",
+                fontFamily: palette.mono,
+              }}
+            >
+              <FaExclamationTriangle size={11} />
+              No games found
+            </div>
+          ) : (
+            <div style={{ position: "relative" }}>
+              <select
+                style={{ ...inputStyle, cursor: "pointer", appearance: "none", paddingRight: "34px" }}
+                value={form.game_id}
+                disabled={!gamesReady}
+                onChange={(e) => set("game_id", e.target.value)}
+                onFocus={focusBorder}
+                onBlur={blurBorder}
+              >
+                <option value="">Select a game to play</option>
+
+                {!gamesReady ? (
+                  <option>No games found. Loading...</option>
+                ) : (
+                  Object.entries(games).map(([id, g]) => (
+                    <option key={id} value={id}>
+                      {g.name ?? id}
+                    </option>
+                  ))
+                )}
+              </select>
+              <FaChevronDown
+                size={10}
+                style={{
+                  position: "absolute",
+                  right: "13px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: palette.muted,
+                  pointerEvents: "none",
+                }}
+              />
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setShowGameDetails(!showGameDetails)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "6px",
+              width: "100%",
+              marginTop: "10px",
+              border: `1px solid ${palette.borderStrong}`,
+              background: "rgba(0, 0, 0, 0.45)",
+              color: palette.dim,
+              borderRadius: "7px",
+              padding: "7px",
+              fontSize: "9.5px",
+              fontFamily: palette.mono,
+              letterSpacing: "0.08em",
+              cursor: "pointer",
+              transition: "background 0.15s, color 0.15s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = palette.accent;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = palette.dim;
+            }}
+          >
+            {showGameDetails ? "HIDE GAME LIBRARY" : "BROWSE GAME LIBRARY"}
+            <FaChevronDown
+              size={9}
+              style={{
+                transform: showGameDetails ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 0.2s",
+              }}
+            />
+          </button>
+
+          {showGameDetails && (
+            <div style={{ marginTop: "12px" }}>
+              <GameLibrary games={games} selectedGameId={form.game_id} onSelectGame={(gameId) => set("game_id", gameId)} />
+            </div>
+          )}
+
+          {gameValidationLoading && (
+            <div style={validationText}>
+              <FaInfoCircle size={10} /> Checking game config…
+            </div>
+          )}
+
+          {gameValidationErr && (
+            <div style={validationBad}>
+              <FaTimesCircle size={10} /> Game validation unavailable.
+            </div>
+          )}
+
+          {gameValidation && (
+            <div style={gameValidation.valid ? validationOk : validationBad}>
+              {gameValidation.valid ? <FaCheckCircle size={10} /> : <FaTimesCircle size={10} />}
+              {gameValidation.valid ? "Game config ready." : gameValidation.errors.join(" ")}
+            </div>
+          )}
+        </div>
+
+        {/* Duration + Warning */}
+        <div style={cardSection}>
+          <SectionHeading>Session Timer</SectionHeading>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div>
+              <FieldLabel icon={<FaClock size={9} />}>Duration (min)</FieldLabel>
+              <input
+                type="number"
+                min={1}
+                max={480}
+                style={{ ...inputStyle, opacity: form.skip_timer ? 0.35 : 1 }}
+                value={form.duration}
+                disabled={form.skip_timer}
+                onChange={(e) => set("duration", e.target.value)}
+                onFocus={focusBorder}
+                onBlur={blurBorder}
+              />
+            </div>
+            <div>
+              <FieldLabel icon={<FaBell size={9} />}>Warning (min)</FieldLabel>
+              <input
+                type="number"
+                min={1}
+                max={60}
+                style={{ ...inputStyle, opacity: form.skip_timer ? 0.35 : 1 }}
+                value={form.warning}
+                disabled={form.skip_timer}
+                onChange={(e) => set("warning", e.target.value)}
+                onFocus={focusBorder}
+                onBlur={blurBorder}
+              />
+            </div>
+          </div>
+
+          {/* Skip Timer toggle */}
+          <div
+            role="checkbox"
+            aria-checked={form.skip_timer}
+            tabIndex={0}
+            onClick={() => set("skip_timer", !form.skip_timer)}
+            onKeyDown={(e) => {
+              if (e.key === " " || e.key === "Enter") set("skip_timer", !form.skip_timer);
+            }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              cursor: "pointer",
+              userSelect: "none",
+              marginTop: "14px",
+              paddingTop: "14px",
+              borderTop: `1px solid ${palette.border}`,
+            }}
+          >
+            <div
+              style={{
+                width: "36px",
+                height: "20px",
+                borderRadius: "10px",
+                background: form.skip_timer ? "rgba(56,189,248,0.15)" : "#111620",
+                border: `1px solid ${form.skip_timer ? "rgba(56,189,248,0.5)" : palette.border}`,
+                position: "relative",
+                transition: "all 0.25s",
+                flexShrink: 0,
+              }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  top: "2px",
+                  left: form.skip_timer ? "16px" : "2px",
+                  width: "14px",
+                  height: "14px",
+                  borderRadius: "50%",
+                  background: form.skip_timer ? palette.accent : "#2d3748",
+                  boxShadow: form.skip_timer ? "0 0 8px rgba(56,189,248,0.6)" : "none",
+                  transition: "all 0.25s",
+                }}
+              />
+            </div>
+            <span style={{ fontSize: "12px", color: palette.dim, fontFamily: palette.mono }}>
+              Skip Timer
+            </span>
+          </div>
+        </div>
+
+        {/* Load Save */}
+        <div style={cardSection}>
+          <SectionHeading>Save Data</SectionHeading>
+          {form.game_id ? (
+            <SaveBrowser
+              type={form.save_type}
+              name={form.save_name}
+              saves={saves}
+              loading={savesLoading}
+              error={savesErr}
+              deleting={deletingSave}
+              onTypeChange={(value) => {
+                set("save_type", value);
+                set("save_name", "");
+              }}
+              onNameChange={(value) => set("save_name", value)}
+              onDelete={handleDeleteSave}
+            />
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "12px",
+                border: `1px dashed ${palette.border}`,
+                borderRadius: "7px",
+                color: palette.muted,
+                fontSize: "10.5px",
+                fontFamily: palette.mono,
+              }}
+            >
+              <FaInfoCircle size={11} />
+              Select a game to load your saves.
+            </div>
+          )}
+        </div>
+
+        {/* Form error */}
+        {formErr && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: "9px",
+              padding: "11px 14px",
+              background: "rgba(244,63,94,0.07)",
+              border: "1px solid rgba(244,63,94,0.3)",
+              borderRadius: "8px",
+              color: palette.danger,
+              fontSize: "12px",
+              fontFamily: palette.mono,
+            }}
+          >
+            <FaTimesCircle size={12} style={{ marginTop: "1px", flexShrink: 0 }} />
+            {formErr}
+          </div>
+        )}
+
+        {/* Launch success */}
+        {launchedId && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "9px",
+              padding: "11px 14px",
+              background: "rgba(16,217,138,0.06)",
+              border: "1px solid rgba(16,217,138,0.25)",
+              borderRadius: "8px",
+              color: palette.success,
+              fontSize: "11px",
+              fontFamily: palette.mono,
+              letterSpacing: "0.03em",
+              animation: "card-in 0.2s ease forwards",
+            }}
+          >
+            <FaCheckCircle size={12} style={{ flexShrink: 0 }} />
+            Launched: {launchedId}
+          </div>
+        )}
+
+        {hostStatus &&
+          (!hostStatus.sunshine_running ||
+            !hostStatus.tailscale_running ||
+            hostStatus.sunshine_api_reachable === false ||
+            hostStatus.sunshine_apps_count === 0) && (
+            <div
+              style={{
+                padding: "11px 14px",
+                borderRadius: "8px",
+                background: "rgba(245,165,36,0.06)",
+                border: "1px solid rgba(245,165,36,0.25)",
+                display: "flex",
+                flexDirection: "column",
+                gap: "6px",
+              }}
+            >
+              {!hostStatus.sunshine_running && (
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "10.5px", color: palette.warning, fontFamily: palette.mono }}>
+                  <FaExclamationTriangle size={10} /> Sunshine is not running.
+                </div>
+              )}
+              {!hostStatus.tailscale_running && (
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "10.5px", color: palette.warning, fontFamily: palette.mono }}>
+                  <FaExclamationTriangle size={10} /> Tailscale is not running.
+                </div>
+              )}
+              {hostStatus.sunshine_api_reachable === false && (
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "10.5px", color: palette.warning, fontFamily: palette.mono }}>
+                  <FaExclamationTriangle size={10} /> Sunshine API is not reachable.
+                </div>
+              )}
+              {hostStatus.sunshine_apps_count === 0 && (
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "10.5px", color: palette.warning, fontFamily: palette.mono }}>
+                  <FaExclamationTriangle size={10} /> Sunshine has no configured apps.
+                </div>
+              )}
+            </div>
+          )}
+
+        {/* Launch button */}
+        <button
+          onClick={handleLaunch}
+          disabled={launchDisabled}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "9px",
+            padding: "13px",
+            background: submitting
+              ? "rgba(56,189,248,0.06)"
+              : "linear-gradient(180deg, rgba(56,189,248,0.16), rgba(56,189,248,0.08))",
+            border: "1px solid rgba(56,189,248,0.4)",
+            borderRadius: "8px",
+            color: palette.accent,
+            fontSize: "12px",
+            fontFamily: palette.mono,
+            fontWeight: 700,
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            cursor: launchDisabled ? "not-allowed" : "pointer",
+            textShadow: "0 0 14px rgba(56,189,248,0.4)",
+            transition: "background 0.2s, transform 0.1s",
+            opacity: !gamesReady || sessionBlocked ? 0.5 : 1,
+          }}
+          onMouseEnter={(e) => {
+            if (!launchDisabled) {
+              e.currentTarget.style.background =
+                "linear-gradient(180deg, rgba(56,189,248,0.24), rgba(56,189,248,0.12))";
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = submitting
+              ? "rgba(56,189,248,0.06)"
+              : "linear-gradient(180deg, rgba(56,189,248,0.16), rgba(56,189,248,0.08))";
+          }}
+        >
+          <FaRocket size={12} />
+          {submitting ? "Checking / Launching..." : "Launch Session"}
+        </button>
+
+        {sessionBlocked && hostStatus?.host_ready_reason != null && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "7px",
+              fontSize: "10.5px",
+              color: palette.warning,
+              fontFamily: palette.mono,
+            }}
+          >
+            <FaExclamationTriangle size={10} />
+            {hostState === "maintenance"
               ? "Host is in maintenance mode."
               : hostState === "recovery"
               ? "Host is in recovery mode."
               : hostState === "starting"
               ? "Host is still starting."
-              : `Host not ready: ${
-                  hostStatus?.host_ready_reason ??
-                  "Unknown reason"
-                }`
-          }
-        </div>
-      )}
+              : `Host not ready: ${hostStatus?.host_ready_reason ?? "Unknown reason"}`}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

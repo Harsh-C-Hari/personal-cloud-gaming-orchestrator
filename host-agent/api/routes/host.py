@@ -43,6 +43,13 @@ def get_host_status(
         get_current_user
     ),
 ):   
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     with registry_lock:
         active_count = len(active_sessions)
     sunshine = sunshine_controller.status()
@@ -164,6 +171,13 @@ def get_host_metrics(
         get_current_user
     ),
 ):
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     return JSONResponse(
         content=host_monitor.get_metrics(),
         headers={

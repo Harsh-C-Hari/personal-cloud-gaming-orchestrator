@@ -1,3 +1,27 @@
+/**
+ * components/LogPanel.jsx
+ *
+ * Same data fetching (getLogs, getLogSessions), same state, same
+ * auto-refresh / scroll-tracking / search-highlight / responsive
+ * (compact / mobile) logic, same download & export handlers as before —
+ * only the presentation was reworked to match the visual language already
+ * used by SessionHistory / SessionAnalytics / GameManager / SettingsPanel:
+ *   - Icon-badged section header with a live entry count, matching the
+ *     other panels' header pattern.
+ *   - Icon-labeled filter controls (level / session / search) styled with
+ *     the shared input/select treatment instead of bare browser widgets.
+ *   - Entries / Warnings / Errors rendered as icon-badged stat tiles
+ *     instead of a plain text status line.
+ *   - LIVE/PAUSED, REFRESH, DOWNLOAD and EXPORT are now icon+label pill
+ *     buttons using the same mono, uppercase, bordered treatment used
+ *     everywhere else in the app.
+ *   - The mobile "more" menu is restyled as a bordered dropdown card
+ *     matching GameManager's menu pattern.
+ *
+ * No functional change: every handler, state variable, ref, effect and
+ * API call below is untouched from the previous implementation.
+ */
+
 import {
     useEffect,
     useState,
@@ -5,10 +29,41 @@ import {
 } from "react";
 
 import {
+    FaFileAlt,
+    FaSyncAlt,
+    FaDownload,
+    FaFileExport,
+    FaSearch,
+    FaEllipsisV,
+    FaExclamationTriangle,
+    FaTimesCircle,
+    FaBroadcastTower,
+    FaPauseCircle,
+    FaChevronDown,
+    FaListUl,
+} from "react-icons/fa";
+
+import {
     getLogs,
     getLogSessions,
     getApiUrl,
 } from "../api/client";
+
+const palette = {
+    border: "rgba(148,163,184,0.18)",
+    borderSubtle: "#11141c",
+    card: "rgb(0, 0, 0)",
+    bg: "#000000",
+    text: "#e2e8f0",
+    dim: "#94a3b8",
+    faint: "#64748b",
+    muted: "#475569",
+    accent: "#38bdf8",
+    success: "#10d98a",
+    warning: "#f59e0b",
+    danger: "#f43f5e",
+    mono: "'JetBrains Mono', monospace",
+};
 
 export function LogPanel() {
 
@@ -483,403 +538,408 @@ export function LogPanel() {
                 /[.*+?^${}()|[\]\\]/g,
                 "\\$&"
             );
-    
+
+    // ── Small presentational helpers (match GameManager / SessionHistory) ──
+
+    function PillButton({ active, tone, onClick, icon, children }) {
+        return (
+            <button
+                type="button"
+                onClick={onClick}
+                style={active ? activePillButton(tone) : pillButton}
+                onMouseEnter={(e) => {
+                    if (active) return;
+                    e.currentTarget.style.background = "rgba(56,189,248,0.08)";
+                    e.currentTarget.style.color = palette.accent;
+                    e.currentTarget.style.borderColor = "rgba(56,189,248,0.4)";
+                }}
+                onMouseLeave={(e) => {
+                    if (active) return;
+                    e.currentTarget.style.background = palette.card;
+                    e.currentTarget.style.color = palette.dim;
+                    e.currentTarget.style.borderColor = palette.border;
+                }}
+            >
+                {icon}
+                {children}
+            </button>
+        );
+    }
+
+    function StatTile({ icon, label, value, tone }) {
+        return (
+            <div style={statTile}>
+                <div style={statIconWrap(tone)}>
+                    {icon}
+                </div>
+                <div style={{ minWidth: 0 }}>
+                    <div style={{ ...statValue, color: tone }}>
+                        {value}
+                    </div>
+                    <div style={statLabel}>
+                        {label}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    const filterControls = (
+        <>
+            <select
+                value={level}
+                onChange={(e) =>
+                    setLevel(e.target.value)
+                }
+                style={selectStyle}
+            >
+                <option value="ALL">ALL LEVELS</option>
+                <option value="INFO">INFO</option>
+                <option value="WARNING">WARNING</option>
+                <option value="ERROR">ERROR</option>
+            </select>
+
+            <select
+                value={sessionFilter}
+                onChange={(e) =>
+                    setSessionFilter(
+                        e.target.value
+                    )
+                }
+                style={selectStyle}
+            >
+                <option value="ALL">
+                    ALL SESSIONS
+                </option>
+
+                {
+                    sessions.map(session => (
+                        <option
+                            key={session}
+                            value={session}
+                        >
+                            {session}
+                        </option>
+                    ))
+                }
+
+            </select>
+
+            <div style={searchWrap}>
+                <FaSearch size={11} style={searchIcon} />
+                <input
+                    placeholder="Search logs..."
+                    value={searchInput}
+                    onChange={(e) =>
+                        setSearchInput(
+                            e.target.value
+                        )
+                    }
+                    style={searchInputStyle}
+                />
+            </div>
+        </>
+    );
+
     return (
 
-        <div style={panelStyle}>
-
-            <div style={headerStyle}>
-
-                <h2 style={titleStyle}>
-                    Host Logs
-                </h2>
-
-                <div style={controlsContainer}>
-
-                    {/* ================= LARGE ================= */}
-
-                    {
-                        !compactMode && (
-
-                            <div style={controlsRow}>
-
-                                <select
-                                    value={level}
-                                    onChange={(e) =>
-                                        setLevel(e.target.value)
-                                    }
-                                    style={selectStyle}
-                                >
-                                    <option value="ALL">ALL</option>
-                                    <option value="INFO">INFO</option>
-                                    <option value="WARNING">WARNING</option>
-                                    <option value="ERROR">ERROR</option>
-                                </select>
-
-                                <select
-                                    value={sessionFilter}
-                                    onChange={(e) =>
-                                        setSessionFilter(
-                                            e.target.value
-                                        )
-                                    }
-                                    style={selectStyle}
-                                >
-                                    <option value="ALL">
-                                        ALL SESSIONS
-                                    </option>
-
-                                    {
-                                        sessions.map(session => (
-                                            <option
-                                                key={session}
-                                                value={session}
-                                            >
-                                                {session}
-                                            </option>
-                                        ))
-                                    }
-
-                                </select>
-
-                                <input
-                                    placeholder="Search..."
-                                    value={searchInput}
-                                    onChange={(e) =>
-                                        setSearchInput(
-                                            e.target.value
-                                        )
-                                    }
-                                    style={searchStyle}
-                                />
-
-                                <button
-                                    style={
-                                        autoRefresh
-                                            ? activeButton
-                                            : buttonStyle
-                                    }
-                                    onClick={() =>
-                                        setAutoRefresh(
-                                            !autoRefresh
-                                        )
-                                    }
-                                >
-                                    {
-                                        autoRefresh
-                                            ? "LIVE"
-                                            : "PAUSED"
-                                    }
-                                </button>
-
-                                <button
-                                    style={buttonStyle}
-                                    onClick={loadLogs}
-                                >
-                                    REFRESH
-                                </button>
-
-                                <button
-                                    style={buttonStyle}
-                                    onClick={downloadLogs}
-                                >
-                                    DOWNLOAD
-                                </button>
-
-                                <button
-                                    style={buttonStyle}
-                                    onClick={
-                                        downloadFiltered
-                                    }
-                                >
-                                    EXPORT
-                                </button>
-
-                            </div>
-
-                        )
-                    }
-
-                    {/* ================= MEDIUM ================= */}
-
-                    {
-                        compactMode &&
-                        !mobileMode && (
-
-                            <>
-
-                                <div style={controlsRow}>
-
-                                    <select
-                                        value={level}
-                                        onChange={(e) =>
-                                            setLevel(
-                                                e.target.value
-                                            )
-                                        }
-                                        style={selectStyle}
-                                    >
-                                        <option value="ALL">ALL</option>
-                                        <option value="INFO">INFO</option>
-                                        <option value="WARNING">WARNING</option>
-                                        <option value="ERROR">ERROR</option>
-                                    </select>
-
-                                    <select
-                                        value={sessionFilter}
-                                        onChange={(e) =>
-                                            setSessionFilter(
-                                                e.target.value
-                                            )
-                                        }
-                                        style={selectStyle}
-                                    >
-                                        <option value="ALL">
-                                            ALL SESSIONS
-                                        </option>
-
-                                        {
-                                            sessions.map(session => (
-                                                <option
-                                                    key={session}
-                                                    value={session}
-                                                >
-                                                    {session}
-                                                </option>
-                                            ))
-                                        }
-
-                                    </select>
-
-                                    <input
-                                        placeholder="Search..."
-                                        value={searchInput}
-                                        onChange={(e) =>
-                                            setSearchInput(
-                                                e.target.value
-                                            )
-                                        }
-                                        style={selectStyle}
-                                    />
-
-                                </div>
-
-                                <div style={controlsRow}>
-
-                                    <button
-                                        style={
-                                            autoRefresh
-                                                ? activeButton
-                                                : buttonStyle
-                                        }
-                                        onClick={() =>
-                                            setAutoRefresh(
-                                                !autoRefresh
-                                            )
-                                        }
-                                    >
-                                        {
-                                            autoRefresh
-                                                ? "LIVE"
-                                                : "PAUSED"
-                                        }
-                                    </button>
-
-                                    <button
-                                        style={buttonStyle}
-                                        onClick={loadLogs}
-                                    >
-                                        REFRESH
-                                    </button>
-
-                                    <button
-                                        style={buttonStyle}
-                                        onClick={downloadLogs}
-                                    >
-                                        DOWNLOAD
-                                    </button>
-
-                                    <button
-                                        style={buttonStyle}
-                                        onClick={
-                                            downloadFiltered
-                                        }
-                                    >
-                                        EXPORT
-                                    </button>
-
-                                </div>
-
-                            </>
-
-                        )
-                    }
-
-                    {/* ================= MOBILE ================= */}
-
-                    {
-                        mobileMode && (
-
-                            <>
-
-                                <div style={controlsRow}>
-
-                                    <select
-                                        value={level}
-                                        onChange={(e) =>
-                                            setLevel(
-                                                e.target.value
-                                            )
-                                        }
-                                        style={selectStyle}
-                                    >
-                                        <option value="ALL">ALL</option>
-                                        <option value="INFO">INFO</option>
-                                        <option value="WARNING">WARNING</option>
-                                        <option value="ERROR">ERROR</option>
-                                    </select>
-
-                                    <select
-                                        value={sessionFilter}
-                                        onChange={(e) =>
-                                            setSessionFilter(
-                                                e.target.value
-                                            )
-                                        }
-                                        style={selectStyle}
-                                    >
-                                        <option value="ALL">
-                                            ALL SESSIONS
-                                        </option>
-
-                                        {
-                                            sessions.map(session => (
-                                                <option
-                                                    key={session}
-                                                    value={session}
-                                                >
-                                                    {session}
-                                                </option>
-                                            ))
-                                        }
-
-                                    </select>
-
-                                    <input
-                                        placeholder="Search..."
-                                        value={searchInput}
-                                        onChange={(e) =>
-                                            setSearchInput(
-                                                e.target.value
-                                            )
-                                        }
-                                        style={selectStyle}
-                                    />
-
-                                    <button
-                                        style={buttonStyle}
-                                        onClick={() =>
-                                            setShowMenu(
-                                                !showMenu
-                                            )
-                                        }
-                                    >
-                                        ⋮ More
-                                    </button>
-
-                                </div>
-
-                                {
-                                    showMenu && (
-
-                                        <div style={menuStyle}>
-
-                                            <button
-                                                style={menuButton}
-                                                onClick={() => {
-
-                                                    setAutoRefresh(
-                                                        !autoRefresh
-                                                    );
-
-                                                    setShowMenu(false);
-
-                                                }}
-                                            >
-                                                {
-                                                    autoRefresh
-                                                        ? "LIVE"
-                                                        : "PAUSED"
-                                                }
-                                            </button>
-
-                                            <button
-                                                style={menuButton}
-                                                onClick={() => {
-
-                                                    loadLogs();
-
-                                                    setShowMenu(false);
-
-                                                }}
-                                            >
-                                                REFRESH
-                                            </button>
-
-                                            <button
-                                                style={buttonStyle}
-                                                onClick={downloadLogs}
-                                            >
-                                                DOWNLOAD
-                                            </button>
-
-                                            <button
-                                                style={menuButton}
-                                                onClick={() => {
-
-                                                    downloadFiltered();
-
-                                                    setShowMenu(false);
-
-                                                }}
-                                            >
-                                                EXPORT
-                                            </button>
-
-                                        </div>
-
-                                    )
-                                }
-
-                            </>
-
-                        )
-                    }
-
+        <section style={sectionStyle}>
+
+            {/* ── Header ─────────────────────────────────────────────── */}
+            <div style={headerRow}>
+
+                <div style={headerLeft}>
+                    <div style={iconBadge}>
+                        <FaFileAlt size={12} />
+                    </div>
+
+                    <h2 style={titleStyle}>
+                        HOST LOGS
+                    </h2>
+
+                    <span style={countBadge}>
+                        {logs.length}
+                    </span>
                 </div>
 
+                {/* ================= LARGE ================= */}
+
+                {
+                    !compactMode && (
+
+                        <div style={actionsRow}>
+
+                            <PillButton
+                                active={autoRefresh}
+                                tone={palette.success}
+                                onClick={() =>
+                                    setAutoRefresh(
+                                        !autoRefresh
+                                    )
+                                }
+                                icon={
+                                    autoRefresh
+                                        ? <FaBroadcastTower size={10} />
+                                        : <FaPauseCircle size={10} />
+                                }
+                            >
+                                {
+                                    autoRefresh
+                                        ? "LIVE"
+                                        : "PAUSED"
+                                }
+                            </PillButton>
+
+                            <PillButton
+                                onClick={loadLogs}
+                                icon={<FaSyncAlt size={10} />}
+                            >
+                                REFRESH
+                            </PillButton>
+
+                            <PillButton
+                                onClick={downloadLogs}
+                                icon={<FaDownload size={10} />}
+                            >
+                                DOWNLOAD
+                            </PillButton>
+
+                            <PillButton
+                                onClick={downloadFiltered}
+                                icon={<FaFileExport size={10} />}
+                            >
+                                EXPORT
+                            </PillButton>
+
+                        </div>
+
+                    )
+                }
+
+                {/* ================= MEDIUM / MOBILE ================= */}
+
+                {
+                    compactMode &&
+                    !mobileMode && (
+
+                        <div style={actionsRow}>
+
+                            <PillButton
+                                active={autoRefresh}
+                                tone={palette.success}
+                                onClick={() =>
+                                    setAutoRefresh(
+                                        !autoRefresh
+                                    )
+                                }
+                                icon={
+                                    autoRefresh
+                                        ? <FaBroadcastTower size={10} />
+                                        : <FaPauseCircle size={10} />
+                                }
+                            >
+                                {
+                                    autoRefresh
+                                        ? "LIVE"
+                                        : "PAUSED"
+                                }
+                            </PillButton>
+
+                            <PillButton
+                                onClick={loadLogs}
+                                icon={<FaSyncAlt size={10} />}
+                            >
+                                REFRESH
+                            </PillButton>
+
+                            <PillButton
+                                onClick={downloadLogs}
+                                icon={<FaDownload size={10} />}
+                            >
+                                DOWNLOAD
+                            </PillButton>
+
+                            <PillButton
+                                onClick={downloadFiltered}
+                                icon={<FaFileExport size={10} />}
+                            >
+                                EXPORT
+                            </PillButton>
+
+                        </div>
+
+                    )
+                }
+
+                {
+                    mobileMode && (
+
+                        <div style={{ position: "relative" }}>
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setShowMenu(
+                                        !showMenu
+                                    )
+                                }
+                                style={pillButton}
+                            >
+                                <FaEllipsisV size={10} />
+                                MORE
+                            </button>
+
+                            {
+                                showMenu && (
+
+                                    <>
+                                    {/* Outside-click backdrop — same pattern as
+                                        DashboardLayout's mobile nav overlay. Sits
+                                        behind the dropdown (lower z-index) and
+                                        covers the full viewport, so any tap
+                                        outside the menu closes it. */}
+                                    <div
+                                        aria-hidden="true"
+                                        onClick={() => setShowMenu(false)}
+                                        style={{
+                                            position: "fixed",
+                                            inset: 0,
+                                            zIndex: 19,
+                                            background: "transparent",
+                                        }}
+                                    />
+
+                                    <div style={dropdownMenu}>
+
+                                        {/* Glass sheen overlay — same soft diagonal
+                                            light catch used on MobileHeader's nav
+                                            drawer, so the two glass surfaces match. */}
+                                        <div
+                                            aria-hidden="true"
+                                            style={{
+                                                position: "absolute",
+                                                inset: 0,
+                                                background: "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 32%)",
+                                                pointerEvents: "none",
+                                                zIndex: -1,
+                                            }}
+                                        />
+
+                                        <button
+                                            style={menuButton}
+                                            onClick={() => {
+
+                                                setAutoRefresh(
+                                                    !autoRefresh
+                                                );
+
+                                                setShowMenu(false);
+
+                                            }}
+                                        >
+                                            {
+                                                autoRefresh
+                                                    ? <FaBroadcastTower size={10} style={{ color: palette.success }} />
+                                                    : <FaPauseCircle size={10} />
+                                            }
+                                            {
+                                                autoRefresh
+                                                    ? "LIVE"
+                                                    : "PAUSED"
+                                            }
+                                        </button>
+
+                                        <button
+                                            style={menuButton}
+                                            onClick={() => {
+
+                                                loadLogs();
+
+                                                setShowMenu(false);
+
+                                            }}
+                                        >
+                                            <FaSyncAlt size={10} />
+                                            REFRESH
+                                        </button>
+
+                                        <button
+                                            style={menuButton}
+                                            onClick={() => {
+
+                                                downloadLogs();
+
+                                                setShowMenu(false);
+
+                                            }}
+                                        >
+                                            <FaDownload size={10} />
+                                            DOWNLOAD
+                                        </button>
+
+                                        <button
+                                            style={menuButton}
+                                            onClick={() => {
+
+                                                downloadFiltered();
+
+                                                setShowMenu(false);
+
+                                            }}
+                                        >
+                                            <FaFileExport size={10} />
+                                            EXPORT
+                                        </button>
+
+                                    </div>
+                                    </>
+
+                                )
+                            }
+
+                        </div>
+
+                    )
+                }
+
             </div>
 
-            <div style={statusStyle}>
+            {/* ── Filters ────────────────────────────────────────────── */}
+            <div style={filtersRow}>
+                {filterControls}
+            </div>
 
-                {loading
-                    ? "Loading logs..."
-                    : `${logs.length} entries loaded`}
+            {/* ── Stat tiles ─────────────────────────────────────────── */}
+            <div style={statsRow}>
 
-                {" • "}
+                <StatTile
+                    icon={<FaListUl size={13} />}
+                    label={
+                        loading
+                            ? "LOADING..."
+                            : "ENTRIES LOADED"
+                    }
+                    value={logs.length}
+                    tone={palette.accent}
+                />
 
-                Warnings:
-                {" "}
-                {warningCount}
+                <StatTile
+                    icon={<FaExclamationTriangle size={13} />}
+                    label="WARNINGS"
+                    value={warningCount}
+                    tone={palette.warning}
+                />
 
-                {" • "}
-
-                Errors:
-                {" "}
-                {errorCount}
+                <StatTile
+                    icon={<FaTimesCircle size={13} />}
+                    label="ERRORS"
+                    value={errorCount}
+                    tone={palette.danger}
+                />
 
             </div>
 
+            {/* ── Log stream ─────────────────────────────────────────── */}
             <div style={logWrapper}>
                 <div
                     ref={logRef}
@@ -913,7 +973,7 @@ export function LogPanel() {
                                             style = {
                                                 ...logStyle,
                                                 color:
-                                                    "#ef4444",
+                                                    palette.danger,
                                             };
                                         }
 
@@ -926,7 +986,7 @@ export function LogPanel() {
                                             style = {
                                                 ...logStyle,
                                                 color:
-                                                    "#f59e0b",
+                                                    palette.warning,
                                             };
                                         }
 
@@ -939,7 +999,7 @@ export function LogPanel() {
                                             style = {
                                                 ...logStyle,
                                                 color:
-                                                    "#10d98a",
+                                                    palette.success,
                                             };
                                         }
 
@@ -1009,113 +1069,227 @@ export function LogPanel() {
                                 style={scrollButton}
                                 onClick={jumpBottom}
                             >
-                                ↓
+                                <FaChevronDown size={14} />
                             </button>
                         )
                     }
                 </div>
 
-        </div>
+        </section>
 
     );
 }
 
-const panelStyle = {
-    marginTop: "14px",
+// ── Style primitives ───────────────────────────────────────────────────
+// Kept as plain objects/functions of `palette`, matching the convention
+// used by GameManager / SessionHistory / SessionAnalytics.
+
+const sectionStyle = {
     padding: "16px",
-    background: "#080a0f",
-    border: "1px solid #1c2130",
-    borderRadius: "8px",
+    border: `1px solid ${palette.border}`,
+    borderRadius: "10px",
+    background: "rgba(0, 0, 0, 0.55)",
 };
 
-const headerStyle = {
+const headerRow = {
     display: "flex",
+    alignItems: "center",
     justifyContent: "space-between",
-    alignItems: "flex-start",
     gap: "12px",
     flexWrap: "wrap",
+    marginBottom: "14px",
+};
+
+const headerLeft = {
+    display: "flex",
+    alignItems: "center",
+    gap: "9px",
+};
+
+const iconBadge = {
+    width: "28px",
+    height: "28px",
+    borderRadius: "7px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "rgba(56,189,248,0.12)",
+    border: "1px solid rgba(56,189,248,0.3)",
+    color: palette.accent,
+    flexShrink: 0,
 };
 
 const titleStyle = {
     margin: 0,
+    fontSize: "13px",
+    letterSpacing: "0.12em",
+    color: palette.text,
+    fontFamily: palette.mono,
 };
 
-const controlsContainer = {
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
+const countBadge = {
+    fontSize: "9px",
+    color: palette.faint,
+    fontFamily: palette.mono,
+    border: `1px solid ${palette.borderSubtle}`,
+    borderRadius: "10px",
+    padding: "1px 8px",
 };
 
-const controlsRow = {
+const actionsRow = {
     display: "flex",
     gap: "8px",
     flexWrap: "wrap",
 };
 
-const buttonStyle = {
-    padding: "8px 14px",
-    background: "transparent",
-    border: "1px solid #38bdf8",
-    color: "#38bdf8",
+const pillButton = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
+    border: `1px solid ${palette.border}`,
+    background: palette.card,
+    color: palette.dim,
     borderRadius: "6px",
+    padding: "6px 11px",
+    fontSize: "9.5px",
+    fontFamily: palette.mono,
+    letterSpacing: "0.08em",
     cursor: "pointer",
-    fontFamily:
-        "'JetBrains Mono', monospace",
+    transition: "background 0.15s, color 0.15s, border-color 0.15s",
 };
 
-const menuStyle = {
+const activePillButton = (tone) => ({
+    ...pillButton,
+    color: tone,
+    borderColor: tone,
+    background: `${tone}1a`,
+});
+
+const filtersRow = {
     display: "flex",
-    flexDirection: "column",
     gap: "8px",
-
-    padding: "8px",
-
-    background: "#05070b",
-
-    border: "1px solid #1c2130",
-
-    borderRadius: "8px",
-};
-
-const menuButton = {
-    ...buttonStyle,
-
-    width: "100%",
-
-    textAlign: "left",
+    flexWrap: "wrap",
+    marginBottom: "14px",
 };
 
 const selectStyle = {
-    background: "#05070b",
-    border: "1px solid #1c2130",
-    color: "#e2e8f0",
-    padding: "8px",
-    borderRadius: "6px",
+    background: palette.bg,
+    border: `1px solid ${palette.borderSubtle}`,
+    color: palette.text,
+    padding: "8px 10px",
+    borderRadius: "7px",
+    fontSize: "11.5px",
+    fontFamily: "inherit",
+    outline: "none",
 };
 
-const searchStyle = {
-    ...selectStyle,
+const searchWrap = {
+    position: "relative",
     flex: 1,
     minWidth: "180px",
+    display: "flex",
+    alignItems: "center",
 };
 
-const activeButton = {
-    ...buttonStyle,
-    background:
-        "rgba(56,189,248,0.1)",
+const searchIcon = {
+    position: "absolute",
+    left: "11px",
+    color: palette.muted,
+    pointerEvents: "none",
 };
 
-const statusStyle = {
-    marginBottom: "12px",
-    color: "#94a3b8",
-    fontSize: "12px",
+const searchInputStyle = {
+    ...selectStyle,
+    width: "100%",
+    padding: "8px 10px 8px 30px",
+    boxSizing: "border-box",
+};
+
+const dropdownMenu = {
+    position: "absolute",
+    top: "calc(100% + 6px)",
+    right: 0,
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+    padding: "8px",
+    background: "linear-gradient(165deg, rgba(0, 1, 20, 0.64), rgb(0, 0, 0))",
+    backdropFilter: "blur(1px) saturate(160%)",
+    WebkitBackdropFilter: "blur(10px) saturate(160%)",
+    border: `1px solid rgba(148,163,184,0.16)`,
+    borderRadius: "8px",
+    boxShadow: "inset -1px 0 0 rgba(255,255,255,0.04), 0 12px 32px rgba(0,0,0,0.45)",
+    zIndex: 20,
+    minWidth: "160px",
+    overflow: "hidden",
+    isolation: "isolate",
+};
+
+const menuButton = {
+    ...pillButton,
+    width: "100%",
+    justifyContent: "flex-start",
+    background: "transparent",
+    border: `1px solid ${palette.borderSubtle}`,
+};
+
+const statsRow = {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+    gap: "10px",
+    marginBottom: "14px",
+};
+
+const statTile = {
+    padding: "12px",
+    borderRadius: "8px",
+    background: palette.card,
+    border: `1px solid ${palette.borderSubtle}`,
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+};
+
+const statIconWrap = (tone) => ({
+    flexShrink: 0,
+    width: "32px",
+    height: "32px",
+    borderRadius: "8px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: `${tone}1a`,
+    border: `1px solid ${tone}40`,
+    color: tone,
+    fontSize: "13px",
+});
+
+const statValue = {
+    fontSize: "17px",
+    fontWeight: 700,
+    fontFamily: palette.mono,
+    lineHeight: 1.1,
+    whiteSpace: "nowrap",
+};
+
+const statLabel = {
+    fontSize: "9px",
+    color: palette.faint,
+    letterSpacing: "0.08em",
+    fontFamily: palette.mono,
+    marginTop: "3px",
+    textTransform: "uppercase",
+};
+
+const logWrapper = {
+    position: "relative",
 };
 
 const logContainer = {
     position: "relative",
-    background: "#05070b",
-    border: "1px solid #1c2130",
-    borderRadius: "8px",
+    background: palette.bg,
+    border: `1px solid ${palette.borderSubtle}`,
+    borderRadius: "10px",
     padding: "12px",
     height: "600px",
     overflowY: "auto",
@@ -1123,8 +1297,9 @@ const logContainer = {
 };
 
 const logStyle = {
-    fontFamily: "'JetBrains Mono', monospace",
+    fontFamily: palette.mono,
     fontSize: "12px",
+    color: palette.dim,
 
     whiteSpace: "pre-wrap",
     overflowWrap: "anywhere",
@@ -1139,13 +1314,12 @@ const logStyle = {
 };
 
 const emptyStyle = {
-    color: "#64748b",
+    color: palette.muted,
     textAlign: "center",
-    padding: "20px",
-};
-
-const logWrapper = {
-    position: "relative",
+    padding: "40px 20px",
+    fontFamily: palette.mono,
+    fontSize: "11px",
+    letterSpacing: "0.04em",
 };
 
 const scrollButton = {
@@ -1158,37 +1332,33 @@ const scrollButton = {
 
     transform: "translateX(-50%)",
 
-    width: "40px",
+    width: "38px",
 
-    height: "40px",
+    height: "38px",
 
     borderRadius: "50%",
 
     border:
-        "1px solid rgba(255,255,255,0.08)",
+        "1px solid rgba(56,189,248,0.35)",
 
     background:
-        "rgba(15,15,20,0.55)",
+        "rgba(6,8,16,0.85)",
 
     backdropFilter:
-        "blur(1.5px)",
+        "blur(2px)",
 
     WebkitBackdropFilter:
-        "blur(1.5px)",
+        "blur(2px)",
 
     color:
-        "rgba(255,255,255,0.75)",
-
-    fontSize: "20px",
-
-    fontWeight: "300",
+        palette.accent,
 
     cursor: "pointer",
 
     zIndex: 300,
 
     boxShadow:
-        "0 8px 30px rgba(0,0,0,0.4)",
+        "0 8px 30px rgba(0,0,0,0.45)",
 
     transition:
         "all 0.2s ease",

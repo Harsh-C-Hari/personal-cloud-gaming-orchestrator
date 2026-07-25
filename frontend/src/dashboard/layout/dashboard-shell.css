@@ -1,0 +1,33 @@
+/* dashboard/layout/dashboard-shell.css
+ *
+ * Responsive rules for the new dashboard shell only. Scoped via specific
+ * class names (pcgo-*) introduced in this refactor, so it cannot affect
+ * any existing component's styling.
+ */
+
+/* Navigation is always presented as the glassmorphic hamburger drawer
+ * (MobileHeader.jsx), regardless of viewport width. The desktop Sidebar
+ * is permanently hidden and the mobile menu button/drawer stay enabled
+ * at every screen size. MobileHeader.jsx itself is untouched, so its
+ * gradient, blur, colors and layout are exactly as before — only when
+ * it's shown has changed.
+ */
+.pcgo-sidebar {
+  display: none !important;
+}
+
+.pcgo-mobile-menu-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Header subtitle / optional status items still collapse on narrow
+ * viewports only — unrelated to the always-on nav-drawer change above.
+ */
+@media (max-width: 880px) {
+  .pcgo-header-subtitle,
+  .pcgo-header-optional {
+    display: none !important;
+  }
+}

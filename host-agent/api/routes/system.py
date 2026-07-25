@@ -1,3 +1,5 @@
+import asyncio
+import ctypes
 from pathlib import Path
 
 from fastapi import APIRouter
@@ -10,52 +12,51 @@ router = APIRouter(
     tags=["system"],
 )
 
-def create_dialog(
-    current_user=Depends(
-        get_current_user
-    ),
-):
 
-    if current_user["role"] != "admin":
+def _apply_dpi_awareness():
+    
+    try:
+        ctypes.windll.shcore.SetProcessDpiAwareness(1)
+    except (AttributeError, OSError):
+        try:
+            ctypes.windll.user32.SetProcessDPIAware()
+        except (AttributeError, OSError):
+            pass
+            
+    try:
+        import tkinter as tk
+        from tkinter import filedialog
+    except ImportError:
+        pass
 
-        raise HTTPException(
-            status_code=403,
-            detail="Admin access required.",
-        )
+_apply_dpi_awareness()
+
+
+
+def _select_file_sync():
 
     import tkinter as tk
+    from tkinter import filedialog
+    import os
+
     root = tk.Tk()
 
     root.withdraw()
 
+    root.lift()
+    root.focus_force() 
+    
     root.attributes(
         "-topmost",
         True,
     )
 
-    return root
-
-@router.get("/select-file")
-def select_file(
-    current_user=Depends(
-        get_current_user
-    ),
-):
-
-    if current_user["role"] != "admin":
-
-        raise HTTPException(
-            status_code=403,
-            detail="Admin access required.",
-        )
-    
-    from tkinter import filedialog
-    root = create_dialog()
+    initial_dir = os.environ.get("USERPROFILE", "C:\\")
 
     try:
 
         file_path = filedialog.askopenfilename(
-            title="Select Game Executable",
+            title="Select Executable",
             filetypes=[
                 (
                     "Executable Files",
@@ -64,26 +65,45 @@ def select_file(
             ],
         )
 
-        if not file_path:
+    finally:
 
-            return {
-                "selected": False,
-            }
+        root.destroy()
 
-        path = Path(file_path)
+    return file_path
 
-        return {
-            "selected": True,
-            "path": str(path),
-            "name": path.name,
-        }
+
+def _select_folder_sync():
+    
+    import tkinter as tk
+    from tkinter import filedialog
+
+    root = tk.Tk()
+
+    root.withdraw()
+
+    root.lift()
+    root.focus_force() 
+    
+    root.attributes(
+        "-topmost",
+        True,
+    )
+
+    try:
+
+        folder = filedialog.askdirectory(
+            title="Select Folder",
+        )
 
     finally:
 
         root.destroy()
 
-@router.get("/select-folder")
-def select_folder(
+    return folder
+
+
+@router.get("/select-file")
+async def select_file(
     current_user=Depends(
         get_current_user
     ),
@@ -95,27 +115,51 @@ def select_folder(
             status_code=403,
             detail="Admin access required.",
         )
-    
-    from tkinter import filedialog
-    root = create_dialog()
 
-    try:
+    file_path = await asyncio.to_thread(
+        _select_file_sync
+    )
 
-        folder = filedialog.askdirectory(
-            title="Select Save Folder",
-        )
-
-        if not folder:
-
-            return {
-                "selected": False,
-            }
+    if not file_path:
 
         return {
-            "selected": True,
-            "path": folder,
+            "selected": False,
         }
 
-    finally:
+    path = Path(file_path)
 
-        root.destroy()
+    return {
+        "selected": True,
+        "path": str(path),
+        "name": path.name,
+    }
+
+
+@router.get("/select-folder")
+async def select_folder(
+    current_user=Depends(
+        get_current_user
+    ),
+):
+
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+
+    folder = await asyncio.to_thread(
+        _select_folder_sync
+    )
+
+    if not folder:
+
+        return {
+            "selected": False,
+        }
+
+    return {
+        "selected": True,
+        "path": folder,
+    }

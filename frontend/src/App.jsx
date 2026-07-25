@@ -8,8 +8,9 @@
 import {
     isLoggedIn,
 } from "./api/client";
+import { useEffect } from "react";
 import Login from "./pages/Login";
-import { Dashboard } from "./pages/Dashboard.jsx";
+import { Dashboard } from "./dashboard/Dashboard.jsx";
 
 const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
@@ -86,7 +87,21 @@ const GLOBAL_CSS = `
 `;
 
 export default function App() {
-  if (!isLoggedIn()) {
+  const loggedIn = isLoggedIn();
+
+  // Keep the URL bar honest: "/login" should only ever be visible while
+  // logged out, and logging in should never leave "/login" (or a blank
+  // "/") sitting in the address bar.
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (!loggedIn && path !== "/login") {
+      window.history.replaceState(null, "", "/login");
+    } else if (loggedIn && (path === "/login" || path === "/")) {
+      window.history.replaceState(null, "", "/home");
+    }
+  }, [loggedIn]);
+
+  if (!loggedIn) {
     return (
       <>
         <style>{GLOBAL_CSS}</style>
