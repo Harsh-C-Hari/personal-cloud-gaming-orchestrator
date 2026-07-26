@@ -12,6 +12,7 @@ Tech Stack:
 • Sunshine
 • Tailscale
 • WebSockets
+• JWT Authentication
 
 Key features:
 
@@ -20,10 +21,11 @@ Key features:
 * Live Save Protection
 * Host Monitoring
 * Recovery Systems
-* Sunshine Watchdog
+* Sunshine Watchdog & Client Management
 * Tailscale Recovery
 * Session Analytics
 * Real-Time Dashboard
+* Authentication & Role-Based Access (Admin / User)
 
 Some of the most interesting engineering challenges involved:
 
@@ -32,9 +34,10 @@ Some of the most interesting engineering challenges involved:
 * Implementing stale session recovery after backend failures
 * Solving dashboard synchronization issues caused by browser caching
 * Reducing unnecessary save operations using hash-based change detection
+* Authenticating non-user callers (Sunshine's own hook script and a log-tailing background thread) with a scoped shared secret instead of a user credential
 
 The v0.1 Host Foundation Release is complete.
 
-Current development has transitioned to Phase 23 and beyond.
+Session Persistence & Reconnection and Authentication & Authorization have both since been completed.
 
-Looking forward to continuing development through authentication, database migration, user applications, deployment tooling, and additional reliability improvements.
+Looking forward to continuing development through database migration, a dedicated user application, deployment tooling, and additional reliability improvements.

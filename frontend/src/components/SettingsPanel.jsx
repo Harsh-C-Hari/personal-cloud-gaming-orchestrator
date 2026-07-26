@@ -11,7 +11,6 @@ import {
     FaServer,
     FaDatabase,
     FaTags,
-    FaCheckCircle,
     FaTimesCircle,
     FaExclamationTriangle,
     FaSave,
@@ -24,6 +23,7 @@ import {
     updateConfig,
     selectFile,
 } from "../api/client";
+import { useToast } from "./ui/Toast.jsx";
 
 // ── Shared design tokens (matches Home / Recovery / SessionHistory /
 // HostMonitor / StartSessionForm) ───────────────────────────────────────
@@ -231,11 +231,10 @@ function ToggleSwitch({ checked, onChange, label }) {
 
 export function SettingsPanel() {
 
+    const toast = useToast();
     const [config, setConfig] = useState(null);
     const [saving, setSaving] = useState(false);
-    const [message, setMessage] = useState(null);
     const [originalConfig, setOriginalConfig] = useState(null);
-    const [messageType, setMessageType] = useState("success");
     const [validationErrors, setValidationErrors] = useState([]);
     useEffect(() => {
         loadConfig();
@@ -316,7 +315,7 @@ export function SettingsPanel() {
 
         } catch {
 
-            setMessage(
+            toast.error(
                 "Failed to load settings."
             );
         }
@@ -340,18 +339,10 @@ export function SettingsPanel() {
         setValidationErrors(errors);
         
         if (errors.length > 0) {
-
-            setMessageType("error");
-
-            setMessage(
-                errors.join(" ")
-            );
-
             return;
         }
         
         setSaving(true);
-        setMessage(null);
 
         try {
 
@@ -466,22 +457,13 @@ export function SettingsPanel() {
 
             await loadConfig();
 
-            setMessageType("success");
-
-            setMessage(
+            toast.success(
                 "Settings saved successfully."
             );
 
-            setTimeout(() => {
-
-                setMessage(null);
-
-            }, 3000);
-
         } catch (error) {
 
-            setMessageType("error");
-            setMessage(
+            toast.error(
 
                 error.response?.data?.detail ||
 
@@ -522,8 +504,7 @@ export function SettingsPanel() {
 
         } catch {
 
-            setMessageType("error");
-            setMessage(
+            toast.error(
                 "Failed to select Sunshine executable."
             );
         }
@@ -554,8 +535,7 @@ export function SettingsPanel() {
 
         } catch {
 
-            setMessageType("error");
-            setMessage(
+            toast.error(
                 "Failed to select Tailscale IPN executable."
             );
         }
@@ -1122,7 +1102,6 @@ export function SettingsPanel() {
                                 )
                             )
                         );
-                        setMessage(null);
                     }}
                     onMouseEnter={(e) => {
                         e.currentTarget.style.borderColor = palette.borderStrong;
@@ -1137,18 +1116,6 @@ export function SettingsPanel() {
                     CANCEL
                 </button>
             </div>
-
-            {/* Save result message */}
-            {message && validationErrors.length === 0 && (
-                <div style={alertBox(messageType === "error" ? palette.danger : palette.success)}>
-                    {messageType === "error" ? (
-                        <FaTimesCircle size={12} style={{ flexShrink: 0 }} />
-                    ) : (
-                        <FaCheckCircle size={12} style={{ flexShrink: 0 }} />
-                    )}
-                    {message}
-                </div>
-            )}
         </div>
     );
 }

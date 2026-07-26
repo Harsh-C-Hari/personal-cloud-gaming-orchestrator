@@ -8,6 +8,17 @@ Built with React, it serves as the primary monitoring and management interface.
 
 ---
 
+# Authentication & Role-Aware Routing
+
+The dashboard opens on a login screen (or a one-time admin bootstrap screen on a fresh install with no accounts yet). After login, the frontend reads the account's role from its JWT and renders one of two independent dashboards:
+
+* **Admin Dashboard** — full navigation: Home, Host Monitor, Recovery, Sunshine, Game Manager, User Management, Analytics, Session History, Logs, Settings.
+* **User Dashboard** — reduced navigation: Home, Analytics, Session History, Logs, Change Password. All data is automatically scoped server-side to the logged-in user's own sessions.
+
+Both dashboards share the same layout shell, WebSocket connection, and most page components (Home, Analytics, Session History, Logs); only the navigation items, the data source (admin vs. user API endpoints), and the presence of admin-only pages (Recovery, Sunshine, Game Manager, User Management, Settings) differ. See [Authentication & Role-Based Access](authentication.md) for the authentication model itself.
+
+---
+
 # Major Sections
 
 ## Host Section
@@ -19,16 +30,22 @@ Displays:
 * Maintenance mode
 * Recovery mode
 
+Admins see the full status/metrics view (`/host/status`, `/host/metrics`); users see a reduced readiness view (`/host/user-status`).
+
 ---
 
 ## Sunshine Section
 
-Displays:
+*Admin only.* Displays:
 
 * Running state
 * Reachability
-* Connected clients
+* Connected clients (with pairing/unpairing controls)
 * Application count
+* Live stream status
+* Stream history
+
+See [Sunshine Integration](sunshine-integration.md).
 
 ---
 
@@ -40,14 +57,22 @@ Displays:
 * Session history
 * Session analytics
 
+Scoped to all sessions for admins, and to the logged-in user's own sessions for standard users.
+
 ---
 
 ## Recovery Section
 
-Displays:
+*Admin only.* Displays:
 
 * Recovery statistics
 * Recovery events
+
+---
+
+## User Management Section
+
+*Admin only.* Create, list, and delete accounts; bulk-remove all accounts except the oldest admin. See [Authentication & Role-Based Access](authentication.md).
 
 ---
 

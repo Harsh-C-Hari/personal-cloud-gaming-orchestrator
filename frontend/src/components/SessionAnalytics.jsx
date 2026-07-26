@@ -264,9 +264,12 @@ export function SessionAnalytics({
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function loadAnalytics() {
+    if (loading) return;
     try {
+      setLoading(true);
       const data = await fetchSessionAnalytics();
 
       setAnalytics({
@@ -307,6 +310,8 @@ export function SessionAnalytics({
       setError("");
     } catch (err) {
       setError(err.message || "Failed to load analytics.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -387,6 +392,7 @@ export function SessionAnalytics({
 
         <button
           type="button"
+          disabled={loading}
           onClick={loadAnalytics}
           style={{
           display: "flex",
@@ -400,10 +406,12 @@ export function SessionAnalytics({
           fontSize: "9px",
           fontFamily: palette.mono,
           letterSpacing: "0.08em",
-          cursor: "pointer",
+          cursor: loading ? "not-allowed" : "pointer",
+          opacity: loading ? 0.6 : 1,
           transition: "background 0.15s, color 0.15s",
           }}
           onMouseEnter={(e) => {
+            if (loading) return;
             e.currentTarget.style.background = "rgba(56,191,248,0.08)";
             e.currentTarget.style.color = palette.accent;
           }}
@@ -412,8 +420,8 @@ export function SessionAnalytics({
             e.currentTarget.style.color = palette.dim;
           }}
         >
-          <FaSyncAlt size={10} />
-          REFRESH
+          <FaSyncAlt size={10} style={loading ? { animation: "sa-spin 0.8s linear infinite" } : undefined} />
+          {loading ? "REFRESHING..." : "REFRESH"}
         </button>
       </div>
 
@@ -537,6 +545,8 @@ export function SessionAnalytics({
           </div>
         </div>
       )}
+
+      <style>{`@keyframes sa-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </section>
   );
 }

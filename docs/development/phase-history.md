@@ -135,19 +135,31 @@ Completed:
 
 ---
 
-## Current Phase
+## Phase 24: Authentication & Authorization
 
-### Phase 24
+Completed:
 
-Authentication & Authorization
+* JWT-based login and first-run admin bootstrap
+* bcrypt password hashing
+* Admin and user roles enforced on every API route
+* Admin user management (create, list, delete, bulk cleanup)
+* Self-service password change
+* Role-aware dashboard routing (Admin Dashboard, User Dashboard)
+* Internal event token authentication for the Sunshine hook script and transport monitor
+
+See [Authentication & Role-Based Access](../features/authentication.md) and [Internal Event Authentication](../engineering/internal-event-authentication.md).
 
 ---
 
-## Planned Phases
+## Current Phase
 
 ### Phase 25
 
 Database Migration
+
+---
+
+## Planned Phases
 
 ### Phase 26
 
@@ -163,7 +175,7 @@ Moonlight Automation
 
 ### Phase 29
 
-User Dashboard
+Production User Experience
 
 ### Phase 30
 

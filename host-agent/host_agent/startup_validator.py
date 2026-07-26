@@ -10,6 +10,7 @@ logger = configure_logger()
 REQUIRED_CONFIG = {
     "backend": [
         "internal_api_url",
+        "internal_event_token",
     ],
 
     "auth": [

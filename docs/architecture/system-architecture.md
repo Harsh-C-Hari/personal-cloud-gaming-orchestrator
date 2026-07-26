@@ -11,9 +11,9 @@ The architecture separates user interaction, backend orchestration, host managem
 # High-Level Architecture
 
 ```text
-React Dashboard
+React Dashboard (Login / Bootstrap → Admin or User shell)
         ↓
-FastAPI Backend
+FastAPI Backend  (JWT authentication on every route)
         ↓
 Controllers / Services
         ↓
@@ -25,19 +25,44 @@ Tailscale
 Windows Gaming Host
 ```
 
+A separate, narrower authentication path (a shared internal event token, not a user JWT) authorizes two non-interactive callers — the Sunshine stream hook script and the transport-monitoring background thread — to report stream state directly into the backend. See [Internal Event Authentication](../engineering/internal-event-authentication.md).
+
 ---
 
 # Architectural Layers
 
-## Frontend Layer
+## Authentication Layer
 
-The frontend provides the user-facing dashboard.
+Every dashboard and API request, except the bootstrap/login endpoints themselves, requires a valid JWT bearer token.
 
 Responsibilities:
 
-* Host monitoring
+* First-run admin bootstrap
+* Login and JWT issuance
+* Role enforcement (admin / user) on every route
+* User account management (admin only)
+* Self-service password change
+
+Technology:
+
+* python-jose (JWT)
+* passlib + bcrypt (password hashing)
+
+See [Authentication & Role-Based Access](../features/authentication.md).
+
+---
+
+## Frontend Layer
+
+The frontend provides the user-facing dashboard. It renders one of two role-aware experiences after login: the full Admin Dashboard, or a scoped User Dashboard limited to the logged-in account's own sessions, analytics, history, and logs.
+
+Responsibilities:
+
+* Host monitoring (full for admins, reduced for users)
 * Session monitoring
-* Recovery monitoring
+* Recovery monitoring (admin only)
+* Sunshine client management (admin only)
+* User management (admin only)
 * Analytics visualization
 * Real-time status updates
 
@@ -55,9 +80,11 @@ The backend acts as the central orchestration layer.
 Responsibilities:
 
 * API endpoints
+* Authentication and authorization
 * Validation
 * Session orchestration
 * Save orchestration
+* Sunshine client/stream orchestration
 * Monitoring coordination
 * Recovery coordination
 * WebSocket communication

@@ -15,6 +15,7 @@ import { useState } from "react";
 import { FaKey, FaLock, FaShieldAlt, FaCheckCircle, FaTimesCircle, FaExclamationTriangle } from "react-icons/fa";
 import { changePassword } from "../../api/client.js";
 import { PageHeader } from "../components/PageHeader.jsx";
+import { useToast } from "../../components/ui/Toast.jsx";
 import { colors, fonts } from "../theme.js";
 
 const palette = {
@@ -94,16 +95,15 @@ function FieldLabel({ icon, children }) {
 }
 
 export function ChangePasswordPage({ onBack }) {
+  const toast = useToast();
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const validationError = (() => {
     if (!oldPassword || !newPassword || !confirmPassword) return null;
-    if (newPassword.length < 8) return "New password must be at least 8 characters.";
+    if (newPassword.length < 6) return "New password must be at least 6 characters.";
     if (newPassword !== confirmPassword) return "New password and confirmation do not match.";
     if (newPassword === oldPassword) return "New password must be different from the current password.";
     return null;
@@ -111,15 +111,13 @@ export function ChangePasswordPage({ onBack }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError("");
-    setSuccess("");
 
     if (!oldPassword || !newPassword || !confirmPassword) {
-      setError("All fields are required.");
+      toast.warning("All fields are required.");
       return;
     }
     if (validationError) {
-      setError(validationError);
+      toast.warning(validationError);
       return;
     }
 
@@ -129,12 +127,12 @@ export function ChangePasswordPage({ onBack }) {
         old_password: oldPassword,
         new_password: newPassword,
       });
-      setSuccess(result?.message || "Password changed successfully.");
+      toast.success(result?.message || "Password changed successfully.");
       setOldPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
-      setError(err.message || "Failed to change password.");
+      toast.error(err.message || "Failed to change password.");
     } finally {
       setSubmitting(false);
     }
@@ -237,7 +235,7 @@ export function ChangePasswordPage({ onBack }) {
                 fontFamily: palette.mono,
               }}
             >
-              Minimum 8 characters, and different from your current password.
+              Minimum 6 characters, and different from your current password.
             </div>
           </div>
 
@@ -268,36 +266,6 @@ export function ChangePasswordPage({ onBack }) {
             >
               <FaExclamationTriangle size={12} style={{ marginTop: "1px", flexShrink: 0 }} />
               {validationError}
-            </div>
-          )}
-
-          {/* Error */}
-          {error && (
-            <div
-              style={{
-                ...statusBox,
-                background: "rgba(244,63,94,0.07)",
-                border: "1px solid rgba(244,63,94,0.3)",
-                color: palette.danger,
-              }}
-            >
-              <FaTimesCircle size={12} style={{ marginTop: "1px", flexShrink: 0 }} />
-              {error}
-            </div>
-          )}
-
-          {/* Success */}
-          {success && (
-            <div
-              style={{
-                ...statusBox,
-                background: "rgba(16,217,138,0.06)",
-                border: "1px solid rgba(16,217,138,0.25)",
-                color: palette.success,
-              }}
-            >
-              <FaCheckCircle size={12} style={{ marginTop: "1px", flexShrink: 0 }} />
-              {success}
             </div>
           )}
 

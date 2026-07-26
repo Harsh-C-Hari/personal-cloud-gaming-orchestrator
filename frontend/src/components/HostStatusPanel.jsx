@@ -38,6 +38,7 @@ export function HostStatusPanel({
   tailscaleStatus,
   streamStatus,
 }) {
+  
   if (error && !status) {
     return (
       <div style={box}>

@@ -21,12 +21,14 @@ Potential capabilities:
 
 # User Management
 
-Potential capabilities:
+Basic multi-user support (JWT authentication, admin/user roles, per-user session and log scoping) shipped as part of Phase 24 and is documented in [Authentication & Role-Based Access](../features/authentication.md) — it is no longer a post-MVP idea.
 
-* Multiple users
-* User profiles
-* Save ownership
-* User permissions
+Remaining potential capabilities beyond the current two-role model:
+
+* User profiles (avatars, preferences, display names)
+* Per-user save slots / save ownership across concurrent users sharing a game
+* Fine-grained permissions beyond the current admin/user split
+* Refresh tokens, login rate limiting, and account recovery flows
 
 ---
 

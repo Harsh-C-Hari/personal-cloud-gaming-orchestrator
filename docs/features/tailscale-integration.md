@@ -6,6 +6,8 @@ Tailscale provides secure networking between remote clients and the gaming host.
 
 The platform includes diagnostics, monitoring, validation, and recovery functionality.
 
+Tailscale status, diagnostics, and recovery visibility are available to administrators (`GET /host/tailscale/status`, `GET /host/recovery-events`); the reduced host-readiness view exposed to standard users (`GET /host/user-status`) includes only whether Tailscale is currently connected, without diagnostic detail.
+
 ---
 
 # Core Responsibilities

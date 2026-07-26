@@ -47,7 +47,9 @@ import {
     getLogs,
     getLogSessions,
     getApiUrl,
+    clearToken,
 } from "../api/client";
+import { useToast } from "./ui/Toast.jsx";
 
 const palette = {
     border: "rgba(148,163,184,0.18)",
@@ -65,7 +67,24 @@ const palette = {
     mono: "'JetBrains Mono', monospace",
 };
 
+// The level/session filter selects and the search input below all use
+// selectStyle/searchInputStyle, which set outline:"none". Every other
+// input in this app pairs that with an onFocus/onBlur border+glow ring
+// (see GameManager.jsx, StartSessionForm.jsx, etc.) — these three were
+// missing that pairing, so tabbing to them showed no focus indication
+// at all. Adding the same pattern here for consistency.
+const focusBorder = (e) => {
+    e.target.style.borderColor = "rgba(56,189,248,0.5)";
+    e.target.style.boxShadow = "0 0 0 3px rgba(56,189,248,0.08)";
+};
+const blurBorder = (e) => {
+    e.target.style.borderColor = palette.borderSubtle;
+    e.target.style.boxShadow = "none";
+};
+
 export function LogPanel() {
+
+    const toast = useToast();
 
     const [logs, setLogs] =
         useState([]);
@@ -109,6 +128,9 @@ export function LogPanel() {
         useState("");
 
     const [showMenu, setShowMenu] =
+        useState(false);
+
+    const [downloading, setDownloading] =
         useState(false);
 
     const [compactMode, setCompactMode] =
@@ -269,6 +291,11 @@ export function LogPanel() {
 
         style.innerHTML = `
 
+            @keyframes lp-spin {
+                from { transform: rotate(0deg); }
+                to   { transform: rotate(360deg); }
+            }
+
             @keyframes scrollBounce {
 
                 0%,100% {
@@ -341,6 +368,23 @@ export function LogPanel() {
 
     useEffect(() => {
 
+        if (!showMenu) return;
+
+        function handleKeyDown(e) {
+            if (e.key === "Escape") {
+                setShowMenu(false);
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () =>
+            window.removeEventListener("keydown", handleKeyDown);
+
+    }, [showMenu]);
+
+    useEffect(() => {
+
         function handleResize() {
 
             setCompactMode(
@@ -388,47 +432,66 @@ export function LogPanel() {
 
     async function downloadLogs() {
 
-        const endpoint =
-            isAdmin
-                ? "/admin/logs/download"
-                : "/admin/my-logs/download";
+        if (downloading) return;
 
-        const response = await fetch(
-            getApiUrl(endpoint),
-            {
-                headers: {
-                    Authorization:
-                        `Bearer ${localStorage.getItem("access_token")}`,
-                },
+        try {
+
+            setDownloading(true);
+
+            const endpoint =
+                isAdmin
+                    ? "/admin/logs/download"
+                    : "/admin/my-logs/download";
+
+            const response = await fetch(
+                getApiUrl(endpoint),
+                {
+                    headers: {
+                        Authorization:
+                            `Bearer ${localStorage.getItem("access_token")}`,
+                    },
+                }
+            );
+
+            if (!response.ok) {
+
+                if (response.status === 401) {
+                    clearToken();
+                    window.location.href = "/login";
+                    return;
+                }
+
+                toast.error("Failed to download logs.");
+                return;
             }
-        );
 
-        if (!response.ok) {
-            alert("Failed to download logs.");
-            return;
+            const blob = await response.blob();
+
+            const url =
+                URL.createObjectURL(blob);
+
+            const link =
+                document.createElement("a");
+
+            link.href = url;
+            const file_name = (
+                isAdmin
+                    ? "host_logs"
+                    : `${current_user}_logs`
+            );
+            link.download = file_name;
+
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            URL.revokeObjectURL(url);
+
+        } finally {
+
+            setDownloading(false);
+
         }
-
-        const blob = await response.blob();
-
-        const url =
-            URL.createObjectURL(blob);
-
-        const link =
-            document.createElement("a");
-
-        link.href = url;
-        const file_name = (
-            isAdmin
-                ? "host_logs"
-                : `${current_user}_logs`
-        );
-        link.download = file_name;
-
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-
-        URL.revokeObjectURL(url);
     }
     
     function downloadFiltered() {
@@ -541,20 +604,24 @@ export function LogPanel() {
 
     // ── Small presentational helpers (match GameManager / SessionHistory) ──
 
-    function PillButton({ active, tone, onClick, icon, children }) {
+    function PillButton({ active, tone, onClick, icon, children, disabled }) {
         return (
             <button
                 type="button"
+                disabled={disabled}
                 onClick={onClick}
-                style={active ? activePillButton(tone) : pillButton}
+                style={{
+                    ...(active ? activePillButton(tone) : pillButton),
+                    ...(disabled ? { opacity: 0.5, cursor: "not-allowed" } : null),
+                }}
                 onMouseEnter={(e) => {
-                    if (active) return;
+                    if (active || disabled) return;
                     e.currentTarget.style.background = "rgba(56,189,248,0.08)";
                     e.currentTarget.style.color = palette.accent;
                     e.currentTarget.style.borderColor = "rgba(56,189,248,0.4)";
                 }}
                 onMouseLeave={(e) => {
-                    if (active) return;
+                    if (active || disabled) return;
                     e.currentTarget.style.background = palette.card;
                     e.currentTarget.style.color = palette.dim;
                     e.currentTarget.style.borderColor = palette.border;
@@ -592,6 +659,8 @@ export function LogPanel() {
                     setLevel(e.target.value)
                 }
                 style={selectStyle}
+                onFocus={focusBorder}
+                onBlur={blurBorder}
             >
                 <option value="ALL">ALL LEVELS</option>
                 <option value="INFO">INFO</option>
@@ -607,6 +676,8 @@ export function LogPanel() {
                     )
                 }
                 style={selectStyle}
+                onFocus={focusBorder}
+                onBlur={blurBorder}
             >
                 <option value="ALL">
                     ALL SESSIONS
@@ -636,6 +707,8 @@ export function LogPanel() {
                         )
                     }
                     style={searchInputStyle}
+                    onFocus={focusBorder}
+                    onBlur={blurBorder}
                 />
             </div>
         </>
@@ -692,20 +765,23 @@ export function LogPanel() {
 
                             <PillButton
                                 onClick={loadLogs}
-                                icon={<FaSyncAlt size={10} />}
+                                disabled={loading}
+                                icon={<FaSyncAlt size={10} style={loading ? { animation: "lp-spin 0.8s linear infinite" } : undefined} />}
                             >
-                                REFRESH
+                                {loading ? "REFRESHING..." : "REFRESH"}
                             </PillButton>
 
                             <PillButton
                                 onClick={downloadLogs}
-                                icon={<FaDownload size={10} />}
+                                disabled={downloading}
+                                icon={<FaDownload size={10} style={downloading ? { animation: "lp-spin 0.8s linear infinite" } : undefined} />}
                             >
-                                DOWNLOAD
+                                {downloading ? "DOWNLOADING..." : "DOWNLOAD"}
                             </PillButton>
 
                             <PillButton
                                 onClick={downloadFiltered}
+                                disabled={downloading}
                                 icon={<FaFileExport size={10} />}
                             >
                                 EXPORT
@@ -747,20 +823,23 @@ export function LogPanel() {
 
                             <PillButton
                                 onClick={loadLogs}
-                                icon={<FaSyncAlt size={10} />}
+                                disabled={loading}
+                                icon={<FaSyncAlt size={10} style={loading ? { animation: "lp-spin 0.8s linear infinite" } : undefined} />}
                             >
-                                REFRESH
+                                {loading ? "REFRESHING..." : "REFRESH"}
                             </PillButton>
 
                             <PillButton
                                 onClick={downloadLogs}
-                                icon={<FaDownload size={10} />}
+                                disabled={downloading}
+                                icon={<FaDownload size={10} style={downloading ? { animation: "lp-spin 0.8s linear infinite" } : undefined} />}
                             >
-                                DOWNLOAD
+                                {downloading ? "DOWNLOADING..." : "DOWNLOAD"}
                             </PillButton>
 
                             <PillButton
                                 onClick={downloadFiltered}
+                                disabled={downloading}
                                 icon={<FaFileExport size={10} />}
                             >
                                 EXPORT

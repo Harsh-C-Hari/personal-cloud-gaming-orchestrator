@@ -44,6 +44,8 @@ internal_api_url = (
     "http://127.0.0.1:8100"
 )
 
+internal_event_token = ""
+
 try:
     if CONFIG_PATH.exists():
 
@@ -67,8 +69,29 @@ try:
             )
         )
 
+        internal_event_token = (
+            config
+            .get(
+                "backend",
+                {}
+            )
+            .get(
+                "internal_event_token",
+                ""
+            )
+        )
+
 except Exception:
     pass
+
+event_headers = (
+    {
+        "X-Internal-Event-Token":
+            internal_event_token
+    }
+    if internal_event_token
+    else {}
+)
 
 if action == "start":
 
@@ -107,6 +130,7 @@ if action == "start":
 
         requests.post(
             f"{internal_api_url}/host/sunshine/stream-started",
+            headers=event_headers,
             timeout=5,
         )
 
@@ -121,6 +145,7 @@ elif action == "stop":
         
         requests.post(
             f"{internal_api_url}/host/sunshine/stream-ended",
+            headers=event_headers,
             timeout=5,
         )
 

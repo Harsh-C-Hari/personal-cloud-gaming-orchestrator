@@ -11,11 +11,18 @@
  *   - The add/edit form is broken into labeled `cardSection` groups
  *     (Basic Info / Paths / Save Filters) using the same FieldLabel +
  *     focus-ring input pattern as StartSessionForm.
- *   - Status messaging (validation / success / error) now uses the same
- *     icon + colored-mono-text treatment as the rest of the app.
+ *   - Status messaging now uses toast.success/toast.error for action
+ *     results (save/delete/browse), matching the rest of the app and the
+ *     validation warnings below. The old `successMessage`/`error` state
+ *     boxes were removed: `closeForm()` -> `clearMessages()` ran in the
+ *     same tick as `setSuccessMessage(...)` on add/update, so that box
+ *     never actually rendered. The in-form "Game configuration is valid"
+ *     validation report (from the VALIDATE button) stays inline, since
+ *     it's a persistent check result the user may want to keep reading
+ *     while still editing, not a one-off action outcome.
  *
- * No functional change: every handler, state variable, validation rule,
- * and API call below is untouched from the previous implementation.
+ * No other functional change: every handler, state variable, validation
+ * rule, and API call below is untouched from the previous implementation.
  */
 
 import { useState } from "react";
@@ -32,7 +39,6 @@ import {
   FaSlidersH,
   FaCheckCircle,
   FaTimesCircle,
-  FaExclamationTriangle,
   FaSave,
   FaTimes,
 } from "react-icons/fa";
@@ -44,6 +50,8 @@ import {
   selectFile,
   selectFolder,
 } from "../api/client.js";
+import { useToast } from "./ui/Toast.jsx";
+import { useConfirm } from "./ui/ConfirmDialog.jsx";
 
 const DEFAULT_GAME = {
   id: "",
@@ -61,24 +69,22 @@ const DEFAULT_GAME = {
 };
 
 export function GameManager({ games, refreshGames }) {
+  const toast = useToast();
+  const confirm = useConfirm();
   const [showForm, setShowForm] = useState(false);
   const [editingGame, setEditingGame] = useState(null);
   const [saving, setSaving] = useState(false);
   const [validation, setValidation] = useState(null);
   const [validating, setValidating] = useState(false);
   const [deleting, setDeleting] = useState(null); // holds the gameId currently being deleted
-  const [successMessage, setSuccessMessage] = useState("");
   const [reloading, setReloading] = useState(false);
   const [originalGame, setOriginalGame] = useState(null);
-  const [error, setError] = useState("");
   const [gameForm, setGameForm] = useState(DEFAULT_GAME);
 
   const entries = Object.entries(games || {});
 
   function clearMessages() {
     setValidation(null);
-    setSuccessMessage("");
-    setError("");
   }
 
   function setField(key, value) {
@@ -124,7 +130,7 @@ export function GameManager({ games, refreshGames }) {
     try {
       await refreshGames();
     } catch (err) {
-      alert(err.message || "Failed to reload games");
+      toast.error(err.message || "Failed to reload games");
     } finally {
       setReloading(false);
     }
@@ -144,27 +150,27 @@ export function GameManager({ games, refreshGames }) {
       };
 
       if (!gameForm.id.trim()) {
-        alert("Game ID required");
+        toast.warning("Game ID required");
         return;
       }
       if (!/^[a-z0-9_]+$/.test(gameForm.id)) {
-        alert("Game ID must contain only lowercase letters, numbers, and underscores.");
+        toast.warning("Game ID must contain only lowercase letters, numbers, and underscores.");
         return;
       }
       if (!gameForm.name.trim()) {
-        alert("Game name required");
+        toast.warning("Game name required");
         return;
       }
       if (!gameForm.exe_path.trim()) {
-        alert("Executable path required");
+        toast.warning("Executable path required");
         return;
       }
       if (!gameForm.save_path.trim()) {
-        alert("Save path required");
+        toast.warning("Save path required");
         return;
       }
       if (!gameForm.process_name.trim()) {
-        alert("Process name required");
+        toast.warning("Process name required");
         return;
       }
 
@@ -182,16 +188,16 @@ export function GameManager({ games, refreshGames }) {
 
       if (editingGame) {
         await updateGame(editingGame, request);
-        setSuccessMessage("✓ Game updated successfully.");
+        toast.success("Game updated successfully.");
       } else {
         await addGame({ id: gameForm.id, ...request });
-        setSuccessMessage("✓ Game added successfully.");
+        toast.success("Game added successfully.");
       }
 
       await refreshGames();
       closeForm();
     } catch (err) {
-      alert(err.message || "Failed to save game");
+      toast.error(err.message || "Failed to save game");
     } finally {
       setSaving(false);
     }
@@ -201,21 +207,21 @@ export function GameManager({ games, refreshGames }) {
     if (deleting) return;
 
     const label = games?.[gameId]?.name || gameId;
-    if (!window.confirm(`Delete game "${label}"? This cannot be undone.`)) {
+    if (!(await confirm(`Delete game "${label}"? This cannot be undone.`, { danger: true, confirmLabel: "Delete" }))) {
       return;
     }
 
     setDeleting(gameId);
     try {
       await deleteGame(gameId);
-      setSuccessMessage("✓ Game deleted successfully.");
+      toast.success("Game deleted successfully.");
       await refreshGames();
 
       if (editingGame === gameId) {
         closeForm();
       }
     } catch (err) {
-      alert(err.message || "Failed to delete game");
+      toast.error(err.message || "Failed to delete game");
     } finally {
       setDeleting(null);
     }
@@ -250,7 +256,7 @@ export function GameManager({ games, refreshGames }) {
         process_name: result.name,
       });
     } catch (err) {
-      setError(err.message || "Failed to select executable");
+      toast.error(err.message || "Failed to select executable");
     }
   }
 
@@ -261,7 +267,7 @@ export function GameManager({ games, refreshGames }) {
       clearMessages();
       setGameForm({ ...gameForm, save_path: result.path });
     } catch (err) {
-      setError(err.message || "Failed to select save folder");
+      toast.error(err.message || "Failed to select save folder");
     }
   }
 
@@ -452,12 +458,6 @@ export function GameManager({ games, refreshGames }) {
               ))}
             </div>
           ))}
-
-        {successMessage && !showForm && (
-          <div style={successBox(palette)}>
-            <FaCheckCircle size={11} /> {successMessage.replace(/^✓\s*/, "")}
-          </div>
-        )}
 
         {/* ── Add / Edit form ───────────────────────────────────── */}
         {showForm && (
@@ -736,18 +736,6 @@ export function GameManager({ games, refreshGames }) {
                   <div style={validation.valid ? validationOk(palette) : validationBad(palette)}>
                     {validation.valid ? <FaCheckCircle size={11} /> : <FaTimesCircle size={11} />}
                     {validation.valid ? "Game configuration is valid." : validation.errors.join(" ")}
-                  </div>
-                )}
-
-                {successMessage && (
-                  <div style={successBox(palette)}>
-                    <FaCheckCircle size={11} /> {successMessage.replace(/^✓\s*/, "")}
-                  </div>
-                )}
-
-                {error && (
-                  <div style={errorBox(palette)}>
-                    <FaExclamationTriangle size={11} /> {error}
                   </div>
                 )}
               </div>
@@ -1048,20 +1036,6 @@ const validationOk = (p) => ({
 });
 
 const validationBad = (p) => ({
-  ...messageBoxBase,
-  color: p.danger,
-  border: `1px solid ${p.danger}`,
-  background: "rgba(244,63,94,0.08)",
-});
-
-const successBox = (p) => ({
-  ...messageBoxBase,
-  color: p.success,
-  border: `1px solid ${p.success}`,
-  background: "rgba(16,217,138,0.08)",
-});
-
-const errorBox = (p) => ({
   ...messageBoxBase,
   color: p.danger,
   border: `1px solid ${p.danger}`,

@@ -5,6 +5,11 @@ CONFIG_SCHEMA = {
             "requires_restart": True,
             "type": str,
         },
+        "internal_event_token": {
+            "editable": False,
+            "requires_restart": True,
+            "type": str,
+        },
     },
 
     "auth": {

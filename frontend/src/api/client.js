@@ -157,6 +157,19 @@ export async function fetchGames() {
   return apiFetch("GET", "/games/list_games");
 }
 
+/**
+ * GET /games/user_games
+ *
+ * User-scoped counterpart to fetchGames() — returns the same
+ * { [game_id]: {...} } shape, filtered/reduced to the fields a user is
+ * allowed to see (id, name, exe_name, process_name). Used by the user
+ * dashboard in place of fetchGames(), same pattern as fetchUserHostStatus()
+ * vs fetchHostStatus().
+ */
+export async function fetchUserGames() {
+  return apiFetch("GET", "/games/user_games");
+}
+
 export async function reloadGames() {
   return apiFetch("GET", "/games/reload");
 }
@@ -568,6 +581,50 @@ export async function closeSunshineStream() {
     return apiFetch(
         "POST",
         "/host/sunshine/close-stream"
+    );
+}
+
+/**
+ * GET /host/sunshine/clients
+ *
+ * Returns { reachable, clients, error } where `clients` is the raw
+ * `named_certs` list from Sunshine's own /api/clients/list — each entry
+ * shaped like { name, uuid, ... }.
+ */
+export async function getSunshineClients() {
+    return apiFetch(
+        "GET",
+        "/host/sunshine/clients"
+    );
+}
+
+/**
+ * POST /host/sunshine/pair?pin=...
+ *
+ * `pin` is a FastAPI query param (not a JSON body) on the backend route,
+ * so it's appended to the URL rather than passed as a body.
+ */
+export async function pairSunshineClient(pin) {
+    return apiFetch(
+        "POST",
+        `/host/sunshine/pair?pin=${encodeURIComponent(pin)}`
+    );
+}
+
+/**
+ * POST /host/sunshine/unpair?uuid=...
+ */
+export async function unpairSunshineClient(uuid) {
+    return apiFetch(
+        "POST",
+        `/host/sunshine/unpair?uuid=${encodeURIComponent(uuid)}`
+    );
+}
+
+export async function unpairAllSunshineClients() {
+    return apiFetch(
+        "POST",
+        "/host/sunshine/unpair-all"
     );
 }
 

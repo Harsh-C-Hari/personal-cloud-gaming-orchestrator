@@ -407,9 +407,25 @@ def delete_game(
     }
 
 @router.get("/list_games")
-def list_games():
+def list_games(
+    current_user=Depends(
+        get_current_user
+    ),
+):
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     return save_manager.game_configs
 
+@router.get("/user_games")
+def list_user_games(
+    current_user=Depends(get_current_user),
+):
+    return save_manager.get_user_game_configs()
 
 @router.get("/{game_id}/validate")
 def validate_game(
@@ -465,6 +481,7 @@ def reload_game_config(
         get_current_user
     ),
 ):
+    
     return save_manager.reload_game_configs()
 
 @router.post("/validate")

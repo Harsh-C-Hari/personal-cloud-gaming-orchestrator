@@ -6,9 +6,36 @@ The FastAPI backend exposes APIs used by the dashboard, monitoring systems, reco
 
 The API acts as the primary communication layer between the frontend and backend.
 
+Every route except `/auth/login` and the first-run bootstrap endpoints requires a valid JWT bearer token (`Authorization: Bearer <token>`). Admin-only routes additionally reject any authenticated account whose role is not `admin` (`403`). See [Authentication & Role-Based Access](../features/authentication.md).
+
 ---
 
 # Major API Categories
+
+## Auth APIs
+
+Responsibilities:
+
+* First-run admin bootstrap
+* Login and token issuance
+* User account management (admin only)
+* Password change
+
+Examples:
+
+```text
+GET  /auth/bootstrap-required
+POST /auth/bootstrap-admin
+POST /auth/login
+GET  /auth/me
+POST /auth/users            (admin)
+GET  /auth/users            (admin)
+DELETE /auth/users/{username} (admin)
+DELETE /auth/users           (admin, bulk cleanup)
+PUT  /auth/change-password
+```
+
+---
 
 ## Session APIs
 
@@ -20,13 +47,20 @@ Responsibilities:
 * Session history
 * Session analytics
 
+Standard users may only stop/view sessions they own; admins may act on any session.
+
 Examples:
 
 ```text
-GET /sessions/active
-GET /sessions/analytics
+GET  /sessions/active
+GET  /sessions/analytics       (admin: all sessions)
+GET  /sessions/my-analytics    (user: own sessions only)
+GET  /sessions/history
+GET  /sessions/my-history      (user: own sessions only)
 POST /sessions/start
 POST /sessions/{session_id}/stop
+POST /sessions/{session_id}/restart
+POST /sessions/unlock
 ```
 
 ---
@@ -64,19 +98,22 @@ Responsibilities:
 * Host monitoring
 * Startup validation
 
+`/host/status` and `/host/metrics` are admin only; standard users receive an equivalent reduced view via `/host/user-status`.
+
 Examples:
 
 ```text
-GET /host/status
-GET /host/metrics
-GET /host/watchdogs
+GET /host/status        (admin)
+GET /host/user-status   (user)
+GET /host/metrics       (admin)
+GET /host/watchdogs     (admin)
 ```
 
 ---
 
 ## Recovery APIs
 
-Responsibilities:
+*Admin only.* Responsibilities:
 
 * Recovery events
 * Recovery statistics
@@ -93,19 +130,49 @@ GET /host/recovery-stats
 
 ## Infrastructure APIs
 
-Responsibilities:
+*Admin only.* Responsibilities:
 
-* Sunshine management
+* Sunshine service management
+* Sunshine client pairing and stream tracking
 * Tailscale management
 * Service visibility
 
 Examples:
 
 ```text
-GET /host/status #Sunshine and Tailscale Information is Included There
+GET  /host/status  # Sunshine and Tailscale information is included there
 POST /host/sunshine/restart
 POST /host/sunshine/start
 POST /host/sunshine/stop
+GET  /host/sunshine/clients
+POST /host/sunshine/pair
+POST /host/sunshine/unpair
+POST /host/sunshine/unpair-all
+GET  /host/sunshine/stream
+GET  /host/sunshine/history
+POST /host/sunshine/close-stream
+```
+
+Four additional endpoints — `/host/sunshine/stream-started`, `/host/sunshine/stream-ended`, `/host/sunshine/transport-connected`, `/host/sunshine/transport-disconnected` — exist for internal use only. They are not reachable with a user JWT; they require the internal event token described in [Internal Event Authentication](../engineering/internal-event-authentication.md).
+
+---
+
+## Admin Log APIs
+
+Responsibilities:
+
+* Host log viewing (admin: full log; user: own-session log only)
+* Log export
+
+Examples:
+
+```text
+GET /admin/logs             (admin)
+GET /admin/log-sessions     (admin)
+GET /admin/logs/download    (admin)
+GET /admin/my-logs          (user)
+GET /admin/my-log-sessions  (user)
+GET /admin/my-logs/download (user)
 ```
 
 ---

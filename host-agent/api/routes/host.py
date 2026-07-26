@@ -30,6 +30,9 @@ from api.services.session_service import (
     session_service,
 )
 from api.auth import get_current_user
+from api.internal_event_auth import (
+    require_internal_event_token,
+)
 logger = configure_logger()
 
 router = APIRouter(
@@ -459,6 +462,12 @@ def tailscale_status(
         get_current_user
     ),
 ):
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
     
     return (
         tailscale_controller
@@ -640,7 +649,10 @@ def close_sunshine_stream(
     )
 
 @router.post(
-    "/sunshine/stream-ended"
+    "/sunshine/stream-ended",
+    dependencies=[
+        Depends(require_internal_event_token)
+    ],
 )
 def stream_ended():
     
@@ -716,7 +728,10 @@ def stream_ended():
     }
 
 @router.post(
-    "/sunshine/stream-started"
+    "/sunshine/stream-started",
+    dependencies=[
+        Depends(require_internal_event_token)
+    ],
 )
 def stream_started():
     
@@ -788,7 +803,10 @@ def stream_started():
     }
 
 @router.post(
-    "/sunshine/transport-disconnected"
+    "/sunshine/transport-disconnected",
+    dependencies=[
+        Depends(require_internal_event_token)
+    ],
 )
 def transport_disconnected():
     
@@ -835,7 +853,10 @@ def transport_disconnected():
     }
 
 @router.post(
-    "/sunshine/transport-connected"
+    "/sunshine/transport-connected",
+    dependencies=[
+        Depends(require_internal_event_token)
+    ],
 )
 def transport_connected():
     

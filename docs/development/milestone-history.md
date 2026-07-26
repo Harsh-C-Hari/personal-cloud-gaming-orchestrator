@@ -119,4 +119,28 @@ Separated:
 - Stream lifecycle
 - Transport lifecycle
 
+---
+
+### Authentication & Role-Based Access
+
+Implemented JWT-based login, first-run admin bootstrap, bcrypt password hashing, and admin/user role enforcement across every API route.
+
+---
+
+### Role-Aware Dashboard
+
+Split the dashboard into an Admin Dashboard and a scoped User Dashboard, sharing layout and most page components while differing in navigation and data scope.
+
+---
+
+### Internal Event Authentication
+
+Introduced a shared-secret token, separate from user JWTs, to authorize the Sunshine stream hook script and the log-tailing transport monitor — the two non-user callers that report stream/transport state into the backend.
+
+---
+
+### Sunshine Client Management
+
+Added client pairing, unpairing, and persisted stream history to the existing Sunshine watchdog and status functionality.
+
 allowing each layer to survive failures independently.

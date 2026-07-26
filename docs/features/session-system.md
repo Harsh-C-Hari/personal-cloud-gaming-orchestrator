@@ -131,8 +131,17 @@ Tracked metrics include:
 API:
 
 ```text
-GET /sessions/analytics
+GET /sessions/analytics       (admin: all sessions)
+GET /sessions/my-analytics    (user: own sessions only)
 ```
+
+---
+
+# Session Ownership & Access Control
+
+Every session is created with a `user_id` matching the authenticated account that started it (`api/routes/sessions.py: start_session`, via `current_user["username"]`).
+
+Administrators can view and act on any session. Standard users can only stop, view, or query sessions they own; the backend enforces this on `POST /sessions/{session_id}/stop` and related endpoints, returning `403` if a non-admin user targets a session they don't own — this is a server-side check, not just a UI restriction. See [Authentication & Role-Based Access](authentication.md).
 
 ---
 

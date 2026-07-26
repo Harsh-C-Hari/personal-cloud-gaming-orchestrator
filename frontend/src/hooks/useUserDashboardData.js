@@ -7,7 +7,7 @@ import {
 
 import {
     fetchUserHostStatus,
-    fetchGames,
+    fetchUserGames,
     reloadGames,
 } from "../api/client.js";
 
@@ -39,7 +39,7 @@ export function useUserDashboardData() {
                 await reloadGames();
 
                 const data =
-                    await fetchGames();
+                    await fetchUserGames();
 
                 setGames(
                     data ?? {}

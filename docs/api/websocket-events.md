@@ -8,6 +8,12 @@ The goal is to reduce polling requirements while keeping monitoring information 
 
 ---
 
+# Authentication Scope
+
+Unlike REST endpoints, the `/ws` WebSocket connection itself does not require a JWT and broadcasts events to every connected client rather than filtering by user or role. The dashboard still gates page access and REST data behind authentication, so this does not expose REST data directly, but any connected client currently receives the same real-time event stream regardless of role. Per-connection authentication/filtering on the WebSocket channel is not yet implemented and is a candidate for the Phase 31 security hardening work.
+
+---
+
 # Currently Implemented Usage
 
 The WebSocket system is used to broadcast real-time platform updates to connected dashboard clients.

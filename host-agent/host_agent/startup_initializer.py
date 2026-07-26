@@ -1,4 +1,5 @@
 import json
+import secrets
 from pathlib import Path
 
 from host_agent.config_defaults import (
@@ -94,3 +95,52 @@ def initialize_startup():
             ),
             encoding="utf-8",
         )
+
+    _ensure_internal_event_token(
+        config_path
+    )
+
+
+def _ensure_internal_event_token(
+    config_path: Path,
+):
+    """
+    Backfills `backend.internal_event_token` — the shared secret that
+    lets sunshine_stream_hook.py / sunshine_transport_monitor.py (and only
+    them, see api/internal_event_auth.py) call the four stream/transport
+    event endpoints. Runs on every startup, for both a freshly-created
+    config.json (from DEFAULT_CONFIG, where it's blank) and an existing
+    config.json from before this token existed. Once a token is present,
+    this is a no-op.
+    """
+
+    with config_path.open(
+        "r",
+        encoding="utf-8",
+    ) as file:
+        config = json.load(file)
+
+    backend = config.setdefault(
+        "backend",
+        {},
+    )
+
+    if not backend.get(
+        "internal_event_token"
+    ):
+
+        backend[
+            "internal_event_token"
+        ] = secrets.token_urlsafe(32)
+
+        with config_path.open(
+            "w",
+            encoding="utf-8",
+        ) as file:
+
+            json.dump(
+                config,
+                file,
+                indent=4,
+                ensure_ascii=False,
+            )

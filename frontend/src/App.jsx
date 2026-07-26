@@ -8,9 +8,11 @@
 import {
     isLoggedIn,
 } from "./api/client";
-import { useEffect } from "react";
 import Login from "./pages/Login";
 import { Dashboard } from "./dashboard/Dashboard.jsx";
+import { ToastProvider } from "./components/ui/Toast.jsx";
+import { ConfirmDialogProvider } from "./components/ui/ConfirmDialog.jsx";
+import { ErrorBoundary } from "./components/ui/ErrorBoundary.jsx";
 
 const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
@@ -92,28 +94,31 @@ export default function App() {
   // Keep the URL bar honest: "/login" should only ever be visible while
   // logged out, and logging in should never leave "/login" (or a blank
   // "/") sitting in the address bar.
-  useEffect(() => {
-    const path = window.location.pathname;
-    if (!loggedIn && path !== "/login") {
-      window.history.replaceState(null, "", "/login");
-    } else if (loggedIn && (path === "/login" || path === "/")) {
-      window.history.replaceState(null, "", "/home");
-    }
-  }, [loggedIn]);
-
-  if (!loggedIn) {
-    return (
-      <>
-        <style>{GLOBAL_CSS}</style>
-        <Login />
-      </>
-    );
+  //
+  // This runs synchronously here in the render body — NOT in a
+  // useEffect — on purpose. Dashboard (and its useRoute hook) reads
+  // window.location.pathname during ITS first render, which happens in
+  // the same synchronous render pass as this component's first render,
+  // before any effect has a chance to run. If this correction lived in
+  // an effect, Dashboard could briefly (and, since replaceState doesn't
+  // re-render anything, indefinitely) initialize its route from a stale
+  // "/login" left over from before login/logout, showing a 404 for a
+  // route that isn't real.
+  const path = window.location.pathname;
+  if (!loggedIn && path !== "/login") {
+    window.history.replaceState(null, "", "/login");
+  } else if (loggedIn && (path === "/login" || path === "/")) {
+    window.history.replaceState(null, "", "/home");
   }
-  
+
   return (
-    <>
-      <style>{GLOBAL_CSS}</style>
-      <Dashboard />
-    </>
+    <ToastProvider>
+      <ConfirmDialogProvider>
+        <style>{GLOBAL_CSS}</style>
+        <ErrorBoundary>
+          {loggedIn ? <Dashboard /> : <Login />}
+        </ErrorBoundary>
+      </ConfirmDialogProvider>
+    </ToastProvider>
   );
 }

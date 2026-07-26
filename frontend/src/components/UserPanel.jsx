@@ -42,6 +42,8 @@ import {
     deleteUser,
     deleteAllUsers,
 } from "../api/client";
+import { useToast } from "./ui/Toast.jsx";
+import { useConfirm } from "./ui/ConfirmDialog.jsx";
 
 // ── Shared design tokens (matches GameManager / SettingsPanel /
 // StartSessionForm / RecoveryStats / HostMonitor) ───────────────────────
@@ -65,6 +67,9 @@ const palette = {
 };
 
 export function UserPanel() {
+
+    const toast = useToast();
+    const confirm = useConfirm();
 
     const role =
         localStorage.getItem(
@@ -99,6 +104,16 @@ export function UserPanel() {
     const [
         creating,
         setCreating,
+    ] = useState(false);
+
+    const [
+        deletingId,
+        setDeletingId,
+    ] = useState(null);
+
+    const [
+        deletingAll,
+        setDeletingAll,
     ] = useState(false);
 
     const adminCount =
@@ -137,9 +152,7 @@ export function UserPanel() {
 
         } catch (err) {
 
-            alert(
-                err.message
-            );
+            toast.error(err.message);
 
         } finally {
 
@@ -194,9 +207,7 @@ export function UserPanel() {
 
         } catch (err) {
 
-            alert(
-                err.message
-            );
+            toast.error(err.message);
 
         } finally {
 
@@ -209,15 +220,17 @@ export function UserPanel() {
         target,
     ) {
 
+        if (deletingId || deletingAll) return;
+
         if (
-            !window.confirm(
-                `Delete ${target}?`
-            )
+            !(await confirm(`Delete ${target}?`, { danger: true, confirmLabel: "Delete" }))
         ) {
             return;
         }
 
         try {
+
+            setDeletingId(target);
 
             await deleteUser(
                 target
@@ -227,24 +240,28 @@ export function UserPanel() {
 
         } catch (err) {
 
-            alert(
-                err.message
-            );
+            toast.error(err.message);
+
+        } finally {
+
+            setDeletingId(null);
 
         }
     }
 
     async function handleDeleteAll() {
 
+        if (deletingId || deletingAll) return;
+
         if (
-            !window.confirm(
-                "Delete all users except oldest admin?"
-            )
+            !(await confirm("Delete all users except oldest admin?", { danger: true, confirmLabel: "Delete All" }))
         ) {
             return;
         }
 
         try {
+
+            setDeletingAll(true);
 
             await deleteAllUsers();
 
@@ -252,9 +269,11 @@ export function UserPanel() {
 
         } catch (err) {
 
-            alert(
-                err.message
-            );
+            toast.error(err.message);
+
+        } finally {
+
+            setDeletingAll(false);
 
         }
     }
@@ -284,7 +303,7 @@ export function UserPanel() {
             return "Password required.";
         }
 
-        if (password.length < 8) {
+        if (password.length < 6) {
             return "Password must be at least 6 characters.";
         }
 
@@ -406,13 +425,13 @@ export function UserPanel() {
                                                                     aria-label={`Delete ${user.username}`}
                                                                     style={{
                                                                         ...cardDeleteButton,
-                                                                        opacity: isProtectedAdmin ? 0.4 : 1,
-                                                                        cursor: isProtectedAdmin ? "not-allowed" : "pointer",
+                                                                        opacity: isProtectedAdmin || deletingId === user.username || deletingAll ? 0.4 : 1,
+                                                                        cursor: isProtectedAdmin || deletingId === user.username || deletingAll ? "not-allowed" : "pointer",
                                                                     }}
-                                                                    disabled={isProtectedAdmin}
+                                                                    disabled={isProtectedAdmin || deletingId === user.username || deletingAll}
                                                                     onClick={() => handleDelete(user.username)}
                                                                     onMouseEnter={(e) => {
-                                                                        if (!isProtectedAdmin) {
+                                                                        if (!isProtectedAdmin && deletingId !== user.username && !deletingAll) {
                                                                             e.currentTarget.style.background = "rgba(239,68,68,0.15)";
                                                                         }
                                                                     }}
@@ -420,7 +439,11 @@ export function UserPanel() {
                                                                         e.currentTarget.style.background = "transparent";
                                                                     }}
                                                                 >
-                                                                    <FaTrashAlt size={11} />
+                                                                    {deletingId === user.username ? (
+                                                                        <FaSyncAlt size={10} style={{ animation: "up-spin 0.8s linear infinite" }} />
+                                                                    ) : (
+                                                                        <FaTrashAlt size={11} />
+                                                                    )}
                                                                 </button>
                                                             </div>
 
@@ -455,18 +478,18 @@ export function UserPanel() {
                             ...deleteAllButton,
 
                             opacity:
-                                noUserExists
+                                noUserExists || deletingAll || deletingId
                                     ? 0.4
                                     : 1,
 
                             cursor:
-                                noUserExists
+                                noUserExists || deletingAll || deletingId
                                     ? "not-allowed"
                                     : "pointer",
                         }}
 
                         disabled={
-                            noUserExists
+                            noUserExists || deletingAll || !!deletingId
                         }
 
                         onClick={
@@ -475,7 +498,7 @@ export function UserPanel() {
 
                         onMouseEnter={(e) => {
 
-                            if (!noUserExists) {
+                            if (!noUserExists && !deletingAll && !deletingId) {
 
                                 e.currentTarget.style.background =
                                     "rgba(239,68,68,0.15)";
@@ -488,8 +511,12 @@ export function UserPanel() {
                                 "rgba(239,68,68,0.08)";
                         }}
                     >
-                        <FaTrashAlt size={11} />
-                        DELETE ALL EXCEPT OLDEST ADMIN
+                        {deletingAll ? (
+                            <FaSyncAlt size={11} style={{ animation: "up-spin 0.8s linear infinite" }} />
+                        ) : (
+                            <FaTrashAlt size={11} />
+                        )}
+                        {deletingAll ? "DELETING…" : "DELETE ALL EXCEPT OLDEST ADMIN"}
                     </button>
 
                 </div>

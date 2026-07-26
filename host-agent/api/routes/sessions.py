@@ -145,6 +145,12 @@ def get_session_history(
         get_current_user
     ),
 ):
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )    
     
     return JSONResponse(
         content={
@@ -166,6 +172,13 @@ def get_session_events(
         get_current_user
     ),
 ):
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     return JSONResponse(
         content={
             "events": session_service.get_session_events(
@@ -185,7 +198,13 @@ def get_session_analytics(
         get_current_user
     ),
 ):
-    
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+
     return JSONResponse(
         content=session_service.get_session_analytics(),
         headers={
@@ -201,19 +220,37 @@ def get_my_session_history(
         get_current_user
     ),
 ):
-
+ 
+    history = session_service.get_session_history(
+        limit=limit,
+        user_id=current_user["username"],
+    )
+ 
+    user_hidden_fields = (
+        "backup_path",
+        "archive_path",
+        "restore_source",
+    )
+ 
+    sanitized_history = [
+        {
+            key: value
+            for key, value in record.items()
+            if key not in user_hidden_fields
+        }
+        for record in history
+    ]
+ 
     return JSONResponse(
         content={
-            "history": session_service.get_session_history(
-                limit=limit,
-                user_id=current_user["username"],
-            )
+            "history": sanitized_history
         },
         headers={
             "Cache-Control":
                 "no-store, no-cache, must-revalidate"
         },
     )
+
 
 @router.get("/my-events")
 def get_my_session_events(
@@ -261,6 +298,13 @@ def get_session_health(
         get_current_user
     ),
 ):
+    if current_user["role"] != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required.",
+        )
+    
     return session_service.get_session_health()
 
 # DEV ONLY:

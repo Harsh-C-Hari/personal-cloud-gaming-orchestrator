@@ -13,6 +13,7 @@
 import { useEffect, useState } from "react";
 import { FaUser, FaLock, FaSignInAlt, FaUserShield, FaInfoCircle, FaExclamationTriangle } from "react-icons/fa";
 import { login, setToken, bootstrapRequired, bootstrapAdmin } from "../api/client";
+import { useToast } from "../components/ui/Toast.jsx";
 
 const palette = {
     bg: "#000000a4",
@@ -74,10 +75,12 @@ function FieldLabel({ icon, children }) {
 }
 
 export default function Login() {
+    const toast = useToast();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [bootstrapMode, setBootstrapMode] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         async function checkBootstrap() {
@@ -94,9 +97,11 @@ export default function Login() {
 
     async function handleSubmit(e) {
         e.preventDefault();
+        if (submitting) return;
         setError("");
 
         try {
+            setSubmitting(true);
             let result;
 
             if (bootstrapMode) {
@@ -113,10 +118,12 @@ export default function Login() {
                 window.location.reload();
             } else {
                 setBootstrapMode(false);
-                alert("Admin created successfully. Please login.");
+                toast.success("Admin created successfully. Please login.");
             }
         } catch (err) {
             setError(err.message);
+        } finally {
+            setSubmitting(false);
         }
     }
 
@@ -299,6 +306,7 @@ export default function Login() {
                     {/* Submit */}
                     <button
                         type="submit"
+                        disabled={submitting}
                         style={{
                             display: "flex",
                             alignItems: "center",
@@ -306,7 +314,9 @@ export default function Login() {
                             gap: "9px",
                             padding: "13px",
                             marginTop: "4px",
-                            background: "linear-gradient(180deg, rgba(56,189,248,0.16), rgba(56,189,248,0.08))",
+                            background: submitting
+                                ? "rgba(56,189,248,0.06)"
+                                : "linear-gradient(180deg, rgba(56,189,248,0.16), rgba(56,189,248,0.08))",
                             border: "1px solid rgba(56,189,248,0.4)",
                             borderRadius: "8px",
                             color: palette.accent,
@@ -315,21 +325,30 @@ export default function Login() {
                             fontWeight: 700,
                             letterSpacing: "0.14em",
                             textTransform: "uppercase",
-                            cursor: "pointer",
+                            cursor: submitting ? "not-allowed" : "pointer",
+                            opacity: submitting ? 0.6 : 1,
                             textShadow: "0 0 14px rgba(56,189,248,0.4)",
                             transition: "background 0.2s",
                         }}
                         onMouseEnter={(e) => {
+                            if (submitting) return;
                             e.currentTarget.style.background =
                                 "linear-gradient(180deg, rgba(56,189,248,0.24), rgba(56,189,248,0.12))";
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.background =
-                                "linear-gradient(180deg, rgba(56,189,248,0.16), rgba(56,189,248,0.08))";
+                            e.currentTarget.style.background = submitting
+                                ? "rgba(56,189,248,0.06)"
+                                : "linear-gradient(180deg, rgba(56,189,248,0.16), rgba(56,189,248,0.08))";
                         }}
                     >
                         {bootstrapMode ? <FaUserShield size={12} /> : <FaSignInAlt size={12} />}
-                        {bootstrapMode ? "Register Admin" : "Sign In"}
+                        {submitting
+                            ? bootstrapMode
+                                ? "Registering…"
+                                : "Signing In…"
+                            : bootstrapMode
+                                ? "Register Admin"
+                                : "Sign In"}
                     </button>
                 </div>
             </form>

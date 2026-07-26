@@ -1,6 +1,6 @@
 # Personal Cloud Gaming Orchestrator v0.1
 
-Personal Cloud Gaming Orchestrator is a single-host cloud gaming orchestration platform that transforms a Windows gaming PC into a remotely accessible gaming server through session orchestration, save synchronization, monitoring, diagnostics, and automated recovery systems.
+Personal Cloud Gaming Orchestrator is a single-host cloud gaming orchestration platform that transforms a Windows gaming PC into a remotely accessible gaming server through session orchestration, save synchronization, monitoring, diagnostics, authentication, and automated recovery systems.
 
 ---
 
@@ -12,12 +12,13 @@ Instead of simply remotely connecting to a PC, the platform introduces an orches
 
 * Managing game sessions
 * Protecting player save data
+* Authenticating and authorizing users
 * Monitoring host health
 * Recovering failed services
 * Tracking system events
-* Providing a real-time management dashboard
+* Providing role-based, real-time management dashboards for both administrators and regular users
 
-The system focuses heavily on reliability and automation.
+The system focuses heavily on reliability, security, and automation.
 
 ---
 ## Installation Guide
@@ -87,6 +88,8 @@ pip install -r requirements.txt
 
 ```
 
+Backend authentication dependencies (`passlib[bcrypt]`, `python-jose[cryptography]`) are included in `requirements.txt` and installed automatically.
+
 ---
 
 ### Frontend Setup
@@ -133,6 +136,16 @@ http://localhost:5173
 
 ---
 
+### First-Run Account Bootstrap
+
+The Host Agent requires at least one administrator account before the dashboard can be used.
+
+On first launch, the dashboard detects that no admin account exists (`GET /auth/bootstrap-required`) and presents a one-time **Create Admin Account** screen instead of the normal login form. Once the initial administrator is created, this screen never appears again, and all subsequent access goes through the standard login form.
+
+Additional accounts (admin or standard user) can be created afterward from **User Management** in the admin dashboard.
+
+---
+
 ### Troubleshooting & Tips
 
 * Port Conflicts: If port 8100 is in use, you can change the backend port in run.py. The frontend uses port 5173 by default.
@@ -141,9 +154,38 @@ http://localhost:5173
 
 * Running as Admin: Some operations (e.g. Tailscale injection, editing host networking) require administrator privileges. Always start the backend console as Admin.
 
-* Logs: Use the Dashboard’s Log Viewer panel or check host-agent/logs/ for runtime messages.
+* Logs: Use the Dashboard's Log Viewer panel or check host-agent/logs/ for runtime messages. Standard users see only their own session logs (**My Logs**); administrators see the full host log.
 
 * Restarting: Simply restart python run.py after code/config changes. The backend detects config updates at runtime.
+
+---
+
+## Running Tests
+
+The frontend includes automated tests to verify core dashboard functionality and UI behavior.
+
+Run the test suite from the frontend directory:
+
+```bash
+cd frontend
+
+npm run test
+```
+
+Current test coverage includes:
+
+- Dashboard components
+- Session management UI
+- Authentication flow
+- Host monitoring components
+- User/Admin dashboard routing
+- Shared utilities
+
+**Current Test Suite**
+
+- 21 automated frontend tests
+
+Run the test suite after making frontend changes to verify that existing functionality has not been affected.
 
 ---
 
@@ -151,6 +193,7 @@ http://localhost:5173
 
 Before launching your first session:
 
+- Complete the first-run admin bootstrap (see above) and log in.
 - Configure the host settings using **Settings** or by editing `config.json`.
 - Add at least one game using the **Game Manager** or by editing `games.json`.
 - Verify the executable path.
@@ -161,9 +204,9 @@ Before launching your first session:
 >
 > Sunshine and Tailscale are **optional** in the current v0.1 release.
 >
-> Local session management, save synchronization, monitoring, and recovery features function without them.
+> Local session management, save synchronization, monitoring, authentication, and recovery features function without them.
 >
-> Sunshine and Tailscale will become required in future phases as remote streaming workflows become fully integrated into session orchestration.
+> Sunshine and Tailscale become required once remote streaming is actually used, but do not block local session launch.
 
 ---
 
@@ -173,7 +216,10 @@ Before launching your first session:
 personal-cloud-gaming-orchestrator/
 
 ├── host-agent/          # FastAPI backend & Host Agent
-├── frontend/            # React dashboard
+│   ├── api/              # Routes, services, auth, session registry, websocket manager
+│   └── host_agent/        # Host-side managers (sessions, saves, sunshine, tailscale, auth, etc.)
+├── frontend/            # React dashboard (admin + user)
+│   └── src/dashboard/     # Role-aware dashboard shell, pages, layout, hooks
 ├── assets/              # Project screenshots
 ├── docs/                # Engineering documentation
 └── README.md
@@ -185,6 +231,7 @@ personal-cloud-gaming-orchestrator/
 
 - Backend: FastAPI + Python
 - Frontend: React + Vite
+- Authentication: JWT bearer tokens (python-jose) with bcrypt-hashed passwords (passlib)
 - Dashboard updates through REST APIs and WebSockets.
 - Runtime configuration changes are supported without restarting the backend where applicable.
 
@@ -194,13 +241,29 @@ personal-cloud-gaming-orchestrator/
 
 * Single-Host Only: This initial release supports only one gaming host. Multi-host orchestration is excluded (planned later).
 
-* No Authentication: All API endpoints are currently unsecured and assume a trusted LAN or Tailscale network. (Planned for Phase 24.)
-
 * JSON Persistence: The system uses local JSON files for state (no DB). Future versions will migrate to a database (Phase 25).
 
 * Optional Streaming: Sunshine and Tailscale are optional in v0.1. The system will operate on a local host without them.
 
-* Mirroring Code: The administrative dashboard and features (game management, session recovery) are available only via the host dashboard; there is no separate user-facing app in v0.1.
+* Dashboard-Only Client: Both administrators and standard users interact with the platform through the same web dashboard (role-aware, not a separate codebase). A dedicated lightweight/mobile-friendly user application is planned for a future phase.
+
+---
+
+### Authentication & Authorization
+
+Authentication and role-based authorization are implemented in the current release.
+
+Current capabilities include:
+
+- First-run administrator bootstrap (`/auth/bootstrap-required`, `/auth/bootstrap-admin`)
+- JWT-based login (`/auth/login`), bearer tokens on every API request
+- Two roles: **admin** and **user**
+- Admin-only user management (create, list, delete users; delete-all-except-oldest-admin safety operation)
+- Self-service password change for any logged-in user
+- Per-role dashboard: administrators get the full host-management dashboard; standard users get a scoped dashboard limited to their own sessions, analytics, history, and logs
+- Passwords are hashed with bcrypt (passlib); tokens are signed HS256 JWTs with a configurable expiry (`config.json` → `auth.access_token_expire_minutes`, default 1440 minutes)
+
+A separate, narrower authentication mechanism (a shared internal event token, distinct from user JWTs) protects the small set of endpoints that Sunshine's own hook script and the transport-monitoring background thread call directly — see [Internal Event Authentication](docs/engineering/internal-event-authentication.md).
 
 ---
 
@@ -208,11 +271,13 @@ personal-cloud-gaming-orchestrator/
 
 ### Current Host Management Dashboard (MVP)
 
-The current dashboard is an engineering-focused host administration interface used for monitoring, diagnostics, reliability testing, configuration management, and recovery validation.
+The dashboard is a role-aware web application served to both administrators and standard users. Administrators see a full host-administration interface used for monitoring, diagnostics, reliability testing, configuration management, and recovery validation. Standard users see a scoped dashboard limited to starting/viewing their own sessions, their own analytics, their own session history, and their own logs.
 
-It is designed for single-host administration during the early development phases of the project.
+---
 
-Future phases will introduce dedicated user-facing applications and a production-oriented host dashboard.
+### Login & Account Bootstrap
+
+The dashboard opens on a login screen. On a fresh install (no admin account yet), it instead presents a one-time admin account creation screen. After login, JWT tokens govern access to every API request, and the dashboard routes to the Admin or User experience automatically based on the account's role.
 
 ---
 
@@ -237,7 +302,7 @@ Displays real-time information about the host machine, including:
 - Host lifecycle state
 - System health indicators
 
-This information is used by the watchdog and recovery systems to determine host availability.
+This information is used by the watchdog and recovery systems to determine host availability. Standard users see a reduced, non-sensitive view of the same readiness information via `GET /host/user-status`.
 
 ![Host Monitoring](assets/screenshots/host-monitoring.png)
 
@@ -263,6 +328,20 @@ These statistics are generated by the Host Agent's self-healing watchdog system.
 
 ---
 
+### Sunshine Streaming & Client Management
+
+The admin dashboard includes a dedicated **Sunshine** page covering more than basic service control:
+
+- Sunshine service start / stop / restart
+- Paired client visibility, and the ability to unpair a single client or unpair all clients
+- Live stream status (active stream, connected client, transport connection state)
+- Persistent stream history (start/stop times, per-stream duration)
+- Manual "close stream" action for a stuck stream
+
+See [Sunshine Client Management & Stream Tracking](docs/engineering/sunshine-client-management.md) for the internal architecture.
+
+---
+
 ### Session Analytics
 
 Provides historical insights into system usage and reliability, including:
@@ -273,7 +352,7 @@ Provides historical insights into system usage and reliability, including:
 - Reliability statistics
 - Recovery metrics
 
-The analytics interface assists during engineering validation and performance testing.
+The analytics interface assists during engineering validation and performance testing. Standard users see the same analytics page scoped to their own sessions only.
 
 ![Session Analytics](assets/screenshots/host-status-recovery-events-session-analytics.png)
 
@@ -348,6 +427,19 @@ Modify existing game definitions, update executable locations, adjust save paths
 
 ---
 
+### User Management (Admin)
+
+Administrators can manage accounts directly from the dashboard's **User Management** page:
+
+- Create new admin or standard user accounts
+- List all accounts with role and creation date
+- Delete an individual account
+- Bulk-remove all accounts except the oldest admin (recovery safety operation, e.g. after test-account cleanup)
+
+Every user (admin or standard) can change their own password from **Settings → Change Password**.
+
+---
+
 ### Administrative Log Viewer
 
 The built-in log viewer provides engineering visibility into Host Agent operations.
@@ -363,6 +455,8 @@ Features include:
 - Log export
 - Full log download
 
+Administrators see the complete host log (`/admin/logs`, `/admin/logs/download`). Standard users see a filtered view scoped to their own sessions only (`/admin/my-logs`, `/admin/my-log-sessions`, `/admin/my-logs/download`).
+
 The interface was designed to simplify troubleshooting and operational diagnostics during development and production.
 
 ![Administrative Log Viewer](assets/screenshots/administrative-log-panel.png)
@@ -372,10 +466,10 @@ The interface was designed to simplify troubleshooting and operational diagnosti
 ## System Architecture
 
 ```text
-React Dashboard
+React Dashboard (Login / Bootstrap → Admin or User shell)
         |
         v
-FastAPI Backend
+FastAPI Backend  (JWT auth on every route)
         |
         v
 Controllers / Services
@@ -398,15 +492,26 @@ Python Host Agent
 
 ## Key Engineering Highlights
 
+- JWT-based authentication with role-based (admin/user) API and dashboard separation.
+- A dedicated shared-secret "internal event token" that authorizes Sunshine's own hook script and the log-tailing transport monitor to report stream state, without exposing that path to logged-in users.
 - State-aware Tailscale recovery with diagnostic-based recovery paths.
 - Live save synchronization with gameplay-based change detection.
 - Stale session recovery and automatic lock cleanup after backend failures.
-- Automated Sunshine watchdog and recovery workflows.
+- Automated Sunshine watchdog and recovery workflows, plus Sunshine client pairing management and persisted stream history.
 - Real-time monitoring dashboard with WebSocket updates.
 
 ---
 
 ## Current Capabilities
+
+### Authentication & User Management
+
+* First-run administrator bootstrap
+* JWT login with bcrypt-hashed passwords
+* Role-based access control (admin / user) enforced on every API route
+* Admin user management (create, list, delete, bulk cleanup)
+* Self-service password change
+* Role-aware dashboard routing (Admin Dashboard vs. User Dashboard)
 
 ### Game Management
 
@@ -423,7 +528,7 @@ Python Host Agent
 * Session locking
 * Session timers and warnings
 * Automatic cleanup
-* Session analytics
+* Session analytics (admin: all sessions; user: own sessions only)
 * Session history
 * Session event tracking
 * Stale session recovery after crashes
@@ -452,6 +557,20 @@ Python Host Agent
 * Host health evaluation
 * Startup validation
 * Lifecycle state management
+* Separate admin (`/host/status`, `/host/metrics`) and user (`/host/user-status`) views
+
+---
+
+### Sunshine Integration
+
+* Start / stop / restart control
+* Status, reachability, and application/client counts
+* Client pairing, unpairing, and unpair-all
+* Stream state tracking (active stream, connected client, transport connection)
+* Persisted stream history with manual "close stream" recovery action
+* Log-tailing transport monitor for connect/disconnect detection
+* Startup validation and automated watchdog recovery
+* Internal event token authentication securing the hook/monitor-only endpoints
 
 ---
 
@@ -496,13 +615,14 @@ Authentication-related states requiring user action are intentionally not automa
 
 ### Dashboard
 
-React-based dashboard providing:
+React-based, role-aware dashboard providing:
 
-* Host status
-* Session visibility
+* Host status (admin) / host readiness (user)
+* Session visibility, scoped by role
 * Analytics
-* Recovery history
+* Recovery history (admin)
 * Service status
+* User management (admin)
 * Real-time updates using APIs and WebSockets
 
 ---
@@ -563,14 +683,21 @@ A startup recovery workflow was implemented to:
 
 ---
 
+### Authenticating Non-User Callers
+
+Two of Sunshine's own components — the stream hook script it invokes directly, and a background thread that tails Sunshine's log file — need to report stream state back into the backend, but neither is a logged-in user and neither should ever hold a user JWT. A separate shared-secret token, generated at startup and stored in `config.json`, authorizes exactly these calls and nothing else. See [Internal Event Authentication](docs/engineering/internal-event-authentication.md).
+
+---
+
 ## Administrative Features
 
-- Administrative log viewer.
+- Administrative log viewer (full host log for admins, scoped log for users).
 - Session-aware logging.
 - Runtime settings management.
 - Configuration validation.
 - Service configuration visibility.
 - Configuration audit logging.
+- User account management.
 
 ---
 
@@ -586,6 +713,9 @@ Detailed investigations of major engineering challenges are available in the doc
 - [Dynamic Game Management & Runtime Configuration](docs/engineering/dynamic-game-management.md)
 - [Settings Validation System](docs/engineering/settings-validation-system.md)
 - [Tailscale Configuration Migration](docs/engineering/tailscale-configuration-migration.md)
+- [Session Persistence & Reconnection Architecture](docs/engineering/session-persistence-and-reconnection.md)
+- [Internal Event Authentication](docs/engineering/internal-event-authentication.md)
+- [Sunshine Client Management & Stream Tracking](docs/engineering/sunshine-client-management.md)
 
 
 ### Release Hardening & Reliability Improvements
@@ -614,11 +744,15 @@ Topics covered include:
 * Python
 * FastAPI
 * Uvicorn
+* python-jose (JWT)
+* passlib + bcrypt (password hashing)
 
 ### Frontend
 
 * React
 * Vite
+* Vitest
+* React Testing Library
 
 ### Infrastructure
 
@@ -642,9 +776,7 @@ Future:
 
 Version: v0.1
 
-The current release focuses on host orchestration, reliability, recovery, monitoring, save management, and administrative tooling.
-
-User-facing components such as session reconnection, authentication, dedicated user applications, and user dashboards are planned in upcoming development phases.
+The current release focuses on host orchestration, reliability, recovery, monitoring, save management, authentication, and administrative tooling.
 
 Completed:
 
@@ -653,30 +785,47 @@ Completed:
 * Live save synchronization
 * Host monitoring
 * Startup validation
-* Sunshine integration
+* Sunshine integration (including client pairing and stream tracking)
 * State-aware Tailscale recovery
-* Dashboard implementation
+* Dashboard implementation (role-aware: admin and user)
 * Recovery infrastructure
+* Session persistence & reconnection foundation
+* Authentication & role-based authorization
 
 Current development is focused on:
 - Testing and reliability validation
 - Documentation
 - Deployment preparation
-- Transition into Phase 23 development
+- Transition into Phase 25 (Database Migration) development
+
+---
+
+## Project Quality
+
+Current release status:
+
+- 21 automated frontend tests
+- Engineering documentation
+- Runtime validation
+- WebSocket monitoring
+- Static analysis and linting
+- Release hardening completed
 
 ---
 
 ## Development Roadmap
 
+Completed phases:
+
+### Phase 23 — Session Persistence & Reconnection (Completed)
+
+Persistent session registry, session resurrection after backend restart, and lifecycle separation between game, session, stream, and transport state.
+
+### Phase 24 — Authentication & Authorization (Completed)
+
+JWT-based login, bcrypt password hashing, admin/user roles, first-run bootstrap, and role-aware dashboards.
+
 Upcoming phases:
-
-### Phase 23 — Sunshine Integration Layer
-
-Add streming features and control them using Sunshine's Officialy Documented Api.
-
-### Phase 24 — Authentication & Authorization
-
-Add protected access and user identity management.
 
 ### Phase 25 — Database Migration
 
@@ -684,7 +833,7 @@ Move from JSON persistence to a structured database system.
 
 ### Phase 26 — User Application Foundation
 
-Create a dedicated application for remote users.
+Extend the existing role-aware user dashboard into a dedicated, purpose-built application for remote users (beyond the current shared web dashboard).
 
 ### Phase 27 — Embedded Tailscale
 
@@ -694,9 +843,9 @@ Simplify remote connectivity and onboarding.
 
 Automate the game streaming client workflow.
 
-### Phase 29 — User Dashboard
+### Phase 29 — Production User Experience
 
-Introduce a dedicated player-facing dashboard.
+Refine and expand the user-facing dashboard introduced in Phase 24 toward a production-grade player experience.
 
 ### Phase 30 — Production Host Dashboard
 
@@ -704,7 +853,7 @@ Improve operational monitoring and host administration.
 
 ### Phase 31 — Security & Audit Logging
 
-Introduce security event tracking and audit trails.
+Introduce security event tracking and audit trails beyond the current authentication and internal-event-token model.
 
 ### Phase 32 — Deployment & Packaging
 
@@ -752,6 +901,7 @@ This project provided hands-on experience with:
 * Backend architecture
 * Frontend dashboard development
 * REST API design
+* Authentication & authorization design (JWT, password hashing, role-based access)
 * WebSocket communication
 * System monitoring
 * Reliability engineering
@@ -778,8 +928,9 @@ Linux and macOS host support are not currently supported.
 ## Security Notice
 
 The host agent currently listens on all network interfaces to support Tailscale and remote clients.
-The v0.1 release currently assumes the Host Dashboard operates within a trusted environment.
 
-Authentication and authorization are planned for Phase 24.
+All dashboard and API access requires a valid JWT obtained through `/auth/login`; there is no unauthenticated access to session, save, host, or admin endpoints. A separate, narrowly-scoped shared secret (not a user credential) authorizes the small set of Sunshine hook/transport endpoints described in [Internal Event Authentication](docs/engineering/internal-event-authentication.md).
 
-Administrative configuration endpoints should not be exposed directly to untrusted networks.
+The v0.1 release does not yet include structured security audit logging (planned for Phase 31) or a database-backed user store (planned for Phase 25; user accounts currently live in `host-agent/data/users.json`).
+
+Administrative configuration endpoints should still not be exposed directly to untrusted networks.

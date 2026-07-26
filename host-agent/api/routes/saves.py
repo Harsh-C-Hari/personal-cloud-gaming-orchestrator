@@ -121,9 +121,7 @@ def force_unlock_save(
 
             lock_file.unlink()
 
-            deleted.append(
-                str(lock_file)
-            )
+            deleted.append(lock_file.name)
 
         except Exception as error:
 
@@ -131,7 +129,7 @@ def force_unlock_save(
                 status_code=500,
                 detail=(
                     f"Failed to delete "
-                    f"{lock_file}: {error}"
+                    f"{lock_file.name}: {error}"
                 ),
             )
 

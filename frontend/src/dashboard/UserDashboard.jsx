@@ -25,6 +25,7 @@ import { AnalyticsPage } from "./pages/AnalyticsPage.jsx";
 import { SessionHistoryPage } from "./pages/SessionHistoryPage.jsx";
 import { LogsPage } from "./pages/LogsPage.jsx";
 import { ChangePasswordPage } from "./pages/ChangePasswordPage.jsx";
+import { NotFoundPage } from "./pages/NotFoundPage.jsx";
 
 const NAV_ITEMS = [
   { route: "home", icon: <FaHome />, label: "Home" },
@@ -91,12 +92,13 @@ export function UserDashboard({ username }) {
     "change-password": <ChangePasswordPage onBack={goBack} />,
   };
 
-  const activeKey = pages[route] ? route : "home";
+  const isKnownRoute = Object.prototype.hasOwnProperty.call(pages, route);
+  const activeKey = isKnownRoute ? route : null;
 
   return (
     <DashboardLayout
       navItems={NAV_ITEMS}
-      activeRoute={NAV_ITEMS.some((i) => i.route === route) ? route : "home"}
+      activeRoute={isKnownRoute ? route : null}
       onNavigate={navigate}
       connected={connected}
       lastUpdated={lastUpdated}
@@ -105,6 +107,7 @@ export function UserDashboard({ username }) {
       onLogout={logout}
       onLogoClick={goHome}
     >
+      {!isKnownRoute && <NotFoundPage path={route} onGoHome={goHome} />}
       {Object.entries(pages).map(([key, element]) => {
         if (!visitedRoutes.has(key) && key !== activeKey) return null;
         return (

@@ -98,14 +98,19 @@ export function SessionHistory({
   const [expanded, setExpanded] = useState(false);
   const [expandedSessionId, setExpandedSessionId] = useState("");
   const [sessionEvents, setSessionEvents] = useState({});
+  const [loading, setLoading] = useState(false);
 
   async function loadHistory() {
+    if (loading) return;
     try {
+      setLoading(true);
       const data = await fetchSessionHistory(10);
       setHistory(data.history || []);
       setError("");
     } catch (err) {
       setError(err.message || "Failed to load history.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -215,6 +220,7 @@ export function SessionHistory({
 
         <button
           type="button"
+          disabled={loading}
           onClick={loadHistory}
           style={{
             display: "flex",
@@ -228,10 +234,12 @@ export function SessionHistory({
             fontSize: "9px",
             fontFamily: palette.mono,
             letterSpacing: "0.08em",
-            cursor: "pointer",
+            cursor: loading ? "not-allowed" : "pointer",
+            opacity: loading ? 0.6 : 1,
             transition: "background 0.15s, color 0.15s",
           }}
           onMouseEnter={(e) => {
+            if (loading) return;
             e.currentTarget.style.background = "rgba(56,191,248,0.08)";
             e.currentTarget.style.color = palette.accent;
           }}
@@ -240,8 +248,8 @@ export function SessionHistory({
             e.currentTarget.style.color = palette.dim;
           }}
         >
-          <FaSyncAlt size={10} />
-          REFRESH
+          <FaSyncAlt size={10} style={loading ? { animation: "sh-spin 0.8s linear infinite" } : undefined} />
+          {loading ? "REFRESHING..." : "REFRESH"}
         </button>
       </div>
 
@@ -580,6 +588,8 @@ export function SessionHistory({
           />
         </button>
       )}
+
+      <style>{`@keyframes sh-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </section>
   );
 }

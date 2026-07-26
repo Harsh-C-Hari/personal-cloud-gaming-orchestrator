@@ -153,7 +153,7 @@ export function SessionCard({ session, onRefresh }) {
   return (
     <div
       style={{
-        background:    "#0f1117",
+        background:    "#000000",
         border:        `1px solid ${isActive ? "rgba(16,217,138,0.2)" : "#1c2130"}`,
         borderRadius:  "8px",
         padding:       "18px 20px 16px",
@@ -205,7 +205,7 @@ export function SessionCard({ session, onRefresh }) {
           justifyContent: "space-between",
           alignItems:     "flex-end",
           padding:        "12px 14px",
-          background:     "#080a0f",
+          background:     "#000000",
           borderRadius:   "5px",
           border:         "1px solid #1c2130",
         }}

@@ -28,6 +28,8 @@ import { useSessionShell } from "./useSessionShell.js";
 import { useRoute } from "./hooks/useRoute.js";
 import { DashboardLayout } from "./layout/DashboardLayout.jsx";
 import { logout } from "./utils/logout.js";
+import { useToast } from "../components/ui/Toast.jsx";
+import { useConfirm } from "../components/ui/ConfirmDialog.jsx";
 
 import { Home } from "./pages/Home.jsx";
 import { HostMonitorPage } from "./pages/HostMonitorPage.jsx";
@@ -40,12 +42,13 @@ import { SessionHistoryPage } from "./pages/SessionHistoryPage.jsx";
 import { LogsPage } from "./pages/LogsPage.jsx";
 import { SettingsPage } from "./pages/SettingsPage.jsx";
 import { ChangePasswordPage } from "./pages/ChangePasswordPage.jsx";
+import { NotFoundPage } from "./pages/NotFoundPage.jsx";
 
 const NAV_ITEMS = [
   { route: "home", icon: <FaHome />, label: "Home" },
   { route: "monitor", icon: <FaServer />, label: "Host Monitor" },
   { route: "recovery", icon: <FaSyncAlt />, label: "Recovery" },
-  { route: "streams", icon: <FaPlay />, label: "Sunshine Stream" },
+  { route: "streams", icon: <FaPlay />, label: "Sunshine" },
   { route: "game-manager", icon: <FaGamepad />, label: "Game Manager" },
   { route: "users", icon: <FaUsersCog />, label: "User Management" },
   { route: "analytics", icon: <FaChartBar />, label: "Analytics" },
@@ -58,7 +61,7 @@ const HOME_NAV_CARDS = [
   { route: "game-manager", icon: <FaGamepad />, label: "Games", description: "Manage Games" },
   { route: "monitor", icon: <FaServer />, label: "Host Monitor", description: "Live host status" },
   { route: "recovery", icon: <FaSyncAlt />, label: "Recovery", description: "Recovery stats & events" },
-  { route: "streams", icon: <FaPlay />, label: "Streams", description: "Sunshine stream history" },
+  { route: "streams", icon: <FaPlay />, label: "Sunshine", description: "Client pairing & stream history" },
   { route: "analytics", icon: <FaChartBar />, label: "Analytics", description: "Usage trends" },
   { route: "history", icon: <FaHistory />, label: "History", description: "Past sessions" },
   { route: "logs", icon: <FaClipboardList />, label: "Logs", description: "Activity log" },
@@ -67,6 +70,8 @@ const HOME_NAV_CARDS = [
 ];
 
 export function AdminDashboard({ username }) {
+  const toast = useToast();
+  const confirm = useConfirm();
   const [route, navigate, goBack] = useRoute("home");
 
   const [sunshineAction, setSunshineAction] = useState(null);
@@ -141,7 +146,7 @@ export function AdminDashboard({ username }) {
       if (enabling) {
         const result = await enableMaintenance();
         if (!result.success) {
-          alert("Cannot enable maintenance while sessions are active.");
+          toast.warning("Cannot enable maintenance while sessions are active.");
           return;
         }
       } else {
@@ -163,19 +168,24 @@ export function AdminDashboard({ username }) {
 
   const handleForceUnlock = useCallback(async () => {
     if (unlocking) return;
-    if (!window.confirm("Force unlock session lock? Use only if stuck.")) return;
+    if (!(await confirm("Force unlock session lock? Use only if stuck.", { danger: true, confirmLabel: "Unlock" }))) return;
     try {
       setUnlocking(true);
       const result = await forceUnlockSession();
       await refresh();
       await loadSessionHealth();
-      alert(result.message || (result.unlocked ? "Session lock forcefully released." : "Session lock was not released."));
+      const message = result.message || (result.unlocked ? "Session lock forcefully released." : "Session lock was not released.");
+      if (result.unlocked) {
+        toast.success(message);
+      } else {
+        toast.warning(message);
+      }
     } catch (err) {
-      alert(err.message || "Failed to force unlock session.");
+      toast.error(err.message || "Failed to force unlock session.");
     } finally {
       setUnlocking(false);
     }
-  }, [unlocking, refresh, loadSessionHealth]);
+  }, [unlocking, refresh, loadSessionHealth, confirm, toast]);
 
   const handleRevalidate = useCallback(async () => {
     if (revalidating) return;
@@ -184,11 +194,11 @@ export function AdminDashboard({ username }) {
       await revalidateHost();
       await refreshHostData();
     } catch (error) {
-      alert(error.message);
+      toast.error(error.message);
     } finally {
       setRevalidating(false);
     }
-  }, [revalidating, refreshHostData]);
+  }, [revalidating, refreshHostData, toast]);
 
   const goHome = () => navigate("home");
 
@@ -255,7 +265,15 @@ export function AdminDashboard({ username }) {
         onBack={goBack}
       />
     ),
-    streams: <SunshinePage streamHistory={streamHistory} streamHistoryLoading={streamHistoryLoading} onBack={goBack} />,
+    streams: (
+      <SunshinePage
+        streamHistory={streamHistory}
+        streamHistoryLoading={streamHistoryLoading}
+        hostStatus={hostStatus}
+        streamStatus={streamStatus}
+        onBack={goBack}
+      />
+    ),
     "game-manager": <GameManagerPage games={games} loadGames={loadGames} onBack={goBack} />,
     users: <UserManagementPage onBack={goBack} />,
     analytics: <AnalyticsPage refreshKey={historyRefreshKey} onBack={goBack} />,
@@ -265,12 +283,13 @@ export function AdminDashboard({ username }) {
     "change-password": <ChangePasswordPage onBack={goBack} />,
   };
 
-  const activeKey = pages[route] ? route : "home";
+  const isKnownRoute = Object.prototype.hasOwnProperty.call(pages, route);
+  const activeKey = isKnownRoute ? route : null;
 
   return (
     <DashboardLayout
       navItems={NAV_ITEMS}
-      activeRoute={route === "change-password" ? "settings" : route}
+      activeRoute={isKnownRoute ? (route === "change-password" ? "settings" : route) : null}
       onNavigate={navigate}
       connected={connected}
       lastUpdated={lastUpdated}
@@ -279,6 +298,7 @@ export function AdminDashboard({ username }) {
       onLogout={logout}
       onLogoClick={goHome}
     >
+      {!isKnownRoute && <NotFoundPage path={route} onGoHome={goHome} />}
       {Object.entries(pages).map(([key, element]) => {
         if (!visitedRoutes.has(key) && key !== activeKey) return null;
         return (

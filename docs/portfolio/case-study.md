@@ -16,6 +16,7 @@ Built using:
 * Sunshine
 * Tailscale
 * WebSockets
+* JWT authentication (python-jose) with bcrypt password hashing (passlib)
 
 ---
 
@@ -54,9 +55,9 @@ The system is designed around automation and reliability.
 # Architecture
 
 ```text
-React Dashboard
+React Dashboard (role-aware: Admin / User, gated by login)
         ↓
-FastAPI Backend
+FastAPI Backend (JWT authentication on every route)
         ↓
 Controllers / Services
         ↓
@@ -104,6 +105,14 @@ Windows Gaming Host
 * Recovery event persistence
 * Stale session recovery
 
+### Authentication & Access Control
+
+* JWT-based login with first-run admin bootstrap
+* Admin and user roles enforced on every API route
+* Role-aware dashboards (full admin dashboard vs. scoped user dashboard)
+* Admin user management, self-service password change
+* A separate shared-secret channel authorizing Sunshine's own hook script and log-tailing transport monitor, without exposing that path to logged-in users
+
 ---
 
 # Technical Challenges Solved
@@ -123,6 +132,10 @@ Implemented startup recovery logic capable of restoring consistency after backen
 ### Dashboard Synchronization
 
 Resolved browser caching issues affecting real-time dashboard accuracy.
+
+### Authenticating a Non-User Caller
+
+Two components — Sunshine's own stream hook script and a background thread tailing Sunshine's log — needed to report stream state into the backend without being logged-in users. Solved with a single-purpose shared secret (an "internal event token"), distinct from user JWTs, verified with a constant-time comparison and scoped to exactly four endpoints.
 
 ---
 
@@ -144,8 +157,8 @@ Resolved browser caching issues affecting real-time dashboard accuracy.
 
 The v0.1 Host Foundation Release is complete.
 
-Current development has transitioned to Phase 23 and beyond.
+Session Persistence & Reconnection (Phase 23) and Authentication & Authorization (Phase 24) have both been completed since the initial release.
 
 Current focus:
 
-* Phase 23–32 development roadmap
+* Phase 25 (Database Migration) and beyond

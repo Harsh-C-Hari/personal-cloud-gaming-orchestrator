@@ -52,6 +52,21 @@ Responsibilities:
 
 ---
 
+## Account & Credential Management
+
+The user account store, password hashing, and JWT issuance logic (`user_manager.py`, `auth_manager.py`, `jwt_manager.py`) live in the Host Agent alongside the other host-side managers, even though they're exercised through the API layer's authentication dependency rather than through session/save/monitoring workflows.
+
+Responsibilities:
+
+* User account storage and lookup
+* Password hashing and verification (bcrypt via passlib)
+* JWT issuance and validation
+* First-run admin bootstrap
+
+See [Authentication & Role-Based Access](../features/authentication.md).
+
+---
+
 # Startup Recovery Workflow
 
 Backend Startup

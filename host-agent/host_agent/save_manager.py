@@ -218,6 +218,21 @@ class SaveManager:
 
         return self.game_configs[game_id]
 
+    def get_user_game_configs(self) -> dict:
+
+        games = {}
+
+        for game_id, game in self.game_configs.items():
+
+            games[game_id] = {
+                "id": game.id,
+                "name": game.name,
+                "exe_name": game.exe_name,
+                "process_name": game.process_name,
+            }
+
+        return games
+    
     def reload_game_configs(self) -> None:
 
         self.game_configs = (

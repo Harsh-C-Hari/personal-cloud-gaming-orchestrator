@@ -1,6 +1,7 @@
 DEFAULT_CONFIG = {
     "backend": {
-        "internal_api_url": "http://127.0.0.1:8100"
+        "internal_api_url": "http://127.0.0.1:8100",
+        "internal_event_token": ""
     },
 
     "auth": {

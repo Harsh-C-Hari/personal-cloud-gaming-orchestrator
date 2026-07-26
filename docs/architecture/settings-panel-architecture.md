@@ -197,11 +197,13 @@ The settings panel provides:
 
 The settings system became the administrative configuration foundation of the host platform.
 
+The `auth` section (JWT secret, algorithm, and token expiry) is now one of the configuration sections managed through this same runtime-settings architecture — see [Authentication & Role-Based Access](../features/authentication.md).
+
+User account management (as opposed to authentication *configuration*) was implemented as its own dedicated system — a separate User Management dashboard page and `/auth/users` API, rather than a settings-panel section — since accounts are records to manage, not configuration values to edit.
+
 Future systems such as:
 
-* User management.
-* Security configuration.
-* Authentication.
-* Session policies.
+* Security configuration
+* Session policies
 
 can reuse the same architecture.

@@ -7,7 +7,7 @@
  * inside MainContent.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./dashboard-shell.css";
 import { DashboardHeader } from "./DashboardHeader.jsx";
 import { Sidebar } from "./Sidebar.jsx";
@@ -28,6 +28,20 @@ export function DashboardLayout({
   children,
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    function handleKeyDown(e) {
+      if (e.key === "Escape") {
+        setMobileMenuOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [mobileMenuOpen]);
 
   return (
     <div

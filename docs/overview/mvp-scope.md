@@ -96,6 +96,21 @@ Included:
 
 ---
 
+## Authentication & User Management
+
+Included:
+
+* JWT-based login and first-run admin bootstrap
+* Two roles: admin and user
+* Admin user management (create, list, delete, bulk cleanup)
+* Self-service password change
+* Role-aware dashboard (Admin Dashboard, User Dashboard)
+* Internal event token authentication for non-user callers (Sunshine hook script, transport monitor)
+
+See [Authentication & Role-Based Access](../features/authentication.md).
+
+---
+
 # Excluded From MVP
 
 The following features are intentionally excluded.
@@ -110,14 +125,14 @@ Excluded:
 
 ---
 
-## User Management
+## Advanced Account Security
 
-Excluded:
+Excluded from v0.1 (planned for later phases):
 
-* Multiple users
-* Authentication systems
-* User roles
-* Permissions
+* Refresh tokens
+* Login rate limiting / account lockout
+* Structured security audit logging
+* Password recovery flow
 
 ---
 
@@ -153,10 +168,13 @@ Core systems included in the MVP:
 - Save Management
 - Live Save Synchronization
 - Dynamic Game Management
-- Sunshine Integration
+- Sunshine Integration (service control, client pairing, stream tracking & history)
 - State-Aware Tailscale Recovery
 - Host Monitoring
 - Recovery Infrastructure
+- Session Persistence & Reconnection Foundation
+- Authentication & Role-Based Authorization
+- Role-Aware Dashboard (Admin and User)
 - Administrative Dashboard
 - Configuration Management
 - Reliability Engineering
@@ -164,12 +182,13 @@ Core systems included in the MVP:
 
 Features intentionally excluded from the MVP include:
 
-- Multi-user support
-- Authentication & Authorization
-- User Application
+- Multi-host support
+- A dedicated, standalone User Application (separate from the current shared web dashboard)
+- Database-backed persistence
 - Embedded Tailscale
 - Moonlight Automation
 - Production Host Dashboard
+- Structured security audit logging
 - Deployment Packaging
 
 ---
@@ -188,17 +207,20 @@ The MVP will be considered complete when:
 
 The MVP remains focused on a reliable single-host cloud gaming orchestration platform.
 
-## Planned MVP Expansion
+## MVP Expansion Progress
 
-The following phases are planned after the current core platform stabilization work:
+Completed:
 
-- Phase 23: Sunshine Integration Layer
+- Phase 23: Session Persistence & Reconnection
 - Phase 24: Authentication & Authorization
+
+Planned after the current core platform stabilization work:
+
 - Phase 25: Database Migration
 - Phase 26: User App Foundation
 - Phase 27: Embedded Tailscale
 - Phase 28: Moonlight Automation
-- Phase 29: User Dashboard
+- Phase 29: Production User Experience
 - Phase 30: Production Host Dashboard
 - Phase 31: Security & Audit Logging
 - Phase 32: Deployment & Packaging

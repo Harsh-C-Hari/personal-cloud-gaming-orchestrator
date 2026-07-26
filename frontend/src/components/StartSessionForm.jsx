@@ -15,6 +15,19 @@
  * @param {{ onLaunched: () => void }} props
  *   onLaunched — called after a successful POST /sessions/start so
  *               Dashboard can trigger an immediate re-fetch.
+ *
+ * Messaging: the old single `formErr` box (which mixed pre-flight field
+ * validation, the delete-save result, and the launch API result into one
+ * inline message) was removed in favor of toast.warning/toast.error,
+ * matching GameManager's convention for the same kind of one-off action
+ * feedback. On success, toast.success("Session launched.") now fires
+ * alongside — not instead of — the existing inline "Launched: <id>"
+ * indicator below, since that indicator does something a toast can't: it
+ * stays up for the session's actual lifecycle and shows the session id
+ * for reference. `savesErr` / `gameValidationErr` are untouched — they
+ * describe the current state of the saves list / game-config check
+ * (like SaveBrowser's own error prop), not a one-off event, so they stay
+ * inline next to the fields they describe.
  */
 
 import { useEffect, useState } from "react";
@@ -32,6 +45,8 @@ import {
 import { deleteSave, fetchSaves, startSession, validateGame } from "../api/client.js";
 import { SaveBrowser } from "./SaveBrowser.jsx";
 import { GameLibrary } from "./GameLibrary.jsx";
+import { useConfirm } from "./ui/ConfirmDialog.jsx";
+import { useToast } from "./ui/Toast.jsx";
 const DEFAULT_FORM = {
   game_id:    "",
   duration:   60,
@@ -42,9 +57,10 @@ const DEFAULT_FORM = {
 };
 
 export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions}) {
+  const confirm = useConfirm();
+  const toast = useToast();
   const [form, setForm] = useState(DEFAULT_FORM);
   const [submitting,  setSubmitting] = useState(false);
-  const [formErr,     setFormErr]    = useState(null);
   const [launchedId,  setLaunchedId] = useState(null);
   const [launchedSeen, setLaunchedSeen] = useState(false);
   const [lastLaunchUserId, setLastLaunchUserId] = useState("");
@@ -65,16 +81,6 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
   // ── Load game list ────────────────────────────────────────────────────
 
   const entries = Object.entries(games || {});
-
-  useEffect(() => {
-    if (
-      formErr === "Cannot launch: Sunshine is not running." &&
-      hostStatus?.sunshine_running
-    ) {
-      setFormErr(null);
-    }
-  }, [formErr, hostStatus?.sunshine_running]);
-  
 
   useEffect(() => {
     const gameId = form.game_id;
@@ -265,7 +271,7 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
   async function refreshSaves() {
     const gameId = form.game_id;
 
-    if (!userId || !gameId) {
+    if (!gameId) {
       return;
     }
 
@@ -286,8 +292,9 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
       return;
     }
 
-    const ok = window.confirm(
-      `Delete ${form.save_type === "archives" ? "archive" : "backup"} "${form.save_name}"?`
+    const ok = await confirm(
+      `Delete ${form.save_type === "archives" ? "archive" : "backup"} "${form.save_name}"?`,
+      { danger: true, confirmLabel: "Delete" }
     );
 
     if (!ok) {
@@ -295,7 +302,6 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
     }
 
     setDeletingSave(true);
-    setFormErr("");
 
     try {
       await deleteSave(
@@ -306,10 +312,10 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
 
       set("save_name", "");
       await refreshSaves();
-      setFormErr(null);
+      toast.success("Save deleted.");
 
     } catch (err) {
-      setFormErr(
+      toast.error(
         err.message || "Failed to delete save"
       );
     } finally {
@@ -321,24 +327,23 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
     if (submitting) return;
 
     setSubmitting(true);
-    setFormErr(null);
     setLaunchedId(null);
     setLaunchedSeen(false);
 
     try {
 
       if (!form.game_id) {
-        setFormErr("Select a game.");
+        toast.warning("Select a game.");
         return;
       }
 
       if (gameValidationLoading) {
-        setFormErr("Please wait: game config is still being checked.");
+        toast.warning("Please wait: game config is still being checked.");
         return;
       }
 
       if (gameValidation && !gameValidation.valid) {
-        setFormErr("Cannot launch: selected game config is invalid.");
+        toast.warning("Cannot launch: selected game config is invalid.");
         return;
       }
 
@@ -347,27 +352,27 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
         const warning = Number(form.warning);
 
         if (!Number.isInteger(duration) || duration < 1) {
-          setFormErr("Enter a valid duration in whole minutes.");
+          toast.warning("Enter a valid duration in whole minutes.");
           return;
         }
 
         if (duration > 480) {
-          setFormErr("Duration cannot be more than 480 minutes.");
+          toast.warning("Duration cannot be more than 480 minutes.");
           return;
         }
 
         if (!Number.isInteger(warning) || warning < 1) {
-          setFormErr("Enter a valid warning time in whole minutes.");
+          toast.warning("Enter a valid warning time in whole minutes.");
           return;
         }
 
         if (warning > 60) {
-          setFormErr("Warning time cannot be more than 60 minutes.");
+          toast.warning("Warning time cannot be more than 60 minutes.");
           return;
         }
 
         if (warning >= duration) {
-          setFormErr("Warning must be less than duration.");
+          toast.warning("Warning must be less than duration.");
           return;
         }
       }
@@ -379,7 +384,7 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
       ]);
 
       if (!validSaveTypes.has(form.save_type)) {
-        setFormErr("Invalid save type selected.");
+        toast.warning("Invalid save type selected.");
         return;
       }
       
@@ -392,7 +397,7 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
             ? "an archive"
             : "a backup";
 
-        setFormErr(
+        toast.warning(
           `Please select ${saveLabel} save.`
         );
         return;
@@ -438,13 +443,15 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
 
       setSavesErr("");
 
+      toast.success("Session launched.");
+
       onLaunched();
     } catch (err) {
       const cleanMessage = (err.message || "Failed to launch session.")
         .replace(/^400:\s*/, "")
         .replace(/^HTTP 400\s*/, "");
 
-      setFormErr(cleanMessage);
+      toast.error(cleanMessage);
     } finally {
       setSubmitting(false);
     }
@@ -854,27 +861,6 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
             </div>
           )}
         </div>
-
-        {/* Form error */}
-        {formErr && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              gap: "9px",
-              padding: "11px 14px",
-              background: "rgba(244,63,94,0.07)",
-              border: "1px solid rgba(244,63,94,0.3)",
-              borderRadius: "8px",
-              color: palette.danger,
-              fontSize: "12px",
-              fontFamily: palette.mono,
-            }}
-          >
-            <FaTimesCircle size={12} style={{ marginTop: "1px", flexShrink: 0 }} />
-            {formErr}
-          </div>
-        )}
 
         {/* Launch success */}
         {launchedId && (

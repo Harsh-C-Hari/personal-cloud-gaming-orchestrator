@@ -137,6 +137,7 @@ class SunshineTransportMonitor:
                     f"{internal_api_url}"
                     "/host/sunshine/"
                     "transport-disconnected",
+                    headers=self._get_event_headers(),
                     timeout=2,
                 )
 
@@ -158,6 +159,7 @@ class SunshineTransportMonitor:
                     f"{internal_api_url}"
                     "/host/sunshine/"
                     "transport-connected",
+                    headers=self._get_event_headers(),
                     timeout=2,
                 )
 
@@ -251,3 +253,56 @@ class SunshineTransportMonitor:
             return (
                 "http://127.0.0.1:8100"
             )
+
+    def _get_event_headers(
+        self,
+    ):
+        """
+        Shared secret for the four sunshine/*-transport*-* and
+        stream-started/-ended endpoints (see api/internal_event_auth.py).
+        Read fresh each time rather than cached at __init__, since the
+        monitor is long-lived and the token could be regenerated (e.g. a
+        fresh config.json backfill) while it's running.
+        """
+
+        try:
+
+            config_path = (
+                Path(__file__)
+                .resolve()
+                .parent
+                .parent
+                / "config.json"
+            )
+
+            if not config_path.exists():
+                return {}
+
+            with open(
+                config_path,
+                "r",
+                encoding="utf-8",
+            ) as file:
+
+                config = json.load(file)
+
+            token = (
+                config
+                .get(
+                    "backend",
+                    {},
+                )
+                .get(
+                    "internal_event_token",
+                    "",
+                )
+            )
+
+            return (
+                {"X-Internal-Event-Token": token}
+                if token
+                else {}
+            )
+
+        except Exception:
+            return {}

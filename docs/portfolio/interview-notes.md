@@ -63,6 +63,7 @@ This allows the platform to recover automatically without manual intervention.
 * FastAPI architecture
 * React dashboard development
 * API design
+* Authentication & authorization design (JWT, password hashing, role-based access, and securing non-user callers with a separate shared secret)
 * WebSockets
 * Monitoring systems
 * Recovery systems
@@ -74,12 +75,14 @@ This allows the platform to recover automatically without manual intervention.
 
 # Future Development
 
-Planned future phases include:
+Session persistence & reconnection and authentication & authorization were originally planned future phases; both have since been completed (see [Session Persistence & Reconnection Architecture](../engineering/session-persistence-and-reconnection.md) and [Authentication & Role-Based Access](../features/authentication.md)).
 
-* Session persistence
-* Authentication
+Remaining planned phases include:
+
 * Database migration
-* User applications
+* A dedicated user application (beyond the current shared, role-aware web dashboard)
+* Embedded Tailscale onboarding
 * Moonlight automation
+* Production-grade user dashboard experience
 * Deployment tooling
-* Audit logging
+* Security & audit logging

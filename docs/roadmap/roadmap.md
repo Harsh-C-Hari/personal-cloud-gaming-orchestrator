@@ -17,7 +17,9 @@ The v0.1 Host Foundation Release is complete.
 
 Phase 23 Session Persistence & Reconnection has been completed.
 
-Current development focus has shifted to Phase 24 Authentication & Authorization.
+Phase 24 Authentication & Authorization has been completed.
+
+Current development focus has shifted to Phase 25 Database Migration.
 ```
 
 Completed:
@@ -30,13 +32,16 @@ Completed:
 * Stale Session Recovery
 * Sunshine Integration
 * Sunshine Watchdog
+* Sunshine Client Pairing & Stream Tracking
 * Tailscale Diagnostics
 * Tailscale Recovery
 * Host Monitoring
 * Startup Validation
 * Lifecycle Manager
-* Dashboard
+* Dashboard (Admin and User)
 * Recovery Infrastructure
+* Authentication & Role-Based Authorization
+* Internal Event Authentication
 
 ---
 
@@ -61,9 +66,11 @@ Subsequent phases focus on extending the platform beyond a host-only administrat
 
 ---
 
-# Phase 23
+# Phase 23 — Completed
 
 ## Session Persistence & Reconnection
+
+See [Session Persistence & Reconnection Architecture](../engineering/session-persistence-and-reconnection.md) for the full engineering write-up.
 
 Completed capabilities:
 
@@ -91,21 +98,34 @@ Transport Lifecycle
 
 ---
 
-# Phase 24
+# Phase 24 — Completed
 
 ## Authentication & Authorization
 
-Goals:
+See [Authentication & Role-Based Access](../features/authentication.md) and [Internal Event Authentication](../engineering/internal-event-authentication.md) for the full engineering write-up.
 
-* User authentication
-* Protected API access
-* Permission management
-* Session ownership validation
+Delivered capabilities:
 
-Expected Benefits:
+* JWT-based user authentication with first-run admin bootstrap
+* bcrypt password hashing
+* Two roles (admin, user) enforced on every API route
+* Admin-only user management (create, list, delete, bulk cleanup)
+* Self-service password change
+* Role-aware dashboard routing (Admin Dashboard vs. User Dashboard)
+* Session ownership validation (users see only their own sessions, analytics, history, and logs)
+* A separate shared-secret channel (internal event token) for the two non-user callers — the Sunshine stream hook and transport monitor — that must report state without holding a user credential
 
-* Security
-* Multi-user readiness
+Not yet delivered (carried forward to later phases):
+
+* Refresh tokens
+* Login rate limiting / account lockout
+* Structured security audit logging (Phase 31)
+* Database-backed account storage (Phase 25)
+
+Benefits realized:
+
+* Security: no endpoint is reachable without authentication
+* Multi-user readiness: distinct admin and user experiences on a shared host
 
 ---
 
@@ -132,9 +152,11 @@ Expected Benefits:
 
 ## User App Foundation
 
+A scoped, role-aware **User Dashboard** already ships as part of the Phase 24 authentication work (Home, Analytics, Session History, Logs, Change Password, restricted to the logged-in user's own data). Phase 26 goes further: a dedicated, purpose-built application rather than a role-restricted view of the same web dashboard.
+
 Goals:
 
-* Dedicated user application
+* Dedicated user application (distinct from the admin dashboard codebase)
 * User-focused workflows
 * Remote access experience
 
@@ -181,14 +203,15 @@ Expected Benefits:
 
 # Phase 29
 
-## User Dashboard
+## Production User Experience
+
+The initial User Dashboard (session visibility, analytics, history, logs) was delivered as part of Phase 24. Phase 29 focuses on maturing it into a production-grade player experience.
 
 Goals:
 
-* User-centric dashboard
-* Session visibility
-* Save visibility
-* Connection management
+* Save visibility for end users
+* Connection management (client/stream status from the user's perspective)
+* Refined, production-quality UI for the existing User Dashboard
 
 Expected Benefits:
 
