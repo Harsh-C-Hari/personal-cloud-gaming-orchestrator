@@ -1051,39 +1051,14 @@ class SaveManager:
 
             return False
 
-
-        temp_latest = latest_dir.with_name(
-            latest_dir.name + "_tmp"
-        )
-
-        if temp_latest.exists():
-            shutil.rmtree(temp_latest)
-
-        temp_latest.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
-
         try:
 
-            for item in game_save_path.iterdir():
-
-                dst = temp_latest / item.name
-
-                if item.is_dir():
-
-                    shutil.copytree(
-                        item,
-                        dst,
-                        dirs_exist_ok=True,
-                    )
-
-                else:
-
-                    shutil.copy2(
-                        item,
-                        dst,
-                    )
+            self.replace_latest_saves(
+                game_save_path,
+                latest_dir,
+                meta.user_id,
+                meta.game_id,
+            )
 
         except Exception as error:
 
@@ -1094,51 +1069,22 @@ class SaveManager:
                 },
             )
 
-            shutil.rmtree(
-                temp_latest,
-                ignore_errors=True,
+            self.metadata_manager.update_session_field(
+                session_id,
+                "latest_manifest_verified",
+                False,
             )
 
-            raise RuntimeError(
-                "Failed capturing game saves."
-            ) from error
-
-
-        if latest_dir.exists():
-
-            shutil.rmtree(latest_dir)
-
-        temp_latest.replace(latest_dir)
-
-        self._write_backup_manifest(
-            latest_dir,
-            meta.user_id,
-            meta.game_id,
-            "latest",
-        )
-
-        latest_verified = self._verify_manifest(
-            latest_dir
-        )
+            raise
 
         self.metadata_manager.update_session_field(
             session_id,
             "latest_manifest_verified",
-            latest_verified,
+            True,
         )
 
-        if not latest_verified:
-
-            if latest_dir.exists():
-                shutil.rmtree(latest_dir)
-            
-            raise RuntimeError(
-                "Latest save manifest verification failed. "
-                "The latest save may be incomplete or corrupted."
-            )
-
         logger.info(
-            f"Latest save manifest verified: {latest_verified}",
+            f"Latest save manifest verified: True",
             extra={"session_id": session_id},
         )
         
