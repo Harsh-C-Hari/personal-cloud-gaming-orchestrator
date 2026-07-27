@@ -228,6 +228,8 @@ class LiveSyncManager:
             self.save_manager.replace_latest_saves(
                 game_save_path,
                 latest_dir,
+                meta.user_id,
+                meta.game_id,
             )
 
         except Exception as error:

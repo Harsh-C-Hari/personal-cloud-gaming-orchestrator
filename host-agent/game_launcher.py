@@ -139,28 +139,42 @@ class GameLauncher:
         # taskkill is always executed afterward to ensure
         # child processes are also terminated.
         
-        subprocess.run(
-            [
-                "taskkill",
-                "/F",
-                "/IM",
-                process_name,
-                "/T",
-            ],
-            capture_output=True,
-            text=True,
-            timeout=10,
-        )
+        try:
+            subprocess.run(
+                [
+                    "taskkill",
+                    "/F",
+                    "/IM",
+                    process_name,
+                    "/T",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
 
-        logger.info(
-            f"taskkill fallback executed for: "
-            f"{process_name}",
-            extra={
-                "session_id": session_id,
-                "game_id": game_id,
-                "user_id": user_id,
-            },
-        )
+            logger.info(
+                f"taskkill fallback executed for: "
+                f"{process_name}",
+                extra={
+                    "session_id": session_id,
+                    "game_id": game_id,
+                    "user_id": user_id,
+                },
+            )
+        except Exception as error:
+            logger.warning(
+                f"taskkill fallback failed for: "
+                f"{process_name}",
+                extra={
+                    "session_id": session_id,
+                    "game_id": game_id,
+                    "user_id": user_id,
+                },
+            )
+
+        if self.is_process_running(process_name):
+            raise RuntimeError(f"Failed to close game process: {process_name}")
 
     @staticmethod
     def is_process_running(

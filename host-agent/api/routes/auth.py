@@ -254,9 +254,10 @@ def delete_user(
                 "Admin access required.",
         )
 
-    user_manager.delete_user(
-        username
-    )
+    try:
+        user_manager.delete_user(username)
+    except RuntimeError as error:
+        raise HTTPException(status_code=400, detail=str(error))
 
     return {
         "success": True,

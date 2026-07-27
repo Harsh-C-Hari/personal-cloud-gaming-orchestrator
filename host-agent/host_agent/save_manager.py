@@ -364,6 +364,8 @@ class SaveManager:
         self,
         source: Path,
         destination: Path,
+        user_id: str,
+        game_id: str,
     ) -> None:
 
         temp_destination = destination.with_name(
@@ -400,15 +402,24 @@ class SaveManager:
                         item,
                         dst,
                     )
-
-        except:
+            
+            self._write_backup_manifest(temp_destination, user_id, game_id, "latest")
+            
+            verified = self._verify_manifest(temp_destination)
+            
+            if not verified:
+                raise RuntimeError("Latest save manifest verification failed. ...")
+        
+        except Exception as error:
+            
+            logger.error(f"replace_latest_saves failed, previous latest left untouched: {error}")            
 
             shutil.rmtree(temp_destination, ignore_errors=True)
 
             raise
 
-        # Remove old latest
-
+        # Only reached once copy + manifest generation + verification succeeded.
+        
         if destination.exists():
 
             shutil.rmtree(destination)
@@ -1621,6 +1632,13 @@ class SaveManager:
         
         else:
 
+            if game_save_path.exists():
+                try:
+                    shutil.rmtree(game_save_path)
+                except Exception as error:
+                    logger.error(f"Failed to remove game save directory: {error}", ...)
+                    raise
+            
             logger.info(
                 "Original backup was empty. "
                 "Game save directory removed.",

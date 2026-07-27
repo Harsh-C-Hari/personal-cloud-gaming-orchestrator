@@ -128,7 +128,7 @@ def validate_game_configuration(
             status_code=400,
             detail=(
                 "Save filter mode must be "
-                "OR or AND."
+                "'or' or 'and' (lowercase)."
             ),
         )
 
