@@ -28,6 +28,9 @@ from api.dependencies import (
 from api.routes.auth import (
     router as auth_router,
 )
+from host_agent.jwt_manager import (
+    jwt_manager,
+)
 
 ALLOWED_ORIGINS = [
     "http://localhost:5173",
@@ -65,6 +68,15 @@ async def websocket_endpoint(
     websocket: WebSocket,
 ):
 
+    token = websocket.query_params.get("token")
+    payload = jwt_manager.verify_token(token) if token else None
+
+    if not payload or not payload.get("sub"):
+        await websocket.close(
+            code=ws_status.WS_1008_POLICY_VIOLATION
+        )
+        return
+    
     await websocket_manager.connect(
         websocket
     )

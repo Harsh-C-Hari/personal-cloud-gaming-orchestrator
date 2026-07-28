@@ -18,10 +18,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { WSClient } from "../websocket/websocket.js";
+import { getToken, getApiUrl  } from "../api/client.js";
 
 // In dev, Vite proxies /ws → ws://localhost:8000/ws.
 // In production use the absolute WS URL of your host-agent.
-const WS_URL = `ws://127.0.0.1:8100/ws`;
+const BASE_URL = getApiUrl("/ws");
+const WS_URL = BASE_URL.replace("http", "ws");
 
 /**
  * @param {((event: object) => void) | undefined} onEvent
@@ -38,7 +40,11 @@ export function useWebSocket(onEvent) {
   });
 
   useEffect(() => {
-    const client = new WSClient(WS_URL);
+    const token = getToken();
+    const url = token
+      ? `${WS_URL}?token=${encodeURIComponent(token)}`
+      : WS_URL;
+    const client = new WSClient(url);
 
     client
       .onConnectionChange((isConnected) => setConnected(isConnected))
