@@ -931,6 +931,6 @@ The host agent currently listens on all network interfaces to support Tailscale 
 
 All dashboard and API access requires a valid JWT obtained through `/auth/login`; there is no unauthenticated access to session, save, host, or admin endpoints. A separate, narrowly-scoped shared secret (not a user credential) authorizes the small set of Sunshine hook/transport endpoints described in [Internal Event Authentication](docs/engineering/internal-event-authentication.md).
 
-The v0.1 release does not yet include structured security audit logging (planned for Phase 31) or a database-backed user store (planned for Phase 25; user accounts currently live in `host-agent/data/users.json`).
+The v0.1 release does not yet include structured security audit logging (planned for Phase 31) , user accounts currently live in local database `host-agent/data/pcgo.db`.
 
 Administrative configuration endpoints should still not be exposed directly to untrusted networks.

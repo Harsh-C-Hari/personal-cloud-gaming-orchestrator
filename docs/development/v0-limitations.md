@@ -9,7 +9,7 @@ Remaining known limitations of the current authentication implementation:
 - No refresh-token flow; tokens simply expire (`config.json` → `auth.access_token_expire_minutes`) and require re-login.
 - No login rate limiting or account lockout after repeated failed attempts.
 - No structured security audit log of login attempts or admin actions (planned for Phase 31).
-- Accounts are stored in a flat JSON file (`host-agent/data/users.json`), not a database (planned for Phase 25).
+- Accounts are stored in a database (`host-agent/data/pcgo.db`).
 - No password recovery flow for a locked-out installation.
 
 See [Authentication & Role-Based Access](../features/authentication.md).

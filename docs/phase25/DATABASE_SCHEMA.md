@@ -15,7 +15,7 @@ SQLite practice, cast at the repository boundary.
 
 ---
 
-## `users`
+## `users` - Migration Complete
 
 Replaces `data/users.json`.
 

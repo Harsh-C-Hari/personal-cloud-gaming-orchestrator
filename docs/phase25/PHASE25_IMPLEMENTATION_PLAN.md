@@ -9,7 +9,9 @@ Scope: `host-agent/` (the only tier with persistence; `frontend/` has none).
 > simplified import step. See `DATABASE_SCHEMA.md` §"What Changed" and
 > `DATABASE_ARCHITECTURE.md` §9 for the full diffs.
 
-config.json and games.json remain JSON-based host configuration files and are intentionally excluded from the SQLite migration.
+`config.json` and `games.json` remain JSON-based host configuration files and are intentionally excluded from the SQLite migration.
+
+`users.json` Migration Complete.
 
 ---
 

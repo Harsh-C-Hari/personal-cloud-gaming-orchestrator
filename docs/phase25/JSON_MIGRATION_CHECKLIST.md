@@ -11,7 +11,7 @@ One section per legacy JSON file. Sections may be worked in the Stage
 
 ---
 
-## `data/users.json` → `users` table
+## `data/users.json` → `users` table - Migration Complete.
 
 - [ ] Create `UserRepository`.
 - [ ] Import existing `users.json` rows (preserve `created_at` exactly

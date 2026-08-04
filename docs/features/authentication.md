@@ -81,7 +81,7 @@ Any authenticated user (admin or user) can change their own password via `PUT /a
 
 # Storage
 
-Accounts are stored in `host-agent/data/users.json` as a flat list of `{username, password_hash, role, created_at}` records. This is intentionally simple for the current JSON-persistence MVP; migrating this store to a database is part of the Phase 25 persistence migration, not a change to the authentication model itself.
+Accounts are stored in local database `host-agent/data/pcgo.db`.
 
 ---
 
@@ -90,6 +90,6 @@ Accounts are stored in `host-agent/data/users.json` as a flat list of `{username
 - No refresh-token flow; a token simply expires and requires re-login.
 - No account lockout / rate limiting on failed login attempts.
 - No structured security audit log of login attempts or admin actions (planned for Phase 31).
-- No email/password-recovery flow (a locked-out installation currently requires direct edits to `users.json` or a reinstall of the bootstrap flow).
+- No email/password-recovery flow (a locked-out installation currently requires direct edits to `pcgo.db` or a reinstall of the bootstrap flow).
 
 These are tracked as future hardening work rather than gaps in the current MVP's stated scope.
