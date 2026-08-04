@@ -31,8 +31,6 @@ FILES = {
 
     "data/sunshine_stream_history.json": [],
 
-    "data/users.json": [],
-    
     "data/session_stats.json": {
         "total_sessions": 0,
         "successful_sessions": 0,

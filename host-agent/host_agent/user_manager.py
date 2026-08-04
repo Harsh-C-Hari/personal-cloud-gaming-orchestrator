@@ -1,98 +1,23 @@
-from pathlib import Path
-import json
-import os
 import time
 
 from host_agent.auth_manager import (
     auth_manager,
 )
 
+from host_agent.repositories.user_repository import (
+    user_repository,
+)
+
 class UserManager:
-
-    def __init__(self):
-
-        self.path = (
-            Path(__file__)
-            .resolve()
-            .parent
-            .parent
-            / "data"
-            / "users.json"
-        )
-
-    def read(self):
-
-        if not self.path.exists():
-            return []
-
-        try:
-
-            with open(
-                self.path,
-                "r",
-                encoding="utf-8",
-            ) as file:
-
-                return json.load(file)
-
-        except Exception:
-
-            return []
-
-    def write(
-        self,
-        users,
-    ):
-
-        self.path.parent.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
-
-        temp = self.path.with_suffix(
-            ".tmp"
-        )
-
-        with open(
-            temp,
-            "w",
-            encoding="utf-8",
-        ) as file:
-
-            json.dump(
-                users,
-                file,
-                indent=4,
-            )
-
-            file.flush()
-
-            os.fsync(
-                file.fileno()
-            )
-
-        temp.replace(
-            self.path
-        )
 
     def get_user(
         self,
         username,
     ):
 
-        users = self.read()
-
-        for user in users:
-
-            if (
-                user.get(
-                    "username"
-                )
-                == username
-            ):
-                return user
-
-        return None
+        return user_repository.get_user(
+            username
+        )
 
     def exists(
         self,
@@ -113,7 +38,7 @@ class UserManager:
         role="user",
     ):
 
-        users = self.read()
+        users = self.list_users()
         
         if self.exists(
             username
@@ -122,17 +47,11 @@ class UserManager:
                 f"User {username} already exists."
             )
 
-        users.append(
-            {
-                "username": username,
-                "password_hash": password_hash,
-                "role": role,
-                "created_at": time.time(),
-            }
-        )
-
-        self.write(
-            users
+        user_repository.create_user(
+            username=username,
+            password_hash=password_hash,
+            role=role,
+            created_at=time.time(),
         )
 
     def verify_credentials(
@@ -158,25 +77,23 @@ class UserManager:
 
         return user
 
-    def list_users(self):
-        return self.read()
+    def list_users(
+        self,
+    ):
 
-    def admin_count(self):
-        users = self.read()
+        return user_repository.list_users()
 
-        return len(
-            [
-                user
-                for user in users
-                if user["role"] == "admin"
-            ]
-        )
+    def admin_count(
+        self,
+    ):
+
+        return user_repository.count_admins()
 
     def delete_user(
         self,
         username,
     ):
-        users = self.read()
+        users = self.list_users()
 
         target = None
 
@@ -198,31 +115,27 @@ class UserManager:
                 "Cannot delete last admin account."
             )
 
-        users.remove(target)
-
-        self.write(users)
+        user_repository.delete_user(
+            username
+        )
 
     def change_password(
         self,
         username,
         password_hash,
     ):
-        users = self.read()
 
-        found = False
-
-        for user in users:
-            if user["username"] == username:
-                user["password_hash"] = password_hash
-                found = True
-                break
-
-        if not found:
+        if not self.exists(
+            username
+        ):
             raise RuntimeError(
                 "User not found."
             )
 
-        self.write(users)
+        user_repository.update_password_hash(
+            username,
+            password_hash,
+        )
 
     def bootstrap_required(
         self,
@@ -232,7 +145,8 @@ class UserManager:
     def delete_all_except_last_admin(
         self,
     ):
-        users = self.read()
+
+        users = self.list_users()
 
         admins = [
             user
@@ -241,20 +155,18 @@ class UserManager:
         ]
 
         if not admins:
-            self.write([])
             return
 
         keep_admin = min(
             admins,
-            key=lambda user:
-                user["created_at"]
+            key=lambda user: user["created_at"]
         )
 
-        self.write(
-            [
-                keep_admin
-            ]
+        user_repository.delete_all_except(
+            keep_admin["username"]
         )
+
+
 
 user_manager = (
     UserManager()

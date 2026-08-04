@@ -272,7 +272,6 @@ def validate_startup():
             "data/session_events.json": list,
             "data/recovery_events.json": list,
             "data/sunshine_stream_history.json": list,
-            "data/users.json": list,
         }
 
         for file_path, expected_type in checks.items():

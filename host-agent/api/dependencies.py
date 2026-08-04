@@ -10,6 +10,12 @@ from host_agent.startup_validator import (
 
 validate_startup()
 
+from host_agent.database.init_db import (
+    initialize_database,
+)
+
+initialize_database()
+
 from host_agent.save_manager import SaveManager
 from game_launcher import GameLauncher
 from cleanup import CleanupManager
