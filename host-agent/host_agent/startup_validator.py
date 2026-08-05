@@ -204,34 +204,6 @@ def validate_startup():
                         "be a list."
                     )
 
-    def validate_session_stats():
-
-        path = Path(
-            "data/session_stats.json"
-        )
-
-        data = json.loads(
-            path.read_text(
-                encoding="utf-8"
-            )
-        )
-
-        required = [
-            "total_sessions",
-            "successful_sessions",
-            "failed_sessions",
-            "recovered_sessions",
-            "total_playtime_seconds",
-        ]
-
-        for key in required:
-
-            if key not in data:
-                raise RuntimeError(
-                    f"session_stats missing "
-                    f"{key}"
-                )
-
     def validate_sunshine_stream_state():
 
         path = Path(
@@ -296,7 +268,6 @@ def validate_startup():
     
     validate_config()
     validate_games()
-    validate_session_stats()
     validate_sunshine_stream_state()
     validate_json_types()
 

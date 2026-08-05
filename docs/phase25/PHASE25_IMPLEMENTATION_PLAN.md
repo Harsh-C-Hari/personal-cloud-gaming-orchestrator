@@ -12,6 +12,7 @@ Scope: `host-agent/` (the only tier with persistence; `frontend/` has none).
 `config.json` and `games.json` remain JSON-based host configuration files and are intentionally excluded from the SQLite migration.
 
 `users.json` Migration Complete.
+`session_stats.json` - Migration Complete
 
 ---
 

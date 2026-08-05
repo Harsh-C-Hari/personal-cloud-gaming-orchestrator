@@ -228,7 +228,7 @@ direct win from the migration, not an added abstraction.
 
 ---
 
-## `session_stats`
+## `session_stats` - Migration Complete 
 
 Replaces `data/session_stats.json` (singleton object).
 

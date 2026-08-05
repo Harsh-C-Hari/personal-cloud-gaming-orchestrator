@@ -1699,9 +1699,7 @@ class SessionService:
                     session_id
                 )
 
-                stats = session_stats_manager.read()
-                stats["recovered_sessions"] += 1
-                session_stats_manager.write(stats)
+                session_stats_manager.increment_recovered_sessions()
                 
                 self._append_session_event(
                     session_id,

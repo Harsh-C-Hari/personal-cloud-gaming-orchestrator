@@ -31,14 +31,6 @@ FILES = {
 
     "data/sunshine_stream_history.json": [],
 
-    "data/session_stats.json": {
-        "total_sessions": 0,
-        "successful_sessions": 0,
-        "failed_sessions": 0,
-        "recovered_sessions": 0,
-        "total_playtime_seconds": 0,
-    },
-
     "data/sunshine_stream_state.json": {
         "state": "idle",
         "app_name": None,
