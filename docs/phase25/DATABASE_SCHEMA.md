@@ -145,7 +145,7 @@ entry.
 
 ---
 
-## `session_history`
+## `session_history` - Migration Complete
 
 Replaces `data/session_history.json` (previously hard-capped at 500
 entries by array-slicing — the cap is no longer necessary since SQLite

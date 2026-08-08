@@ -51,3 +51,55 @@ CREATE TABLE IF NOT EXISTS recovery_events (
     event TEXT NOT NULL,
     details TEXT
 );
+
+CREATE TABLE IF NOT EXISTS session_history (
+
+    session_id TEXT PRIMARY KEY,
+
+    user_id TEXT NOT NULL,
+
+    game_id TEXT NOT NULL,
+
+    status TEXT NOT NULL
+        CHECK(status IN ('completed', 'failed')),
+
+    started_at REAL NOT NULL,
+
+    ended_at REAL NOT NULL,
+
+    played_seconds REAL NOT NULL,
+
+    error TEXT,
+
+    game_ended_at REAL,
+
+    integrity_verified INTEGER,
+
+    latest_manifest_verified INTEGER,
+
+    backup_manifest_verified INTEGER,
+
+    archive_verified INTEGER,
+
+    backup_path TEXT,
+
+    archive_path TEXT,
+
+    restore_verified INTEGER,
+
+    restore_source TEXT,
+
+    restart_count INTEGER NOT NULL DEFAULT 0,
+
+    last_restart_time REAL
+
+);
+
+CREATE INDEX IF NOT EXISTS idx_session_history_user
+ON session_history(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_session_history_game
+ON session_history(game_id);
+
+CREATE INDEX IF NOT EXISTS idx_session_history_started
+ON session_history(started_at);

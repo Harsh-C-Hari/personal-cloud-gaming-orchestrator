@@ -93,7 +93,7 @@ One section per legacy JSON file. Sections may be worked in the Stage
       layer works correctly under the shared-connection,
       `check_same_thread=False` model.
 
-## `data/session_stats.json` → merged into `SessionRepository`
+## `data/session_stats.json` → merged into `SessionRepository` - Migration Complete
 
 - [ ] Add `record_stats(status, played_seconds, recovered=False)` to
       `SessionRepository` (an atomic `UPDATE` — no separate
@@ -104,7 +104,7 @@ One section per legacy JSON file. Sections may be worked in the Stage
 - [ ] Verify counters after import exactly match pre-migration JSON
       values (spot check `total_sessions`).
 
-## `data/session_history.json` + `data/session_events.json` → `SessionLogRepository` (`session_history` + `session_events` tables)
+## `data/session_history.json` + `data/session_events.json` → `SessionLogRepository` (`session_history` + `session_events` tables) - Migration Complete
 
 - [ ] Create `SessionLogRepository` (one class covering both logs).
 - [ ] Import both files.

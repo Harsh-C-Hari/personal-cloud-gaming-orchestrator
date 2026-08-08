@@ -23,6 +23,9 @@ from host_agent.logging_config import (
 from host_agent.session_stats_manager import (
     session_stats_manager,
 )
+from host_agent.repositories.session_history_repository import (
+    session_history_repository,
+)
 from host_agent.models import SessionState
 from api.websocket_manager import (
     websocket_manager,
@@ -1172,27 +1175,36 @@ class SessionService:
         session_id: str,
     ) -> None:
 
-        history_path = Path("data/session_history.json")
-        history_path.parent.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
-
         with registry_lock:
-            session = active_sessions.get(session_id)
+
+            session = active_sessions.get(
+                session_id
+            )
 
             if not session:
                 return
 
             try:
-                meta = save_manager.metadata_manager.get_session(session_id)
+
+                meta = (
+                    save_manager
+                    .metadata_manager
+                    .get_session(
+                        session_id
+                    )
+                )
+
             except Exception as error:
+
                 logger.error(
                     f"Failed to load metadata for history: {error}",
-                    extra={"session_id": session_id},
+                    extra={
+                        "session_id": session_id
+                    },
                 )
+
                 meta = None
-            
+
             record = {
                 "session_id": session_id,
                 "user_id": session.get("user_id"),
@@ -1203,41 +1215,69 @@ class SessionService:
                 "played_seconds": session.get("played_seconds"),
                 "error": session.get("error"),
                 "game_ended_at": session.get("game_ended_at"),
-                "integrity_verified": getattr(meta, "integrity_verified", None),
-                "latest_manifest_verified": getattr(meta, "latest_manifest_verified", None),
-                "backup_manifest_verified": getattr(meta, "backup_manifest_verified", None),
-                "archive_verified": getattr(meta, "archive_verified", None),
-                "backup_path": getattr(meta, "backup_path", None),
-                "archive_path": getattr(meta, "archive_path", None),
-                "restore_verified": getattr(meta, "restore_verified", None),
-                "restore_source": getattr(meta, "restore_source", None),
-                "restart_count": session.get("restart_count", 0),
-                "last_restart_time": session.get("last_restart_time"),
+                "integrity_verified": getattr(
+                    meta,
+                    "integrity_verified",
+                    None,
+                ),
+                "latest_manifest_verified": getattr(
+                    meta,
+                    "latest_manifest_verified",
+                    None,
+                ),
+                "backup_manifest_verified": getattr(
+                    meta,
+                    "backup_manifest_verified",
+                    None,
+                ),
+                "archive_verified": getattr(
+                    meta,
+                    "archive_verified",
+                    None,
+                ),
+                "backup_path": getattr(
+                    meta,
+                    "backup_path",
+                    None,
+                ),
+                "archive_path": getattr(
+                    meta,
+                    "archive_path",
+                    None,
+                ),
+                "restore_verified": getattr(
+                    meta,
+                    "restore_verified",
+                    None,
+                ),
+                "restore_source": getattr(
+                    meta,
+                    "restore_source",
+                    None,
+                ),
+                "restart_count": session.get(
+                    "restart_count",
+                    0,
+                ),
+                "last_restart_time": session.get(
+                    "last_restart_time"
+                ),
             }
-
-        history = self._safe_read_json(
-            history_path,
-            [],
-        )
 
         try:
 
-            history.append(record)
+            session_history_repository.append(
+                record
+            )
 
         except Exception as error:
 
             logger.error(
-                f"Failed appending history record: {error}"
+                f"Failed to append session history: {error}",
+                extra={
+                    "session_id": session_id
+                },
             )
-
-            return
-
-        history = history[-500:]
-
-        self._safe_write_json(
-            history_path,
-            history,
-        )
 
     def get_session_history(
         self,
@@ -1245,25 +1285,9 @@ class SessionService:
         user_id=None,
     ):
 
-        history_path = Path("data/session_history.json")
-
-        history = self._safe_read_json(
-            history_path,
-            [],
-        )
-
-        if user_id is not None:
-
-            history = [
-                item
-                for item in history
-                if item.get("user_id") == user_id
-            ]
-
-        return list(
-            reversed(
-                history[-limit:]
-            )
+        return session_history_repository.get_history(
+            limit=limit,
+            user_id=user_id,
         )
 
     def get_session_events(
@@ -1844,15 +1868,21 @@ class SessionService:
         }
 
     def get_session_health(self):
+
         lock_path = Path("metadata/session.lock")
-        history_path = Path("data/session_history.json")
         events_path = Path("data/session_events.json")
 
         with registry_lock:
             active_count = len(active_sessions)
 
-        history = self._safe_read_json(history_path, [])
-        events = self._safe_read_json(events_path, [])
+        history_count = (
+            session_history_repository.count()
+        )
+
+        events = self._safe_read_json(
+            events_path,
+            [],
+        )
 
         lock_info = {}
 
@@ -1868,7 +1898,7 @@ class SessionService:
             except Exception:
 
                 lock_info = {}
-        
+
         return {
             "active_sessions": active_count,
             "lock_exists": lock_path.exists(),
@@ -1884,7 +1914,7 @@ class SessionService:
             "pid": lock_info.get(
                 "pid"
             ),
-            "history_count": len(history),
+            "history_count": history_count,
             "event_count": len(events),
         }
 
@@ -1997,26 +2027,10 @@ class SessionService:
         self,
         user_id: str,
     ):
-        history_path = Path("data/session_history.json")
 
-        history = self._safe_read_json(
-            history_path,
-            [],
+        return session_history_repository.get_user_session_ids(
+            user_id
         )
-
-        session_ids = []
-
-        for item in history:
-
-            if item.get("user_id") != user_id:
-                continue
-
-            session_id = item.get("session_id")
-
-            if session_id and session_id not in session_ids:
-                session_ids.append(session_id)
-
-        return session_ids
 
     def get_session(
         self,
