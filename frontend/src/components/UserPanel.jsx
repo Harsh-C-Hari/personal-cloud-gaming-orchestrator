@@ -3,16 +3,21 @@
  *
  * Same API calls / validation / business logic as before (fetchUsers,
  * createUser, deleteUser, deleteAllUsers, validateUserForm, admin/oldest-admin
- * guard rails) — only the UI was redesigned to match the visual language
- * already used by GameManager / SettingsPanel / StartSessionForm / RecoveryStats:
- *   - Card-shell header (icon badge + title + live count) instead of a
- *     bare "User Management" heading.
- *   - Existing users rendered as an icon-labeled card grid instead of
- *     plain flex rows.
- *   - The create-user form uses the same FieldLabel + focus-ring input
- *     pattern as the rest of the app, inside a labeled cardSection.
- *   - Status / validation messaging now uses the same icon + colored-mono
- *     alert-box treatment as the rest of the app.
+ * guard rails) — only the UI was redesigned to match DESIGN_SYSTEM.md:
+ *   - Existing-users and create-user sections now use the shared `Card`
+ *     primitive instead of a hand-rolled bordered div.
+ *   - Role badges use the shared `Chip` primitive (flat wash, no border)
+ *     instead of a custom pill.
+ *   - "No users found" uses the shared `EmptyState` primitive.
+ *   - Loading uses the shared `Spinner` primitive instead of a pulsing dot.
+ *   - Create / Delete-all use the shared `Button` primitive (flat, no
+ *     gradient, no glow) instead of custom cyan-gradient / red buttons.
+ *   - The gradient top-accent bar on user cards is gone (gradients are
+ *     banned by the design system) — cards separate via border only.
+ *   - Icons migrated from `react-icons/fa` to `lucide-react`, per
+ *     DESIGN_SYSTEM.md §7.
+ *   - All colors/fonts/radius now come from `dashboard/theme.js` — the old
+ *     local `palette` (cyan accent, Rajdhani display font) is gone.
  *
  * No functional change: every handler, state variable, validation rule,
  * and API call below is untouched from the previous implementation.
@@ -24,17 +29,17 @@ import {
 } from "react";
 
 import {
-    FaUsersCog,
-    FaUserPlus,
-    FaUserShield,
-    FaUser,
-    FaSyncAlt,
-    FaTrashAlt,
-    FaCalendarAlt,
-    FaChevronDown,
-    FaExclamationTriangle,
-    FaBan,
-} from "react-icons/fa";
+    UsersRound,
+    UserPlus,
+    ShieldCheck,
+    User,
+    RefreshCw,
+    Trash2,
+    CalendarDays,
+    ChevronDown,
+    AlertTriangle,
+    Ban,
+} from "lucide-react";
 
 import {
     fetchUsers,
@@ -44,27 +49,8 @@ import {
 } from "../api/client";
 import { useToast } from "./ui/Toast.jsx";
 import { useConfirm } from "./ui/ConfirmDialog.jsx";
-
-// ── Shared design tokens (matches GameManager / SettingsPanel /
-// StartSessionForm / RecoveryStats / HostMonitor) ───────────────────────
-
-const palette = {
-    bg: "#000000",
-    card: "rgba(0, 0, 0, 0.55)",
-    cardAlt: "rgba(2,6,23,0.45)",
-    border: "#1c2130",
-    borderStrong: "rgba(148,163,184,0.18)",
-    text: "#e2e8f0",
-    dim: "#94a3b8",
-    faint: "#64748b",
-    muted: "#475569",
-    accent: "#38bdf8",
-    success: "#10d98a",
-    warning: "#f5a524",
-    danger: "#f43f5e",
-    mono: "'JetBrains Mono', monospace",
-    display: "'Rajdhani', sans-serif",
-};
+import { Card, Button, Chip, Spinner, EmptyState } from "./ui/primitives.jsx";
+import { colors, fonts, radius } from "../dashboard/theme.js";
 
 export function UserPanel() {
 
@@ -317,7 +303,7 @@ export function UserPanel() {
             <div style={headerBar}>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <div style={headerIconBadge}>
-                        <FaUsersCog size={13} />
+                        <UsersRound size={13} strokeWidth={2} />
                     </div>
                     <div>
                         <div style={headerTitle}>User Management</div>
@@ -334,10 +320,10 @@ export function UserPanel() {
                     disabled={loading}
                     style={{ ...iconGhostButton, opacity: loading ? 0.5 : 1 }}
                     onClick={loadUsers}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(56,189,248,0.15)")}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = colors.brandDim)}
                     onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                 >
-                    <FaSyncAlt size={12} style={loading ? { animation: "up-spin 0.8s linear infinite" } : undefined} />
+                    <RefreshCw size={12} strokeWidth={2} style={loading ? { animation: "up-spin 0.8s linear infinite" } : undefined} />
                 </button>
             </div>
 
@@ -345,7 +331,7 @@ export function UserPanel() {
             <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "20px" }}>
 
                 {/* Existing users */}
-                <div style={cardSection}>
+                <Card style={{ padding: "16px" }}>
 
                     <div style={sectionHeadRow}>
                         <span style={sectionLabel}>Existing Users</span>
@@ -356,18 +342,17 @@ export function UserPanel() {
                         loading
                             ? (
                                 <div style={loadingRow}>
-                                    <span style={pulseDot} />
+                                    <Spinner size={14} />
                                     Loading users...
                                 </div>
                             )
                             : users.length === 0
                                 ? (
-                                    <div style={emptyBox}>
-                                        <FaUsersCog size={22} style={{ color: palette.muted, opacity: 0.6 }} />
-                                        <div style={{ fontSize: "11px", color: palette.dim, fontFamily: palette.mono }}>
-                                            No users found
-                                        </div>
-                                    </div>
+                                    <EmptyState
+                                        icon={UsersRound}
+                                        message="No users found"
+                                        style={{ padding: "32px 20px" }}
+                                    />
                                 )
                                 : (
                                     <div style={grid}>
@@ -385,8 +370,6 @@ export function UserPanel() {
                                                             key={user.username}
                                                             style={userCard}
                                                         >
-                                                            <div style={cardTopAccent} />
-
                                                             <div style={cardHeaderRow}>
                                                                 <div style={{ display: "flex", alignItems: "center", gap: "9px", minWidth: 0 }}>
                                                                     <div
@@ -394,19 +377,19 @@ export function UserPanel() {
                                                                             ...avatarBadge,
                                                                             background:
                                                                                 user.role === "admin"
-                                                                                    ? "rgba(245,165,36,0.12)"
-                                                                                    : "rgba(56,189,248,0.12)",
+                                                                                    ? colors.accentYellowDim
+                                                                                    : colors.brandDim,
                                                                             borderColor:
                                                                                 user.role === "admin"
-                                                                                    ? "rgba(245,165,36,0.35)"
-                                                                                    : "rgba(56,189,248,0.3)",
+                                                                                    ? colors.accentYellow
+                                                                                    : colors.brand,
                                                                             color:
                                                                                 user.role === "admin"
-                                                                                    ? palette.warning
-                                                                                    : palette.accent,
+                                                                                    ? colors.accentYellow
+                                                                                    : colors.brand,
                                                                         }}
                                                                     >
-                                                                        {user.role === "admin" ? <FaUserShield size={12} /> : <FaUser size={12} />}
+                                                                        {user.role === "admin" ? <ShieldCheck size={13} strokeWidth={2} /> : <User size={13} strokeWidth={2} />}
                                                                     </div>
 
                                                                     <div style={{ minWidth: 0 }}>
@@ -414,7 +397,7 @@ export function UserPanel() {
                                                                             {user.username}
                                                                         </div>
                                                                         <div style={cardMeta}>
-                                                                            <FaCalendarAlt size={9} style={{ opacity: 0.7, flexShrink: 0 }} />
+                                                                            <CalendarDays size={9} strokeWidth={2} style={{ opacity: 0.7, flexShrink: 0 }} />
                                                                             {new Date(user.created_at * 1000).toLocaleDateString()}
                                                                         </div>
                                                                     </div>
@@ -432,7 +415,7 @@ export function UserPanel() {
                                                                     onClick={() => handleDelete(user.username)}
                                                                     onMouseEnter={(e) => {
                                                                         if (!isProtectedAdmin && deletingId !== user.username && !deletingAll) {
-                                                                            e.currentTarget.style.background = "rgba(239,68,68,0.15)";
+                                                                            e.currentTarget.style.background = "rgba(255,107,107,0.15)";
                                                                         }
                                                                     }}
                                                                     onMouseLeave={(e) => {
@@ -440,27 +423,23 @@ export function UserPanel() {
                                                                     }}
                                                                 >
                                                                     {deletingId === user.username ? (
-                                                                        <FaSyncAlt size={10} style={{ animation: "up-spin 0.8s linear infinite" }} />
+                                                                        <RefreshCw size={10} strokeWidth={2} style={{ animation: "up-spin 0.8s linear infinite" }} />
                                                                     ) : (
-                                                                        <FaTrashAlt size={11} />
+                                                                        <Trash2 size={11} strokeWidth={2} />
                                                                     )}
                                                                 </button>
                                                             </div>
 
-                                                            <span
-                                                                style={{
-                                                                    ...roleBadge,
-                                                                    color: user.role === "admin" ? palette.warning : palette.accent,
-                                                                    borderColor: user.role === "admin" ? "rgba(245,165,36,0.4)" : "rgba(56,189,248,0.35)",
-                                                                    background: user.role === "admin" ? "rgba(245,165,36,0.08)" : "rgba(56,189,248,0.08)",
-                                                                }}
+                                                            <Chip
+                                                                tone={user.role === "admin" ? "yellow" : "blue"}
+                                                                style={{ marginTop: "11px" }}
                                                             >
-                                                                {user.role.toUpperCase()}
-                                                            </span>
+                                                                {user.role}
+                                                            </Chip>
 
                                                             {isProtectedAdmin && (
                                                                 <div style={protectedNote}>
-                                                                    <FaBan size={9} style={{ flexShrink: 0 }} />
+                                                                    <Ban size={9} strokeWidth={2} style={{ flexShrink: 0 }} />
                                                                     Last admin &mdash; protected
                                                                 </div>
                                                             )}
@@ -473,61 +452,29 @@ export function UserPanel() {
                                 )
                     }
 
-                    <button
-                        style={{
-                            ...deleteAllButton,
-
-                            opacity:
-                                noUserExists || deletingAll || deletingId
-                                    ? 0.4
-                                    : 1,
-
-                            cursor:
-                                noUserExists || deletingAll || deletingId
-                                    ? "not-allowed"
-                                    : "pointer",
-                        }}
-
-                        disabled={
-                            noUserExists || deletingAll || !!deletingId
-                        }
-
-                        onClick={
-                            handleDeleteAll
-                        }
-
-                        onMouseEnter={(e) => {
-
-                            if (!noUserExists && !deletingAll && !deletingId) {
-
-                                e.currentTarget.style.background =
-                                    "rgba(239,68,68,0.15)";
-                            }
-                        }}
-
-                        onMouseLeave={(e) => {
-
-                            e.currentTarget.style.background =
-                                "rgba(239,68,68,0.08)";
-                        }}
+                    <Button
+                        variant="danger"
+                        disabled={noUserExists || deletingAll || !!deletingId}
+                        onClick={handleDeleteAll}
+                        style={{ width: "100%", marginTop: "4px" }}
                     >
                         {deletingAll ? (
-                            <FaSyncAlt size={11} style={{ animation: "up-spin 0.8s linear infinite" }} />
+                            <RefreshCw size={11} strokeWidth={2} style={{ animation: "up-spin 0.8s linear infinite" }} />
                         ) : (
-                            <FaTrashAlt size={11} />
+                            <Trash2 size={11} strokeWidth={2} />
                         )}
-                        {deletingAll ? "DELETING…" : "DELETE ALL EXCEPT OLDEST ADMIN"}
-                    </button>
+                        {deletingAll ? "Deleting…" : "Delete All Except Oldest Admin"}
+                    </Button>
 
-                </div>
+                </Card>
 
                 {/* Create user */}
-                <div style={cardSection}>
+                <Card style={{ padding: "16px" }}>
 
                     <div style={sectionHeadRow}>
                         <div style={{ display: "flex", alignItems: "center", gap: "9px" }}>
                             <div style={sectionIconBadge}>
-                                <FaUserPlus size={12} />
+                                <UserPlus size={12} strokeWidth={2} />
                             </div>
                             <span style={sectionLabel}>Create User</span>
                         </div>
@@ -583,14 +530,14 @@ export function UserPanel() {
                                 ADMIN
                             </option>
                         </select>
-                        <FaChevronDown
+                        <ChevronDown
                             size={10}
                             style={{
                                 position: "absolute",
                                 right: "13px",
                                 top: "50%",
                                 transform: "translateY(-50%)",
-                                color: palette.muted,
+                                color: colors.inkFaint,
                                 pointerEvents: "none",
                             }}
                         />
@@ -599,60 +546,31 @@ export function UserPanel() {
                     {
                         validationError && (
                             <div style={validationBad}>
-                                <FaExclamationTriangle size={11} style={{ flexShrink: 0 }} />
+                                <AlertTriangle size={11} strokeWidth={2} style={{ flexShrink: 0 }} />
                                 {validationError}
                             </div>
                         )
                     }
 
-                    <button
-                        style={{
-                            ...saveButton,
-
-                            opacity:
-                                canCreate
-                                    ? 1
-                                    : 0.5,
-
-                            cursor:
-                                canCreate
-                                    ? "pointer"
-                                    : "not-allowed",
-
-                            marginTop: validationError ? "12px" : "16px",
-                        }}
+                    <Button
+                        variant="primary"
                         disabled={!canCreate}
-                        onClick={
-                            handleCreate
-                        }
-                        onMouseEnter={(e) => {
-
-                            if (canCreate) {
-
-                                e.currentTarget.style.background =
-                                    "linear-gradient(180deg, rgba(56,189,248,0.24), rgba(56,189,248,0.12))";
-                            }
-                        }}
-
-                        onMouseLeave={(e) => {
-
-                            e.currentTarget.style.background =
-                                "linear-gradient(180deg, rgba(56,189,248,0.16), rgba(56,189,248,0.08))";
-                        }}
+                        onClick={handleCreate}
+                        style={{ width: "100%", marginTop: validationError ? "12px" : "16px" }}
                     >
-                        <FaUserPlus size={12} />
+                        <UserPlus size={12} strokeWidth={2} />
                         {
                             creating
-                                ? "CREATING..."
-                                : "CREATE USER"
+                                ? "Creating..."
+                                : "Create User"
                         }
-                    </button>
+                    </Button>
 
-                </div>
+                </Card>
 
             </div>
 
-            <style>{`@keyframes up-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } } @keyframes up-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }`}</style>
+            <style>{`@keyframes up-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
 
         </div>
     );
@@ -664,10 +582,11 @@ function FieldLabel({ children }) {
             style={{
                 display: "block",
                 fontSize: "9.5px",
-                color: palette.muted,
+                color: colors.inkFaint,
                 letterSpacing: "0.13em",
                 textTransform: "uppercase",
-                fontFamily: palette.mono,
+                fontFamily: fonts.mono,
+                fontWeight: 700,
                 marginBottom: "7px",
                 marginTop: "14px",
             }}
@@ -678,20 +597,18 @@ function FieldLabel({ children }) {
 }
 
 const focusBorder = (e) => {
-    e.target.style.borderColor = "rgba(56,189,248,0.5)";
-    e.target.style.boxShadow = "0 0 0 3px rgba(56,189,248,0.08)";
+    e.target.style.borderColor = colors.ink;
 };
 const blurBorder = (e) => {
-    e.target.style.borderColor = palette.border;
-    e.target.style.boxShadow = "none";
+    e.target.style.borderColor = colors.border;
 };
 
 // ── Style primitives (matches GameManager / SettingsPanel) ─────────────
 
 const outerWrap = {
-    border: `1px solid ${palette.border}`,
-    borderRadius: "12px",
-    background: "rgba(0, 0, 0, 0.5)",
+    border: `1.5px solid ${colors.border}`,
+    borderRadius: `${radius.lg}px`,
+    background: colors.bgCard,
     overflow: "hidden",
     marginTop: "14px",
 };
@@ -700,22 +617,24 @@ const headerBar = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
+    flexWrap: "wrap",
+    rowGap: "8px",
     gap: "10px",
     padding: "16px 20px",
-    borderBottom: `1px solid ${palette.border}`,
-    background: "rgb(0, 5, 6)",
+    borderBottom: `1.5px solid ${colors.border}`,
+    background: colors.bgElevated,
 };
 
 const headerIconBadge = {
     width: "30px",
     height: "30px",
-    borderRadius: "8px",
+    borderRadius: `${radius.sm}px`,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "rgba(56,189,248,0.12)",
-    border: "1px solid rgba(56,189,248,0.3)",
-    color: palette.accent,
+    background: colors.brandDim,
+    border: `1.5px solid ${colors.brand}`,
+    color: colors.brand,
     fontSize: "13px",
     flexShrink: 0,
 };
@@ -723,15 +642,15 @@ const headerIconBadge = {
 const headerTitle = {
     fontSize: "13.5px",
     fontWeight: 700,
-    color: palette.text,
-    fontFamily: palette.display,
+    color: colors.ink,
+    fontFamily: fonts.display,
     letterSpacing: "0.02em",
 };
 
 const headerSubtitle = {
     fontSize: "10px",
-    color: palette.faint,
-    fontFamily: palette.mono,
+    color: colors.inkFaint,
+    fontFamily: fonts.mono,
     marginTop: "1px",
     letterSpacing: "0.02em",
 };
@@ -739,60 +658,57 @@ const headerSubtitle = {
 const iconGhostButton = {
     width: "30px",
     height: "30px",
-    borderRadius: "6px",
+    borderRadius: `${radius.sm}px`,
     background: "transparent",
-    border: `1px solid ${palette.border}`,
-    color: palette.accent,
+    border: `1.5px solid ${colors.border}`,
+    color: colors.brand,
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    transition: "background 0.15s",
+    transition: "background 150ms ease",
     flexShrink: 0,
-};
-
-const cardSection = {
-    padding: "16px",
-    borderRadius: "10px",
-    border: `1px solid ${palette.border}`,
-    background: palette.card,
 };
 
 const sectionHeadRow = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
+    flexWrap: "wrap",
+    rowGap: "6px",
     marginBottom: "14px",
 };
 
 const sectionLabel = {
     fontSize: "9.5px",
-    color: palette.muted,
+    color: colors.inkFaint,
     letterSpacing: "0.15em",
     textTransform: "uppercase",
-    fontFamily: palette.mono,
+    fontFamily: fonts.mono,
+    fontWeight: 700,
 };
 
 const sectionIconBadge = {
     width: "24px",
     height: "24px",
-    borderRadius: "6px",
+    borderRadius: `${radius.sm}px`,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "rgba(56,189,248,0.1)",
-    border: "1px solid rgba(56,189,248,0.28)",
-    color: palette.accent,
+    background: colors.brandDim,
+    border: `1.5px solid ${colors.brand}`,
+    color: colors.brand,
     flexShrink: 0,
 };
 
 const countBadge = {
     fontSize: "9px",
-    color: palette.textGhost || palette.muted,
-    fontFamily: palette.mono,
+    color: colors.inkFaint,
+    fontFamily: fonts.mono,
+    fontWeight: 700,
     padding: "1px 7px",
-    border: `1px solid ${palette.border}`,
-    borderRadius: "10px",
+    border: `1.5px solid ${colors.border}`,
+    borderRadius: `${radius.full}px`,
 };
 
 const loadingRow = {
@@ -800,35 +716,14 @@ const loadingRow = {
     alignItems: "center",
     gap: "9px",
     padding: "16px 4px",
-    color: palette.dim,
-    fontFamily: palette.mono,
+    color: colors.inkDim,
+    fontFamily: fonts.mono,
     fontSize: "11.5px",
-};
-
-const pulseDot = {
-    width: "7px",
-    height: "7px",
-    borderRadius: "50%",
-    background: palette.accent,
-    animation: "up-pulse 1.4s ease-in-out infinite",
-    flexShrink: 0,
-};
-
-const emptyBox = {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "8px",
-    padding: "40px 24px",
-    border: `1px dashed ${palette.border}`,
-    borderRadius: "10px",
-    textAlign: "center",
 };
 
 const grid = {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
     gap: "12px",
     marginBottom: "14px",
 };
@@ -836,45 +731,37 @@ const grid = {
 const userCard = {
     position: "relative",
     padding: "14px",
-    background: palette.bg,
-    border: `1px solid ${palette.border}`,
-    borderRadius: "10px",
+    background: colors.bgElevated,
+    border: `1.5px solid ${colors.border}`,
+    borderRadius: `${radius.md}px`,
     overflow: "hidden",
-};
-
-const cardTopAccent = {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: "2px",
-    background: "linear-gradient(90deg, transparent, rgba(56,189,248,0.6), transparent)",
-    opacity: 0.8,
 };
 
 const cardHeaderRow = {
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
+    flexWrap: "wrap",
+    rowGap: "6px",
     gap: "8px",
 };
 
 const avatarBadge = {
     width: "30px",
     height: "30px",
-    borderRadius: "8px",
+    borderRadius: `${radius.sm}px`,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    border: "1px solid",
+    border: "1.5px solid",
     flexShrink: 0,
 };
 
 const userName = {
-    color: palette.text,
+    color: colors.ink,
     fontSize: "13px",
     fontWeight: 600,
-    fontFamily: palette.display,
+    fontFamily: fonts.display,
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -884,9 +771,9 @@ const cardMeta = {
     display: "flex",
     alignItems: "center",
     gap: "6px",
-    fontFamily: palette.mono,
+    fontFamily: fonts.mono,
     fontSize: "9.5px",
-    color: palette.faint,
+    color: colors.inkFaint,
     marginTop: "3px",
 };
 
@@ -894,25 +781,14 @@ const cardDeleteButton = {
     width: "26px",
     height: "26px",
     flexShrink: 0,
-    borderRadius: "6px",
+    borderRadius: `${radius.sm}px`,
     background: "transparent",
-    border: "1px solid rgba(239,68,68,0.4)",
-    color: palette.danger,
+    border: `1.5px solid ${colors.danger}66`,
+    color: colors.danger,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    transition: "background 0.15s",
-};
-
-const roleBadge = {
-    display: "inline-block",
-    marginTop: "11px",
-    fontSize: "9px",
-    fontFamily: palette.mono,
-    letterSpacing: "0.1em",
-    padding: "3px 9px",
-    borderRadius: "10px",
-    border: "1px solid",
+    transition: "background 150ms ease",
 };
 
 const protectedNote = {
@@ -921,60 +797,22 @@ const protectedNote = {
     gap: "5px",
     marginTop: "8px",
     fontSize: "9.5px",
-    fontFamily: palette.mono,
-    color: palette.muted,
+    fontFamily: fonts.mono,
+    color: colors.inkFaint,
 };
 
 const inputStyle = {
     width: "100%",
     padding: "10px 12px",
-    background: palette.bg,
-    border: `1px solid ${palette.border}`,
-    borderRadius: "7px",
-    color: palette.text,
+    background: colors.bgInset,
+    border: `1.5px solid ${colors.border}`,
+    borderRadius: `${radius.md}px`,
+    color: colors.ink,
     fontSize: "13px",
-    fontFamily: "inherit",
+    fontFamily: fonts.body,
     outline: "none",
     boxSizing: "border-box",
-    transition: "border-color 0.2s, box-shadow 0.2s",
-};
-
-const saveButton = {
-    width: "100%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "9px",
-    padding: "12px",
-    background: "linear-gradient(180deg, rgba(56,189,248,0.16), rgba(56,189,248,0.08))",
-    border: "1px solid rgba(56,189,248,0.4)",
-    borderRadius: "8px",
-    color: palette.accent,
-    fontSize: "11.5px",
-    fontFamily: palette.mono,
-    fontWeight: 700,
-    letterSpacing: "0.12em",
-    textShadow: "0 0 14px rgba(56,189,248,0.4)",
-    transition: "background 0.2s",
-};
-
-const deleteAllButton = {
-    width: "100%",
-    marginTop: "4px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "8px",
-    padding: "11px",
-    border: `1px solid ${palette.danger}`,
-    background: "rgba(239,68,68,0.08)",
-    color: palette.danger,
-    borderRadius: "7px",
-    cursor: "pointer",
-    fontFamily: palette.mono,
-    fontSize: "10.5px",
-    letterSpacing: "0.08em",
-    transition: "background 0.15s",
+    transition: "border-color 150ms ease",
 };
 
 const validationBad = {
@@ -983,10 +821,10 @@ const validationBad = {
     gap: "8px",
     marginTop: "14px",
     padding: "10px 12px",
-    borderRadius: "7px",
-    color: palette.danger,
-    border: `1px solid ${palette.danger}`,
-    background: "rgba(244,63,94,0.08)",
+    borderRadius: `${radius.sm}px`,
+    color: colors.danger,
+    border: `1.5px solid ${colors.danger}`,
+    background: "rgba(255,107,107,0.1)",
     fontSize: "11px",
-    fontFamily: palette.mono,
+    fontFamily: fonts.mono,
 };

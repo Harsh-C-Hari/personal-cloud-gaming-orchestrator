@@ -10,37 +10,27 @@
  *   - A "Total Played" stat tile instead of a plain text line.
  *   - Each history entry is now a bordered card with icon-labeled rows
  *     and a colored status pill (still driven by the untouched
- *     getStatusBadge() text/color).
+ *     getStatusBadge() text logic — only its hard-coded hex colors were
+ *     swapped for flat theme tokens).
  *   - Expanded lifecycle events render as a small timeline, matching
  *     RecoveryEvents' event rows.
+ *
+ * Redesign note: local cyan-glow `palette` replaced with theme.js tokens,
+ * react-icons/fa replaced with lucide-react.
  */
 
 import { useEffect, useState } from "react";
 import {
-  FaHistory,
-  FaSyncAlt,
-  FaGamepad,
-  FaClock,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaChevronDown,
-} from "react-icons/fa";
+  History,
+  RefreshCw,
+  Gamepad2,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  ChevronDown,
+} from "lucide-react";
 import { fetchSessionHistory, fetchSessionEvents } from "../api/client";
-
-const palette = {
-  border: "rgba(148,163,184,0.18)",
-  borderSubtle: "#1c2130",
-  card: "rgba(0, 0, 0, 0.45)",
-  text: "#e2e8f0",
-  dim: "#94a3b8",
-  faint: "#64748b",
-  muted: "#475569",
-  accent: "#38bdf8",
-  success: "#10d98a",
-  warning: "#f59e0b",
-  danger: "#ef4444",
-  mono: "'JetBrains Mono', monospace",
-};
+import { colors, fonts, radius } from "../dashboard/theme.js";
 
 function formatPlayedTime(seconds) {
   if (seconds == null) return "--";
@@ -66,27 +56,27 @@ function getStatusBadge(item) {
   ) {
     return {
       text: "↺ RECOVERED",
-      color: "#f59e0b",
+      color: colors.warning,
     };
   }
 
   if (item.status === "completed") {
     return {
       text: "✓ COMPLETED",
-      color: "#22c55e",
+      color: colors.success,
     };
   }
 
   if (item.status === "failed") {
     return {
       text: "✕ FAILED",
-      color: "#ef4444",
+      color: colors.danger,
     };
   }
 
   return {
     text: item.status?.toUpperCase(),
-    color: "#94a3b8",
+    color: colors.inkDim,
   };
 }
 
@@ -164,57 +154,17 @@ export function SessionHistory({
   );
 
   return (
-    <section
-      style={{
-        padding: "16px",
-        border: `1px solid ${palette.border}`,
-        borderRadius: "10px",
-        background: "rgba(0, 0, 0, 0.55)",
-      }}
-    >
+    <section style={box}>
       {/* ── Header ─────────────────────────────────────────────── */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "9px" }}>
-          <div
-            style={{
-              width: "28px",
-              height: "28px",
-              borderRadius: "7px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "rgba(56,189,248,0.12)",
-              border: "1px solid rgba(56,189,248,0.3)",
-              color: palette.accent,
-            }}
-          >
-            <FaHistory size={12} />
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", rowGap: "8px", columnGap: "12px", marginBottom: "14px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "9px", minWidth: 0 }}>
+          <div style={headerIcon}>
+            <History size={13} strokeWidth={2} />
           </div>
-          <h2
-            style={{
-              margin: 0,
-              fontSize: "13px",
-              letterSpacing: "0.12em",
-              color: palette.text,
-              fontFamily: palette.mono,
-            }}
-          >
-            SESSION HISTORY
-          </h2>
+          <h2 style={title}>Session History</h2>
 
           {history.length > 0 && (
-            <span
-              style={{
-                fontSize: "9px",
-                color: palette.faint,
-                fontFamily: palette.mono,
-                border: `1px solid ${palette.borderSubtle}`,
-                borderRadius: "10px",
-                padding: "1px 8px",
-              }}
-            >
-              {history.length}
-            </span>
+            <span style={countPill}>{history.length}</span>
           )}
         </div>
 
@@ -223,115 +173,44 @@ export function SessionHistory({
           disabled={loading}
           onClick={loadHistory}
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            border: `1px solid ${palette.border}`,
-            background: palette.card,
-            color: palette.dim,
-            borderRadius: "6px",
-            padding: "5px 10px",
-            fontSize: "9px",
-            fontFamily: palette.mono,
-            letterSpacing: "0.08em",
+            ...refreshButton,
+            flexShrink: 0,
+            minHeight: "32px",
             cursor: loading ? "not-allowed" : "pointer",
             opacity: loading ? 0.6 : 1,
-            transition: "background 0.15s, color 0.15s",
           }}
           onMouseEnter={(e) => {
             if (loading) return;
-            e.currentTarget.style.background = "rgba(56,191,248,0.08)";
-            e.currentTarget.style.color = palette.accent;
+            e.currentTarget.style.color = colors.ink;
+            e.currentTarget.style.borderColor = colors.borderStrong;
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = palette.card;
-            e.currentTarget.style.color = palette.dim;
+            e.currentTarget.style.color = colors.inkDim;
+            e.currentTarget.style.borderColor = colors.border;
           }}
         >
-          <FaSyncAlt size={10} style={loading ? { animation: "sh-spin 0.8s linear infinite" } : undefined} />
+          <RefreshCw size={11} strokeWidth={2} style={loading ? { animation: "sh-spin 0.8s linear infinite" } : undefined} />
           {loading ? "REFRESHING..." : "REFRESH"}
         </button>
       </div>
 
       {/* ── Total played stat tile ───────────────────────────────── */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          padding: "12px",
-          borderRadius: "8px",
-          background: palette.card,
-          border: `1px solid ${palette.borderSubtle}`,
-          marginBottom: "14px",
-        }}
-      >
-        <div
-          style={{
-            flexShrink: 0,
-            width: "32px",
-            height: "32px",
-            borderRadius: "8px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: `${palette.accent}1a`,
-            border: `1px solid ${palette.accent}40`,
-            color: palette.accent,
-            fontSize: "13px",
-          }}
-        >
-          <FaClock size={13} />
+      <div style={statTile}>
+        <div style={statIcon}>
+          <Clock size={13} strokeWidth={2} />
         </div>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: "19px", fontWeight: 700, fontFamily: palette.mono, color: palette.text, lineHeight: 1.1 }}>
+          <div style={{ fontSize: "19px", fontWeight: 700, fontFamily: fonts.mono, color: colors.ink, lineHeight: 1.1 }}>
             {formatPlayedTime(totalPlayedSeconds)}
           </div>
-          <div
-            style={{
-              fontSize: "9.5px",
-              color: palette.faint,
-              letterSpacing: "0.08em",
-              fontFamily: palette.mono,
-              marginTop: "2px",
-              textTransform: "uppercase",
-            }}
-          >
-            Total Played
-          </div>
+          <div style={statLabel}>Total Played</div>
         </div>
       </div>
 
-      {error && (
-        <div
-          style={{
-            padding: "10px 12px",
-            borderRadius: "8px",
-            border: `1px solid ${palette.danger}`,
-            background: "rgba(239,68,68,0.08)",
-            color: palette.danger,
-            fontSize: "11.5px",
-            fontFamily: palette.mono,
-          }}
-        >
-          {error}
-        </div>
-      )}
+      {error && <div style={errorBox}>{error}</div>}
 
       {!error && history.length === 0 && (
-        <div
-          style={{
-            padding: "26px",
-            textAlign: "center",
-            border: `1px dashed ${palette.borderSubtle}`,
-            borderRadius: "8px",
-            color: palette.muted,
-            fontSize: "11px",
-            fontFamily: palette.mono,
-          }}
-        >
-          No completed sessions yet.
-        </div>
+        <div style={emptyBox}>No completed sessions yet.</div>
       )}
 
       {!error && history.length > 0 && (
@@ -344,9 +223,9 @@ export function SessionHistory({
               <div
                 key={item.session_id}
                 style={{
-                  borderRadius: "8px",
-                  background: palette.card,
-                  border: `1px solid ${palette.borderSubtle}`,
+                  borderRadius: `${radius.md}px`,
+                  background: colors.bgInset,
+                  border: `1.5px solid ${colors.border}`,
                   borderLeft: `2px solid ${badge.color}`,
                   overflow: "hidden",
                 }}
@@ -365,12 +244,12 @@ export function SessionHistory({
                         display: "flex",
                         alignItems: "center",
                         gap: "7px",
-                        color: palette.text,
+                        color: colors.ink,
                         fontSize: "12.5px",
                         fontWeight: 700,
                       }}
                     >
-                      <FaGamepad size={11} style={{ color: palette.accent, flexShrink: 0 }} />
+                      <Gamepad2 size={11} strokeWidth={2} style={{ color: colors.brand, flexShrink: 0 }} />
                       {item.game_id} · {item.user_id}
                     </div>
 
@@ -379,12 +258,12 @@ export function SessionHistory({
                         display: "flex",
                         alignItems: "center",
                         gap: "6px",
-                        color: palette.dim,
+                        color: colors.inkDim,
                         fontSize: "11px",
                         marginTop: "5px",
                       }}
                     >
-                      <FaClock size={9} style={{ opacity: 0.7, flexShrink: 0 }} />
+                      <Clock size={9} strokeWidth={2} style={{ opacity: 0.7, flexShrink: 0 }} />
                       {formatDate(item.started_at)}
                     </div>
 
@@ -395,22 +274,15 @@ export function SessionHistory({
                         gap: "6px",
                         marginTop: "7px",
                         fontSize: "10px",
-                        color: integrityOk ? palette.success : "#f97316",
-                        fontFamily: palette.mono,
+                        color: integrityOk ? colors.success : colors.warning,
+                        fontFamily: fonts.mono,
                       }}
                     >
-                      {integrityOk ? <FaCheckCircle size={10} /> : <FaTimesCircle size={10} />}
+                      {integrityOk ? <CheckCircle2 size={10} strokeWidth={2} /> : <XCircle size={10} strokeWidth={2} />}
                       INTEGRITY: {integrityOk ? "VERIFIED" : "NOT VERIFIED"}
                     </div>
 
-                    <div
-                      style={{
-                        marginTop: "4px",
-                        fontSize: "9px",
-                        color: palette.muted,
-                        fontFamily: palette.mono,
-                      }}
-                    >
+                    <div style={metaLine}>
                       {item.integrity_verified === true &&
                       item.latest_manifest_verified == null &&
                       item.backup_manifest_verified == null &&
@@ -426,27 +298,13 @@ export function SessionHistory({
                     </div>
 
                     {item.restore_verified != null && (
-                      <div
-                        style={{
-                          marginTop: "4px",
-                          fontSize: "9px",
-                          color: palette.muted,
-                          fontFamily: palette.mono,
-                        }}
-                      >
+                      <div style={metaLine}>
                         RESTORE: {item.restore_verified == null ? "--" : String(item.restore_verified)}
                       </div>
                     )}
                   </div>
 
-                  <div
-                    style={{
-                      textAlign: "right",
-                      fontFamily: palette.mono,
-                      fontSize: "11px",
-                      color: "#cbd5e1",
-                    }}
-                  >
+                  <div style={{ textAlign: "right", fontFamily: fonts.mono, fontSize: "11px", color: colors.inkDim }}>
                     <div
                       style={{
                         color: badge.color,
@@ -454,9 +312,9 @@ export function SessionHistory({
                         fontSize: "9px",
                         letterSpacing: "0.06em",
                         padding: "3px 8px",
-                        borderRadius: "999px",
+                        borderRadius: `${radius.full}px`,
                         background: `${badge.color}22`,
-                        border: `1px solid ${badge.color}55`,
+                        border: `1.5px solid ${badge.color}4d`,
                         display: "inline-block",
                         marginBottom: "6px",
                         whiteSpace: "nowrap",
@@ -464,38 +322,24 @@ export function SessionHistory({
                     >
                       {badge.text}
                     </div>
-                    <div style={{ color: palette.dim }}>PLAYED {formatPlayedTime(item.played_seconds)}</div>
+                    <div style={{ color: colors.inkDim }}>PLAYED {formatPlayedTime(item.played_seconds)}</div>
                     <button
                       type="button"
                       onClick={() => toggleSessionEvents(item.session_id)}
-                      style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "5px",
-                          marginTop: "8px",
-                          border: `1px solid ${palette.border}`,
-                          background: "rgba(2,6,23,0.45)",
-                          color: palette.dim,
-                          borderRadius: "6px",
-                          padding: "4px 8px",
-                          fontSize: "9px",
-                          fontFamily: palette.mono,
-                          letterSpacing: "0.04em",
-                          cursor: "pointer",
-                          transition: "background 0.15s, color 0.15s",
-                      }}
+                      style={detailsButton}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = "rgba(56,191,248,0.08)";
-                        e.currentTarget.style.color = palette.accent;
+                        e.currentTarget.style.color = colors.ink;
+                        e.currentTarget.style.borderColor = colors.borderStrong;
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "rgba(2,6,23,0.45)";
-                        e.currentTarget.style.color = palette.dim;
+                        e.currentTarget.style.color = colors.inkDim;
+                        e.currentTarget.style.borderColor = colors.border;
                       }}
                     >
                     {expandedSessionId === item.session_id ? "HIDE" : "DETAILS"}
-                    <FaChevronDown
+                    <ChevronDown
                       size={8}
+                      strokeWidth={2}
                       style={{
                         transform: expandedSessionId === item.session_id ? "rotate(180deg)" : "rotate(0deg)",
                         transition: "transform 0.2s",
@@ -509,13 +353,13 @@ export function SessionHistory({
                   <div
                       style={{
                       padding: "10px 12px 12px",
-                      borderTop: `1px solid ${palette.borderSubtle}`,
+                      borderTop: `1.5px solid ${colors.borderSubtle}`,
                       display: "grid",
                       gap: "6px",
                       }}
                   >
                       {(sessionEvents[item.session_id] || []).length === 0 ? (
-                        <div style={{ color: palette.muted, fontSize: "10px", fontFamily: palette.mono }}>
+                        <div style={{ color: colors.inkFaint, fontSize: "10px", fontFamily: fonts.mono }}>
                           No lifecycle events found.
                         </div>
                       ) : (
@@ -527,16 +371,16 @@ export function SessionHistory({
                               justifyContent: "space-between",
                               gap: "10px",
                               padding: "6px 8px",
-                              borderRadius: "6px",
-                              background: "rgba(2,6,23,0.4)",
-                              border: `1px solid ${palette.borderSubtle}`,
+                              borderRadius: `${radius.sm}px`,
+                              background: colors.bgElevated,
+                              border: `1.5px solid ${colors.borderSubtle}`,
                               fontSize: "10px",
-                              color: palette.dim,
-                              fontFamily: palette.mono,
+                              color: colors.inkDim,
+                              fontFamily: fonts.mono,
                               }}
                             >
                               <span>{event.status?.toUpperCase()}</span>
-                              <span style={{ color: palette.faint }}>{new Date(event.time * 1000).toLocaleTimeString()}</span>
+                              <span style={{ color: colors.inkFaint }}>{new Date(event.time * 1000).toLocaleTimeString()}</span>
                             </div>
                         ))
                       )}
@@ -552,38 +396,22 @@ export function SessionHistory({
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          style={{
-          marginTop: "10px",
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "6px",
-          padding: "8px 10px",
-          borderRadius: "8px",
-          border: `1px solid ${palette.border}`,
-          background: palette.card,
-          color: palette.dim,
-          fontSize: "10px",
-          fontFamily: palette.mono,
-          letterSpacing: "0.08em",
-          cursor: "pointer",
-          transition: "background 0.15s, color 0.15s",
-          }}
+          style={showAllButton}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(56,191,248,0.08)";
-            e.currentTarget.style.color = palette.accent;
+            e.currentTarget.style.color = colors.ink;
+            e.currentTarget.style.borderColor = colors.borderStrong;
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = palette.card;
-            e.currentTarget.style.color = palette.dim;
+            e.currentTarget.style.color = colors.inkDim;
+            e.currentTarget.style.borderColor = colors.border;
           }}
         >
           {expanded
           ? "SHOW LESS"
           : `SHOW ALL ${history.length} SESSIONS`}
-          <FaChevronDown
+          <ChevronDown
             size={9}
+            strokeWidth={2}
             style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
           />
         </button>
@@ -593,3 +421,154 @@ export function SessionHistory({
     </section>
   );
 }
+
+const box = {
+  padding: "20px",
+  border: `1.5px solid ${colors.border}`,
+  borderRadius: `${radius.lg}px`,
+  background: colors.bgCard,
+};
+
+const title = {
+  margin: 0,
+  fontSize: "15px",
+  fontWeight: 700,
+  color: colors.ink,
+  fontFamily: fonts.display,
+};
+
+const headerIcon = {
+  width: "28px",
+  height: "28px",
+  borderRadius: `${radius.sm}px`,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: colors.brandDim,
+  border: `1.5px solid ${colors.brand}`,
+  color: colors.brand,
+};
+
+const countPill = {
+  fontSize: "10px",
+  color: colors.inkFaint,
+  fontFamily: fonts.mono,
+  fontWeight: 700,
+  border: `1.5px solid ${colors.borderSubtle}`,
+  borderRadius: `${radius.full}px`,
+  padding: "1px 8px",
+};
+
+const refreshButton = {
+  display: "flex",
+  alignItems: "center",
+  gap: "6px",
+  border: `1.5px solid ${colors.border}`,
+  background: "transparent",
+  color: colors.inkDim,
+  borderRadius: `${radius.full}px`,
+  padding: "5px 12px",
+  fontSize: "9px",
+  fontFamily: fonts.mono,
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  transition: "color 150ms ease, border-color 150ms ease",
+};
+
+const statTile = {
+  display: "flex",
+  alignItems: "center",
+  gap: "12px",
+  padding: "12px",
+  borderRadius: `${radius.md}px`,
+  background: colors.bgInset,
+  border: `1.5px solid ${colors.border}`,
+  marginBottom: "14px",
+};
+
+const statIcon = {
+  flexShrink: 0,
+  width: "32px",
+  height: "32px",
+  borderRadius: `${radius.sm}px`,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: colors.brandDim,
+  border: `1.5px solid ${colors.brand}`,
+  color: colors.brand,
+};
+
+const statLabel = {
+  fontSize: "9.5px",
+  color: colors.inkFaint,
+  letterSpacing: "0.08em",
+  fontFamily: fonts.mono,
+  marginTop: "2px",
+  textTransform: "uppercase",
+};
+
+const errorBox = {
+  padding: "10px 12px",
+  borderRadius: `${radius.md}px`,
+  border: `1.5px solid ${colors.danger}`,
+  background: "rgba(255,107,107,0.08)",
+  color: colors.danger,
+  fontSize: "11.5px",
+  fontFamily: fonts.mono,
+};
+
+const emptyBox = {
+  padding: "26px",
+  textAlign: "center",
+  border: `1.5px dashed ${colors.borderSubtle}`,
+  borderRadius: `${radius.md}px`,
+  color: colors.inkFaint,
+  fontSize: "11px",
+  fontFamily: fonts.mono,
+};
+
+const metaLine = {
+  marginTop: "4px",
+  fontSize: "9px",
+  color: colors.inkFaint,
+  fontFamily: fonts.mono,
+};
+
+const detailsButton = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "5px",
+  marginTop: "8px",
+  border: `1.5px solid ${colors.border}`,
+  background: "transparent",
+  color: colors.inkDim,
+  borderRadius: `${radius.full}px`,
+  padding: "4px 10px",
+  fontSize: "9px",
+  fontFamily: fonts.mono,
+  fontWeight: 700,
+  letterSpacing: "0.04em",
+  cursor: "pointer",
+  transition: "color 150ms ease, border-color 150ms ease",
+};
+
+const showAllButton = {
+  marginTop: "10px",
+  width: "100%",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "6px",
+  padding: "8px 10px",
+  borderRadius: `${radius.full}px`,
+  border: `1.5px solid ${colors.border}`,
+  background: "transparent",
+  color: colors.inkDim,
+  fontSize: "10px",
+  fontFamily: fonts.mono,
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  cursor: "pointer",
+  transition: "color 150ms ease, border-color 150ms ease",
+};

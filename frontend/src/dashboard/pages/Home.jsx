@@ -21,6 +21,16 @@ import { EmptyState } from "../components/EmptyState.jsx";
 import { LoadingState } from "../components/LoadingState.jsx";
 import { colors, fonts } from "../theme.js";
 
+const EYEBROW_STYLE = {
+  fontSize: "9.5px",
+  color: colors.inkFaint,
+  letterSpacing: "0.15em",
+  textTransform: "uppercase",
+  fontFamily: fonts.mono,
+  fontWeight: 700,
+  marginBottom: "14px",
+};
+
 export function Home({
   games,
   hostStatus,
@@ -42,18 +52,7 @@ export function Home({
       <ActiveAlerts alerts={activeAlerts} />
 
       <section>
-        <div
-          style={{
-            fontSize: "9.5px",
-            color: colors.textMuted,
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
-            fontFamily: fonts.mono,
-            marginBottom: "14px",
-          }}
-        >
-          {hasActiveSession ? "Current Session" : "Start a New Session"}
-        </div>
+        <div style={EYEBROW_STYLE}>{hasActiveSession ? "Current Session" : "Start a New Session"}</div>
 
         {loading ? (
           <LoadingState />
@@ -78,18 +77,7 @@ export function Home({
       </section>
 
       <section>
-        <div
-          style={{
-            fontSize: "9.5px",
-            color: colors.textMuted,
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
-            fontFamily: fonts.mono,
-            marginBottom: "14px",
-          }}
-        >
-          Quick Navigation
-        </div>
+        <div style={EYEBROW_STYLE}>Quick Navigation</div>
 
         {navCards.length === 0 ? (
           <EmptyState label="No pages available" />

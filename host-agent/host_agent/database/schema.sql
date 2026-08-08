@@ -43,3 +43,11 @@ VALUES (
     0,
     0
 );
+
+CREATE TABLE IF NOT EXISTS recovery_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    time REAL NOT NULL,
+    service TEXT NOT NULL,
+    event TEXT NOT NULL,
+    details TEXT
+);

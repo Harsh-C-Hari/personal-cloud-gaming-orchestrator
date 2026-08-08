@@ -6,8 +6,8 @@
  * from pages/Dashboard.jsx, generalized so every page can compose with it.
  */
 
-import { FaSyncAlt } from "react-icons/fa";
-import { colors, fonts } from "../theme.js";
+import { RefreshCw } from "lucide-react";
+import { colors, fonts, radius } from "../theme.js";
 
 export function SectionCard({ title, count, onRefresh, children, bare = false }) {
   return (
@@ -16,8 +16,10 @@ export function SectionCard({ title, count, onRefresh, children, bare = false })
         bare
           ? {}
           : {
-              ...{ background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: "10px" },
-              padding: "20px 22px",
+              background: colors.bgCard,
+              border: `1.5px solid ${colors.border}`,
+              borderRadius: `${radius.lg}px`,
+              padding: "20px",
             }
       }
     >
@@ -27,31 +29,37 @@ export function SectionCard({ title, count, onRefresh, children, bare = false })
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+            flexWrap: "wrap",
+            rowGap: "8px",
+            columnGap: "12px",
             marginBottom: "16px",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
+            <h2
               style={{
-                fontSize: "9.5px",
-                color: colors.textMuted,
-                letterSpacing: "0.15em",
-                textTransform: "uppercase",
-                fontFamily: fonts.mono,
+                margin: 0,
+                fontSize: "18px",
+                fontWeight: 700,
+                color: colors.ink,
+                fontFamily: fonts.display,
+                overflowWrap: "break-word",
               }}
             >
               {title}
-            </span>
+            </h2>
 
             {count != null && (
               <span
                 style={{
-                  fontSize: "9px",
-                  color: colors.textGhost,
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  color: colors.inkFaint,
                   fontFamily: fonts.mono,
-                  padding: "1px 7px",
-                  border: `1px solid ${colors.borderSubtle}`,
-                  borderRadius: "10px",
+                  padding: "1px 8px",
+                  border: `1.5px solid ${colors.borderSubtle}`,
+                  borderRadius: `${radius.full}px`,
+                  flexShrink: 0,
                 }}
               >
                 {count}
@@ -66,29 +74,32 @@ export function SectionCard({ title, count, onRefresh, children, bare = false })
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "6px",
+                minHeight: "32px",
+                flexShrink: 0,
                 background: "transparent",
-                border: `1px solid ${colors.borderSubtle}`,
-                borderRadius: "4px",
-                color: colors.textGhost,
-                fontSize: "9px",
-                fontFamily: fonts.mono,
+                border: `1.5px solid ${colors.borderSubtle}`,
+                borderRadius: `${radius.full}px`,
+                color: colors.inkFaint,
+                fontSize: "10px",
+                fontWeight: 700,
+                fontFamily: fonts.body,
                 letterSpacing: "0.1em",
-                padding: "3px 10px",
+                padding: "4px 12px",
                 cursor: "pointer",
                 textTransform: "uppercase",
-                transition: "color 0.2s, border-color 0.2s",
+                transition: "color 150ms ease, border-color 150ms ease",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = colors.textMuted;
-                e.currentTarget.style.borderColor = colors.textGhost;
+                e.currentTarget.style.color = colors.ink;
+                e.currentTarget.style.borderColor = colors.borderStrong;
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = colors.textGhost;
+                e.currentTarget.style.color = colors.inkFaint;
                 e.currentTarget.style.borderColor = colors.borderSubtle;
               }}
             >
-              <FaSyncAlt size={8} />
-              REFRESH
+              <RefreshCw size={10} strokeWidth={2} />
+              Refresh
             </button>
           )}
         </div>

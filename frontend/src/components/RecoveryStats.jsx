@@ -3,30 +3,14 @@
  *
  * Same props (recoveryStats, showTailscaleRecoveryDetails/
  * showTailscaleFailureDetails + their setters) and same data fields —
- * only the presentation was reworked: icon-badged stat tiles instead of
- * plain boxes, success/failure color-coding, and cleaner detail toggles.
+ * only the presentation was reworked to the "Chalkboard Neo-Brutalist"
+ * system: flat tokens from theme.js instead of a local cyan-glow palette,
+ * lucide-react icons instead of react-icons/fa, and the shared
+ * `badge-pulse` global keyframe (from App.jsx) instead of a local one.
  */
 
-import {
-  FaShieldAlt,
-  FaBolt,
-  FaSatelliteDish,
-  FaChevronDown,
-  FaExclamationTriangle,
-} from "react-icons/fa";
-
-const palette = {
-  border: "rgba(148,163,184,0.18)",
-  borderSubtle: "#1c2130",
-  card: "rgba(0, 0, 0, 0.45)",
-  text: "#e2e8f0",
-  dim: "#94a3b8",
-  faint: "#64748b",
-  success: "#10d98a",
-  danger: "#f43f5e",
-  accent: "#38bdf8",
-  mono: "'JetBrains Mono', monospace",
-};
+import { ShieldAlert, Zap, Satellite, ChevronDown, AlertTriangle } from "lucide-react";
+import { colors, fonts, radius } from "../dashboard/theme.js";
 
 function StatTile({ icon, label: labelText, value: valueNum, tone }) {
   return (
@@ -36,12 +20,12 @@ function StatTile({ icon, label: labelText, value: valueNum, tone }) {
           flexShrink: 0,
           width: "32px",
           height: "32px",
-          borderRadius: "8px",
+          borderRadius: `${radius.sm}px`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           background: `${tone}1a`,
-          border: `1px solid ${tone}40`,
+          border: `1.5px solid ${tone}40`,
           color: tone,
           fontSize: "13px",
         }}
@@ -61,33 +45,18 @@ function DetailToggle({ open, onClick, label }) {
     <button
       type="button"
       onClick={onClick}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "6px",
-        width: "100%",
-        marginTop: "8px",
-        border: `1px solid ${palette.border}`,
-        background: "rgba(0, 0, 0, 0.45)",
-        color: palette.dim,
-        borderRadius: "6px",
-        padding: "7px",
-        fontSize: "9px",
-        fontFamily: palette.mono,
-        letterSpacing: "0.08em",
-        cursor: "pointer",
-        transition: "background 0.15s, color 0.15s",
-      }}
+      style={detailToggle}
       onMouseEnter={(e) => {
-        e.currentTarget.style.color = palette.accent;
+        e.currentTarget.style.color = colors.ink;
+        e.currentTarget.style.borderColor = colors.borderStrong;
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.color = palette.dim;
+        e.currentTarget.style.color = colors.inkDim;
+        e.currentTarget.style.borderColor = colors.border;
       }}
     >
       {label}
-      <FaChevronDown size={9} style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
+      <ChevronDown size={9} strokeWidth={2} style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
     </button>
   );
 }
@@ -100,66 +69,37 @@ export function RecoveryStats({
   setShowTailscaleFailureDetails,
 }) {
   return (
-    <section
-      style={{
-        padding: "16px",
-        border: `1px solid ${palette.border}`,
-        borderRadius: "10px",
-        background: "rgba(0, 0, 0, 0.77)",
-      }}
-    >
+    <section style={box}>
       <div style={{ display: "flex", alignItems: "center", gap: "9px", marginBottom: "16px" }}>
-        <div
-          style={{
-            width: "28px",
-            height: "28px",
-            borderRadius: "7px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "rgba(56,189,248,0.12)",
-            border: "1px solid rgba(56,189,248,0.3)",
-            color: palette.accent,
-          }}
-        >
-          <FaShieldAlt size={12} />
+        <div style={headerIcon}>
+          <ShieldAlert size={13} strokeWidth={2} />
         </div>
-        <h2
-          style={{
-            margin: 0,
-            fontSize: "13px",
-            letterSpacing: "0.12em",
-            color: palette.text,
-            fontFamily: palette.mono,
-          }}
-        >
-          RECOVERY SYSTEM
-        </h2>
+        <h2 style={title}>Recovery System</h2>
       </div>
 
       {!recoveryStats ? (
-        <div style={{ display: "flex", alignItems: "center", gap: "9px", color: palette.dim, fontFamily: palette.mono, fontSize: "11.5px" }}>
-          <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: palette.accent, animation: "rs-pulse 1.4s ease-in-out infinite" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: "9px", color: colors.inkDim, fontFamily: fonts.mono, fontSize: "11.5px" }}>
+          <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: colors.brand, animation: "badge-pulse 1.6s ease-in-out infinite" }} />
           Loading recovery statistics...
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           {/* Sunshine */}
           <div style={sectionLabel}>
-            <FaBolt size={9} /> Sunshine
+            <Zap size={9} strokeWidth={2} /> Sunshine
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-            <StatTile icon={<FaBolt size={13} />} label="Sunshine Recoveries" value={recoveryStats?.sunshine_restarts ?? 0} tone={palette.success} />
-            <StatTile icon={<FaExclamationTriangle size={13} />} label="Sunshine Failures" value={recoveryStats?.sunshine_failures ?? 0} tone={palette.danger} />
+          <div className="pcgo-2col" style={{ gap: "10px" }}>
+            <StatTile icon={<Zap size={13} strokeWidth={2} />} label="Sunshine Recoveries" value={recoveryStats?.sunshine_restarts ?? 0} tone={colors.success} />
+            <StatTile icon={<AlertTriangle size={13} strokeWidth={2} />} label="Sunshine Failures" value={recoveryStats?.sunshine_failures ?? 0} tone={colors.danger} />
           </div>
 
           {/* Tailscale */}
           <div style={{ ...sectionLabel, marginTop: "6px" }}>
-            <FaSatelliteDish size={9} /> Tailscale
+            <Satellite size={9} strokeWidth={2} /> Tailscale
           </div>
 
           <div style={card}>
-            <StatTile icon={<FaSatelliteDish size={13} />} label="Tailscale Recoveries" value={recoveryStats?.tailscale_recoveries ?? 0} tone={palette.success} />
+            <StatTile icon={<Satellite size={13} strokeWidth={2} />} label="Tailscale Recoveries" value={recoveryStats?.tailscale_recoveries ?? 0} tone={colors.success} />
             <DetailToggle
               open={showTailscaleRecoveryDetails}
               onClick={() => setShowTailscaleRecoveryDetails(!showTailscaleRecoveryDetails)}
@@ -176,7 +116,7 @@ export function RecoveryStats({
           </div>
 
           <div style={card}>
-            <StatTile icon={<FaExclamationTriangle size={13} />} label="Tailscale Failures" value={recoveryStats?.tailscale_failures ?? 0} tone={palette.danger} />
+            <StatTile icon={<AlertTriangle size={13} strokeWidth={2} />} label="Tailscale Failures" value={recoveryStats?.tailscale_failures ?? 0} tone={colors.danger} />
             <DetailToggle
               open={showTailscaleFailureDetails}
               onClick={() => setShowTailscaleFailureDetails(!showTailscaleFailureDetails)}
@@ -194,42 +134,67 @@ export function RecoveryStats({
           </div>
         </div>
       )}
-
-      <style>{`@keyframes rs-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }`}</style>
     </section>
   );
 }
 
 function SubStat({ label, value }) {
   return (
-    <div
-      style={{
-        padding: "8px 10px",
-        borderRadius: "6px",
-        background: "rgba(0, 0, 0, 0.4)",
-        border: `1px solid ${palette.borderSubtle}`,
-      }}
-    >
-      <div style={{ fontSize: "15px", fontWeight: 700, color: palette.text, fontFamily: palette.mono }}>{value}</div>
-      <div style={{ fontSize: "8.5px", color: palette.faint, letterSpacing: "0.08em", fontFamily: palette.mono, marginTop: "2px" }}>
+    <div style={subStatCard}>
+      <div style={{ fontSize: "15px", fontWeight: 700, color: colors.ink, fontFamily: fonts.mono }}>{value}</div>
+      <div style={{ fontSize: "8.5px", color: colors.inkFaint, letterSpacing: "0.08em", fontFamily: fonts.mono, marginTop: "2px" }}>
         {label.toUpperCase()}
       </div>
     </div>
   );
 }
 
+const box = {
+  padding: "20px",
+  border: `1.5px solid ${colors.border}`,
+  borderRadius: `${radius.lg}px`,
+  background: colors.bgCard,
+};
+
+const title = {
+  margin: 0,
+  fontSize: "15px",
+  fontWeight: 700,
+  color: colors.ink,
+  fontFamily: fonts.display,
+};
+
+const headerIcon = {
+  width: "28px",
+  height: "28px",
+  borderRadius: `${radius.sm}px`,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: colors.brandDim,
+  border: `1.5px solid ${colors.brand}`,
+  color: colors.brand,
+};
+
 const card = {
   padding: "12px",
-  borderRadius: "8px",
-  background: palette.card,
-  border: `1px solid ${palette.borderSubtle}`,
+  borderRadius: `${radius.md}px`,
+  background: colors.bgInset,
+  border: `1.5px solid ${colors.border}`,
+};
+
+const subStatCard = {
+  padding: "8px 10px",
+  borderRadius: `${radius.sm}px`,
+  background: colors.bgElevated,
+  border: `1.5px solid ${colors.borderSubtle}`,
 };
 
 const labelStyle = {
   fontSize: "9.5px",
-  color: palette.faint,
+  color: colors.inkFaint,
   letterSpacing: "0.08em",
-  fontFamily: palette.mono,
+  fontFamily: fonts.mono,
   marginTop: "2px",
   textTransform: "uppercase",
 };
@@ -237,7 +202,7 @@ const labelStyle = {
 const valueStyle = {
   fontSize: "19px",
   fontWeight: 700,
-  fontFamily: palette.mono,
+  fontFamily: fonts.mono,
   lineHeight: 1.1,
 };
 
@@ -246,10 +211,11 @@ const sectionLabel = {
   alignItems: "center",
   gap: "7px",
   fontSize: "9px",
-  color: palette.faint,
+  color: colors.inkFaint,
   letterSpacing: "0.13em",
   textTransform: "uppercase",
-  fontFamily: palette.mono,
+  fontFamily: fonts.mono,
+  fontWeight: 700,
 };
 
 const subGrid = {
@@ -257,4 +223,24 @@ const subGrid = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))",
   gap: "8px",
+};
+
+const detailToggle = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "6px",
+  width: "100%",
+  marginTop: "8px",
+  border: `1.5px solid ${colors.border}`,
+  background: "transparent",
+  color: colors.inkDim,
+  borderRadius: `${radius.full}px`,
+  padding: "7px",
+  fontSize: "9px",
+  fontFamily: fonts.mono,
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  cursor: "pointer",
+  transition: "color 150ms ease, border-color 150ms ease",
 };

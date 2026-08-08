@@ -1,12 +1,13 @@
 /**
  * dashboard/components/ActiveAlerts.jsx
  *
- * Extracted from the old pages/Dashboard.jsx monolith. Same markup/style —
- * takes the alert strings produced by dashboard/utils/alerts.buildAlerts.
+ * Extracted from the old pages/Dashboard.jsx monolith. Same markup/data
+ * contract — takes the alert strings produced by dashboard/utils/alerts.
+ * buildAlerts.
  */
 
-import { FaExclamationTriangle } from "react-icons/fa";
-import { colors, fonts } from "../theme.js";
+import { TriangleAlert } from "lucide-react";
+import { colors, fonts, radius } from "../theme.js";
 
 export function ActiveAlerts({ alerts }) {
   if (!alerts || alerts.length === 0) return null;
@@ -14,10 +15,10 @@ export function ActiveAlerts({ alerts }) {
   return (
     <section
       style={{
-        padding: "12px",
-        borderRadius: "10px",
-        background: `${colors.danger}1f`,
-        border: `1px solid ${colors.danger}40`,
+        padding: "14px 16px",
+        borderRadius: `${radius.lg}px`,
+        background: "rgba(255,107,107,0.10)",
+        border: `1.5px solid rgba(255,107,107,0.3)`,
       }}
     >
       <div
@@ -30,11 +31,12 @@ export function ActiveAlerts({ alerts }) {
           fontSize: "11px",
           fontWeight: 700,
           letterSpacing: "0.1em",
-          fontFamily: fonts.mono,
+          textTransform: "uppercase",
+          fontFamily: fonts.body,
         }}
       >
-        <FaExclamationTriangle size={11} />
-        ACTIVE ALERTS
+        <TriangleAlert size={13} strokeWidth={2} />
+        Active Alerts
       </div>
 
       <div style={{ display: "grid", gap: "6px" }}>
@@ -45,12 +47,13 @@ export function ActiveAlerts({ alerts }) {
               display: "flex",
               alignItems: "center",
               gap: "7px",
-              color: "#fca5a5",
-              fontSize: "11px",
-              fontFamily: fonts.mono,
+              color: colors.ink,
+              fontSize: "12px",
+              fontWeight: 500,
+              fontFamily: fonts.body,
             }}
           >
-            <FaExclamationTriangle size={9} style={{ flexShrink: 0, color: colors.danger }} />
+            <TriangleAlert size={11} strokeWidth={2} style={{ flexShrink: 0, color: colors.danger }} />
             {alert}
           </div>
         ))}

@@ -22,7 +22,7 @@ Tracks:
 Stored in:
 
 ```text
-data/recovery_events.json
+data/pcgo.db (Database)
 ```
 
 ---

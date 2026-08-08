@@ -18,6 +18,8 @@ import {
 } from "../api/client.js";
 import { LiveCountdown } from "./LiveCountdown.jsx";
 import { StatusBadge } from "./StatusBadge.jsx";
+import { Card, Button } from "./ui/primitives.jsx";
+import { colors, fonts, radius } from "../dashboard/theme.js";
 
 /** Convert snake_case game_id → "Title Case" for display */
 function formatGameLabel(gameId = "") {
@@ -44,6 +46,16 @@ function formatPlayedTime(seconds) {
 }
 
 const ACTIVE_STATUSES = new Set(["starting", "running", "stopping", "cleaning"]);
+
+const microLabel = {
+  fontSize: "9.5px",
+  color: colors.inkFaint,
+  letterSpacing: "0.13em",
+  textTransform: "uppercase",
+  fontFamily: fonts.mono,
+  fontWeight: 700,
+};
+
 /**
  * @param {{
  *   session   : object   enriched session from useSessions
@@ -150,42 +162,42 @@ export function SessionCard({ session, onRefresh }) {
       ? nowSeconds - session.started_at
       : session.played_seconds;
 
+  const restartDisabled =
+      restarting ||
+      stopping ||
+      session.status === "stopping" ||
+      session.status === "cleaning" ||
+      session.restart_in_progress ||
+      session.status !== "running" ||
+      session.restart_cooldown_remaining > 0;
+
+  const restartActive = session.status === "running" && !restartDisabled;
+
+  const stopDisabled =
+      stopping ||
+      restarting ||
+      session.status === "stopping" ||
+      session.status === "cleaning";
+
   return (
-    <div
+    <Card
       style={{
-        background:    "#000000",
-        border:        `1px solid ${isActive ? "rgba(16,217,138,0.2)" : "#1c2130"}`,
-        borderRadius:  "8px",
-        padding:       "18px 20px 16px",
-        display:       "flex",
+        padding: "18px 20px 16px",
+        display: "flex",
         flexDirection: "column",
-        gap:           "14px",
-        position:      "relative",
-        overflow:      "hidden",
-        boxShadow:     isActive ? "0 0 32px rgba(16,217,138,0.06)" : "none",
-        transition:    "border-color 0.4s, box-shadow 0.4s",
-        animation:     "card-in 0.25s ease forwards",
+        gap: "14px",
+        border: `1.5px solid ${isActive ? colors.accentGreen : colors.border}`,
+        transition: "border-color 150ms ease",
+        animation: "card-in 180ms ease forwards",
       }}
     >
-      {/* Active glow strip */}
-      {isActive && (
-        <div
-          style={{
-            position:  "absolute",
-            top:       0, left: 0, right: 0,
-            height:    "2px",
-            background:"linear-gradient(90deg, transparent, rgba(16,217,138,0.6), transparent)",
-          }}
-        />
-      )}
-
       {/* Row 1 — Game name + status */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "10px" }}>
         <div>
-          <div style={{ fontSize: "14px", fontWeight: 700, color: "#e2e8f0", marginBottom: "3px" }}>
+          <div style={{ fontFamily: fonts.display, fontSize: "15px", fontWeight: 700, color: colors.ink, marginBottom: "3px" }}>
             {formatGameLabel(session.game_id)}
           </div>
-          <div style={{ fontSize: "11px", color: "#475569", fontFamily: "'JetBrains Mono', monospace" }}>
+          <div style={{ fontSize: "11px", color: colors.inkFaint, fontFamily: fonts.mono }}>
             {session.user_id}
           </div>
         </div>
@@ -205,21 +217,13 @@ export function SessionCard({ session, onRefresh }) {
           justifyContent: "space-between",
           alignItems:     "flex-end",
           padding:        "12px 14px",
-          background:     "#000000",
-          borderRadius:   "5px",
-          border:         "1px solid #1c2130",
+          background:     colors.bgInset,
+          borderRadius:   `${radius.md}px`,
+          border:         `1.5px solid ${colors.border}`,
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-          <span
-            style={{
-              fontSize:      "9px",
-              color:         "#2d3748",
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              fontFamily:    "'JetBrains Mono', monospace",
-            }}
-          >
+          <span style={microLabel}>
             {session.skip_timer ? "NO TIMER" : "REMAINING"}
           </span>
 
@@ -247,8 +251,8 @@ export function SessionCard({ session, onRefresh }) {
               style={{
                 marginTop: "6px",
                 fontSize: "10px",
-                color: "#94a3b8",
-                fontFamily: "'JetBrains Mono', monospace",
+                color: colors.inkDim,
+                fontFamily: fonts.mono,
                 letterSpacing: "0.08em",
               }}
             >
@@ -260,9 +264,9 @@ export function SessionCard({ session, onRefresh }) {
             <span
               style={{
                 fontSize: "9px",
-                color: "#f43f5e",
+                color: colors.danger,
                 letterSpacing: "0.08em",
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: fonts.mono,
                 marginTop: "2px",
               }}
             >
@@ -274,9 +278,9 @@ export function SessionCard({ session, onRefresh }) {
             <span
               style={{
                 fontSize:      "9px",
-                color:         "#f59e0b",
+                color:         colors.warning,
                 letterSpacing: "0.1em",
-                fontFamily:    "'JetBrains Mono', monospace",
+                fontFamily:    fonts.mono,
                 marginTop:     "2px",
               }}
             >
@@ -287,10 +291,10 @@ export function SessionCard({ session, onRefresh }) {
 
         {/* Session ID */}
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: "9px", color: "#2d3748", letterSpacing: "0.12em", fontFamily: "'JetBrains Mono', monospace", marginBottom: "5px" }}>
+          <div style={{ ...microLabel, marginBottom: "5px" }}>
             SESSION ID
           </div>
-          <code style={{ fontSize: "11px", color: "#374151", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em" }}>
+          <code style={{ fontSize: "11px", color: colors.inkFaint, fontFamily: fonts.mono, letterSpacing: "0.06em" }}>
             {session.session_id}
           </code>
         </div>
@@ -300,7 +304,7 @@ export function SessionCard({ session, onRefresh }) {
       {!["completed", "failed", "stopped"].includes(session.status) && (
         <div>
           {stopError && (
-            <div style={{ marginBottom: "8px", fontSize: "11px", color: "#f43f5e", fontFamily: "'JetBrains Mono', monospace" }}>
+            <div style={{ marginBottom: "8px", fontSize: "11px", color: colors.danger, fontFamily: fonts.mono }}>
               ✕ {stopError}
             </div>
           )}
@@ -309,14 +313,10 @@ export function SessionCard({ session, onRefresh }) {
               restartError && (
                   <div
                       style={{
-                          marginBottom:
-                              "8px",
-                          fontSize:
-                              "11px",
-                          color:
-                              "#f59e0b",
-                          fontFamily:
-                              "'JetBrains Mono', monospace",
+                          marginBottom: "8px",
+                          fontSize: "11px",
+                          color: colors.warning,
+                          fontFamily: fonts.mono,
                       }}
                   >
                       ⚠ {restartError}
@@ -325,7 +325,7 @@ export function SessionCard({ session, onRefresh }) {
           }
 
           {session.status === "cleaning" ? (
-            <div style={{ fontSize: "10px", color: "#94a3b8", fontFamily: "'JetBrains Mono', monospace", textAlign: "center", letterSpacing: "0.13em" }}>
+            <div style={{ fontSize: "10px", color: colors.inkDim, fontFamily: fonts.mono, textAlign: "center", letterSpacing: "0.13em" }}>
               CLEANING SAVES…
             </div>
           ) : (
@@ -335,173 +335,39 @@ export function SessionCard({ session, onRefresh }) {
                     gap: "10px",
                 }}
             >
-
-                <button
+                <Button
+                    variant="secondary"
                     onClick={handleRestart}
-
-                    disabled={
-                        restarting ||
-                        stopping ||
-                        session.status === "stopping" ||
-                        session.status === "cleaning" ||
-                        session.restart_in_progress ||
-                        session.status !== "running" ||
-                        session.restart_cooldown_remaining > 0
-                    }
-
+                    disabled={restartDisabled}
                     style={{
                         flex: 1,
+                        minWidth: 0,
                         padding: "9px",
-
-                        background:
-                            session.status === "running"
-                                ? "rgba(245,158,11,0.07)"
-                                : "transparent",
-
-                        border:
-                            `1px solid ${
-                                session.status === "running"
-                                    ? "rgba(245,158,11,0.35)"
-                                    : "#1c2130"
-                            }`,
-
-                        borderRadius: "5px",
-
-                        color:
-                            session.status === "running"
-                                ? "#f59e0b"
-                                : "#64748b",
-
+                        fontFamily: fonts.mono,
                         fontSize: "10px",
-
-                        fontFamily:
-                            "'JetBrains Mono', monospace",
-
-                        fontWeight: 700,
-
                         letterSpacing: "0.13em",
-
-                        textTransform: "uppercase",
-
-                        cursor:
-                            session.status === "running" &&
-                            !restarting &&
-                            !stopping
-                                ? "pointer"
-                                : "not-allowed",
-
-                        transition:
-                            "background 0.2s",
-
-                        textShadow:
-                            session.status === "running"
-                                ? "0 0 10px rgba(245,158,11,0.35)"
-                                : "none",
-                    }}
-
-                    onMouseEnter={(e) => {
-
-                        if (
-                            session.status === "running" &&
-                            !restarting &&
-                            !stopping
-                        ) {
-                            e.currentTarget.style.background =
-                                "rgba(245,158,11,0.1)";
-                        }
-                    }}
-
-                    onMouseLeave={(e) => {
-
-                        e.currentTarget.style.background =
-                            session.status === "running"
-                                ? "rgba(245,158,11,0.07)"
-                                : "transparent";
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        borderColor: restartActive ? colors.warning : colors.border,
+                        color: restartActive ? colors.warning : colors.inkFaint,
                     }}
                 >
                   {restartButtonText}
-                </button>
+                </Button>
 
-
-                <button
+                <Button
+                    variant="danger"
                     onClick={handleStop}
-
-                    disabled={
-                        stopping ||
-                        restarting ||
-                        session.status === "stopping" ||
-                        session.status === "cleaning"
-                    }
-
+                    disabled={stopDisabled}
                     style={{
                         flex: 1,
-
+                        minWidth: 0,
                         padding: "9px",
-
-                        background:
-                            session.status === "running"
-                                ? "rgba(244,63,94,0.07)"
-                                : "transparent",
-
-                        border:
-                            `1px solid ${
-                                session.status === "running"
-                                    ? "rgba(244,63,94,0.35)"
-                                    : "#1c2130"
-                            }`,
-
-                        borderRadius: "5px",
-
-                        color:
-                            session.status === "running"
-                                ? "#f43f5e"
-                                : "#64748b",
-
+                        fontFamily: fonts.mono,
                         fontSize: "10px",
-
-                        fontFamily:
-                            "'JetBrains Mono', monospace",
-
-                        fontWeight: 700,
-
                         letterSpacing: "0.13em",
-
-                        textTransform: "uppercase",
-
-                        cursor:
-                            session.status === "running" &&
-                            !stopping &&
-                            !restarting
-                                ? "pointer"
-                                : "not-allowed",
-
-                        transition:
-                            "background 0.2s",
-
-                        textShadow:
-                            session.status === "running"
-                                ? "0 0 10px rgba(244,63,94,0.35)"
-                                : "none",
-                    }}
-
-                    onMouseEnter={(e) => {
-
-                        if (
-                            session.status === "running" &&
-                            !stopping &&
-                            !restarting
-                        ) {
-                            e.currentTarget.style.background =
-                                "rgba(244,60,60,0.1)";
-                        }
-                    }}
-
-                    onMouseLeave={(e) => {
-
-                        e.currentTarget.style.background =
-                            session.status === "running"
-                                ? "rgba(244,63,94,0.07)"
-                                : "transparent";
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
                     }}
                 >
                     {
@@ -510,19 +376,11 @@ export function SessionCard({ session, onRefresh }) {
                             ? "STOPPING..."
                             : "STOP SESSION"
                     }
-                </button>
-
+                </Button>
             </div>
           )}
         </div>
       )}
-
-      <style>{`
-        @keyframes card-in {
-          from { opacity: 0; transform: translateY(6px); }
-          to   { opacity: 1; transform: translateY(0);   }
-        }
-      `}</style>
-    </div>
+    </Card>
   );
 }

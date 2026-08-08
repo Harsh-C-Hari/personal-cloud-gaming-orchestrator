@@ -6,37 +6,26 @@
  * reworked to match the visual language already used by RecoveryStats /
  * SessionHistory / SessionAnalytics:
  *   - Icon-badged section header.
- *   - A "Total Streams" stat tile instead of a plain heading.
+ *   - A "Total Streams" count pill instead of a plain heading.
  *   - Each stream entry is now a bordered, left-accented card with
  *     icon-labeled rows and a pill-style duration badge.
  */
 
 import { useState } from "react";
 import {
-  FaSatelliteDish,
-  FaDesktop,
-  FaClock,
-  FaFilm,
-} from "react-icons/fa";
-
-const palette = {
-  border: "rgba(148,163,184,0.18)",
-  borderSubtle: "#1c2130",
-  card: "rgba(0, 0, 0, 0.45)",
-  text: "#e2e8f0",
-  dim: "#94a3b8",
-  faint: "#64748b",
-  muted: "#475569",
-  accent: "#38bdf8",
-  mono: "'JetBrains Mono', monospace",
-};
+  Satellite,
+  Monitor,
+  Clock,
+  Film,
+} from "lucide-react";
+import { colors, fonts, radius } from "../dashboard/theme.js";
 
 export function SunshineStreamHistory({
     streams,
     loading,
 }) {
     const [showAllStreams, setShowAllStreams] = useState(false);
-    
+
     function formatDuration(seconds) {
         if (seconds == null) return "--";
 
@@ -61,14 +50,14 @@ export function SunshineStreamHistory({
         showAllStreams
             ? streams
             : streams.slice(0, 3);
-    
+
     return (
         <section
             style={{
                 padding: "16px",
-                border: `1px solid ${palette.border}`,
-                borderRadius: "10px",
-                background: "rgba(0, 0, 0, 0.74)",
+                border: `1.5px solid ${colors.border}`,
+                borderRadius: `${radius.lg}px`,
+                background: colors.bgCard,
             }}
         >
             {/* ── Header ─────────────────────────────────────────────── */}
@@ -77,23 +66,23 @@ export function SunshineStreamHistory({
                     style={{
                         width: "28px",
                         height: "28px",
-                        borderRadius: "7px",
+                        borderRadius: `${radius.sm}px`,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        background: "rgba(56,189,248,0.12)",
-                        border: "1px solid rgba(56,189,248,0.3)",
-                        color: palette.accent,
+                        background: colors.brandDim,
+                        border: `1.5px solid color-mix(in srgb, ${colors.brand} 30%, transparent)`,
+                        color: colors.brand,
                     }}
                 >
-                    <FaSatelliteDish size={12} />
+                    <Satellite size={13} strokeWidth={2} />
                 </div>
                 <h2 style={{
                     margin: 0,
                     fontSize: "13px",
                     letterSpacing: "0.12em",
-                    color: palette.text,
-                    fontFamily: palette.mono,
+                    color: colors.ink,
+                    fontFamily: fonts.mono,
                 }}
                 >
                     SUNSHINE STREAM HISTORY
@@ -103,9 +92,9 @@ export function SunshineStreamHistory({
                     <span
                         style={{
                             fontSize: "9px",
-                            color: palette.faint,
-                            fontFamily: palette.mono,
-                            border: `1px solid ${palette.borderSubtle}`,
+                            color: colors.inkFaint,
+                            fontFamily: fonts.mono,
+                            border: `1.5px solid ${colors.borderSubtle}`,
                             borderRadius: "10px",
                             padding: "1px 8px",
                         }}
@@ -117,13 +106,13 @@ export function SunshineStreamHistory({
 
             {loading
               ? (
-                <div style={{ display: "flex", alignItems: "center", gap: "9px", color: palette.dim, fontFamily: palette.mono, fontSize: "11.5px" }}>
-                    <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: palette.accent, animation: "ssh-pulse 1.4s ease-in-out infinite" }} />
+                <div style={{ display: "flex", alignItems: "center", gap: "9px", color: colors.inkDim, fontFamily: fonts.mono, fontSize: "11.5px" }}>
+                    <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: colors.brand, animation: "ssh-pulse 1.6s ease-in-out infinite" }} />
                     Loading stream history...
                 </div>
               )
               : (
-            
+
                 <div>
                 {!streams?.length
                     ? (
@@ -131,31 +120,33 @@ export function SunshineStreamHistory({
                             style={{
                                 padding: "26px",
                                 textAlign: "center",
-                                border: `1px dashed ${palette.borderSubtle}`,
-                                borderRadius: "8px",
-                                color: palette.muted,
+                                border: `1.5px dashed ${colors.borderSubtle}`,
+                                borderRadius: `${radius.md}px`,
+                                color: colors.inkFaint,
                                 fontSize: "11px",
-                                fontFamily: palette.mono,
+                                fontFamily: fonts.mono,
                             }}
                         >
                             No stream history available.
                         </div>
                     )
                     : (
-                    
+
                         <div style={{ display: "grid", gap: "10px" }}>
                             {displayedStreams.map((stream, index) => (
                                 <div
                                     key={index}
                                     style={{
-                                        borderRadius: "8px",
-                                        background: palette.card,
-                                        border: `1px solid ${palette.borderSubtle}`,
-                                        borderLeft: `2px solid ${palette.accent}`,
+                                        borderRadius: `${radius.md}px`,
+                                        background: colors.bgInset,
+                                        border: `1.5px solid ${colors.borderSubtle}`,
+                                        borderLeft: `2px solid ${colors.brand}`,
                                         padding: "12px",
                                         display: "flex",
                                         justifyContent: "space-between",
                                         alignItems: "center",
+                                        flexWrap: "wrap",
+                                        rowGap: "8px",
                                         gap: "10px",
                                     }}
                                 >
@@ -165,12 +156,12 @@ export function SunshineStreamHistory({
                                                 display: "flex",
                                                 alignItems: "center",
                                                 gap: "7px",
-                                                color: palette.text,
+                                                color: colors.ink,
                                                 fontSize: "12.5px",
                                                 fontWeight: 700,
                                             }}
                                         >
-                                            <FaFilm size={11} style={{ color: palette.accent, flexShrink: 0 }} />
+                                            <Film size={11} strokeWidth={2} style={{ color: colors.brand, flexShrink: 0 }} />
                                             {
                                                 (
                                                     stream.app_name ||
@@ -184,12 +175,12 @@ export function SunshineStreamHistory({
                                                 display: "flex",
                                                 alignItems: "center",
                                                 gap: "6px",
-                                                color: palette.dim,
+                                                color: colors.inkDim,
                                                 fontSize: "11px",
                                                 marginTop: "6px",
                                             }}
                                         >
-                                            <FaClock size={9} style={{ opacity: 0.7, flexShrink: 0 }} />
+                                            <Clock size={9} strokeWidth={2} style={{ opacity: 0.7, flexShrink: 0 }} />
                                             {
                                                 stream.started_at
                                                     ? new Date(
@@ -204,13 +195,13 @@ export function SunshineStreamHistory({
                                                 display: "flex",
                                                 alignItems: "center",
                                                 gap: "6px",
-                                                color: palette.faint,
+                                                color: colors.inkFaint,
                                                 fontSize: "9.5px",
                                                 marginTop: "6px",
-                                                fontFamily: palette.mono,
+                                                fontFamily: fonts.mono,
                                             }}
                                         >
-                                            <FaDesktop size={9} style={{ opacity: 0.7, flexShrink: 0 }} />
+                                            <Monitor size={9} strokeWidth={2} style={{ opacity: 0.7, flexShrink: 0 }} />
                                             {
                                                 stream.width && stream.height
                                                     ? `${stream.width}x${stream.height}`
@@ -231,14 +222,14 @@ export function SunshineStreamHistory({
                                         style={{
                                             flexShrink: 0,
                                             padding: "6px 12px",
-                                            borderRadius: "999px",
-                                            background: "rgba(56,189,248,0.12)",
-                                            border: "1px solid rgba(56,189,248,0.35)",
-                                            color: palette.accent,
+                                            borderRadius: `${radius.full}px`,
+                                            background: colors.brandDim,
+                                            border: `1.5px solid color-mix(in srgb, ${colors.brand} 35%, transparent)`,
+                                            color: colors.brand,
                                             fontSize: "9px",
                                             fontWeight: 700,
                                             letterSpacing: "0.08em",
-                                            fontFamily: palette.mono,
+                                            fontFamily: fonts.mono,
                                             textTransform: "uppercase",
                                             textAlign: "center",
                                             minWidth: "90px",
@@ -276,22 +267,22 @@ export function SunshineStreamHistory({
                                         style={{
                                             width: "100%",
                                             marginTop: "2px",
-                                            border: `1px solid ${palette.border}`,
-                                            background: palette.card,
-                                            color: palette.dim,
-                                            borderRadius: "8px",
+                                            border: `1.5px solid ${colors.border}`,
+                                            background: colors.bgInset,
+                                            color: colors.inkDim,
+                                            borderRadius: `${radius.md}px`,
                                             padding: "8px 10px",
                                             fontSize: "10px",
-                                            fontFamily: palette.mono,
+                                            fontFamily: fonts.mono,
                                             letterSpacing: "0.08em",
                                             cursor: "pointer",
-                                            transition: "background 0.15s, color 0.15s",
+                                            transition: "background 150ms ease, color 150ms ease",
                                         }}
                                         onMouseEnter={(e) => {
-                                            e.currentTarget.style.color = palette.accent;
+                                            e.currentTarget.style.color = colors.brand;
                                         }}
                                         onMouseLeave={(e) => {
-                                            e.currentTarget.style.color = palette.dim;
+                                            e.currentTarget.style.color = colors.inkDim;
                                         }}
                                     >
                                         {
@@ -304,7 +295,7 @@ export function SunshineStreamHistory({
                             }
                         </div>
                     )}
-                </div>           
+                </div>
             )}
 
             <style>{`@keyframes ssh-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }`}</style>

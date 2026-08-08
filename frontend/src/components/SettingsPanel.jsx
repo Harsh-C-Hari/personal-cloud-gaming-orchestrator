@@ -1,86 +1,77 @@
+/**
+ * components/SettingsPanel.jsx
+ *
+ * Same API calls / validation / state as before (getConfig, updateConfig,
+ * selectFile, per-section save payloads, restart-required detection) —
+ * only the presentation layer was reworked to match DESIGN_SYSTEM.md:
+ *   - Section cards now use the shared `Card` primitive instead of a
+ *     hand-rolled bordered div.
+ *   - Save / Cancel use the shared `Button` primitive (flat, no gradient,
+ *     no glow) instead of a custom cyan-gradient button.
+ *   - The "READ ONLY" marker uses the shared `Chip` primitive.
+ *   - Inputs/selects use `bgInset` fill + flat border-color focus (no glow
+ *     ring), per DESIGN_SYSTEM.md §5.
+ *   - Icons migrated from `react-icons/fa` to `lucide-react`, per
+ *     DESIGN_SYSTEM.md §7.
+ *   - All colors/fonts/radius now come from `dashboard/theme.js` — the old
+ *     local `palette` (cyan accent, Rajdhani display font) is gone.
+ *
+ * No functional change: every handler, state variable, validation rule,
+ * and API call below is untouched from the previous implementation.
+ */
+
+import { useEffect, useState } from "react";
 import {
-    useEffect,
-    useState,
-} from "react";
-import {
-    FaFileImport,
-    FaCloud,
-    FaNetworkWired,
-    FaClock,
-    FaClipboardList,
-    FaServer,
-    FaDatabase,
-    FaTags,
-    FaTimesCircle,
-    FaExclamationTriangle,
-    FaSave,
-    FaUndo,
-    FaChevronDown,
-    FaLock,
-} from "react-icons/fa";
+    FileInput,
+    Cloud,
+    Network,
+    Clock,
+    ClipboardList,
+    Server,
+    Database,
+    Tags,
+    XCircle,
+    AlertTriangle,
+    Save,
+    RotateCcw,
+    ChevronDown,
+    Lock,
+} from "lucide-react";
 import {
     getConfig,
     updateConfig,
     selectFile,
 } from "../api/client";
 import { useToast } from "./ui/Toast.jsx";
-
-// ── Shared design tokens (matches Home / Recovery / SessionHistory /
-// HostMonitor / StartSessionForm) ───────────────────────────────────────
-
-const palette = {
-    bg: "#080a0f",
-    card: "rgb(0, 0, 0)",
-    cardAlt: "rgba(2,6,23,0.45)",
-    border: "#1c2130",
-    borderStrong: "rgba(148,163,184,0.18)",
-    text: "#e2e8f0",
-    dim: "#94a3b8",
-    faint: "#64748b",
-    muted: "#475569",
-    accent: "#38bdf8",
-    success: "#10d98a",
-    warning: "#f5a524",
-    danger: "#f43f5e",
-    mono: "'JetBrains Mono', monospace",
-    display: "'Rajdhani', sans-serif",
-};
+import { Card, Button, Chip, Spinner } from "./ui/primitives.jsx";
+import { colors, fonts, radius } from "../dashboard/theme.js";
 
 const inputStyle = {
     width: "100%",
     padding: "10px 12px",
-    background: palette.bg,
-    border: `1px solid ${palette.border}`,
-    borderRadius: "7px",
-    color: palette.text,
+    background: colors.bgInset,
+    border: `1.5px solid ${colors.border}`,
+    borderRadius: `${radius.md}px`,
+    color: colors.ink,
     fontSize: "13px",
-    fontFamily: "inherit",
+    fontFamily: fonts.body,
     outline: "none",
     boxSizing: "border-box",
-    transition: "border-color 0.2s, box-shadow 0.2s",
+    transition: "border-color 150ms ease",
 };
 
 const readOnlyStyle = {
     ...inputStyle,
-    color: palette.faint,
+    color: colors.inkFaint,
     cursor: "not-allowed",
-    background: "rgba(2,6,23,0.5)",
-};
-
-const cardSection = {
-    padding: "16px",
-    borderRadius: "10px",
-    border: `1px solid ${palette.border}`,
-    background: palette.card,
+    background: colors.bgElevated,
 };
 
 const focusBorder = (e) => {
-    e.target.style.borderColor = "rgba(56,189,248,0.5)";
-    e.target.style.boxShadow = "0 0 0 3px rgba(56,189,248,0.08)";
+    e.target.style.borderColor = colors.ink;
 };
 const blurBorder = (e) => {
-    e.target.style.borderColor = palette.border;
-    e.target.style.boxShadow = "none";
+    e.target.style.borderColor = colors.border;
 };
 
 function SectionHeader({ icon, title, readOnly }) {
@@ -90,13 +81,13 @@ function SectionHeader({ icon, title, readOnly }) {
                 style={{
                     width: "28px",
                     height: "28px",
-                    borderRadius: "7px",
+                    borderRadius: `${radius.sm}px`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    background: "rgba(56,189,248,0.12)",
-                    border: "1px solid rgba(56,189,248,0.3)",
-                    color: palette.accent,
+                    background: colors.brandDim,
+                    border: `1.5px solid ${colors.brand}`,
+                    color: colors.brand,
                     flexShrink: 0,
                 }}
             >
@@ -107,31 +98,17 @@ function SectionHeader({ icon, title, readOnly }) {
                     margin: 0,
                     fontSize: "13px",
                     letterSpacing: "0.12em",
-                    color: palette.text,
-                    fontFamily: palette.mono,
+                    color: colors.ink,
+                    fontFamily: fonts.mono,
                     textTransform: "uppercase",
                 }}
             >
                 {title}
             </h3>
             {readOnly && (
-                <span
-                    style={{
-                        marginLeft: "2px",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "4px",
-                        fontSize: "8.5px",
-                        color: palette.muted,
-                        border: `1px solid ${palette.border}`,
-                        borderRadius: "10px",
-                        padding: "2px 8px",
-                        fontFamily: palette.mono,
-                        letterSpacing: "0.08em",
-                    }}
-                >
-                    <FaLock size={7} /> READ ONLY
-                </span>
+                <Chip tone="neutral" icon={<Lock size={9} strokeWidth={2} />} style={{ marginLeft: "2px" }}>
+                    Read Only
+                </Chip>
             )}
         </div>
     );
@@ -143,10 +120,11 @@ function FieldLabel({ children }) {
             style={{
                 display: "block",
                 fontSize: "9.5px",
-                color: palette.muted,
+                color: colors.inkFaint,
                 letterSpacing: "0.13em",
                 textTransform: "uppercase",
-                fontFamily: palette.mono,
+                fontFamily: fonts.mono,
+                fontWeight: 700,
                 marginBottom: "7px",
                 marginTop: "14px",
             }}
@@ -157,21 +135,25 @@ function FieldLabel({ children }) {
 }
 
 function FieldGroup({ children }) {
-    return <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 14px" }}>{children}</div>;
+    return (
+        <div className="pcgo-2col" style={{ gap: "0 14px" }}>
+            {children}
+        </div>
+    );
 }
 
 function SelectWrap({ children }) {
     return (
         <div style={{ position: "relative" }}>
             {children}
-            <FaChevronDown
+            <ChevronDown
                 size={10}
                 style={{
                     position: "absolute",
                     right: "13px",
                     top: "50%",
                     transform: "translateY(-50%)",
-                    color: palette.muted,
+                    color: colors.inkFaint,
                     pointerEvents: "none",
                 }}
             />
@@ -196,17 +178,20 @@ function ToggleSwitch({ checked, onChange, label }) {
                 cursor: "pointer",
                 userSelect: "none",
                 marginTop: "14px",
+                padding: "8px 0",
+                minHeight: "44px",
+                boxSizing: "border-box",
             }}
         >
             <div
                 style={{
                     width: "36px",
                     height: "20px",
-                    borderRadius: "10px",
-                    background: checked ? "rgba(56,189,248,0.15)" : "#111620",
-                    border: `1px solid ${checked ? "rgba(56,189,248,0.5)" : palette.border}`,
+                    borderRadius: `${radius.full}px`,
+                    background: checked ? colors.brandDim : colors.bgInset,
+                    border: `1.5px solid ${checked ? colors.brand : colors.border}`,
                     position: "relative",
-                    transition: "all 0.25s",
+                    transition: "background 150ms ease, border-color 150ms ease",
                     flexShrink: 0,
                 }}
             >
@@ -218,13 +203,12 @@ function ToggleSwitch({ checked, onChange, label }) {
                         width: "14px",
                         height: "14px",
                         borderRadius: "50%",
-                        background: checked ? palette.accent : "#2d3748",
-                        boxShadow: checked ? "0 0 8px rgba(56,189,248,0.6)" : "none",
-                        transition: "all 0.25s",
+                        background: checked ? colors.brand : colors.inkGhost,
+                        transition: "left 150ms ease, background 150ms ease",
                     }}
                 />
             </div>
-            <span style={{ fontSize: "12px", color: palette.dim, fontFamily: palette.mono }}>{label}</span>
+            <span style={{ fontSize: "12px", color: colors.inkDim, fontFamily: fonts.mono }}>{label}</span>
         </div>
     );
 }
@@ -297,7 +281,7 @@ export function SettingsPanel() {
                 "console_logging"
             )
         );
-    
+
     async function loadConfig() {
 
         try {
@@ -330,18 +314,18 @@ export function SettingsPanel() {
             data,
         );
     }
-    
+
     async function saveSettings() {
 
         setValidationErrors([]);
         const errors = validateSettings();
 
         setValidationErrors(errors);
-        
+
         if (errors.length > 0) {
             return;
         }
-        
+
         setSaving(true);
 
         try {
@@ -389,7 +373,7 @@ export function SettingsPanel() {
                         config.storage.archive_retention.value,
                 },
             );
-            
+
             await updateSection(
                 "session",
                 {
@@ -575,7 +559,7 @@ export function SettingsPanel() {
                 "Warning time must be less than session duration."
             );
         }
-        
+
         if (
             config.session.default_session_minutes.value < 5
         ) {
@@ -602,7 +586,7 @@ export function SettingsPanel() {
 
         return errors;
     }
-    
+
     const hasChanges =
         JSON.stringify(config) !==
         JSON.stringify(originalConfig);
@@ -616,22 +600,13 @@ export function SettingsPanel() {
                     alignItems: "center",
                     gap: "9px",
                     padding: "16px",
-                    color: palette.dim,
-                    fontFamily: palette.mono,
+                    color: colors.inkDim,
+                    fontFamily: fonts.mono,
                     fontSize: "11.5px",
                 }}
             >
-                <span
-                    style={{
-                        width: "7px",
-                        height: "7px",
-                        borderRadius: "50%",
-                        background: palette.accent,
-                        animation: "settings-pulse 1.4s ease-in-out infinite",
-                    }}
-                />
+                <Spinner size={14} />
                 Loading settings...
-                <style>{`@keyframes settings-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }`}</style>
             </div>
         );
     }
@@ -640,8 +615,8 @@ export function SettingsPanel() {
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
 
             {/* Sunshine */}
-            <div style={cardSection}>
-                <SectionHeader icon={<FaCloud size={12} />} title="Sunshine" />
+            <Card style={{ padding: "16px" }}>
+                <SectionHeader icon={<Cloud size={12} strokeWidth={2} />} title="Sunshine" />
 
                 <FieldLabel>Sunshine API URL</FieldLabel>
                 <input
@@ -667,7 +642,7 @@ export function SettingsPanel() {
                 <FieldLabel>Sunshine Path</FieldLabel>
                 <div style={{ display: "flex", gap: "8px" }}>
                     <input
-                        style={{ ...inputStyle, flex: 1 }}
+                        style={{ ...inputStyle, flex: 1, minWidth: 0 }}
                         value={getValue(config.sunshine.path)}
                         onFocus={focusBorder}
                         onBlur={blurBorder}
@@ -690,14 +665,15 @@ export function SettingsPanel() {
                         style={filePickerButton}
                         onClick={handleSelectSunshine}
                         title="Select Sunshine executable"
+                        aria-label="Select Sunshine executable"
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.background = "rgba(56,189,248,0.15)";
+                            e.currentTarget.style.background = colors.brandDim;
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.background = "rgba(56,189,248,0.08)";
+                            e.currentTarget.style.background = "rgba(224,164,88,0.08)";
                         }}
                     >
-                        <FaFileImport size={13} />
+                        <FileInput size={13} strokeWidth={2} />
                     </button>
                 </div>
 
@@ -748,16 +724,16 @@ export function SettingsPanel() {
                         />
                     </div>
                 </FieldGroup>
-            </div>
+            </Card>
 
             {/* Tailscale */}
-            <div style={cardSection}>
-                <SectionHeader icon={<FaNetworkWired size={12} />} title="Tailscale" />
+            <Card style={{ padding: "16px" }}>
+                <SectionHeader icon={<Network size={12} strokeWidth={2} />} title="Tailscale" />
 
                 <FieldLabel>Tailscale IPN Path</FieldLabel>
                 <div style={{ display: "flex", gap: "8px" }}>
                     <input
-                        style={{ ...inputStyle, flex: 1 }}
+                        style={{ ...inputStyle, flex: 1, minWidth: 0 }}
                         value={getValue(config.tailscale.ipn_path)}
                         onFocus={focusBorder}
                         onBlur={blurBorder}
@@ -780,21 +756,22 @@ export function SettingsPanel() {
                         style={filePickerButton}
                         onClick={handleSelectTailscaleIPN}
                         title="Select Tailscale IPN executable"
+                        aria-label="Select Tailscale IPN executable"
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.background = "rgba(56,189,248,0.15)";
+                            e.currentTarget.style.background = colors.brandDim;
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.background = "rgba(56,189,248,0.08)";
+                            e.currentTarget.style.background = "rgba(224,164,88,0.08)";
                         }}
                     >
-                        <FaFileImport size={13} />
+                        <FileInput size={13} strokeWidth={2} />
                     </button>
                 </div>
-            </div>
+            </Card>
 
             {/* Session */}
-            <div style={cardSection}>
-                <SectionHeader icon={<FaClock size={12} />} title="Session" />
+            <Card style={{ padding: "16px" }}>
+                <SectionHeader icon={<Clock size={12} strokeWidth={2} />} title="Session" />
 
                 <FieldGroup>
                     <div>
@@ -846,11 +823,11 @@ export function SettingsPanel() {
                         />
                     </div>
                 </FieldGroup>
-            </div>
+            </Card>
 
             {/* Logging */}
-            <div style={cardSection}>
-                <SectionHeader icon={<FaClipboardList size={12} />} title="Logging" />
+            <Card style={{ padding: "16px" }}>
+                <SectionHeader icon={<ClipboardList size={12} strokeWidth={2} />} title="Logging" />
 
                 <FieldLabel>Log Level</FieldLabel>
                 <SelectWrap>
@@ -895,11 +872,11 @@ export function SettingsPanel() {
                         })
                     }
                 />
-            </div>
+            </Card>
 
             {/* Host Agent */}
-            <div style={cardSection}>
-                <SectionHeader icon={<FaServer size={12} />} title="Host Agent" />
+            <Card style={{ padding: "16px" }}>
+                <SectionHeader icon={<Server size={12} strokeWidth={2} />} title="Host Agent" />
 
                 <FieldLabel>Name</FieldLabel>
                 <input
@@ -946,11 +923,11 @@ export function SettingsPanel() {
                         <option value="production">production</option>
                     </select>
                 </SelectWrap>
-            </div>
+            </Card>
 
             {/* Storage (read only + editable retention) */}
-            <div style={cardSection}>
-                <SectionHeader icon={<FaDatabase size={12} />} title="Storage" />
+            <Card style={{ padding: "16px" }}>
+                <SectionHeader icon={<Database size={12} strokeWidth={2} />} title="Storage" />
 
                 <FieldGroup>
                     <div>
@@ -1003,7 +980,7 @@ export function SettingsPanel() {
                     </div>
                 </FieldGroup>
 
-                <div style={{ marginTop: "6px", paddingTop: "6px", borderTop: `1px solid ${palette.border}` }}>
+                <div style={{ marginTop: "6px", paddingTop: "6px", borderTop: `1.5px solid ${colors.border}` }}>
                     <FieldLabel>Save Folder</FieldLabel>
                     <input
                         style={readOnlyStyle}
@@ -1025,11 +1002,11 @@ export function SettingsPanel() {
                         value={getValue(config.storage.games_config_path)}
                     />
                 </div>
-            </div>
+            </Card>
 
             {/* Metadata (read only) */}
-            <div style={cardSection}>
-                <SectionHeader icon={<FaTags size={12} />} title="Metadata" readOnly />
+            <Card style={{ padding: "16px" }}>
+                <SectionHeader icon={<Tags size={12} strokeWidth={2} />} title="Metadata" readOnly />
 
                 <FieldLabel>Metadata Path</FieldLabel>
                 <input
@@ -1044,14 +1021,14 @@ export function SettingsPanel() {
                     disabled
                     value={getValue(config.metadata.lock_file)}
                 />
-            </div>
+            </Card>
 
             {/* Validation errors */}
             {validationErrors.length > 0 && (
-                <div style={alertBox(palette.danger)}>
+                <div style={alertBox(colors.danger, "rgba(255,107,107,0.1)")}>
                     {validationErrors.map((error, index) => (
                         <div key={index} style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
-                            <FaTimesCircle size={11} style={{ marginTop: "2px", flexShrink: 0 }} />
+                            <XCircle size={11} strokeWidth={2} style={{ marginTop: "2px", flexShrink: 0 }} />
                             {error}
                         </div>
                     ))}
@@ -1060,39 +1037,26 @@ export function SettingsPanel() {
 
             {/* Restart required */}
             {restartRequired && (
-                <div style={alertBox(palette.warning)}>
-                    <FaExclamationTriangle size={11} style={{ flexShrink: 0 }} />
+                <div style={alertBox(colors.warning, colors.accentYellowDim)}>
+                    <AlertTriangle size={11} strokeWidth={2} style={{ flexShrink: 0 }} />
                     Some changes require a backend restart.
                 </div>
             )}
 
             {/* Save / Cancel */}
             <div style={{ display: "flex", gap: "10px" }}>
-                <button
-                    style={{
-                        ...saveButton,
-                        opacity: saving || !hasChanges ? 0.5 : 1,
-                        cursor: saving || !hasChanges ? "not-allowed" : "pointer",
-                    }}
+                <Button
+                    variant="primary"
                     disabled={saving || !hasChanges}
                     onClick={saveSettings}
-                    onMouseEnter={(e) => {
-                        if (!saving && hasChanges) {
-                            e.currentTarget.style.background =
-                                "linear-gradient(180deg, rgba(56,189,248,0.24), rgba(56,189,248,0.12))";
-                        }
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.background =
-                            "linear-gradient(180deg, rgba(56,189,248,0.16), rgba(56,189,248,0.08))";
-                    }}
+                    style={{ flex: 1 }}
                 >
-                    <FaSave size={12} />
-                    {saving ? "SAVING..." : "SAVE CHANGES"}
-                </button>
+                    <Save size={12} strokeWidth={2} />
+                    {saving ? "Saving..." : "Save Changes"}
+                </Button>
 
-                <button
-                    style={cancelButton}
+                <Button
+                    variant="secondary"
                     disabled={saving}
                     onClick={() => {
                         setConfig(
@@ -1103,88 +1067,43 @@ export function SettingsPanel() {
                             )
                         );
                     }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = palette.borderStrong;
-                        e.currentTarget.style.color = palette.text;
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = palette.border;
-                        e.currentTarget.style.color = palette.dim;
-                    }}
+                    style={{ flex: 1 }}
                 >
-                    <FaUndo size={11} />
-                    CANCEL
-                </button>
+                    <RotateCcw size={11} strokeWidth={2} />
+                    Cancel
+                </Button>
             </div>
         </div>
     );
 }
 
-function alertBox(color) {
+function alertBox(color, wash) {
     return {
         display: "flex",
         flexDirection: "column",
         gap: "6px",
         alignItems: "flex-start",
         padding: "11px 14px",
-        background: `${color}12`,
-        border: `1px solid ${color}4d`,
-        borderRadius: "8px",
+        background: wash,
+        border: `1.5px solid ${color}`,
+        borderRadius: `${radius.sm}px`,
         color,
         fontSize: "11.5px",
-        fontFamily: palette.mono,
+        fontFamily: fonts.mono,
     };
 }
 
 const filePickerButton = {
     width: "42px",
     flexShrink: 0,
-    borderRadius: "7px",
-    border: "1px solid rgba(56,189,248,0.35)",
-    background: "rgba(56,189,248,0.08)",
-    color: palette.accent,
+    borderRadius: `${radius.md}px`,
+    border: `1.5px solid ${colors.brand}`,
+    background: "rgba(224,164,88,0.08)",
+    color: colors.brand,
     cursor: "pointer",
     fontSize: "13px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    transition: "background 0.15s",
-};
-
-const saveButton = {
-    flex: 1,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "9px",
-    padding: "13px",
-    background: "linear-gradient(180deg, rgba(56,189,248,0.16), rgba(56,189,248,0.08))",
-    border: "1px solid rgba(56,189,248,0.4)",
-    borderRadius: "8px",
-    color: palette.accent,
-    fontSize: "12px",
-    fontFamily: palette.mono,
-    fontWeight: 700,
-    letterSpacing: "0.14em",
-    textShadow: "0 0 14px rgba(56,189,248,0.4)",
-    transition: "background 0.2s",
-};
-
-const cancelButton = {
-    flex: 1,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "8px",
-    padding: "13px",
-    background: "transparent",
-    border: `1px solid ${palette.border}`,
-    borderRadius: "8px",
-    color: palette.dim,
-    fontSize: "12px",
-    fontFamily: palette.mono,
-    fontWeight: 700,
-    letterSpacing: "0.14em",
-    cursor: "pointer",
-    transition: "border-color 0.2s, color 0.2s",
+    transition: "background 150ms ease",
 };

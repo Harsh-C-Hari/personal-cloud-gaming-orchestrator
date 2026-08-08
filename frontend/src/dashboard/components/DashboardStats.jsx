@@ -2,28 +2,31 @@
  * dashboard/components/DashboardStats.jsx
  *
  * Row of stat tiles (Active / Total / WS on Home). Each tile: icon badge +
- * value + label, with a colored top accent and a subtle hover lift —
- * generalized to take any tile list so it can be reused by both the admin
- * and user dashboards.
+ * value + label, with a flat colored top accent and a subtle hover
+ * background shift — generalized to take any tile list so it can be reused
+ * by both the admin and user dashboards.
  */
 
-import { colors, fonts } from "../theme.js";
+import { colors, fonts, radius } from "../theme.js";
 
 export function DashboardStats({ stats }) {
   return (
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: `repeat(${stats.length}, 1fr)`,
+        // auto-fit + minmax instead of a hard `repeat(N, 1fr)`: on narrow
+        // viewports tiles wrap onto additional rows instead of being
+        // squeezed into unreadably thin columns.
+        gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
         gap: "1px",
         background: colors.border,
-        borderRadius: "10px",
+        borderRadius: `${radius.lg}px`,
         overflow: "hidden",
-        border: `1px solid ${colors.border}`,
+        border: `1.5px solid ${colors.border}`,
       }}
     >
       {stats.map((s) => {
-        const tint = s.color || colors.accent;
+        const tint = s.color || colors.brand;
         return (
           <div
             key={s.label}
@@ -35,12 +38,12 @@ export function DashboardStats({ stats }) {
               padding: "14px clamp(8px, 3vw, 16px)",
               minWidth: 0,
               background: colors.bgCard,
-              transition: "background 0.15s",
+              transition: "background 150ms ease",
             }}
             onMouseEnter={(e) => (e.currentTarget.style.background = colors.bgCardHover)}
             onMouseLeave={(e) => (e.currentTarget.style.background = colors.bgCard)}
           >
-            {/* Top accent line */}
+            {/* Top accent line — flat, no gradient */}
             <div
               style={{
                 position: "absolute",
@@ -48,8 +51,8 @@ export function DashboardStats({ stats }) {
                 left: 0,
                 right: 0,
                 height: "2px",
-                background: `linear-gradient(90deg, transparent, ${tint}, transparent)`,
-                opacity: 0.8,
+                background: tint,
+                opacity: 0.7,
               }}
             />
 
@@ -59,12 +62,12 @@ export function DashboardStats({ stats }) {
                 flexShrink: 0,
                 width: "clamp(26px, 8vw, 34px)",
                 height: "clamp(26px, 8vw, 34px)",
-                borderRadius: "8px",
+                borderRadius: `${radius.sm}px`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                background: `${tint}1a`,
-                border: `1px solid ${tint}40`,
+                background: `color-mix(in srgb, ${tint} 10%, transparent)`,
+                border: `1.5px solid color-mix(in srgb, ${tint} 25%, transparent)`,
                 color: tint,
                 fontSize: "14px",
               }}
@@ -76,7 +79,6 @@ export function DashboardStats({ stats }) {
                     height: "6px",
                     borderRadius: "50%",
                     background: tint,
-                    boxShadow: `0 0 8px ${tint}`,
                     display: "block",
                   }}
                 />
@@ -88,7 +90,7 @@ export function DashboardStats({ stats }) {
                 style={{
                   fontSize: "18px",
                   fontWeight: 700,
-                  color: colors.text,
+                  color: colors.ink,
                   fontFamily: fonts.mono,
                   lineHeight: 1.1,
                   whiteSpace: "nowrap",
@@ -101,12 +103,13 @@ export function DashboardStats({ stats }) {
 
               <div
                 style={{
-                  fontSize: "8.5px",
-                  color: colors.textMuted,
+                  fontSize: "9px",
+                  fontWeight: 700,
+                  color: colors.inkFaint,
                   letterSpacing: "0.12em",
                   marginTop: "2px",
                   textTransform: "uppercase",
-                  fontFamily: fonts.mono,
+                  fontFamily: fonts.body,
                   whiteSpace: "nowrap",
                 }}
               >

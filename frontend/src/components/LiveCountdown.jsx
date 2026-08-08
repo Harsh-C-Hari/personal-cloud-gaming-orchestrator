@@ -15,6 +15,12 @@
  * Warning state activates when ≤ warningMins remain.
  * Mirrors the backend warning_before_minutes logic in session_service.py.
  *
+ * Presentation-only change for the redesign: the glow `textShadow` on both
+ * the normal and warning states was removed (DESIGN_SYSTEM.md explicitly
+ * bans glow/text-shadow effects) and the hard-coded hex colors were swapped
+ * for `colors.ink` / `colors.warning` tokens. Logic, props, and timing are
+ * untouched.
+ *
  * @param {{
  *   remainingMinutes : number | null   null when skip_timer = true
  *   fetchedAt        : number          Date.now() at fetch time
@@ -24,6 +30,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { colors, fonts } from "../dashboard/theme.js";
 
 /** Format minutes (float) → "MM:SS" */
 function formatTime(mins) {
@@ -110,16 +117,13 @@ export function LiveCountdown({
   return (
     <span
       style={{
-        fontFamily:    "'JetBrains Mono', monospace",
+        fontFamily:    fonts.mono,
         fontSize:      "26px",
         fontWeight:    700,
-        color:         isWarn ? "#f59e0b" : "#e2e8f0",
-        textShadow:    isWarn
-          ? "0 0 20px rgba(245,158,11,0.6)"
-          : "0 0 12px rgba(226,232,240,0.1)",
+        color:         isWarn ? colors.warning : colors.ink,
         letterSpacing: "0.04em",
         lineHeight:    1,
-        transition:    "color 0.4s ease, text-shadow 0.4s ease",
+        transition:    "color 0.4s ease",
       }}
     >
       {

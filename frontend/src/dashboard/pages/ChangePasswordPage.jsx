@@ -6,71 +6,39 @@
  * call. No API/request/response shape changes — this page only adds a
  * production-quality UI in front of it.
  *
- * Visual language matches StartSessionForm.jsx / SettingsPage.jsx / PageHeader.jsx:
- * icon-badge card header, sectioned fields with icon labels, focus-glow inputs,
- * colored status boxes, gradient accent submit button.
+ * Visual language: flat "Chalkboard Neo-Brutalist" tokens — bgInset input
+ * fields, bordered sections, no gradients/glow/text-shadow. Composes
+ * PageHeader + the shared Card/Button primitives instead of hand-rolled
+ * styles.
  */
 
 import { useState } from "react";
-import { FaKey, FaLock, FaShieldAlt, FaCheckCircle, FaTimesCircle, FaExclamationTriangle } from "react-icons/fa";
+import { Key, Lock, ShieldCheck, TriangleAlert } from "lucide-react";
 import { changePassword } from "../../api/client.js";
 import { PageHeader } from "../components/PageHeader.jsx";
+import { Card, Button } from "../../components/ui/primitives.jsx";
 import { useToast } from "../../components/ui/Toast.jsx";
-import { colors, fonts } from "../theme.js";
-
-const palette = {
-  bg: "#000000",
-  card: "rgba(0, 0, 0, 0.55)",
-  border: colors.borderSubtle,
-  text: colors.text,
-  dim: colors.textDim,
-  faint: colors.textFaint,
-  muted: colors.textMuted,
-  accent: colors.accent,
-  success: colors.success,
-  warning: colors.warning,
-  danger: "#fb7185",
-  mono: fonts.mono,
-};
+import { colors, fonts, radius } from "../theme.js";
 
 const inputStyle = {
   width: "100%",
   padding: "10px 12px",
-  background: palette.bg,
-  border: `1px solid ${palette.border}`,
-  borderRadius: "7px",
-  color: palette.text,
+  background: colors.bgInset,
+  border: `1.5px solid ${colors.border}`,
+  borderRadius: `${radius.md}px`,
+  color: colors.ink,
   fontSize: "13px",
-  fontFamily: "inherit",
+  fontFamily: fonts.body,
   outline: "none",
   boxSizing: "border-box",
-  transition: "border-color 0.2s, box-shadow 0.2s",
-};
-
-const cardSection = {
-  padding: "16px",
-  borderRadius: "10px",
-  border: `1px solid ${palette.border}`,
-  background: palette.card,
-};
-
-const statusBox = {
-  display: "flex",
-  alignItems: "flex-start",
-  gap: "9px",
-  padding: "11px 14px",
-  borderRadius: "8px",
-  fontSize: "11.5px",
-  fontFamily: palette.mono,
+  transition: "border-color 150ms ease",
 };
 
 function focusBorder(e) {
-  e.target.style.borderColor = "rgba(56,189,248,0.5)";
-  e.target.style.boxShadow = "0 0 0 3px rgba(56,189,248,0.08)";
+  e.target.style.borderColor = colors.borderInk;
 }
 function blurBorder(e) {
-  e.target.style.borderColor = palette.border;
-  e.target.style.boxShadow = "none";
+  e.target.style.borderColor = colors.border;
 }
 
 function FieldLabel({ icon, children }) {
@@ -81,10 +49,11 @@ function FieldLabel({ icon, children }) {
         alignItems: "center",
         gap: "6px",
         fontSize: "9.5px",
-        color: palette.muted,
+        color: colors.inkFaint,
         letterSpacing: "0.13em",
         textTransform: "uppercase",
-        fontFamily: palette.mono,
+        fontFamily: fonts.mono,
+        fontWeight: 700,
         marginBottom: "8px",
       }}
     >
@@ -142,16 +111,7 @@ export function ChangePasswordPage({ onBack }) {
     <div>
       <PageHeader title="Change Password" subtitle="Update the password for your account" onBack={onBack} />
 
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          border: `1px solid ${palette.border}`,
-          borderRadius: "12px",
-          background: "rgba(0, 0, 0, 0.5)",
-          overflow: "hidden",
-          maxWidth: "460px",
-        }}
-      >
+      <Card style={{ padding: 0, overflow: "hidden", maxWidth: "460px" }}>
         {/* Header */}
         <div
           style={{
@@ -159,49 +119,45 @@ export function ChangePasswordPage({ onBack }) {
             alignItems: "center",
             gap: "10px",
             padding: "16px 20px",
-            borderBottom: `1px solid ${palette.border}`,
-            background: "rgba(0, 0, 0, 0.61)",
+            borderBottom: `1.5px solid ${colors.border}`,
           }}
         >
           <div
             style={{
               width: "30px",
               height: "30px",
-              borderRadius: "8px",
+              borderRadius: `${radius.sm}px`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              background: "rgba(56,189,248,0.12)",
-              border: "1px solid rgba(56,189,248,0.3)",
-              color: palette.accent,
-              fontSize: "13px",
+              background: colors.brandDim,
+              color: colors.brand,
               flexShrink: 0,
             }}
           >
-            <FaShieldAlt />
+            <ShieldCheck size={15} strokeWidth={2} />
           </div>
           <div>
             <div
               style={{
                 fontSize: "13.5px",
                 fontWeight: 700,
-                color: palette.text,
+                color: colors.ink,
                 fontFamily: fonts.display,
-                letterSpacing: "0.02em",
               }}
             >
               Account Security
             </div>
-            <div style={{ fontSize: "10px", color: palette.faint, fontFamily: palette.mono, marginTop: "1px" }}>
+            <div style={{ fontSize: "10px", color: colors.inkFaint, fontFamily: fonts.mono, marginTop: "1px" }}>
               Set a new password for this account
             </div>
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px", padding: "20px" }}>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px", padding: "20px" }}>
           {/* Current password */}
-          <div style={cardSection}>
-            <FieldLabel icon={<FaLock size={10} />}>Current Password</FieldLabel>
+          <div>
+            <FieldLabel icon={<Lock size={11} strokeWidth={2} />}>Current Password</FieldLabel>
             <input
               type="password"
               value={oldPassword}
@@ -215,8 +171,8 @@ export function ChangePasswordPage({ onBack }) {
           </div>
 
           {/* New password */}
-          <div style={cardSection}>
-            <FieldLabel icon={<FaKey size={10} />}>New Password</FieldLabel>
+          <div>
+            <FieldLabel icon={<Key size={11} strokeWidth={2} />}>New Password</FieldLabel>
             <input
               type="password"
               value={newPassword}
@@ -231,8 +187,8 @@ export function ChangePasswordPage({ onBack }) {
               style={{
                 marginTop: "9px",
                 fontSize: "10px",
-                color: palette.faint,
-                fontFamily: palette.mono,
+                color: colors.inkFaint,
+                fontFamily: fonts.mono,
               }}
             >
               Minimum 6 characters, and different from your current password.
@@ -240,8 +196,8 @@ export function ChangePasswordPage({ onBack }) {
           </div>
 
           {/* Confirm new password */}
-          <div style={cardSection}>
-            <FieldLabel icon={<FaShieldAlt size={10} />}>Confirm New Password</FieldLabel>
+          <div>
+            <FieldLabel icon={<ShieldCheck size={11} strokeWidth={2} />}>Confirm New Password</FieldLabel>
             <input
               type="password"
               value={confirmPassword}
@@ -258,60 +214,30 @@ export function ChangePasswordPage({ onBack }) {
           {validationError && (
             <div
               style={{
-                ...statusBox,
-                background: "rgba(245,165,36,0.08)",
-                border: "1px solid rgba(245,165,36,0.3)",
-                color: palette.warning,
+                display: "flex",
+                alignItems: "flex-start",
+                gap: "9px",
+                padding: "11px 14px",
+                borderRadius: `${radius.sm}px`,
+                fontSize: "11.5px",
+                fontFamily: fonts.mono,
+                background: colors.accentYellowDim,
+                border: `1.5px solid rgba(245,215,110,0.3)`,
+                color: colors.warning,
               }}
             >
-              <FaExclamationTriangle size={12} style={{ marginTop: "1px", flexShrink: 0 }} />
+              <TriangleAlert size={13} strokeWidth={2} style={{ marginTop: "1px", flexShrink: 0 }} />
               {validationError}
             </div>
           )}
 
           {/* Submit */}
-          <button
-            type="submit"
-            disabled={submitting || !!validationError}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "9px",
-              padding: "13px",
-              background: submitting
-                ? "rgba(56,189,248,0.06)"
-                : "linear-gradient(180deg, rgba(56,189,248,0.16), rgba(56,189,248,0.08))",
-              border: "1px solid rgba(56,189,248,0.4)",
-              borderRadius: "8px",
-              color: palette.accent,
-              fontSize: "12px",
-              fontFamily: palette.mono,
-              fontWeight: 700,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              cursor: submitting || validationError ? "not-allowed" : "pointer",
-              textShadow: "0 0 14px rgba(56,189,248,0.4)",
-              transition: "background 0.2s",
-              opacity: submitting || validationError ? 0.5 : 1,
-            }}
-            onMouseEnter={(e) => {
-              if (!submitting && !validationError) {
-                e.currentTarget.style.background =
-                  "linear-gradient(180deg, rgba(56,189,248,0.24), rgba(56,189,248,0.12))";
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = submitting
-                ? "rgba(56,189,248,0.06)"
-                : "linear-gradient(180deg, rgba(56,189,248,0.16), rgba(56,189,248,0.08))";
-            }}
-          >
-            <FaKey size={12} />
+          <Button type="submit" variant="primary" disabled={submitting || !!validationError} style={{ width: "100%" }}>
+            <Key size={13} strokeWidth={2} />
             {submitting ? "Updating…" : "Update Password"}
-          </button>
-        </div>
-      </form>
+          </Button>
+        </form>
+      </Card>
     </div>
   );
 }

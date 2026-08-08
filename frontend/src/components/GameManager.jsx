@@ -27,21 +27,21 @@
 
 import { useState } from "react";
 import {
-  FaFolderOpen,
-  FaFileImport,
-  FaPlus,
-  FaSyncAlt,
-  FaTrashAlt,
-  FaChevronLeft,
-  FaGamepad,
-  FaHashtag,
-  FaMicrochip,
-  FaSlidersH,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaSave,
-  FaTimes,
-} from "react-icons/fa";
+  FolderOpen,
+  FileInput,
+  Plus,
+  RefreshCw,
+  Trash2,
+  ChevronLeft,
+  Gamepad2,
+  Hash,
+  Cpu,
+  SlidersHorizontal,
+  CheckCircle2,
+  XCircle,
+  Save,
+  X,
+} from "lucide-react";
 import {
   addGame,
   updateGame,
@@ -52,6 +52,7 @@ import {
 } from "../api/client.js";
 import { useToast } from "./ui/Toast.jsx";
 import { useConfirm } from "./ui/ConfirmDialog.jsx";
+import { colors, fonts, radius } from "../dashboard/theme.js";
 
 const DEFAULT_GAME = {
   id: "",
@@ -272,26 +273,9 @@ export function GameManager({ games, refreshGames }) {
   }
 
   const hasChanges = !editingGame || JSON.stringify(gameForm) !== JSON.stringify(originalGame);
-  const deletingCurrent = deleting === editingGame;
+  const deletingCurrent = editingGame !== null && deleting === editingGame;
 
   // ── Shared style primitives (matches StartSessionForm / RecoveryStats) ──
-
-  const palette = {
-    bg: "#000000",
-    card: "rgba(0, 0, 0, 0.65)",
-    cardAlt: "rgba(2,6,23,0.45)",
-    border: "#1c2130",
-    borderStrong: "rgba(148,163,184,0.18)",
-    text: "#e2e8f0",
-    dim: "#94a3b8",
-    faint: "#64748b",
-    muted: "#475569",
-    accent: "#38bdf8",
-    success: "#10d98a",
-    warning: "#f5a524",
-    danger: "#f43f5e",
-    mono: "'JetBrains Mono', monospace",
-  };
 
   function FieldLabel({ icon, children }) {
     return (
@@ -301,10 +285,11 @@ export function GameManager({ games, refreshGames }) {
           alignItems: "center",
           gap: "6px",
           fontSize: "9.5px",
-          color: palette.muted,
+          color: colors.inkFaint,
           letterSpacing: "0.13em",
           textTransform: "uppercase",
-          fontFamily: palette.mono,
+          fontFamily: fonts.mono,
+          fontWeight: 700,
           marginBottom: "8px",
         }}
       >
@@ -322,10 +307,11 @@ export function GameManager({ games, refreshGames }) {
           alignItems: "center",
           gap: "7px",
           fontSize: "10px",
-          color: palette.faint,
+          color: colors.inkFaint,
           letterSpacing: "0.15em",
           textTransform: "uppercase",
-          fontFamily: palette.mono,
+          fontFamily: fonts.mono,
+          fontWeight: 700,
           marginBottom: "12px",
         }}
       >
@@ -336,25 +322,23 @@ export function GameManager({ games, refreshGames }) {
   }
 
   const focusBorder = (e) => {
-    e.target.style.borderColor = "rgba(56,189,248,0.5)";
-    e.target.style.boxShadow = "0 0 0 3px rgba(56,189,248,0.08)";
+    e.target.style.borderColor = colors.ink;
   };
   const blurBorder = (e) => {
-    e.target.style.borderColor = palette.border;
-    e.target.style.boxShadow = "none";
+    e.target.style.borderColor = colors.border;
   };
 
   return (
-    <div style={outerWrap(palette)}>
+    <div style={outerWrap}>
       {/* ── Header ─────────────────────────────────────────────── */}
-      <div style={headerBar(palette)}>
+      <div style={headerBar}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <div style={headerIconBadge(palette)}>
-            <FaGamepad size={13} />
+          <div style={headerIconBadge}>
+            <Gamepad2 size={15} strokeWidth={2} />
           </div>
           <div>
-            <div style={headerTitle(palette)}>Game Library</div>
-            <div style={headerSubtitle(palette)}>
+            <div style={headerTitle}>Game Library</div>
+            <div style={headerSubtitle}>
               {entries.length} game{entries.length === 1 ? "" : "s"} configured
             </div>
           </div>
@@ -364,24 +348,24 @@ export function GameManager({ games, refreshGames }) {
           <button
             title="Add game"
             aria-label="Add game"
-            style={iconAddButton(palette)}
+            style={iconAddButton}
             onClick={openAddForm}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(16,217,138,0.18)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(16,217,138,0.1)")}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(110,231,176,0.22)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = colors.accentGreenDim)}
           >
-            <FaPlus size={12} />
+            <Plus size={13} strokeWidth={2} />
           </button>
 
           <button
             title="Reload games"
             aria-label="Reload games"
             disabled={reloading}
-            style={{ ...iconGhostButton(palette), opacity: reloading ? 0.5 : 1 }}
+            style={{ ...iconGhostButton, opacity: reloading ? 0.5 : 1 }}
             onClick={handleReloadGames}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(56,189,248,0.15)")}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(237,235,227,0.08)")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
-            <FaSyncAlt size={12} style={reloading ? { animation: "gm-spin 0.8s linear infinite" } : undefined} />
+            <RefreshCw size={13} strokeWidth={2} style={reloading ? { animation: "gm-spin 0.8s linear infinite" } : undefined} />
           </button>
         </div>
       </div>
@@ -391,13 +375,13 @@ export function GameManager({ games, refreshGames }) {
         {/* Game selector grid (shown by default) */}
         {!showForm &&
           (entries.length === 0 ? (
-            <div style={emptyBox(palette)}>
-              <FaGamepad size={22} style={{ color: palette.muted, opacity: 0.6 }} />
-              <div style={{ fontSize: "11px", color: palette.dim, fontFamily: palette.mono }}>
+            <div style={emptyBox}>
+              <Gamepad2 size={24} strokeWidth={1.5} style={{ color: colors.inkFaint, opacity: 0.7 }} />
+              <div style={{ fontSize: "11px", color: colors.inkDim, fontFamily: fonts.mono }}>
                 No games configured yet
               </div>
-              <div style={{ fontSize: "10px", color: palette.faint, fontFamily: palette.mono }}>
-                Click <strong style={{ color: palette.success }}>+</strong> to add your first game
+              <div style={{ fontSize: "10px", color: colors.inkFaint, fontFamily: fonts.mono }}>
+                Click <strong style={{ color: colors.success }}>+</strong> to add your first game
               </div>
             </div>
           ) : (
@@ -409,50 +393,48 @@ export function GameManager({ games, refreshGames }) {
                   tabIndex={0}
                   onClick={() => openGameCard(gameId)}
                   onKeyDown={(e) => e.key === "Enter" && openGameCard(gameId)}
-                  style={card(palette)}
+                  style={card}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = "rgba(56,189,248,0.5)";
-                    e.currentTarget.style.background = "rgba(56,189,248,0.05)";
-                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.borderColor = colors.borderStrong;
+                    e.currentTarget.style.background = colors.bgCardHover;
+                    e.currentTarget.style.transform = "translateY(-1px)";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = palette.border;
-                    e.currentTarget.style.background = palette.bg;
+                    e.currentTarget.style.borderColor = colors.border;
+                    e.currentTarget.style.background = colors.bgCard;
                     e.currentTarget.style.transform = "translateY(0)";
                   }}
                 >
-                  <div style={cardTopAccent} />
-
                   <div style={cardHeader}>
-                    <div style={cardTitle(palette)}>{game.name || gameId}</div>
+                    <div style={cardTitle}>{game.name || gameId}</div>
                     <button
                       title={`Delete ${game.name || gameId}`}
                       aria-label={`Delete ${game.name || gameId}`}
                       disabled={deleting === gameId}
-                      style={{ ...cardDeleteButton(palette), opacity: deleting === gameId ? 0.5 : 1 }}
+                      style={{ ...cardDeleteButton, opacity: deleting === gameId ? 0.5 : 1 }}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDeleteGameId(gameId);
                       }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(239,68,68,0.15)")}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,107,107,0.15)")}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                     >
                       {deleting === gameId ? (
-                        <FaSyncAlt size={10} style={{ animation: "gm-spin 0.8s linear infinite" }} />
+                        <RefreshCw size={11} strokeWidth={2} style={{ animation: "gm-spin 0.8s linear infinite" }} />
                       ) : (
-                        <FaTrashAlt size={11} />
+                        <Trash2 size={12} strokeWidth={2} />
                       )}
                     </button>
                   </div>
 
-                  <div style={cardMeta(palette)}>
-                    <FaHashtag size={9} style={{ opacity: 0.7 }} /> {gameId}
+                  <div style={cardMeta}>
+                    <Hash size={10} strokeWidth={2} style={{ opacity: 0.7 }} /> {gameId}
                   </div>
-                  <div style={cardMeta(palette)}>
-                    <FaFileImport size={9} style={{ opacity: 0.7 }} /> {game.exe_name || "unknown"}
+                  <div style={cardMeta}>
+                    <FileInput size={10} strokeWidth={2} style={{ opacity: 0.7 }} /> {game.exe_name || "unknown"}
                   </div>
-                  <div style={cardMeta(palette)}>
-                    <FaMicrochip size={9} style={{ opacity: 0.7 }} /> {game.process_name || "unknown"}
+                  <div style={cardMeta}>
+                    <Cpu size={10} strokeWidth={2} style={{ opacity: 0.7 }} /> {game.process_name || "unknown"}
                   </div>
                 </div>
               ))}
@@ -463,26 +445,26 @@ export function GameManager({ games, refreshGames }) {
         {showForm && (
           <div>
             <button
-              style={backButton(palette)}
+              style={backButton}
               onClick={closeForm}
-              onMouseEnter={(e) => (e.currentTarget.style.color = palette.accent)}
-              onMouseLeave={(e) => (e.currentTarget.style.color = palette.dim)}
+              onMouseEnter={(e) => (e.currentTarget.style.color = colors.ink)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = colors.inkDim)}
             >
-              <FaChevronLeft size={10} /> Back to games
+              <ChevronLeft size={11} strokeWidth={2} /> Back to games
             </button>
 
-            <h3 style={formHeading(palette)}>{editingGame ? "Edit Game" : "Add New Game"}</h3>
+            <h3 style={formHeading}>{editingGame ? "Edit Game" : "Add New Game"}</h3>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               {/* Basic Info */}
-              <div style={cardSection(palette)}>
-                <SectionHeading icon={<FaGamepad size={10} />}>Basic Info</SectionHeading>
+              <div style={cardSection}>
+                <SectionHeading icon={<Gamepad2 size={11} strokeWidth={2} />}>Basic Info</SectionHeading>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   <div>
-                    <FieldLabel icon={<FaHashtag size={9} />}>Game ID</FieldLabel>
+                    <FieldLabel icon={<Hash size={10} strokeWidth={2} />}>Game ID</FieldLabel>
                     <input
-                      style={{ ...inputStyle(palette), opacity: editingGame ? 0.6 : 1 }}
+                      style={{ ...inputStyle, opacity: editingGame ? 0.6 : 1 }}
                       placeholder="e.g. god_of_war_ragnarok"
                       value={gameForm.id}
                       disabled={editingGame !== null}
@@ -493,9 +475,9 @@ export function GameManager({ games, refreshGames }) {
                   </div>
 
                   <div>
-                    <FieldLabel icon={<FaGamepad size={9} />}>Game Name</FieldLabel>
+                    <FieldLabel icon={<Gamepad2 size={10} strokeWidth={2} />}>Game Name</FieldLabel>
                     <input
-                      style={inputStyle(palette)}
+                      style={inputStyle}
                       placeholder="God of War Ragnarök"
                       value={gameForm.name}
                       onChange={(e) => setField("name", e.target.value)}
@@ -505,9 +487,9 @@ export function GameManager({ games, refreshGames }) {
                   </div>
 
                   <div>
-                    <FieldLabel icon={<FaFileImport size={9} />}>Executable Name</FieldLabel>
+                    <FieldLabel icon={<FileInput size={10} strokeWidth={2} />}>Executable Name</FieldLabel>
                     <input
-                      style={inputStyle(palette)}
+                      style={inputStyle}
                       placeholder="GoWR.exe"
                       value={gameForm.exe_name}
                       onChange={(e) => setField("exe_name", e.target.value)}
@@ -519,15 +501,15 @@ export function GameManager({ games, refreshGames }) {
               </div>
 
               {/* Paths */}
-              <div style={cardSection(palette)}>
-                <SectionHeading icon={<FaFolderOpen size={10} />}>Paths</SectionHeading>
+              <div style={cardSection}>
+                <SectionHeading icon={<FolderOpen size={11} strokeWidth={2} />}>Paths</SectionHeading>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   <div>
-                    <FieldLabel icon={<FaFileImport size={9} />}>Executable Path</FieldLabel>
+                    <FieldLabel icon={<FileInput size={10} strokeWidth={2} />}>Executable Path</FieldLabel>
                     <div style={pathRow}>
                       <input
-                        style={{ ...inputStyle(palette), flex: 1 }}
+                        style={{ ...inputStyle, flex: 1, minWidth: 0 }}
                         placeholder="Executable Path"
                         value={gameForm.exe_path}
                         onChange={(e) => setField("exe_path", e.target.value)}
@@ -536,28 +518,29 @@ export function GameManager({ games, refreshGames }) {
                       />
                       <button
                         style={{
-                          ...pickerButton(palette),
+                          ...pickerButton,
                           opacity: saving || validating || deletingCurrent ? 0.5 : 1,
                         }}
                         disabled={saving || validating || deletingCurrent}
                         title="Select executable"
+                        aria-label="Select executable"
                         onClick={handleSelectExe}
                         onMouseEnter={(e) => {
                           if (!saving && !validating && !deletingCurrent)
-                            e.currentTarget.style.background = "rgba(56,189,248,0.15)";
+                            e.currentTarget.style.background = "rgba(237,235,227,0.08)";
                         }}
                         onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                       >
-                        <FaFileImport size={13} />
+                        <FileInput size={14} strokeWidth={2} />
                       </button>
                     </div>
                   </div>
 
                   <div>
-                    <FieldLabel icon={<FaFolderOpen size={9} />}>Save Path</FieldLabel>
+                    <FieldLabel icon={<FolderOpen size={10} strokeWidth={2} />}>Save Path</FieldLabel>
                     <div style={pathRow}>
                       <input
-                        style={{ ...inputStyle(palette), flex: 1 }}
+                        style={{ ...inputStyle, flex: 1, minWidth: 0 }}
                         placeholder="Save Path"
                         value={gameForm.save_path}
                         onChange={(e) => setField("save_path", e.target.value)}
@@ -566,27 +549,28 @@ export function GameManager({ games, refreshGames }) {
                       />
                       <button
                         style={{
-                          ...pickerButton(palette),
+                          ...pickerButton,
                           opacity: saving || validating || deletingCurrent ? 0.5 : 1,
                         }}
                         disabled={saving || validating || deletingCurrent}
                         title="Select save folder"
+                        aria-label="Select save folder"
                         onClick={handleSelectSaveFolder}
                         onMouseEnter={(e) => {
                           if (!saving && !validating && !deletingCurrent)
-                            e.currentTarget.style.background = "rgba(56,189,248,0.15)";
+                            e.currentTarget.style.background = "rgba(237,235,227,0.08)";
                         }}
                         onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                       >
-                        <FaFolderOpen size={13} />
+                        <FolderOpen size={14} strokeWidth={2} />
                       </button>
                     </div>
                   </div>
 
                   <div>
-                    <FieldLabel icon={<FaMicrochip size={9} />}>Process Name</FieldLabel>
+                    <FieldLabel icon={<Cpu size={10} strokeWidth={2} />}>Process Name</FieldLabel>
                     <input
-                      style={inputStyle(palette)}
+                      style={inputStyle}
                       placeholder="Process Name"
                       value={gameForm.process_name}
                       onChange={(e) => setField("process_name", e.target.value)}
@@ -598,14 +582,14 @@ export function GameManager({ games, refreshGames }) {
               </div>
 
               {/* Save Filters */}
-              <div style={cardSection(palette)}>
-                <SectionHeading icon={<FaSlidersH size={10} />}>Save Filters</SectionHeading>
+              <div style={cardSection}>
+                <SectionHeading icon={<SlidersHorizontal size={11} strokeWidth={2} />}>Save Filters</SectionHeading>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   <div>
                     <FieldLabel>Match Mode</FieldLabel>
                     <select
-                      style={inputStyle(palette)}
+                      style={inputStyle}
                       value={gameForm.save_filters.mode}
                       onChange={(e) => updateSaveFilters("mode", e.target.value)}
                       onFocus={focusBorder}
@@ -619,7 +603,7 @@ export function GameManager({ games, refreshGames }) {
                   <div>
                     <FieldLabel>Prefix Filters</FieldLabel>
                     <input
-                      style={inputStyle(palette)}
+                      style={inputStyle}
                       placeholder="Prefix filters (comma separated)"
                       value={gameForm.save_filters.prefix.join(",")}
                       onChange={(e) =>
@@ -636,7 +620,7 @@ export function GameManager({ games, refreshGames }) {
                   <div>
                     <FieldLabel>Contains Filters</FieldLabel>
                     <input
-                      style={inputStyle(palette)}
+                      style={inputStyle}
                       placeholder="Contains filters (comma separated)"
                       value={gameForm.save_filters.contains.join(",")}
                       onChange={(e) =>
@@ -653,7 +637,7 @@ export function GameManager({ games, refreshGames }) {
                   <div>
                     <FieldLabel>Suffix Filters</FieldLabel>
                     <input
-                      style={inputStyle(palette)}
+                      style={inputStyle}
                       placeholder="Suffix filters (.sav,.dat)"
                       value={gameForm.save_filters.suffix.join(",")}
                       onChange={(e) =>
@@ -673,68 +657,68 @@ export function GameManager({ games, refreshGames }) {
               <div style={formActions}>
                 <button
                   style={{
-                    ...validateButton(palette),
+                    ...validateButton,
                     opacity: validating || saving || deletingCurrent || !hasChanges ? 0.5 : 1,
                     cursor: saving || !hasChanges ? "not-allowed" : "pointer",
                   }}
                   disabled={validating || saving || deletingCurrent || !hasChanges}
                   onClick={handleValidate}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(56,189,248,0.15)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(56,189,248,0)")}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(237,235,227,0.08)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                 >
                   {validating ? (
-                    <FaSyncAlt size={11} style={{ animation: "gm-spin 0.8s linear infinite" }} />
+                    <RefreshCw size={12} strokeWidth={2} style={{ animation: "gm-spin 0.8s linear infinite" }} />
                   ) : (
-                    <FaCheckCircle size={11} />
+                    <CheckCircle2 size={12} strokeWidth={2} />
                   )}
                   {validating ? "CHECKING..." : "VALIDATE"}
                 </button>
 
                 <button
                   style={{
-                    ...saveButton(palette),
+                    ...saveButton,
                     opacity: saving || (editingGame && !hasChanges) ? 0.5 : 1,
                     cursor: saving || !hasChanges ? "not-allowed" : "pointer",
                   }}
                   disabled={saving || (editingGame && !hasChanges)}
                   onClick={handleSaveGame}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(56,189,248,0.15)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(56,189,248,0.08)")}
+                  onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(1.06)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.filter = "none")}
                 >
                   {saving ? (
-                    <FaSyncAlt size={11} style={{ animation: "gm-spin 0.8s linear infinite" }} />
+                    <RefreshCw size={12} strokeWidth={2} style={{ animation: "gm-spin 0.8s linear infinite" }} />
                   ) : (
-                    <FaSave size={11} />
+                    <Save size={12} strokeWidth={2} />
                   )}
                   {saving ? "SAVING..." : editingGame ? "SAVE CHANGES" : "ADD GAME"}
                 </button>
 
                 {editingGame && (
                   <button
-                    style={{ ...deleteFormButton(palette), opacity: deletingCurrent ? 0.5 : 1 }}
+                    style={{ ...deleteFormButton, opacity: deletingCurrent ? 0.5 : 1 }}
                     disabled={deletingCurrent}
                     onClick={() => handleDeleteGameId(editingGame)}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(239,68,68,0.15)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(239,68,68,0.08)")}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,107,107,0.15)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,107,107,0.08)")}
                   >
-                    <FaTrashAlt size={11} />
+                    <Trash2 size={12} strokeWidth={2} />
                     {deletingCurrent ? "DELETING..." : "DELETE"}
                   </button>
                 )}
 
                 <button
-                  style={cancelButton(palette)}
+                  style={cancelButton}
                   onClick={closeForm}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(148,163,184,0.1)")}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(237,235,227,0.06)")}
                   onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                 >
-                  <FaTimes size={11} />
+                  <X size={12} strokeWidth={2} />
                   CANCEL
                 </button>
 
                 {validation && (
-                  <div style={validation.valid ? validationOk(palette) : validationBad(palette)}>
-                    {validation.valid ? <FaCheckCircle size={11} /> : <FaTimesCircle size={11} />}
+                  <div style={validation.valid ? validationOk : validationBad}>
+                    {validation.valid ? <CheckCircle2 size={12} strokeWidth={2} /> : <XCircle size={12} strokeWidth={2} />}
                     {validation.valid ? "Game configuration is valid." : validation.errors.join(" ")}
                   </div>
                 )}
@@ -750,83 +734,84 @@ export function GameManager({ games, refreshGames }) {
 }
 
 // ── Style primitives ───────────────────────────────────────────────────
-// Kept as functions of `palette` so every value traces back to the single
-// palette object above — same convention used by StartSessionForm.
+// Plain objects/functions built from `dashboard/theme.js` tokens — same
+// convention used by StartSessionForm.
 
-const outerWrap = (p) => ({
-  border: `1px solid ${p.border}`,
-  borderRadius: "12px",
-  background: "rgba(0, 0, 0, 0.5)",
+const outerWrap = {
+  border: `1.5px solid ${colors.border}`,
+  borderRadius: `${radius.lg}px`,
+  background: colors.bgCard,
   overflow: "hidden",
-});
+};
 
-const headerBar = (p) => ({
+const headerBar = {
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
+  flexWrap: "wrap",
+  rowGap: "8px",
   gap: "10px",
   padding: "16px 20px",
-  borderBottom: `1px solid ${p.border}`,
-  background: "rgba(0, 0, 0, 0.64)",
-});
+  borderBottom: `1.5px solid ${colors.border}`,
+  background: colors.bgElevated,
+};
 
-const headerIconBadge = (p) => ({
+const headerIconBadge = {
   width: "30px",
   height: "30px",
-  borderRadius: "8px",
+  borderRadius: `${radius.sm}px`,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  background: "rgba(56,189,248,0.12)",
-  border: "1px solid rgba(56,189,248,0.3)",
-  color: p.accent,
+  background: colors.brandDim,
+  border: `1.5px solid ${colors.brand}`,
+  color: colors.brand,
   fontSize: "13px",
   flexShrink: 0,
-});
+};
 
-const headerTitle = (p) => ({
-  fontSize: "13.5px",
+const headerTitle = {
+  fontSize: "14.5px",
   fontWeight: 700,
-  color: p.text,
-  fontFamily: "'Rajdhani', sans-serif",
-  letterSpacing: "0.02em",
-});
+  color: colors.ink,
+  fontFamily: fonts.display,
+};
 
-const headerSubtitle = (p) => ({
+const headerSubtitle = {
   fontSize: "10px",
-  color: p.faint,
-  fontFamily: p.mono,
+  color: colors.inkFaint,
+  fontFamily: fonts.mono,
   marginTop: "1px",
   letterSpacing: "0.04em",
-});
+};
 
-const iconAddButton = (p) => ({
+const iconAddButton = {
   width: "30px",
   height: "30px",
-  borderRadius: "6px",
-  background: "rgba(16,217,138,0.1)",
-  border: `1px solid ${p.success}`,
-  color: p.success,
+  borderRadius: `${radius.sm}px`,
+  background: colors.accentGreenDim,
+  border: `1.5px solid ${colors.success}`,
+  color: colors.success,
   cursor: "pointer",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  transition: "background 0.15s",
-});
+  transition: "background 150ms ease",
+};
 
-const iconGhostButton = (p) => ({
+const iconGhostButton = {
   width: "30px",
   height: "30px",
-  borderRadius: "6px",
+  borderRadius: `${radius.sm}px`,
   background: "transparent",
-  border: `1px solid ${p.border}`,
-  color: p.accent,
+  border: `1.5px solid ${colors.border}`,
+  color: colors.inkDim,
   cursor: "pointer",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  transition: "background 0.15s",
-});
+  transition: "background 150ms ease",
+};
 
 const grid = {
   display: "grid",
@@ -834,134 +819,126 @@ const grid = {
   gap: "14px",
 };
 
-const card = (p) => ({
+const card = {
   position: "relative",
   textAlign: "left",
   padding: "16px",
-  background: p.bg,
-  border: `1px solid ${p.border}`,
-  borderRadius: "10px",
-  color: p.text,
+  background: colors.bgCard,
+  border: `1.5px solid ${colors.border}`,
+  borderRadius: `${radius.md}px`,
+  color: colors.ink,
   cursor: "pointer",
   overflow: "hidden",
-  transition: "border-color 0.15s, background 0.15s, transform 0.15s",
-});
-
-const cardTopAccent = {
-  position: "absolute",
-  top: 0,
-  left: 0,
-  right: 0,
-  height: "2px",
-  background: "linear-gradient(90deg, transparent, rgba(56,189,248,0.6), transparent)",
-  opacity: 0.8,
+  transition: "border-color 150ms ease, background 150ms ease, transform 150ms ease",
 };
 
 const cardHeader = {
   display: "flex",
   alignItems: "flex-start",
   justifyContent: "space-between",
+  flexWrap: "wrap",
+  rowGap: "6px",
   gap: "8px",
 };
 
-const cardTitle = (p) => ({
+const cardTitle = {
   fontSize: "15px",
   fontWeight: 700,
   marginBottom: "10px",
-  color: p.text,
-  fontFamily: "'Rajdhani', sans-serif",
-});
+  color: colors.ink,
+  fontFamily: fonts.display,
+};
 
-const cardMeta = (p) => ({
+const cardMeta = {
   display: "flex",
   alignItems: "center",
   gap: "6px",
-  fontFamily: p.mono,
+  fontFamily: fonts.mono,
   fontSize: "10px",
-  color: p.faint,
+  color: colors.inkFaint,
   marginTop: "5px",
-});
+};
 
-const cardDeleteButton = (p) => ({
+const cardDeleteButton = {
   width: "24px",
   height: "24px",
   flexShrink: 0,
-  borderRadius: "5px",
+  borderRadius: `${radius.sm}px`,
   background: "transparent",
-  border: "1px solid rgba(239,68,68,0.4)",
-  color: p.danger,
+  border: `1.5px solid ${colors.danger}66`,
+  color: colors.danger,
   cursor: "pointer",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  transition: "background 0.15s",
-});
+  transition: "background 150ms ease",
+};
 
-const backButton = (p) => ({
+const backButton = {
   display: "inline-flex",
   alignItems: "center",
   gap: "6px",
   background: "transparent",
   border: "none",
-  color: p.dim,
+  color: colors.inkDim,
   fontSize: "10px",
-  fontFamily: p.mono,
+  fontFamily: fonts.mono,
+  fontWeight: 700,
   letterSpacing: "0.08em",
   textTransform: "uppercase",
   cursor: "pointer",
   padding: 0,
   marginBottom: "10px",
-  transition: "color 0.15s",
-});
+  transition: "color 150ms ease",
+};
 
-const formHeading = (p) => ({
+const formHeading = {
   margin: "0 0 16px",
   fontSize: "15px",
   fontWeight: 700,
-  color: p.text,
-  fontFamily: "'Rajdhani', sans-serif",
-  letterSpacing: "0.02em",
-});
+  color: colors.ink,
+  fontFamily: fonts.display,
+};
 
-const cardSection = (p) => ({
+const cardSection = {
   padding: "16px",
-  borderRadius: "10px",
-  border: `1px solid ${p.border}`,
-  background: p.card,
-});
+  borderRadius: `${radius.md}px`,
+  border: `1.5px solid ${colors.border}`,
+  background: colors.bgElevated,
+};
 
-const inputStyle = (p) => ({
+const inputStyle = {
   width: "100%",
   padding: "10px 12px",
-  background: p.bg,
-  border: `1px solid ${p.border}`,
-  borderRadius: "7px",
-  color: p.text,
+  background: colors.bgInset,
+  border: `1.5px solid ${colors.border}`,
+  borderRadius: `${radius.md}px`,
+  color: colors.ink,
   fontSize: "13px",
-  fontFamily: "inherit",
+  fontFamily: fonts.body,
   outline: "none",
   boxSizing: "border-box",
-  transition: "border-color 0.2s, box-shadow 0.2s",
-});
+  transition: "border-color 150ms ease",
+};
 
 const pathRow = {
   display: "flex",
   gap: "6px",
 };
 
-const pickerButton = (p) => ({
+const pickerButton = {
   width: "40px",
   flexShrink: 0,
-  borderRadius: "7px",
-  border: `1px solid ${p.accent}`,
+  borderRadius: `${radius.md}px`,
+  border: `1.5px solid ${colors.borderInk}`,
   background: "transparent",
-  color: p.accent,
+  color: colors.ink,
   cursor: "pointer",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  transition: "background 0.2s",
-});
+  transition: "background 150ms ease",
+};
 
 const formActions = {
   display: "flex",
@@ -978,78 +955,79 @@ const buttonBase = {
   flex: 1,
   minWidth: "120px",
   padding: "10px",
-  borderRadius: "7px",
-  fontFamily: "'JetBrains Mono', monospace",
+  borderRadius: `${radius.full}px`,
+  fontFamily: fonts.mono,
   fontSize: "10.5px",
+  fontWeight: 700,
   letterSpacing: "0.06em",
-  transition: "background 0.15s",
+  transition: "background 150ms ease, filter 150ms ease",
 };
 
-const validateButton = (p) => ({
+const validateButton = {
   ...buttonBase,
-  border: `1px solid ${p.accent}`,
-  color: p.accent,
-  background: "rgba(56,189,248,0)",
-  cursor: "pointer",
-});
-
-const saveButton = (p) => ({
-  ...buttonBase,
-  border: `1px solid ${p.accent}`,
-  color: p.accent,
-  background: "rgba(56,189,248,0.08)",
-  cursor: "pointer",
-});
-
-const cancelButton = (p) => ({
-  ...buttonBase,
-  border: `1px solid ${p.muted}`,
-  color: p.dim,
+  border: `1.5px solid ${colors.borderInk}`,
+  color: colors.ink,
   background: "transparent",
   cursor: "pointer",
-});
+};
 
-const deleteFormButton = (p) => ({
+const saveButton = {
   ...buttonBase,
-  border: `1px solid ${p.danger}`,
-  color: p.danger,
-  background: "rgba(239,68,68,0.08)",
+  border: "1.5px solid transparent",
+  color: colors.bg,
+  background: colors.ink,
   cursor: "pointer",
-});
+};
+
+const cancelButton = {
+  ...buttonBase,
+  border: "1.5px solid transparent",
+  color: colors.inkDim,
+  background: "transparent",
+  cursor: "pointer",
+};
+
+const deleteFormButton = {
+  ...buttonBase,
+  border: `1.5px solid ${colors.danger}`,
+  color: colors.danger,
+  background: "rgba(255,107,107,0.08)",
+  cursor: "pointer",
+};
 
 const messageBoxBase = {
   display: "flex",
   alignItems: "center",
   gap: "8px",
   padding: "10px 12px",
-  borderRadius: "7px",
+  borderRadius: `${radius.sm}px`,
   fontSize: "11px",
-  fontFamily: "'JetBrains Mono', monospace",
+  fontFamily: fonts.mono,
   width: "100%",
 };
 
-const validationOk = (p) => ({
+const validationOk = {
   ...messageBoxBase,
-  color: p.success,
-  border: `1px solid ${p.success}`,
-  background: "rgba(16,217,138,0.08)",
-});
+  color: colors.success,
+  border: `1.5px solid ${colors.success}`,
+  background: colors.accentGreenDim,
+};
 
-const validationBad = (p) => ({
+const validationBad = {
   ...messageBoxBase,
-  color: p.danger,
-  border: `1px solid ${p.danger}`,
-  background: "rgba(244,63,94,0.08)",
-});
+  color: colors.danger,
+  border: `1.5px solid ${colors.danger}`,
+  background: "rgba(255,107,107,0.1)",
+};
 
-const emptyBox = (p) => ({
+const emptyBox = {
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
   gap: "8px",
   padding: "48px 24px",
-  border: `1px dashed ${p.border}`,
-  borderRadius: "10px",
+  border: `1.5px dashed ${colors.border}`,
+  borderRadius: `${radius.md}px`,
   textAlign: "center",
-});
+};

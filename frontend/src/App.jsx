@@ -13,9 +13,112 @@ import { Dashboard } from "./dashboard/Dashboard.jsx";
 import { ToastProvider } from "./components/ui/Toast.jsx";
 import { ConfirmDialogProvider } from "./components/ui/ConfirmDialog.jsx";
 import { ErrorBoundary } from "./components/ui/ErrorBoundary.jsx";
+import { ThemeProvider } from "./dashboard/ThemeContext.jsx";
+import { colors, fonts } from "./dashboard/theme.js";
 
 const GLOBAL_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap');
+
+  /* Multi-theme support (DESIGN_SYSTEM.md §8) — every background, ink,
+     border, AND the brand accent vary per theme now (expanded from the
+     original brand-only scope). Semantic status colors (success/warning/
+     danger/info) and the 5 tag-accent colors stay literal hex in theme.js
+     forever, identical across every theme — status meaning must not shift
+     with the user's cosmetic choice. All 5 themes share the exact same
+     lightness ladder (only hue lean + saturation differ), verified to
+     preserve WCAG AA contrast (ink/inkDim/inkFaint against bg) in every
+     theme, matching amber's own baseline. Default (unset [data-theme], or
+     data-theme="amber") is the original amber theme, values unchanged
+     from the original single-theme release. */
+  :root {
+    --color-brand: #E0A458;
+    --color-brand-dim: rgba(224,164,88,0.14);
+    --color-bg: #0B0B0D;
+    --color-bg-elevated: #131316;
+    --color-bg-card: #151517;
+    --color-bg-card-hover: #1B1B1F;
+    --color-bg-inset: #0E0E10;
+    --color-ink: #EDEBE3;
+    --color-ink-dim: #B9B7AE;
+    --color-ink-faint: #7D7C77;
+    --color-ink-ghost: #4A4A48;
+    --color-border: rgba(237,235,227,0.12);
+    --color-border-subtle: rgba(237,235,227,0.07);
+    --color-border-strong: rgba(237,235,227,0.28);
+    --color-border-ink: #EDEBE3;
+  }
+
+  [data-theme="verdant"] {
+    --color-brand: #4FAE7E;
+    --color-brand-dim: rgba(79,174,126,0.14);
+    --color-bg: #0B0D0C;
+    --color-bg-elevated: #121714;
+    --color-bg-card: #151716;
+    --color-bg-card-hover: #1A201D;
+    --color-bg-inset: #0E100F;
+    --color-ink: #E1EFE8;
+    --color-ink-dim: #ACBBB3;
+    --color-ink-faint: #767E7A;
+    --color-ink-ghost: #484A49;
+    --color-border: rgba(225,239,232,0.12);
+    --color-border-subtle: rgba(225,239,232,0.07);
+    --color-border-strong: rgba(225,239,232,0.28);
+    --color-border-ink: #E1EFE8;
+  }
+
+  [data-theme="ember"] {
+    --color-brand: #D97757;
+    --color-brand-dim: rgba(217,119,87,0.14);
+    --color-bg: #0D0B0B;
+    --color-bg-elevated: #171412;
+    --color-bg-card: #171515;
+    --color-bg-card-hover: #201C1A;
+    --color-bg-inset: #100E0E;
+    --color-ink: #EFE5E1;
+    --color-ink-dim: #BBB1AC;
+    --color-ink-faint: #7E7876;
+    --color-ink-ghost: #4A4848;
+    --color-border: rgba(239,229,225,0.12);
+    --color-border-subtle: rgba(239,229,225,0.07);
+    --color-border-strong: rgba(239,229,225,0.28);
+    --color-border-ink: #EFE5E1;
+  }
+
+  [data-theme="classic"] {
+    --color-brand: #7EC8F2;
+    --color-brand-dim: rgba(126,200,242,0.14);
+    --color-bg: #0B0C0D;
+    --color-bg-elevated: #121517;
+    --color-bg-card: #151617;
+    --color-bg-card-hover: #1A1D20;
+    --color-bg-inset: #0E0F10;
+    --color-ink: #E1E9EF;
+    --color-ink-dim: #ACB5BB;
+    --color-ink-faint: #767B7E;
+    --color-ink-ghost: #48494A;
+    --color-border: rgba(225,233,239,0.12);
+    --color-border-subtle: rgba(225,233,239,0.07);
+    --color-border-strong: rgba(225,233,239,0.28);
+    --color-border-ink: #E1E9EF;
+  }
+
+  [data-theme="mono"] {
+    --color-brand: #FFFFFF;
+    --color-brand-dim: rgba(255,255,255,0.14);
+    --color-bg: #0C0C0C;
+    --color-bg-elevated: #141414;
+    --color-bg-card: #161616;
+    --color-bg-card-hover: #1D1D1D;
+    --color-bg-inset: #0F0F0F;
+    --color-ink: #E8E8E8;
+    --color-ink-dim: #B3B3B3;
+    --color-ink-faint: #7A7A7A;
+    --color-ink-ghost: #494949;
+    --color-border: rgba(232,232,232,0.12);
+    --color-border-subtle: rgba(232,232,232,0.07);
+    --color-border-strong: rgba(232,232,232,0.28);
+    --color-border-ink: #E8E8E8;
+  }
 
   *, *::before, *::after {
     margin: 0;
@@ -24,17 +127,18 @@ const GLOBAL_CSS = `
   }
 
   body {
-    background: #060810;
-    color: #e2e8f0;
-    font-family: 'Rajdhani', sans-serif;
+    background: ${colors.bg};
+    color: ${colors.ink};
+    font-family: ${fonts.body};
     font-weight: 500;
     min-height: 100vh;
+    min-height: 100dvh;
     -webkit-font-smoothing: antialiased;
     overflow: hidden;
   }
 
   input, select, button, textarea {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: ${fonts.body};
   }
 
   /* Tame number spinner */
@@ -42,13 +146,13 @@ const GLOBAL_CSS = `
   input[type=number]::-webkit-outer-spin-button { opacity: 0.3; }
 
   /* Dark select options */
-  select option { background: #0f1117; color: #e2e8f0; }
+  select option { background: ${colors.bgInset}; color: ${colors.ink}; }
 
   /* Thin scrollbars */
   /* Firefox */
   * {
       scrollbar-width: thin;
-      scrollbar-color: #1c2130 transparent;
+      scrollbar-color: ${colors.border} transparent;
   }
 
   /* Chromium */
@@ -62,24 +166,24 @@ const GLOBAL_CSS = `
   }
 
   *::-webkit-scrollbar-thumb {
-      background: #1c2130;
+      background: ${colors.border};
       border-radius: 999px;
   }
 
   *::-webkit-scrollbar-thumb:hover {
-      background: #334155;
+      background: ${colors.borderStrong};
   }
 
   *::-webkit-scrollbar-corner {
       background: transparent;
   }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #1c2130; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb { background: ${colors.border}; border-radius: 2px; }
 
   /* Shared animation keyframes referenced by multiple components */
   @keyframes badge-pulse {
-    0%, 100% { opacity: 1;    transform: scale(1);   }
-    50%       { opacity: 0.2; transform: scale(0.8); }
+    0%, 100% { opacity: 1;   }
+    50%       { opacity: 0.3; }
   }
 
   @keyframes card-in {
@@ -112,13 +216,15 @@ export default function App() {
   }
 
   return (
-    <ToastProvider>
-      <ConfirmDialogProvider>
-        <style>{GLOBAL_CSS}</style>
-        <ErrorBoundary>
-          {loggedIn ? <Dashboard /> : <Login />}
-        </ErrorBoundary>
-      </ConfirmDialogProvider>
-    </ToastProvider>
+    <ThemeProvider>
+      <ToastProvider>
+        <ConfirmDialogProvider>
+          <style>{GLOBAL_CSS}</style>
+          <ErrorBoundary>
+            {loggedIn ? <Dashboard /> : <Login />}
+          </ErrorBoundary>
+        </ConfirmDialogProvider>
+      </ToastProvider>
+    </ThemeProvider>
   );
 }

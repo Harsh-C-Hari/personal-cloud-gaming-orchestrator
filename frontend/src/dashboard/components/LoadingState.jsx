@@ -2,11 +2,9 @@
  * dashboard/components/LoadingState.jsx
  *
  * Shared loading placeholder for the dashboard shell (used by Home.jsx,
- * etc). Brought in line with the pulsing-dot + mono-text pattern already
- * used consistently across the rest of the app (RecoveryEvents,
- * RecoveryStats, SettingsPanel, SunshineStreamHistory, UserPanel,
- * HostStatusPanel) — this was the one remaining spot still using plain
- * flat gray text instead of that pattern.
+ * etc). Pulsing-dot + text pattern, kept consistent with the rest of the
+ * app (RecoveryEvents, RecoveryStats, SettingsPanel, SunshineStreamHistory,
+ * UserPanel, HostStatusPanel).
  *
  * Same prop API as before (`label`, same default) — visual only.
  */
@@ -20,9 +18,10 @@ export function LoadingState({ label = "Connecting to host agent…" }) {
         display: "flex",
         alignItems: "center",
         gap: "9px",
-        color: colors.textDim,
-        fontFamily: fonts.mono,
-        fontSize: "11.5px",
+        color: colors.inkDim,
+        fontFamily: fonts.body,
+        fontWeight: 500,
+        fontSize: "13px",
         padding: "20px 0",
       }}
     >
@@ -31,8 +30,8 @@ export function LoadingState({ label = "Connecting to host agent…" }) {
           width: "7px",
           height: "7px",
           borderRadius: "50%",
-          background: colors.accent,
-          animation: "dashboard-loading-pulse 1.4s ease-in-out infinite",
+          background: colors.brand,
+          animation: "dashboard-loading-pulse 1.6s ease-in-out infinite",
           flexShrink: 0,
         }}
       />

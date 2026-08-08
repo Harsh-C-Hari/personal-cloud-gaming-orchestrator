@@ -7,30 +7,30 @@
  * header, and a bordered, genuinely scrollable event feed.
  */
 
-import { FaBolt, FaLayerGroup, FaSatelliteDish, FaStream } from "react-icons/fa";
+import { Zap, Layers, Satellite, ListTree } from "lucide-react";
 import { EventLog } from "../../components/EventLog.jsx";
 import { DashboardStats } from "./DashboardStats.jsx";
-import { colors, fonts } from "../theme.js";
+import { colors, fonts, radius } from "../theme.js";
 
 export function SessionSidebar({ activeCount, totalCount, connected, events }) {
   return (
     <div
       style={{
-        borderRadius: "10px",
+        borderRadius: `${radius.lg}px`,
         background: colors.bgCard,
-        border: `1px solid ${colors.border}`,
+        border: `1.5px solid ${colors.border}`,
         overflow: "hidden",
       }}
     >
       <DashboardStats
         stats={[
-          { label: "Active", val: activeCount, color: colors.success, icon: <FaBolt /> },
-          { label: "Total", val: totalCount, color: colors.accent, icon: <FaLayerGroup /> },
+          { label: "Active", val: activeCount, color: colors.success, icon: <Zap size={15} strokeWidth={2} /> },
+          { label: "Total", val: totalCount, color: colors.brand, icon: <Layers size={15} strokeWidth={2} /> },
           {
             label: "WebSocket",
             val: connected ? "Online" : "Offline",
             color: connected ? colors.success : colors.danger,
-            icon: <FaSatelliteDish />,
+            icon: <Satellite size={15} strokeWidth={2} />,
           },
         ]}
       />
@@ -38,7 +38,7 @@ export function SessionSidebar({ activeCount, totalCount, connected, events }) {
       <div
         style={{
           padding: "16px 18px 18px",
-          borderTop: `1px solid ${colors.border}`,
+          borderTop: `1.5px solid ${colors.border}`,
         }}
       >
         <div
@@ -47,6 +47,8 @@ export function SessionSidebar({ activeCount, totalCount, connected, events }) {
             alignItems: "center",
             justifyContent: "space-between",
             marginBottom: "12px",
+            flexWrap: "wrap",
+            gap: "6px",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "9px" }}>
@@ -54,24 +56,22 @@ export function SessionSidebar({ activeCount, totalCount, connected, events }) {
               style={{
                 width: "26px",
                 height: "26px",
-                borderRadius: "7px",
+                borderRadius: `${radius.sm}px`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                background: colors.accentDim,
-                color: colors.accent,
-                fontSize: "11px",
+                background: colors.brandDim,
+                color: colors.brand,
               }}
             >
-              <FaStream />
+              <ListTree size={13} strokeWidth={2} />
             </div>
             <span
               style={{
-                fontSize: "12.5px",
+                fontSize: "14px",
                 fontWeight: 700,
-                color: colors.text,
+                color: colors.ink,
                 fontFamily: fonts.display,
-                letterSpacing: "0.02em",
               }}
             >
               Live Activity
@@ -80,10 +80,10 @@ export function SessionSidebar({ activeCount, totalCount, connected, events }) {
 
           <span
             style={{
-              fontSize: "9px",
-              color: colors.textFaint,
-              fontFamily: fonts.mono,
-              letterSpacing: "0.06em",
+              fontSize: "10.5px",
+              fontWeight: 500,
+              color: colors.inkFaint,
+              fontFamily: fonts.body,
             }}
           >
             Session &amp; host events
@@ -92,11 +92,15 @@ export function SessionSidebar({ activeCount, totalCount, connected, events }) {
 
         <div
           style={{
-            height: "260px",
+            display: "flex",
+            flexDirection: "column",
+            minHeight: "140px",
+            maxHeight: "min(260px, 40dvh)",
             padding: "12px",
-            borderRadius: "8px",
-            background: "rgba(2, 2, 31, 0.07)",
-            border: `1px solid ${colors.borderSubtle}`,
+            borderRadius: `${radius.md}px`,
+            background: colors.bgInset,
+            border: `1.5px solid ${colors.borderSubtle}`,
+            overflow: "hidden",
           }}
         >
           <EventLog events={events} connected={connected} />

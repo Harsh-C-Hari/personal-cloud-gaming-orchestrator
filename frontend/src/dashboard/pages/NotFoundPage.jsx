@@ -7,16 +7,17 @@
  * logic lives here; it's wired in exactly like every other page.
  */
 
-import { FaCompass, FaHome } from "react-icons/fa";
+import { Compass, Home as HomeIcon } from "lucide-react";
 import { PageHeader } from "../components/PageHeader.jsx";
-import { colors, fonts } from "../theme.js";
+import { Card, Button } from "../../components/ui/primitives.jsx";
+import { colors, fonts, radius } from "../theme.js";
 
 export function NotFoundPage({ path, onGoHome }) {
   return (
     <div>
       <PageHeader title="Page Not Found" subtitle="The page you're looking for doesn't exist" />
 
-      <div
+      <Card
         style={{
           display: "flex",
           flexDirection: "column",
@@ -24,9 +25,6 @@ export function NotFoundPage({ path, onGoHome }) {
           justifyContent: "center",
           gap: "18px",
           padding: "56px 24px",
-          border: `1px solid ${colors.border}`,
-          borderRadius: "10px",
-          background: colors.bgCard,
           textAlign: "center",
         }}
       >
@@ -34,17 +32,15 @@ export function NotFoundPage({ path, onGoHome }) {
           style={{
             width: "56px",
             height: "56px",
-            borderRadius: "14px",
+            borderRadius: `${radius.md}px`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "rgba(245,165,36,0.1)",
-            border: "1px solid rgba(245,165,36,0.3)",
+            background: colors.accentYellowDim,
             color: colors.warning,
-            fontSize: "22px",
           }}
         >
-          <FaCompass />
+          <Compass size={24} strokeWidth={1.5} />
         </div>
 
         <div>
@@ -52,8 +48,8 @@ export function NotFoundPage({ path, onGoHome }) {
             style={{
               fontSize: "34px",
               fontWeight: 700,
-              letterSpacing: "0.06em",
-              color: colors.text,
+              letterSpacing: "0.02em",
+              color: colors.ink,
               fontFamily: fonts.display,
               lineHeight: 1,
             }}
@@ -64,18 +60,20 @@ export function NotFoundPage({ path, onGoHome }) {
             style={{
               marginTop: "10px",
               fontSize: "12px",
-              color: colors.textDim,
+              color: colors.inkDim,
               fontFamily: fonts.mono,
             }}
           >
             Nothing lives at{" "}
             <code
               style={{
-                color: colors.textFaint,
-                background: "rgba(2,6,23,0.5)",
-                border: `1px solid ${colors.borderSubtle}`,
-                borderRadius: "4px",
+                color: colors.inkFaint,
+                background: colors.bgInset,
+                border: `1.5px solid ${colors.borderSubtle}`,
+                borderRadius: `${radius.sm}px`,
                 padding: "1px 6px",
+                wordBreak: "break-word",
+                overflowWrap: "break-word",
               }}
             >
               /{path}
@@ -83,40 +81,11 @@ export function NotFoundPage({ path, onGoHome }) {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={onGoHome}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            padding: "10px 20px",
-            marginTop: "6px",
-            background: "linear-gradient(180deg, rgba(56,189,248,0.16), rgba(56,189,248,0.08))",
-            border: "1px solid rgba(56,189,248,0.4)",
-            borderRadius: "8px",
-            color: colors.accent,
-            fontSize: "11px",
-            fontFamily: fonts.mono,
-            fontWeight: 700,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            cursor: "pointer",
-            transition: "background 0.2s",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background =
-              "linear-gradient(180deg, rgba(56,189,248,0.24), rgba(56,189,248,0.12))";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background =
-              "linear-gradient(180deg, rgba(56,189,248,0.16), rgba(56,189,248,0.08))";
-          }}
-        >
-          <FaHome size={11} />
+        <Button variant="secondary" onClick={onGoHome} style={{ marginTop: "6px" }}>
+          <HomeIcon size={13} strokeWidth={2} />
           Go To Home
-        </button>
-      </div>
+        </Button>
+      </Card>
     </div>
   );
 }

@@ -15,8 +15,9 @@
  *   - LIVE/PAUSED, REFRESH, DOWNLOAD and EXPORT are now icon+label pill
  *     buttons using the same mono, uppercase, bordered treatment used
  *     everywhere else in the app.
- *   - The mobile "more" menu is restyled as a bordered dropdown card
- *     matching GameManager's menu pattern.
+ *   - The mobile "more" menu is restyled as a flat bordered dropdown card
+ *     matching GameManager's menu pattern (no glass/blur, per
+ *     DESIGN_SYSTEM's ban on glassmorphism).
  *
  * No functional change: every handler, state variable, ref, effect and
  * API call below is untouched from the previous implementation.
@@ -29,19 +30,19 @@ import {
 } from "react";
 
 import {
-    FaFileAlt,
-    FaSyncAlt,
-    FaDownload,
-    FaFileExport,
-    FaSearch,
-    FaEllipsisV,
-    FaExclamationTriangle,
-    FaTimesCircle,
-    FaBroadcastTower,
-    FaPauseCircle,
-    FaChevronDown,
-    FaListUl,
-} from "react-icons/fa";
+    FileText,
+    RefreshCw,
+    Download,
+    FileOutput,
+    Search,
+    MoreVertical,
+    AlertTriangle,
+    XCircle,
+    RadioTower,
+    PauseCircle,
+    ChevronDown,
+    List,
+} from "lucide-react";
 
 import {
     getLogs,
@@ -50,36 +51,19 @@ import {
     clearToken,
 } from "../api/client";
 import { useToast } from "./ui/Toast.jsx";
-
-const palette = {
-    border: "rgba(148,163,184,0.18)",
-    borderSubtle: "#11141c",
-    card: "rgb(0, 0, 0)",
-    bg: "#000000",
-    text: "#e2e8f0",
-    dim: "#94a3b8",
-    faint: "#64748b",
-    muted: "#475569",
-    accent: "#38bdf8",
-    success: "#10d98a",
-    warning: "#f59e0b",
-    danger: "#f43f5e",
-    mono: "'JetBrains Mono', monospace",
-};
+import { colors, fonts, radius } from "../dashboard/theme.js";
 
 // The level/session filter selects and the search input below all use
 // selectStyle/searchInputStyle, which set outline:"none". Every other
-// input in this app pairs that with an onFocus/onBlur border+glow ring
+// input in this app pairs that with an onFocus/onBlur border change
 // (see GameManager.jsx, StartSessionForm.jsx, etc.) — these three were
 // missing that pairing, so tabbing to them showed no focus indication
 // at all. Adding the same pattern here for consistency.
 const focusBorder = (e) => {
-    e.target.style.borderColor = "rgba(56,189,248,0.5)";
-    e.target.style.boxShadow = "0 0 0 3px rgba(56,189,248,0.08)";
+    e.target.style.borderColor = colors.ink;
 };
 const blurBorder = (e) => {
-    e.target.style.borderColor = palette.borderSubtle;
-    e.target.style.boxShadow = "none";
+    e.target.style.borderColor = colors.borderSubtle;
 };
 
 export function LogPanel() {
@@ -323,13 +307,9 @@ export function LogPanel() {
                     translateX(-50%)
                     scale(1.08);
 
-                box-shadow:
-                    0 10px 40px
-                    rgba(56,189,248,0.25);
-
                 border:
-                    1px solid
-                    rgba(56,189,248,0.4);
+                    1.5px solid
+                    ${colors.borderInk};
             }
         `;
 
@@ -616,15 +596,15 @@ export function LogPanel() {
                 }}
                 onMouseEnter={(e) => {
                     if (active || disabled) return;
-                    e.currentTarget.style.background = "rgba(56,189,248,0.08)";
-                    e.currentTarget.style.color = palette.accent;
-                    e.currentTarget.style.borderColor = "rgba(56,189,248,0.4)";
+                    e.currentTarget.style.background = "rgba(237,235,227,0.08)";
+                    e.currentTarget.style.color = colors.ink;
+                    e.currentTarget.style.borderColor = colors.borderStrong;
                 }}
                 onMouseLeave={(e) => {
                     if (active || disabled) return;
-                    e.currentTarget.style.background = palette.card;
-                    e.currentTarget.style.color = palette.dim;
-                    e.currentTarget.style.borderColor = palette.border;
+                    e.currentTarget.style.background = colors.bgCard;
+                    e.currentTarget.style.color = colors.inkDim;
+                    e.currentTarget.style.borderColor = colors.border;
                 }}
             >
                 {icon}
@@ -697,7 +677,7 @@ export function LogPanel() {
             </select>
 
             <div style={searchWrap}>
-                <FaSearch size={11} style={searchIcon} />
+                <Search size={11} strokeWidth={2} style={searchIcon} />
                 <input
                     placeholder="Search logs..."
                     value={searchInput}
@@ -723,7 +703,7 @@ export function LogPanel() {
 
                 <div style={headerLeft}>
                     <div style={iconBadge}>
-                        <FaFileAlt size={12} />
+                        <FileText size={12} strokeWidth={2} />
                     </div>
 
                     <h2 style={titleStyle}>
@@ -744,7 +724,7 @@ export function LogPanel() {
 
                             <PillButton
                                 active={autoRefresh}
-                                tone={palette.success}
+                                tone={colors.success}
                                 onClick={() =>
                                     setAutoRefresh(
                                         !autoRefresh
@@ -752,8 +732,8 @@ export function LogPanel() {
                                 }
                                 icon={
                                     autoRefresh
-                                        ? <FaBroadcastTower size={10} />
-                                        : <FaPauseCircle size={10} />
+                                        ? <RadioTower size={10} strokeWidth={2} />
+                                        : <PauseCircle size={10} strokeWidth={2} />
                                 }
                             >
                                 {
@@ -766,7 +746,7 @@ export function LogPanel() {
                             <PillButton
                                 onClick={loadLogs}
                                 disabled={loading}
-                                icon={<FaSyncAlt size={10} style={loading ? { animation: "lp-spin 0.8s linear infinite" } : undefined} />}
+                                icon={<RefreshCw size={10} strokeWidth={2} style={loading ? { animation: "lp-spin 0.8s linear infinite" } : undefined} />}
                             >
                                 {loading ? "REFRESHING..." : "REFRESH"}
                             </PillButton>
@@ -774,7 +754,7 @@ export function LogPanel() {
                             <PillButton
                                 onClick={downloadLogs}
                                 disabled={downloading}
-                                icon={<FaDownload size={10} style={downloading ? { animation: "lp-spin 0.8s linear infinite" } : undefined} />}
+                                icon={<Download size={10} strokeWidth={2} style={downloading ? { animation: "lp-spin 0.8s linear infinite" } : undefined} />}
                             >
                                 {downloading ? "DOWNLOADING..." : "DOWNLOAD"}
                             </PillButton>
@@ -782,7 +762,7 @@ export function LogPanel() {
                             <PillButton
                                 onClick={downloadFiltered}
                                 disabled={downloading}
-                                icon={<FaFileExport size={10} />}
+                                icon={<FileOutput size={10} strokeWidth={2} />}
                             >
                                 EXPORT
                             </PillButton>
@@ -802,7 +782,7 @@ export function LogPanel() {
 
                             <PillButton
                                 active={autoRefresh}
-                                tone={palette.success}
+                                tone={colors.success}
                                 onClick={() =>
                                     setAutoRefresh(
                                         !autoRefresh
@@ -810,8 +790,8 @@ export function LogPanel() {
                                 }
                                 icon={
                                     autoRefresh
-                                        ? <FaBroadcastTower size={10} />
-                                        : <FaPauseCircle size={10} />
+                                        ? <RadioTower size={10} strokeWidth={2} />
+                                        : <PauseCircle size={10} strokeWidth={2} />
                                 }
                             >
                                 {
@@ -824,7 +804,7 @@ export function LogPanel() {
                             <PillButton
                                 onClick={loadLogs}
                                 disabled={loading}
-                                icon={<FaSyncAlt size={10} style={loading ? { animation: "lp-spin 0.8s linear infinite" } : undefined} />}
+                                icon={<RefreshCw size={10} strokeWidth={2} style={loading ? { animation: "lp-spin 0.8s linear infinite" } : undefined} />}
                             >
                                 {loading ? "REFRESHING..." : "REFRESH"}
                             </PillButton>
@@ -832,7 +812,7 @@ export function LogPanel() {
                             <PillButton
                                 onClick={downloadLogs}
                                 disabled={downloading}
-                                icon={<FaDownload size={10} style={downloading ? { animation: "lp-spin 0.8s linear infinite" } : undefined} />}
+                                icon={<Download size={10} strokeWidth={2} style={downloading ? { animation: "lp-spin 0.8s linear infinite" } : undefined} />}
                             >
                                 {downloading ? "DOWNLOADING..." : "DOWNLOAD"}
                             </PillButton>
@@ -840,7 +820,7 @@ export function LogPanel() {
                             <PillButton
                                 onClick={downloadFiltered}
                                 disabled={downloading}
-                                icon={<FaFileExport size={10} />}
+                                icon={<FileOutput size={10} strokeWidth={2} />}
                             >
                                 EXPORT
                             </PillButton>
@@ -864,7 +844,7 @@ export function LogPanel() {
                                 }
                                 style={pillButton}
                             >
-                                <FaEllipsisV size={10} />
+                                <MoreVertical size={10} strokeWidth={2} />
                                 MORE
                             </button>
 
@@ -890,20 +870,6 @@ export function LogPanel() {
 
                                     <div style={dropdownMenu}>
 
-                                        {/* Glass sheen overlay — same soft diagonal
-                                            light catch used on MobileHeader's nav
-                                            drawer, so the two glass surfaces match. */}
-                                        <div
-                                            aria-hidden="true"
-                                            style={{
-                                                position: "absolute",
-                                                inset: 0,
-                                                background: "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 32%)",
-                                                pointerEvents: "none",
-                                                zIndex: -1,
-                                            }}
-                                        />
-
                                         <button
                                             style={menuButton}
                                             onClick={() => {
@@ -918,8 +884,8 @@ export function LogPanel() {
                                         >
                                             {
                                                 autoRefresh
-                                                    ? <FaBroadcastTower size={10} style={{ color: palette.success }} />
-                                                    : <FaPauseCircle size={10} />
+                                                    ? <RadioTower size={10} strokeWidth={2} style={{ color: colors.success }} />
+                                                    : <PauseCircle size={10} strokeWidth={2} />
                                             }
                                             {
                                                 autoRefresh
@@ -938,7 +904,7 @@ export function LogPanel() {
 
                                             }}
                                         >
-                                            <FaSyncAlt size={10} />
+                                            <RefreshCw size={10} strokeWidth={2} />
                                             REFRESH
                                         </button>
 
@@ -952,7 +918,7 @@ export function LogPanel() {
 
                                             }}
                                         >
-                                            <FaDownload size={10} />
+                                            <Download size={10} strokeWidth={2} />
                                             DOWNLOAD
                                         </button>
 
@@ -966,7 +932,7 @@ export function LogPanel() {
 
                                             }}
                                         >
-                                            <FaFileExport size={10} />
+                                            <FileOutput size={10} strokeWidth={2} />
                                             EXPORT
                                         </button>
 
@@ -992,28 +958,28 @@ export function LogPanel() {
             <div style={statsRow}>
 
                 <StatTile
-                    icon={<FaListUl size={13} />}
+                    icon={<List size={13} strokeWidth={2} />}
                     label={
                         loading
                             ? "LOADING..."
                             : "ENTRIES LOADED"
                     }
                     value={logs.length}
-                    tone={palette.accent}
+                    tone={colors.brand}
                 />
 
                 <StatTile
-                    icon={<FaExclamationTriangle size={13} />}
+                    icon={<AlertTriangle size={13} strokeWidth={2} />}
                     label="WARNINGS"
                     value={warningCount}
-                    tone={palette.warning}
+                    tone={colors.warning}
                 />
 
                 <StatTile
-                    icon={<FaTimesCircle size={13} />}
+                    icon={<XCircle size={13} strokeWidth={2} />}
                     label="ERRORS"
                     value={errorCount}
-                    tone={palette.danger}
+                    tone={colors.danger}
                 />
 
             </div>
@@ -1052,7 +1018,7 @@ export function LogPanel() {
                                             style = {
                                                 ...logStyle,
                                                 color:
-                                                    palette.danger,
+                                                    colors.danger,
                                             };
                                         }
 
@@ -1065,7 +1031,7 @@ export function LogPanel() {
                                             style = {
                                                 ...logStyle,
                                                 color:
-                                                    palette.warning,
+                                                    colors.warning,
                                             };
                                         }
 
@@ -1078,7 +1044,7 @@ export function LogPanel() {
                                             style = {
                                                 ...logStyle,
                                                 color:
-                                                    palette.success,
+                                                    colors.success,
                                             };
                                         }
 
@@ -1110,9 +1076,9 @@ export function LogPanel() {
                                                                             key={i}
                                                                             style={{
                                                                                 background:
-                                                                                    "rgba(56,189,248,0.25)",
+                                                                                    colors.brandDim,
                                                                                 color:
-                                                                                    "#38bdf8",
+                                                                                    colors.brand,
                                                                                 padding:
                                                                                     "0 2px",
                                                                                 borderRadius:
@@ -1147,8 +1113,10 @@ export function LogPanel() {
                                 className="scroll-btn"
                                 style={scrollButton}
                                 onClick={jumpBottom}
+                                title="Jump to bottom"
+                                aria-label="Jump to bottom"
                             >
-                                <FaChevronDown size={14} />
+                                <ChevronDown size={14} strokeWidth={2} />
                             </button>
                         )
                     }
@@ -1160,14 +1128,14 @@ export function LogPanel() {
 }
 
 // ── Style primitives ───────────────────────────────────────────────────
-// Kept as plain objects/functions of `palette`, matching the convention
-// used by GameManager / SessionHistory / SessionAnalytics.
+// Kept as plain objects/functions built from theme.js tokens, matching
+// the convention used by GameManager / SessionHistory / SessionAnalytics.
 
 const sectionStyle = {
     padding: "16px",
-    border: `1px solid ${palette.border}`,
-    borderRadius: "10px",
-    background: "rgba(0, 0, 0, 0.55)",
+    border: `1.5px solid ${colors.border}`,
+    borderRadius: `${radius.lg}px`,
+    background: colors.bgCard,
 };
 
 const headerRow = {
@@ -1188,13 +1156,13 @@ const headerLeft = {
 const iconBadge = {
     width: "28px",
     height: "28px",
-    borderRadius: "7px",
+    borderRadius: `${radius.sm}px`,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "rgba(56,189,248,0.12)",
-    border: "1px solid rgba(56,189,248,0.3)",
-    color: palette.accent,
+    background: colors.brandDim,
+    border: `1.5px solid color-mix(in srgb, ${colors.brand} 30%, transparent)`,
+    color: colors.brand,
     flexShrink: 0,
 };
 
@@ -1202,15 +1170,15 @@ const titleStyle = {
     margin: 0,
     fontSize: "13px",
     letterSpacing: "0.12em",
-    color: palette.text,
-    fontFamily: palette.mono,
+    color: colors.ink,
+    fontFamily: fonts.mono,
 };
 
 const countBadge = {
     fontSize: "9px",
-    color: palette.faint,
-    fontFamily: palette.mono,
-    border: `1px solid ${palette.borderSubtle}`,
+    color: colors.inkFaint,
+    fontFamily: fonts.mono,
+    border: `1.5px solid ${colors.borderSubtle}`,
     borderRadius: "10px",
     padding: "1px 8px",
 };
@@ -1225,23 +1193,23 @@ const pillButton = {
     display: "inline-flex",
     alignItems: "center",
     gap: "6px",
-    border: `1px solid ${palette.border}`,
-    background: palette.card,
-    color: palette.dim,
-    borderRadius: "6px",
+    border: `1.5px solid ${colors.border}`,
+    background: colors.bgCard,
+    color: colors.inkDim,
+    borderRadius: `${radius.full}px`,
     padding: "6px 11px",
     fontSize: "9.5px",
-    fontFamily: palette.mono,
+    fontFamily: fonts.mono,
     letterSpacing: "0.08em",
     cursor: "pointer",
-    transition: "background 0.15s, color 0.15s, border-color 0.15s",
+    transition: "background 150ms ease, color 150ms ease, border-color 150ms ease",
 };
 
 const activePillButton = (tone) => ({
     ...pillButton,
     color: tone,
     borderColor: tone,
-    background: `${tone}1a`,
+    background: `${tone}24`,
 });
 
 const filtersRow = {
@@ -1252,11 +1220,11 @@ const filtersRow = {
 };
 
 const selectStyle = {
-    background: palette.bg,
-    border: `1px solid ${palette.borderSubtle}`,
-    color: palette.text,
+    background: colors.bgInset,
+    border: `1.5px solid ${colors.borderSubtle}`,
+    color: colors.ink,
     padding: "8px 10px",
-    borderRadius: "7px",
+    borderRadius: `${radius.md}px`,
     fontSize: "11.5px",
     fontFamily: "inherit",
     outline: "none",
@@ -1273,7 +1241,7 @@ const searchWrap = {
 const searchIcon = {
     position: "absolute",
     left: "11px",
-    color: palette.muted,
+    color: colors.inkFaint,
     pointerEvents: "none",
 };
 
@@ -1292,16 +1260,13 @@ const dropdownMenu = {
     flexDirection: "column",
     gap: "6px",
     padding: "8px",
-    background: "linear-gradient(165deg, rgba(0, 1, 20, 0.64), rgb(0, 0, 0))",
-    backdropFilter: "blur(1px) saturate(160%)",
-    WebkitBackdropFilter: "blur(10px) saturate(160%)",
-    border: `1px solid rgba(148,163,184,0.16)`,
-    borderRadius: "8px",
-    boxShadow: "inset -1px 0 0 rgba(255,255,255,0.04), 0 12px 32px rgba(0,0,0,0.45)",
+    background: colors.bgCard,
+    border: `1.5px solid ${colors.border}`,
+    borderRadius: `${radius.md}px`,
+    boxShadow: "0 8px 24px rgba(0,0,0,0.45)",
     zIndex: 20,
     minWidth: "160px",
     overflow: "hidden",
-    isolation: "isolate",
 };
 
 const menuButton = {
@@ -1309,7 +1274,7 @@ const menuButton = {
     width: "100%",
     justifyContent: "flex-start",
     background: "transparent",
-    border: `1px solid ${palette.borderSubtle}`,
+    border: `1.5px solid ${colors.borderSubtle}`,
 };
 
 const statsRow = {
@@ -1321,9 +1286,9 @@ const statsRow = {
 
 const statTile = {
     padding: "12px",
-    borderRadius: "8px",
-    background: palette.card,
-    border: `1px solid ${palette.borderSubtle}`,
+    borderRadius: `${radius.md}px`,
+    background: colors.bgCard,
+    border: `1.5px solid ${colors.borderSubtle}`,
     display: "flex",
     alignItems: "center",
     gap: "12px",
@@ -1333,12 +1298,12 @@ const statIconWrap = (tone) => ({
     flexShrink: 0,
     width: "32px",
     height: "32px",
-    borderRadius: "8px",
+    borderRadius: `${radius.sm}px`,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: `${tone}1a`,
-    border: `1px solid ${tone}40`,
+    background: `color-mix(in srgb, ${tone} 14%, transparent)`,
+    border: `1.5px solid color-mix(in srgb, ${tone} 40%, transparent)`,
     color: tone,
     fontSize: "13px",
 });
@@ -1346,16 +1311,16 @@ const statIconWrap = (tone) => ({
 const statValue = {
     fontSize: "17px",
     fontWeight: 700,
-    fontFamily: palette.mono,
+    fontFamily: fonts.mono,
     lineHeight: 1.1,
     whiteSpace: "nowrap",
 };
 
 const statLabel = {
     fontSize: "9px",
-    color: palette.faint,
+    color: colors.inkFaint,
     letterSpacing: "0.08em",
-    fontFamily: palette.mono,
+    fontFamily: fonts.mono,
     marginTop: "3px",
     textTransform: "uppercase",
 };
@@ -1366,19 +1331,20 @@ const logWrapper = {
 
 const logContainer = {
     position: "relative",
-    background: palette.bg,
-    border: `1px solid ${palette.borderSubtle}`,
-    borderRadius: "10px",
+    background: colors.bgInset,
+    border: `1.5px solid ${colors.borderSubtle}`,
+    borderRadius: `${radius.md}px`,
     padding: "12px",
-    height: "600px",
+    minHeight: "200px",
+    maxHeight: "min(600px, 65dvh)",
     overflowY: "auto",
     overflowX: "hidden",
 };
 
 const logStyle = {
-    fontFamily: palette.mono,
+    fontFamily: fonts.mono,
     fontSize: "12px",
-    color: palette.dim,
+    color: colors.inkDim,
 
     whiteSpace: "pre-wrap",
     overflowWrap: "anywhere",
@@ -1388,15 +1354,15 @@ const logStyle = {
     boxSizing: "border-box",
 
     marginBottom: "6px",
-    borderBottom: "1px solid rgba(255,255,255,0.03)",
+    borderBottom: `1px solid ${colors.borderSubtle}`,
     paddingBottom: "6px",
 };
 
 const emptyStyle = {
-    color: palette.muted,
+    color: colors.inkFaint,
     textAlign: "center",
     padding: "40px 20px",
-    fontFamily: palette.mono,
+    fontFamily: fonts.mono,
     fontSize: "11px",
     letterSpacing: "0.04em",
 };
@@ -1418,26 +1384,20 @@ const scrollButton = {
     borderRadius: "50%",
 
     border:
-        "1px solid rgba(56,189,248,0.35)",
+        `1.5px solid ${colors.borderInk}`,
 
     background:
-        "rgba(6,8,16,0.85)",
-
-    backdropFilter:
-        "blur(2px)",
-
-    WebkitBackdropFilter:
-        "blur(2px)",
+        colors.bgCard,
 
     color:
-        palette.accent,
+        colors.brand,
 
     cursor: "pointer",
 
     zIndex: 300,
 
     boxShadow:
-        "0 8px 30px rgba(0,0,0,0.45)",
+        "0 8px 24px rgba(0,0,0,0.45)",
 
     transition:
         "all 0.2s ease",

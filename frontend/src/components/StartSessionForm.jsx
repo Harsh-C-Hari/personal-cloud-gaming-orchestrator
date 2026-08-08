@@ -32,21 +32,24 @@
 
 import { useEffect, useState } from "react";
 import {
-  FaChevronDown,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaExclamationTriangle,
-  FaGamepad,
-  FaClock,
-  FaBell,
-  FaRocket,
-  FaInfoCircle,
-} from "react-icons/fa";
+  ChevronDown,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  Gamepad2,
+  Clock,
+  Bell,
+  Rocket,
+  Info,
+} from "lucide-react";
 import { deleteSave, fetchSaves, startSession, validateGame } from "../api/client.js";
 import { SaveBrowser } from "./SaveBrowser.jsx";
 import { GameLibrary } from "./GameLibrary.jsx";
 import { useConfirm } from "./ui/ConfirmDialog.jsx";
 import { useToast } from "./ui/Toast.jsx";
+import { Button } from "./ui/primitives.jsx";
+import { colors, fonts, radius } from "../dashboard/theme.js";
+
 const DEFAULT_FORM = {
   game_id:    "",
   duration:   60,
@@ -459,41 +462,25 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
 
   // ── Shared style primitives ───────────────────────────────────────────
 
-  const palette = {
-    bg: "#080a0f",
-    card: "rgba(3, 2, 2, 0.55)",
-    border: "#1c2130",
-    borderStrong: "rgba(148,163,184,0.18)",
-    text: "#e2e8f0",
-    dim: "#94a3b8",
-    faint: "#64748b",
-    muted: "#475569",
-    accent: "#38bdf8",
-    success: "#10d98a",
-    warning: "#f5a524",
-    danger: "#f43f5e",
-    mono: "'JetBrains Mono', monospace",
-  };
-
   const inputStyle = {
     width: "100%",
     padding: "10px 12px",
-    background: palette.bg,
-    border: `1px solid ${palette.border}`,
-    borderRadius: "7px",
-    color: palette.text,
+    background: colors.bgInset,
+    border: `1.5px solid ${colors.border}`,
+    borderRadius: `${radius.md}px`,
+    color: colors.ink,
     fontSize: "13px",
-    fontFamily: "inherit",
+    fontFamily: fonts.body,
     outline: "none",
     boxSizing: "border-box",
-    transition: "border-color 0.2s, box-shadow 0.2s",
+    transition: "border-color 150ms ease",
   };
 
   const cardSection = {
     padding: "16px",
-    borderRadius: "10px",
-    border: `1px solid ${palette.border}`,
-    background: palette.card,
+    borderRadius: `${radius.md}px`,
+    border: `1.5px solid ${colors.border}`,
+    background: colors.bgCard,
   };
 
   const validationText = {
@@ -502,20 +489,18 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
     alignItems: "center",
     gap: "6px",
     fontSize: "10.5px",
-    color: palette.faint,
-    fontFamily: palette.mono,
+    color: colors.inkFaint,
+    fontFamily: fonts.mono,
   };
 
-  const validationOk = { ...validationText, color: palette.success };
-  const validationBad = { ...validationText, color: palette.danger };
+  const validationOk = { ...validationText, color: colors.success };
+  const validationBad = { ...validationText, color: colors.danger };
 
   const focusBorder = (e) => {
-    e.target.style.borderColor = "rgba(56,189,248,0.5)";
-    e.target.style.boxShadow = "0 0 0 3px rgba(56,189,248,0.08)";
+    e.target.style.borderColor = colors.ink;
   };
   const blurBorder = (e) => {
-    e.target.style.borderColor = palette.border;
-    e.target.style.boxShadow = "none";
+    e.target.style.borderColor = colors.border;
   };
 
   function FieldLabel({ icon, children }) {
@@ -526,10 +511,11 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
           alignItems: "center",
           gap: "6px",
           fontSize: "9.5px",
-          color: palette.muted,
+          color: colors.inkFaint,
           letterSpacing: "0.13em",
           textTransform: "uppercase",
-          fontFamily: palette.mono,
+          fontFamily: fonts.mono,
+          fontWeight: 700,
           marginBottom: "8px",
         }}
       >
@@ -544,10 +530,11 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
       <div
         style={{
           fontSize: "10px",
-          color: palette.muted,
+          color: colors.inkFaint,
           letterSpacing: "0.15em",
           textTransform: "uppercase",
-          fontFamily: palette.mono,
+          fontFamily: fonts.mono,
+          fontWeight: 700,
           marginBottom: "12px",
         }}
       >
@@ -564,9 +551,9 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
   return (
     <div
       style={{
-        border: `1px solid ${palette.border}`,
-        borderRadius: "12px",
-        background: "rgba(0, 0, 0, 0.5)",
+        border: `1.5px solid ${colors.border}`,
+        borderRadius: `${radius.lg}px`,
+        background: colors.bgCard,
         overflow: "hidden",
       }}
     >
@@ -577,39 +564,39 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
           alignItems: "center",
           gap: "10px",
           padding: "16px 20px",
-          borderBottom: `1px solid ${palette.border}`,
-          background: "rgb(1, 3, 10)",
+          borderBottom: `1.5px solid ${colors.border}`,
+          background: colors.bgElevated,
         }}
       >
         <div
           style={{
             width: "30px",
             height: "30px",
-            borderRadius: "8px",
+            borderRadius: `${radius.sm}px`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "rgba(56,189,248,0.12)",
-            border: "1px solid rgba(56,189,248,0.3)",
-            color: palette.accent,
+            background: colors.brandDim,
+            border: `1.5px solid ${colors.brand}`,
+            color: colors.brand,
             fontSize: "13px",
+            flexShrink: 0,
           }}
         >
-          <FaRocket />
+          <Rocket size={14} strokeWidth={2} />
         </div>
         <div>
           <div
             style={{
-              fontSize: "13.5px",
+              fontSize: "14.5px",
               fontWeight: 700,
-              color: palette.text,
-              fontFamily: "'Rajdhani', sans-serif",
-              letterSpacing: "0.02em",
+              color: colors.ink,
+              fontFamily: fonts.display,
             }}
           >
             Launch a Session
           </div>
-          <div style={{ fontSize: "10px", color: palette.faint, fontFamily: palette.mono, marginTop: "1px" }}>
+          <div style={{ fontSize: "10px", color: colors.inkFaint, fontFamily: fonts.mono, marginTop: "1px" }}>
             Pick a game, set your timer, and go
           </div>
         </div>
@@ -618,7 +605,7 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
       <div style={{ display: "flex", flexDirection: "column", gap: "16px", padding: "20px" }}>
         {/* Game */}
         <div style={cardSection}>
-          <FieldLabel icon={<FaGamepad size={10} />}>Game</FieldLabel>
+          <FieldLabel icon={<Gamepad2 size={11} strokeWidth={2} />}>Game</FieldLabel>
 
           {entries.length === 0 ? (
             <div
@@ -627,15 +614,15 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
                 alignItems: "center",
                 gap: "8px",
                 padding: "10px 12px",
-                borderRadius: "7px",
-                background: "rgba(245,165,36,0.08)",
-                border: "1px solid rgba(245,165,36,0.3)",
-                color: palette.warning,
+                borderRadius: `${radius.sm}px`,
+                background: colors.accentYellowDim,
+                border: `1.5px solid ${colors.warning}`,
+                color: colors.warning,
                 fontSize: "11px",
-                fontFamily: palette.mono,
+                fontFamily: fonts.mono,
               }}
             >
-              <FaExclamationTriangle size={11} />
+              <AlertTriangle size={12} strokeWidth={2} />
               No games found
             </div>
           ) : (
@@ -660,14 +647,15 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
                   ))
                 )}
               </select>
-              <FaChevronDown
-                size={10}
+              <ChevronDown
+                size={12}
+                strokeWidth={2}
                 style={{
                   position: "absolute",
                   right: "13px",
                   top: "50%",
                   transform: "translateY(-50%)",
-                  color: palette.muted,
+                  color: colors.inkFaint,
                   pointerEvents: "none",
                 }}
               />
@@ -684,30 +672,35 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
               gap: "6px",
               width: "100%",
               marginTop: "10px",
-              border: `1px solid ${palette.borderStrong}`,
-              background: "rgba(0, 0, 0, 0.45)",
-              color: palette.dim,
-              borderRadius: "7px",
+              border: `1.5px solid ${colors.borderStrong}`,
+              background: "transparent",
+              color: colors.inkDim,
+              borderRadius: `${radius.sm}px`,
               padding: "7px",
               fontSize: "9.5px",
-              fontFamily: palette.mono,
+              fontFamily: fonts.mono,
+              fontWeight: 700,
               letterSpacing: "0.08em",
+              textTransform: "uppercase",
               cursor: "pointer",
-              transition: "background 0.15s, color 0.15s",
+              transition: "background 150ms ease, color 150ms ease",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.color = palette.accent;
+              e.currentTarget.style.color = colors.ink;
+              e.currentTarget.style.background = "rgba(237,235,227,0.06)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.color = palette.dim;
+              e.currentTarget.style.color = colors.inkDim;
+              e.currentTarget.style.background = "transparent";
             }}
           >
             {showGameDetails ? "HIDE GAME LIBRARY" : "BROWSE GAME LIBRARY"}
-            <FaChevronDown
-              size={9}
+            <ChevronDown
+              size={11}
+              strokeWidth={2}
               style={{
                 transform: showGameDetails ? "rotate(180deg)" : "rotate(0deg)",
-                transition: "transform 0.2s",
+                transition: "transform 150ms ease",
               }}
             />
           </button>
@@ -720,19 +713,19 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
 
           {gameValidationLoading && (
             <div style={validationText}>
-              <FaInfoCircle size={10} /> Checking game config…
+              <Info size={11} strokeWidth={2} /> Checking game config…
             </div>
           )}
 
           {gameValidationErr && (
             <div style={validationBad}>
-              <FaTimesCircle size={10} /> Game validation unavailable.
+              <XCircle size={11} strokeWidth={2} /> Game validation unavailable.
             </div>
           )}
 
           {gameValidation && (
             <div style={gameValidation.valid ? validationOk : validationBad}>
-              {gameValidation.valid ? <FaCheckCircle size={10} /> : <FaTimesCircle size={10} />}
+              {gameValidation.valid ? <CheckCircle2 size={11} strokeWidth={2} /> : <XCircle size={11} strokeWidth={2} />}
               {gameValidation.valid ? "Game config ready." : gameValidation.errors.join(" ")}
             </div>
           )}
@@ -741,9 +734,9 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
         {/* Duration + Warning */}
         <div style={cardSection}>
           <SectionHeading>Session Timer</SectionHeading>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+          <div className="pcgo-2col" style={{ gap: "12px" }}>
             <div>
-              <FieldLabel icon={<FaClock size={9} />}>Duration (min)</FieldLabel>
+              <FieldLabel icon={<Clock size={10} strokeWidth={2} />}>Duration (min)</FieldLabel>
               <input
                 type="number"
                 min={1}
@@ -757,7 +750,7 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
               />
             </div>
             <div>
-              <FieldLabel icon={<FaBell size={9} />}>Warning (min)</FieldLabel>
+              <FieldLabel icon={<Bell size={10} strokeWidth={2} />}>Warning (min)</FieldLabel>
               <input
                 type="number"
                 min={1}
@@ -789,18 +782,21 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
               userSelect: "none",
               marginTop: "14px",
               paddingTop: "14px",
-              borderTop: `1px solid ${palette.border}`,
+              paddingBottom: "8px",
+              minHeight: "44px",
+              boxSizing: "border-box",
+              borderTop: `1.5px solid ${colors.border}`,
             }}
           >
             <div
               style={{
                 width: "36px",
                 height: "20px",
-                borderRadius: "10px",
-                background: form.skip_timer ? "rgba(56,189,248,0.15)" : "#111620",
-                border: `1px solid ${form.skip_timer ? "rgba(56,189,248,0.5)" : palette.border}`,
+                borderRadius: `${radius.full}px`,
+                background: form.skip_timer ? colors.brandDim : colors.bgInset,
+                border: `1.5px solid ${form.skip_timer ? colors.brand : colors.border}`,
                 position: "relative",
-                transition: "all 0.25s",
+                transition: "background 150ms ease, border-color 150ms ease",
                 flexShrink: 0,
               }}
             >
@@ -812,13 +808,12 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
                   width: "14px",
                   height: "14px",
                   borderRadius: "50%",
-                  background: form.skip_timer ? palette.accent : "#2d3748",
-                  boxShadow: form.skip_timer ? "0 0 8px rgba(56,189,248,0.6)" : "none",
-                  transition: "all 0.25s",
+                  background: form.skip_timer ? colors.brand : colors.inkGhost,
+                  transition: "left 150ms ease, background 150ms ease",
                 }}
               />
             </div>
-            <span style={{ fontSize: "12px", color: palette.dim, fontFamily: palette.mono }}>
+            <span style={{ fontSize: "12px", color: colors.inkDim, fontFamily: fonts.mono }}>
               Skip Timer
             </span>
           </div>
@@ -849,14 +844,14 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
                 alignItems: "center",
                 gap: "8px",
                 padding: "12px",
-                border: `1px dashed ${palette.border}`,
-                borderRadius: "7px",
-                color: palette.muted,
+                border: `1.5px dashed ${colors.border}`,
+                borderRadius: `${radius.sm}px`,
+                color: colors.inkFaint,
                 fontSize: "10.5px",
-                fontFamily: palette.mono,
+                fontFamily: fonts.mono,
               }}
             >
-              <FaInfoCircle size={11} />
+              <Info size={12} strokeWidth={2} />
               Select a game to load your saves.
             </div>
           )}
@@ -870,17 +865,17 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
               alignItems: "center",
               gap: "9px",
               padding: "11px 14px",
-              background: "rgba(16,217,138,0.06)",
-              border: "1px solid rgba(16,217,138,0.25)",
-              borderRadius: "8px",
-              color: palette.success,
+              background: colors.accentGreenDim,
+              border: `1.5px solid ${colors.success}`,
+              borderRadius: `${radius.sm}px`,
+              color: colors.success,
               fontSize: "11px",
-              fontFamily: palette.mono,
+              fontFamily: fonts.mono,
               letterSpacing: "0.03em",
-              animation: "card-in 0.2s ease forwards",
+              animation: "card-in 180ms ease forwards",
             }}
           >
-            <FaCheckCircle size={12} style={{ flexShrink: 0 }} />
+            <CheckCircle2 size={13} strokeWidth={2} style={{ flexShrink: 0 }} />
             Launched: {launchedId}
           </div>
         )}
@@ -893,78 +888,55 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
             <div
               style={{
                 padding: "11px 14px",
-                borderRadius: "8px",
-                background: "rgba(245,165,36,0.06)",
-                border: "1px solid rgba(245,165,36,0.25)",
+                borderRadius: `${radius.sm}px`,
+                background: colors.accentYellowDim,
+                border: `1.5px solid ${colors.warning}`,
                 display: "flex",
                 flexDirection: "column",
                 gap: "6px",
               }}
             >
               {!hostStatus.sunshine_running && (
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "10.5px", color: palette.warning, fontFamily: palette.mono }}>
-                  <FaExclamationTriangle size={10} /> Sunshine is not running.
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "10.5px", color: colors.warning, fontFamily: fonts.mono }}>
+                  <AlertTriangle size={11} strokeWidth={2} /> Sunshine is not running.
                 </div>
               )}
               {!hostStatus.tailscale_running && (
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "10.5px", color: palette.warning, fontFamily: palette.mono }}>
-                  <FaExclamationTriangle size={10} /> Tailscale is not running.
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "10.5px", color: colors.warning, fontFamily: fonts.mono }}>
+                  <AlertTriangle size={11} strokeWidth={2} /> Tailscale is not running.
                 </div>
               )}
               {hostStatus.sunshine_api_reachable === false && (
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "10.5px", color: palette.warning, fontFamily: palette.mono }}>
-                  <FaExclamationTriangle size={10} /> Sunshine API is not reachable.
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "10.5px", color: colors.warning, fontFamily: fonts.mono }}>
+                  <AlertTriangle size={11} strokeWidth={2} /> Sunshine API is not reachable.
                 </div>
               )}
               {hostStatus.sunshine_apps_count === 0 && (
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "10.5px", color: palette.warning, fontFamily: palette.mono }}>
-                  <FaExclamationTriangle size={10} /> Sunshine has no configured apps.
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "10.5px", color: colors.warning, fontFamily: fonts.mono }}>
+                  <AlertTriangle size={11} strokeWidth={2} /> Sunshine has no configured apps.
                 </div>
               )}
             </div>
           )}
 
         {/* Launch button */}
-        <button
+        <Button
+          variant="primary"
           onClick={handleLaunch}
           disabled={launchDisabled}
           style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "9px",
+            width: "100%",
             padding: "13px",
-            background: submitting
-              ? "rgba(56,189,248,0.06)"
-              : "linear-gradient(180deg, rgba(56,189,248,0.16), rgba(56,189,248,0.08))",
-            border: "1px solid rgba(56,189,248,0.4)",
-            borderRadius: "8px",
-            color: palette.accent,
             fontSize: "12px",
-            fontFamily: palette.mono,
+            fontFamily: fonts.mono,
             fontWeight: 700,
             letterSpacing: "0.14em",
             textTransform: "uppercase",
-            cursor: launchDisabled ? "not-allowed" : "pointer",
-            textShadow: "0 0 14px rgba(56,189,248,0.4)",
-            transition: "background 0.2s, transform 0.1s",
-            opacity: !gamesReady || sessionBlocked ? 0.5 : 1,
-          }}
-          onMouseEnter={(e) => {
-            if (!launchDisabled) {
-              e.currentTarget.style.background =
-                "linear-gradient(180deg, rgba(56,189,248,0.24), rgba(56,189,248,0.12))";
-            }
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = submitting
-              ? "rgba(56,189,248,0.06)"
-              : "linear-gradient(180deg, rgba(56,189,248,0.16), rgba(56,189,248,0.08))";
           }}
         >
-          <FaRocket size={12} />
+          <Rocket size={13} strokeWidth={2} />
           {submitting ? "Checking / Launching..." : "Launch Session"}
-        </button>
+        </Button>
 
         {sessionBlocked && hostStatus?.host_ready_reason != null && (
           <div
@@ -973,11 +945,11 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
               alignItems: "center",
               gap: "7px",
               fontSize: "10.5px",
-              color: palette.warning,
-              fontFamily: palette.mono,
+              color: colors.warning,
+              fontFamily: fonts.mono,
             }}
           >
-            <FaExclamationTriangle size={10} />
+            <AlertTriangle size={11} strokeWidth={2} />
             {hostState === "maintenance"
               ? "Host is in maintenance mode."
               : hostState === "recovery"

@@ -15,18 +15,8 @@
  */
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { FaExclamationTriangle, FaQuestionCircle } from "react-icons/fa";
-
-const palette = {
-  card: "#0b0e16",
-  border: "#1c2130",
-  text: "#e2e8f0",
-  dim: "#94a3b8",
-  faint: "#64748b",
-  accent: "#38bdf8",
-  danger: "#f43f5e",
-  mono: "'JetBrains Mono', monospace",
-};
+import { AlertTriangle, HelpCircle } from "lucide-react";
+import { colors, fonts, radius, shadow } from "../../dashboard/theme.js";
 
 const ConfirmContext = createContext(null);
 
@@ -76,8 +66,7 @@ export function ConfirmDialogProvider({ children }) {
             position: "fixed",
             inset: 0,
             zIndex: 9999,
-            background: "rgba(2,6,23,0.7)",
-            backdropFilter: "blur(2px)",
+            background: "rgba(0,0,0,0.6)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -92,11 +81,13 @@ export function ConfirmDialogProvider({ children }) {
             style={{
               width: "100%",
               maxWidth: "380px",
-              background: palette.card,
-              border: `1px solid ${palette.border}`,
-              borderRadius: "12px",
+              maxHeight: "min(85vh, 85dvh)",
+              overflowY: "auto",
+              background: colors.bgCard,
+              border: `1.5px solid ${colors.border}`,
+              borderRadius: `${radius.lg}px`,
               padding: "20px",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.55)",
+              boxShadow: shadow.overlay,
               animation: "confirm-card-in 0.18s ease forwards",
             }}
           >
@@ -106,26 +97,26 @@ export function ConfirmDialogProvider({ children }) {
                   flexShrink: 0,
                   width: "34px",
                   height: "34px",
-                  borderRadius: "9px",
+                  borderRadius: `${radius.sm}px`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  background: dialog.danger ? "rgba(244,63,94,0.12)" : "rgba(56,189,248,0.12)",
-                  border: `1px solid ${dialog.danger ? "rgba(244,63,94,0.35)" : "rgba(56,189,248,0.3)"}`,
-                  color: dialog.danger ? palette.danger : palette.accent,
+                  background: dialog.danger ? "rgba(255,107,107,0.14)" : "rgba(224,164,88,0.14)",
+                  border: `1.5px solid ${dialog.danger ? "rgba(255,107,107,0.35)" : "rgba(224,164,88,0.3)"}`,
+                  color: dialog.danger ? colors.danger : colors.brand,
                 }}
               >
-                {dialog.danger ? <FaExclamationTriangle size={14} /> : <FaQuestionCircle size={14} />}
+                {dialog.danger ? <AlertTriangle size={16} strokeWidth={2} /> : <HelpCircle size={16} strokeWidth={2} />}
               </div>
 
               <div style={{ minWidth: 0 }}>
                 <div
                   style={{
-                    fontSize: "13.5px",
+                    fontSize: "14.5px",
                     fontWeight: 700,
-                    color: palette.text,
-                    fontFamily: "'Rajdhani', sans-serif",
-                    letterSpacing: "0.02em",
+                    color: colors.ink,
+                    fontFamily: fonts.display,
+                    letterSpacing: "-0.005em",
                   }}
                 >
                   {dialog.title}
@@ -133,9 +124,10 @@ export function ConfirmDialogProvider({ children }) {
                 <div
                   style={{
                     marginTop: "6px",
-                    fontSize: "11.5px",
-                    color: palette.dim,
-                    fontFamily: palette.mono,
+                    fontSize: "12.5px",
+                    color: colors.inkDim,
+                    fontFamily: fonts.body,
+                    fontWeight: 500,
                     lineHeight: 1.55,
                     wordBreak: "break-word",
                   }}
@@ -151,16 +143,18 @@ export function ConfirmDialogProvider({ children }) {
                 style={{
                   flex: 1,
                   padding: "9px",
-                  borderRadius: "7px",
-                  border: `1px solid ${palette.border}`,
+                  minHeight: "44px",
+                  borderRadius: `${radius.full}px`,
+                  border: `1.5px solid ${colors.borderInk}`,
                   background: "transparent",
-                  color: palette.faint,
-                  fontSize: "11px",
-                  fontFamily: palette.mono,
-                  letterSpacing: "0.05em",
+                  color: colors.ink,
+                  fontSize: "12px",
+                  fontFamily: fonts.body,
+                  fontWeight: 600,
+                  letterSpacing: "0.02em",
                   cursor: "pointer",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(148,163,184,0.06)")}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(237,235,227,0.08)")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
                 {dialog.cancelLabel}
@@ -171,22 +165,19 @@ export function ConfirmDialogProvider({ children }) {
                 style={{
                   flex: 1,
                   padding: "9px",
-                  borderRadius: "7px",
-                  border: `1px solid ${dialog.danger ? "rgba(244,63,94,0.45)" : "rgba(56,189,248,0.45)"}`,
-                  background: dialog.danger ? "rgba(244,63,94,0.1)" : "rgba(56,189,248,0.1)",
-                  color: dialog.danger ? palette.danger : palette.accent,
-                  fontSize: "11px",
-                  fontFamily: palette.mono,
+                  minHeight: "44px",
+                  borderRadius: `${radius.full}px`,
+                  border: "1.5px solid transparent",
+                  background: dialog.danger ? colors.danger : colors.ink,
+                  color: colors.bg,
+                  fontSize: "12px",
+                  fontFamily: fonts.body,
                   fontWeight: 700,
-                  letterSpacing: "0.05em",
+                  letterSpacing: "0.02em",
                   cursor: "pointer",
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = dialog.danger ? "rgba(244,63,94,0.18)" : "rgba(56,189,248,0.18)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = dialog.danger ? "rgba(244,63,94,0.1)" : "rgba(56,189,248,0.1)")
-                }
+                onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(1.06)")}
+                onMouseLeave={(e) => (e.currentTarget.style.filter = "none")}
                 autoFocus
               >
                 {dialog.confirmLabel}

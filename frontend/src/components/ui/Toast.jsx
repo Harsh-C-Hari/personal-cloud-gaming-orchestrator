@@ -14,21 +14,14 @@
  */
 
 import { createContext, useCallback, useContext, useRef, useState } from "react";
-import { FaCheckCircle, FaTimesCircle, FaExclamationTriangle, FaInfoCircle, FaTimes } from "react-icons/fa";
-
-const palette = {
-  card: "#0b0e16",
-  border: "#1c2130",
-  text: "#e2e8f0",
-  faint: "#64748b",
-  mono: "'JetBrains Mono', monospace",
-};
+import { CheckCircle2, XCircle, AlertTriangle, Info, X } from "lucide-react";
+import { colors, fonts, radius, shadow } from "../../dashboard/theme.js";
 
 const TONE = {
-  success: { color: "#10d98a", icon: <FaCheckCircle size={13} /> },
-  error: { color: "#f43f5e", icon: <FaTimesCircle size={13} /> },
-  warning: { color: "#f5a524", icon: <FaExclamationTriangle size={13} /> },
-  info: { color: "#38bdf8", icon: <FaInfoCircle size={13} /> },
+  success: { color: colors.success, icon: <CheckCircle2 size={15} strokeWidth={2} /> },
+  error: { color: colors.danger, icon: <XCircle size={15} strokeWidth={2} /> },
+  warning: { color: colors.warning, icon: <AlertTriangle size={15} strokeWidth={2} /> },
+  info: { color: colors.accentBlue, icon: <Info size={15} strokeWidth={2} /> },
 };
 
 const ToastContext = createContext(null);
@@ -73,13 +66,14 @@ export function ToastProvider({ children }) {
       <div
         style={{
           position: "fixed",
-          top: "16px",
-          right: "16px",
+          top: "calc(16px + env(safe-area-inset-top, 0px))",
+          right: "calc(16px + env(safe-area-inset-right, 0px))",
           zIndex: 9998,
           display: "flex",
           flexDirection: "column",
+          alignItems: "stretch",
           gap: "8px",
-          maxWidth: "340px",
+          width: "min(340px, calc(100vw - 32px))",
           pointerEvents: "none",
         }}
       >
@@ -95,11 +89,11 @@ export function ToastProvider({ children }) {
                 alignItems: "flex-start",
                 gap: "9px",
                 padding: "11px 12px",
-                borderRadius: "8px",
-                background: palette.card,
-                border: `1px solid ${palette.border}`,
+                borderRadius: `${radius.md}px`,
+                background: colors.bgCard,
+                border: `1.5px solid ${colors.border}`,
                 borderLeft: `3px solid ${tone.color}`,
-                boxShadow: "0 8px 24px rgba(0,0,0,0.45)",
+                boxShadow: shadow.overlay,
                 animation: "toast-in 0.18s ease forwards",
               }}
             >
@@ -107,9 +101,10 @@ export function ToastProvider({ children }) {
               <span
                 style={{
                   flex: 1,
-                  fontSize: "11.5px",
-                  color: palette.text,
-                  fontFamily: palette.mono,
+                  fontSize: "12.5px",
+                  color: colors.ink,
+                  fontFamily: fonts.body,
+                  fontWeight: 500,
                   lineHeight: 1.5,
                   wordBreak: "break-word",
                 }}
@@ -123,13 +118,17 @@ export function ToastProvider({ children }) {
                   flexShrink: 0,
                   background: "transparent",
                   border: "none",
-                  color: palette.faint,
+                  color: colors.inkFaint,
                   cursor: "pointer",
-                  padding: "2px",
+                  width: "28px",
+                  height: "28px",
+                  margin: "-6px -6px -6px 0",
                   display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                <FaTimes size={10} />
+                <X size={12} strokeWidth={2} />
               </button>
             </div>
           );

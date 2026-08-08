@@ -6,31 +6,22 @@
  * reconnect fields, last-disconnect/reconnect fields) — only the
  * presentation was reworked to match the StatRow/Badge "spec sheet" look
  * already used everywhere else inside its parent, HostStatusPanel.jsx,
- * instead of bare <span>/<b> rows with no color or font.
+ * using flat Chalkboard Neo-Brutalist tokens instead of bare, uncolored
+ * rows.
  */
 
-import { FaBroadcastTower } from "react-icons/fa";
-
-const palette = {
-    border: "#1c2130",
-    text: "#e2e8f0",
-    muted: "#475569",
-    success: "#10d98a",
-    warning: "#facc15",
-    danger: "#f43f5e",
-    neutral: "#94a3b8",
-    mono: "'JetBrains Mono', monospace",
-};
+import { RadioTower } from "lucide-react";
+import { colors, fonts } from "../dashboard/theme.js";
 
 const TONE_COLORS = {
-    ok: palette.success,
-    warning: palette.warning,
-    bad: palette.danger,
-    neutral: palette.neutral,
+    ok: colors.success,
+    warning: colors.warning,
+    bad: colors.danger,
+    neutral: colors.inkDim,
 };
 
 function Badge({ tone = "neutral", children }) {
-    const color = TONE_COLORS[tone] ?? palette.neutral;
+    const color = TONE_COLORS[tone] ?? colors.inkDim;
     return (
         <span
             style={{
@@ -41,8 +32,8 @@ function Badge({ tone = "neutral", children }) {
                 fontWeight: 700,
                 letterSpacing: "0.05em",
                 color,
-                background: `${color}1a`,
-                border: `1px solid ${color}40`,
+                background: `${color}24`,
+                border: `1.5px solid ${color}66`,
                 borderRadius: "10px",
                 padding: "2px 8px",
             }}
@@ -59,21 +50,21 @@ function StatRow({ label, value }) {
                 className="ssc-row-label"
                 style={{
                     fontSize: "10.5px",
-                    color: palette.muted,
+                    color: colors.inkFaint,
                     whiteSpace: "nowrap",
-                    fontFamily: palette.mono,
+                    fontFamily: fonts.mono,
                 }}
             >
                 {label}
             </span>
-            <span className="ssc-row-fill" style={{ flex: 1, borderBottom: `1px dotted ${palette.border}`, marginBottom: "3px" }} />
+            <span className="ssc-row-fill" style={{ flex: 1, borderBottom: `1px dotted ${colors.border}`, marginBottom: "3px" }} />
             <span
                 className="ssc-row-value"
                 style={{
                     fontSize: "11.5px",
                     fontWeight: 600,
-                    color: palette.text,
-                    fontFamily: palette.mono,
+                    color: colors.ink,
+                    fontFamily: fonts.mono,
                     textAlign: "right",
                     maxWidth: "60%",
                     overflow: "hidden",
@@ -159,17 +150,17 @@ export function SunshineStreamCard({ streamStatus }) {
                     marginTop: "14px",
                     marginBottom: "2px",
                     paddingTop: "10px",
-                    borderTop: `1px solid ${palette.border}`,
+                    borderTop: `1.5px solid ${colors.border}`,
                 }}
             >
-                <FaBroadcastTower size={9} style={{ color: palette.muted }} />
+                <RadioTower size={9} strokeWidth={2} style={{ color: colors.inkFaint }} />
                 <span
                     style={{
                         fontSize: "9px",
-                        color: palette.muted,
+                        color: colors.inkFaint,
                         letterSpacing: "0.13em",
                         textTransform: "uppercase",
-                        fontFamily: palette.mono,
+                        fontFamily: fonts.mono,
                     }}
                 >
                     Stream Status

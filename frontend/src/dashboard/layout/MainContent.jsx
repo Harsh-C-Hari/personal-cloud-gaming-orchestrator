@@ -6,19 +6,22 @@
  * composition of Header + Sidebar + MobileHeader + MainContent.
  */
 
-import { colors } from "../theme.js";
+import { colors, spacing } from "../theme.js";
 
 export function MainContent({ children }) {
   return (
     <main
       style={{
         flex: 1,
+        minWidth: 0,
         overflowY: "auto",
-        padding: "28px 32px 60px",
+        overflowX: "hidden",
+        WebkitOverflowScrolling: "touch",
+        padding: `${spacing.xl}px clamp(12px, 4vw, ${spacing.xxl}px) calc(${spacing.massive}px + env(safe-area-inset-bottom, 0px))`,
         background: colors.bg,
       }}
     >
-      <div style={{ maxWidth: "1180px", margin: "0 auto" }}>{children}</div>
+      <div style={{ maxWidth: "1180px", margin: "0 auto", minWidth: 0 }}>{children}</div>
     </main>
   );
 }

@@ -1,5 +1,7 @@
 import { HostStatusPanel } from "../../components/HostStatusPanel.jsx";
 import { PageHeader } from "../components/PageHeader.jsx";
+import { SectionCard } from "../components/SectionCard.jsx";
+import { Button } from "../../components/ui/primitives.jsx";
 import { colors, fonts } from "../theme.js";
 
 export function HostMonitorPage({
@@ -45,46 +47,39 @@ export function HostMonitorPage({
       />
 
       {sessionHealth && (
-        <div
-          style={{
-            padding: "10px",
-            borderRadius: "8px",
-            background: "rgb(0, 0, 0)",
-            border: `1px solid ${colors.borderStrong}`,
-            fontSize: "10px",
-            color: colors.textDim,
-            fontFamily: fonts.mono,
-            display: "grid",
-            gap: "4px",
-          }}
-        >
-          <div>ACTIVE: {sessionHealth.active_sessions}</div>
-          <div>LOCK: {sessionHealth.lock_exists ? "YES" : "NO"}</div>
-          <div>HISTORY: {sessionHealth.history_count}</div>
-          <div>EVENTS: {sessionHealth.event_count}</div>
-        </div>
+        <SectionCard title="Session Health" bare={false}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+              gap: "10px",
+              fontFamily: fonts.mono,
+              fontSize: "11px",
+            }}
+          >
+            <div style={{ color: colors.inkFaint }}>
+              ACTIVE <span style={{ color: colors.ink, marginLeft: "6px" }}>{sessionHealth.active_sessions}</span>
+            </div>
+            <div style={{ color: colors.inkFaint }}>
+              LOCK{" "}
+              <span style={{ color: sessionHealth.lock_exists ? colors.warning : colors.ink, marginLeft: "6px" }}>
+                {sessionHealth.lock_exists ? "YES" : "NO"}
+              </span>
+            </div>
+            <div style={{ color: colors.inkFaint }}>
+              HISTORY <span style={{ color: colors.ink, marginLeft: "6px" }}>{sessionHealth.history_count}</span>
+            </div>
+            <div style={{ color: colors.inkFaint }}>
+              EVENTS <span style={{ color: colors.ink, marginLeft: "6px" }}>{sessionHealth.event_count}</span>
+            </div>
+          </div>
+        </SectionCard>
       )}
 
       {showForceUnlock && (
-        <button
-          type="button"
-          disabled={unlocking}
-          onClick={onForceUnlock}
-          style={{
-            width: "100%",
-            padding: "9px 10px",
-            borderRadius: "6px",
-            border: "1px solid rgba(244,63,94,0.35)",
-            background: "rgba(244,63,94,0.08)",
-            color: "#fb7185",
-            fontSize: "9px",
-            fontFamily: fonts.mono,
-            letterSpacing: "0.08em",
-            cursor: "pointer",
-          }}
-        >
-          {unlocking ? "Unlocking..." : "Force Unlock"}
-        </button>
+        <Button variant="danger" disabled={unlocking} onClick={onForceUnlock} style={{ width: "100%" }}>
+          {unlocking ? "Unlocking…" : "Force Unlock"}
+        </Button>
       )}
     </div>
   );

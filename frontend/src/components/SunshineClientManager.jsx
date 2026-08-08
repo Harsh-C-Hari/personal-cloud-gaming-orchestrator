@@ -7,8 +7,9 @@
  *     loading/error state, no data props required.
  *   - Same toast + useConfirm integration as UserPanel/GameManager for
  *     action feedback and destructive-action confirmation.
- *   - Same visual language (outerWrap/headerBar/cardSection/grid/card)
- *     as UserPanel / GameManager / SettingsPanel.
+ *   - Same visual language (outerWrap/headerBar/cardSection/grid/card),
+ *     now built from theme.js's flat Chalkboard Neo-Brutalist tokens
+ *     instead of the old cyan-glow palette.
  *
  * `hostStatus` / `streamStatus` are the only props, and both are purely
  * read-only display — they're the same objects useDashboardData() already
@@ -34,17 +35,17 @@ import {
 } from "react";
 
 import {
-    FaSatelliteDish,
-    FaDesktop,
-    FaSyncAlt,
-    FaUnlink,
-    FaBan,
-    FaKey,
-    FaPlug,
-    FaExclamationTriangle,
-    FaPowerOff,
-    FaCircle,
-} from "react-icons/fa";
+    Satellite,
+    Monitor,
+    RefreshCw,
+    Unlink,
+    Ban,
+    Key,
+    Plug,
+    AlertTriangle,
+    Power,
+    Circle,
+} from "lucide-react";
 
 import {
     getSunshineClients,
@@ -55,26 +56,7 @@ import {
 } from "../api/client";
 import { useToast } from "./ui/Toast.jsx";
 import { useConfirm } from "./ui/ConfirmDialog.jsx";
-
-// ── Shared design tokens (matches UserPanel / GameManager / SettingsPanel) ──
-
-const palette = {
-    bg: "#000000",
-    card: "rgba(0, 0, 0, 0.55)",
-    cardAlt: "rgba(2,6,23,0.45)",
-    border: "#1c2130",
-    borderStrong: "rgba(148,163,184,0.18)",
-    text: "#e2e8f0",
-    dim: "#94a3b8",
-    faint: "#64748b",
-    muted: "#475569",
-    accent: "#38bdf8",
-    success: "#10d98a",
-    warning: "#f5a524",
-    danger: "#f43f5e",
-    mono: "'JetBrains Mono', monospace",
-    display: "'Rajdhani', sans-serif",
-};
+import { colors, fonts, radius } from "../dashboard/theme.js";
 
 export function SunshineClientManager({ hostStatus, streamStatus }) {
 
@@ -232,7 +214,7 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
             <div style={headerBar}>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <div style={headerIconBadge}>
-                        <FaSatelliteDish size={13} />
+                        <Satellite size={13} strokeWidth={2} />
                     </div>
                     <div>
                         <div style={headerTitle}>Sunshine Management</div>
@@ -248,10 +230,10 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                     disabled={loading}
                     style={{ ...iconGhostButton, opacity: loading ? 0.5 : 1 }}
                     onClick={loadClients}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(56,189,248,0.15)")}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(237,235,227,0.08)")}
                     onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                 >
-                    <FaSyncAlt size={12} style={loading ? { animation: "scm-spin 0.8s linear infinite" } : undefined} />
+                    <RefreshCw size={12} strokeWidth={2} style={loading ? { animation: "scm-spin 0.8s linear infinite" } : undefined} />
                 </button>
             </div>
 
@@ -276,13 +258,13 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                         <StatusPill
                             active={isStreaming}
                             label={isStreaming ? `Streaming: ${streamStatus?.app_name || "Unknown"}` : "Idle"}
-                            tone={isStreaming ? palette.accent : undefined}
+                            tone={isStreaming ? colors.accentBlue : undefined}
                         />
                         {isdisconnected &&(
                             <StatusPill
                                 active={isdisconnected}
                                 label={isdisconnected ? "Transport Disconnected" : "Transport Connected"}
-                                tone={isdisconnected ? palette.danger : palette.success}
+                                tone={isdisconnected ? colors.danger : colors.success}
                             />
                         )}
                     </div>
@@ -297,17 +279,17 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                         onClick={handleCloseStream}
                         onMouseEnter={(e) => {
                             if (isStreaming && !closingStream) {
-                                e.currentTarget.style.background = "rgba(239,68,68,0.15)";
+                                e.currentTarget.style.background = "rgba(255,107,107,0.16)";
                             }
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.background = "rgba(239,68,68,0.08)";
+                            e.currentTarget.style.background = "transparent";
                         }}
                     >
                         {closingStream ? (
-                            <FaSyncAlt size={11} style={{ animation: "scm-spin 0.8s linear infinite" }} />
+                            <RefreshCw size={11} strokeWidth={2} style={{ animation: "scm-spin 0.8s linear infinite" }} />
                         ) : (
-                            <FaPowerOff size={11} />
+                            <Power size={11} strokeWidth={2} />
                         )}
                         {closingStream ? "CLOSING…" : "FORCE CLOSE STREAM"}
                     </button>
@@ -327,13 +309,13 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                         </div>
                     ) : clientsError ? (
                         <div style={validationBad}>
-                            <FaExclamationTriangle size={11} style={{ flexShrink: 0 }} />
+                            <AlertTriangle size={11} strokeWidth={2} style={{ flexShrink: 0 }} />
                             {clientsError}
                         </div>
                     ) : clients.length === 0 ? (
                         <div style={emptyBox}>
-                            <FaSatelliteDish size={22} style={{ color: palette.muted, opacity: 0.6 }} />
-                            <div style={{ fontSize: "11px", color: palette.dim, fontFamily: palette.mono }}>
+                            <Satellite size={22} strokeWidth={1.5} style={{ color: colors.inkFaint }} />
+                            <div style={{ fontSize: "11px", color: colors.inkDim, fontFamily: fonts.mono }}>
                                 No paired clients
                             </div>
                         </div>
@@ -341,12 +323,10 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                         <div style={grid}>
                             {clients.map((client) => (
                                 <div key={client.uuid || client.name} style={clientCard}>
-                                    <div style={cardTopAccent} />
-
                                     <div style={cardHeaderRow}>
                                         <div style={{ display: "flex", alignItems: "center", gap: "9px", minWidth: 0 }}>
                                             <div style={avatarBadge}>
-                                                <FaDesktop size={12} />
+                                                <Monitor size={12} strokeWidth={2} />
                                             </div>
 
                                             <div style={{ minWidth: 0 }}>
@@ -371,7 +351,7 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                                             onClick={() => handleUnpair(client)}
                                             onMouseEnter={(e) => {
                                                 if (unpairingUuid !== client.uuid && !unpairingAll) {
-                                                    e.currentTarget.style.background = "rgba(239,68,68,0.15)";
+                                                    e.currentTarget.style.background = "rgba(255,107,107,0.16)";
                                                 }
                                             }}
                                             onMouseLeave={(e) => {
@@ -379,9 +359,9 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                                             }}
                                         >
                                             {unpairingUuid === client.uuid ? (
-                                                <FaSyncAlt size={10} style={{ animation: "scm-spin 0.8s linear infinite" }} />
+                                                <RefreshCw size={10} strokeWidth={2} style={{ animation: "scm-spin 0.8s linear infinite" }} />
                                             ) : (
-                                                <FaUnlink size={11} />
+                                                <Unlink size={11} strokeWidth={2} />
                                             )}
                                         </button>
                                     </div>
@@ -400,17 +380,17 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                         onClick={handleUnpairAll}
                         onMouseEnter={(e) => {
                             if (clients.length > 0 && !unpairingAll && !unpairingUuid) {
-                                e.currentTarget.style.background = "rgba(239,68,68,0.15)";
+                                e.currentTarget.style.background = "rgba(255,107,107,0.16)";
                             }
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.background = "rgba(239,68,68,0.08)";
+                            e.currentTarget.style.background = "transparent";
                         }}
                     >
                         {unpairingAll ? (
-                            <FaSyncAlt size={11} style={{ animation: "scm-spin 0.8s linear infinite" }} />
+                            <RefreshCw size={11} strokeWidth={2} style={{ animation: "scm-spin 0.8s linear infinite" }} />
                         ) : (
-                            <FaBan size={11} />
+                            <Ban size={11} strokeWidth={2} />
                         )}
                         {unpairingAll ? "UNPAIRING…" : "UNPAIR ALL CLIENTS"}
                     </button>
@@ -421,7 +401,7 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                     <div style={sectionHeadRow}>
                         <div style={{ display: "flex", alignItems: "center", gap: "9px" }}>
                             <div style={sectionIconBadge}>
-                                <FaPlug size={12} />
+                                <Plug size={12} strokeWidth={2} />
                             </div>
                             <span style={sectionLabel}>Pair New Client</span>
                         </div>
@@ -429,14 +409,15 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
 
                     <FieldLabel>PIN</FieldLabel>
                     <div style={{ position: "relative" }}>
-                        <FaKey
+                        <Key
                             size={11}
+                            strokeWidth={2}
                             style={{
                                 position: "absolute",
                                 left: "12px",
                                 top: "50%",
                                 transform: "translateY(-50%)",
-                                color: palette.muted,
+                                color: colors.inkFaint,
                                 pointerEvents: "none",
                             }}
                         />
@@ -464,16 +445,14 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                         onClick={handlePair}
                         onMouseEnter={(e) => {
                             if (pin.trim() && !pairing) {
-                                e.currentTarget.style.background =
-                                    "linear-gradient(180deg, rgba(56,189,248,0.24), rgba(56,189,248,0.12))";
+                                e.currentTarget.style.filter = "brightness(1.06)";
                             }
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.background =
-                                "linear-gradient(180deg, rgba(56,189,248,0.16), rgba(56,189,248,0.08))";
+                            e.currentTarget.style.filter = "none";
                         }}
                     >
-                        <FaPlug size={12} />
+                        <Plug size={12} strokeWidth={2} />
                         {pairing ? "PAIRING..." : "PAIR CLIENT"}
                     </button>
                 </div>
@@ -487,10 +466,10 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
 }
 
 function StatusPill({ active, label, tone }) {
-    const color = tone || (active ? palette.success : palette.muted);
+    const color = tone || (active ? colors.success : colors.inkDim);
     return (
         <span style={{ ...statusPill, color, borderColor: color }}>
-            <FaCircle size={6} style={{ color }} />
+            <Circle size={6} strokeWidth={0} fill={color} style={{ color }} />
             {label}
         </span>
     );
@@ -502,10 +481,11 @@ function FieldLabel({ children }) {
             style={{
                 display: "block",
                 fontSize: "9.5px",
-                color: palette.muted,
+                color: colors.inkFaint,
                 letterSpacing: "0.13em",
                 textTransform: "uppercase",
-                fontFamily: palette.mono,
+                fontFamily: fonts.mono,
+                fontWeight: 700,
                 marginBottom: "7px",
                 marginTop: "14px",
             }}
@@ -516,20 +496,18 @@ function FieldLabel({ children }) {
 }
 
 const focusBorder = (e) => {
-    e.target.style.borderColor = "rgba(56,189,248,0.5)";
-    e.target.style.boxShadow = "0 0 0 3px rgba(56,189,248,0.08)";
+    e.target.style.borderColor = colors.ink;
 };
 const blurBorder = (e) => {
-    e.target.style.borderColor = palette.border;
-    e.target.style.boxShadow = "none";
+    e.target.style.borderColor = colors.border;
 };
 
 // ── Style primitives (matches UserPanel / GameManager / SettingsPanel) ─────
 
 const outerWrap = {
-    border: `1px solid ${palette.border}`,
-    borderRadius: "12px",
-    background: "rgba(0, 0, 0, 0.5)",
+    border: `1.5px solid ${colors.border}`,
+    borderRadius: `${radius.lg}px`,
+    background: colors.bgCard,
     overflow: "hidden",
 };
 
@@ -537,22 +515,24 @@ const headerBar = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
+    flexWrap: "wrap",
+    rowGap: "8px",
     gap: "10px",
     padding: "16px 20px",
-    borderBottom: `1px solid ${palette.border}`,
-    background: "rgb(0, 5, 6)",
+    borderBottom: `1.5px solid ${colors.border}`,
+    background: colors.bgElevated,
 };
 
 const headerIconBadge = {
     width: "30px",
     height: "30px",
-    borderRadius: "8px",
+    borderRadius: `${radius.sm}px`,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "rgba(56,189,248,0.12)",
-    border: "1px solid rgba(56,189,248,0.3)",
-    color: palette.accent,
+    background: colors.brandDim,
+    border: `1.5px solid color-mix(in srgb, ${colors.brand} 30%, transparent)`,
+    color: colors.brand,
     fontSize: "13px",
     flexShrink: 0,
 };
@@ -560,15 +540,15 @@ const headerIconBadge = {
 const headerTitle = {
     fontSize: "13.5px",
     fontWeight: 700,
-    color: palette.text,
-    fontFamily: palette.display,
+    color: colors.ink,
+    fontFamily: fonts.display,
     letterSpacing: "0.02em",
 };
 
 const headerSubtitle = {
     fontSize: "10px",
-    color: palette.faint,
-    fontFamily: palette.mono,
+    color: colors.inkFaint,
+    fontFamily: fonts.mono,
     marginTop: "1px",
     letterSpacing: "0.02em",
 };
@@ -576,59 +556,62 @@ const headerSubtitle = {
 const iconGhostButton = {
     width: "30px",
     height: "30px",
-    borderRadius: "6px",
+    borderRadius: `${radius.sm}px`,
     background: "transparent",
-    border: `1px solid ${palette.border}`,
-    color: palette.accent,
+    border: `1.5px solid ${colors.border}`,
+    color: colors.brand,
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    transition: "background 0.15s",
+    transition: "background 150ms ease",
     flexShrink: 0,
 };
 
 const cardSection = {
     padding: "16px",
-    borderRadius: "10px",
-    border: `1px solid ${palette.border}`,
-    background: palette.card,
+    borderRadius: `${radius.md}px`,
+    border: `1.5px solid ${colors.border}`,
+    background: colors.bgInset,
 };
 
 const sectionHeadRow = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
+    flexWrap: "wrap",
+    rowGap: "6px",
     marginBottom: "14px",
 };
 
 const sectionLabel = {
     fontSize: "9.5px",
-    color: palette.muted,
+    color: colors.inkFaint,
     letterSpacing: "0.15em",
     textTransform: "uppercase",
-    fontFamily: palette.mono,
+    fontFamily: fonts.mono,
+    fontWeight: 700,
 };
 
 const sectionIconBadge = {
     width: "24px",
     height: "24px",
-    borderRadius: "6px",
+    borderRadius: `${radius.sm}px`,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "rgba(56,189,248,0.1)",
-    border: "1px solid rgba(56,189,248,0.28)",
-    color: palette.accent,
+    background: colors.brandDim,
+    border: `1.5px solid color-mix(in srgb, ${colors.brand} 30%, transparent)`,
+    color: colors.brand,
     flexShrink: 0,
 };
 
 const countBadge = {
     fontSize: "9px",
-    color: palette.muted,
-    fontFamily: palette.mono,
+    color: colors.inkFaint,
+    fontFamily: fonts.mono,
     padding: "1px 7px",
-    border: `1px solid ${palette.border}`,
+    border: `1.5px solid ${colors.border}`,
     borderRadius: "10px",
 };
 
@@ -644,12 +627,12 @@ const statusPill = {
     alignItems: "center",
     gap: "7px",
     fontSize: "9.5px",
-    fontFamily: palette.mono,
+    fontFamily: fonts.mono,
     letterSpacing: "0.04em",
     padding: "5px 10px",
-    borderRadius: "999px",
-    border: "1px solid",
-    background: "rgba(0,0,0,0.3)",
+    borderRadius: `${radius.full}px`,
+    border: "1.5px solid",
+    background: colors.bgInset,
 };
 
 const closeStreamButton = {
@@ -659,14 +642,15 @@ const closeStreamButton = {
     justifyContent: "center",
     gap: "8px",
     padding: "11px",
-    border: `1px solid ${palette.danger}`,
-    background: "rgba(239,68,68,0.08)",
-    color: palette.danger,
-    borderRadius: "7px",
-    fontFamily: palette.mono,
+    border: `1.5px solid ${colors.danger}`,
+    background: "transparent",
+    color: colors.danger,
+    borderRadius: `${radius.full}px`,
+    fontFamily: fonts.mono,
     fontSize: "10.5px",
     letterSpacing: "0.08em",
-    transition: "background 0.15s",
+    transition: "background 150ms ease",
+    marginTop: "14px",
 };
 
 const loadingRow = {
@@ -674,8 +658,8 @@ const loadingRow = {
     alignItems: "center",
     gap: "9px",
     padding: "16px 4px",
-    color: palette.dim,
-    fontFamily: palette.mono,
+    color: colors.inkDim,
+    fontFamily: fonts.mono,
     fontSize: "11.5px",
 };
 
@@ -683,8 +667,8 @@ const pulseDot = {
     width: "7px",
     height: "7px",
     borderRadius: "50%",
-    background: palette.accent,
-    animation: "scm-pulse 1.4s ease-in-out infinite",
+    background: colors.brand,
+    animation: "scm-pulse 1.6s ease-in-out infinite",
     flexShrink: 0,
 };
 
@@ -695,14 +679,14 @@ const emptyBox = {
     justifyContent: "center",
     gap: "8px",
     padding: "40px 24px",
-    border: `1px dashed ${palette.border}`,
-    borderRadius: "10px",
+    border: `1.5px dashed ${colors.border}`,
+    borderRadius: `${radius.md}px`,
     textAlign: "center",
 };
 
 const grid = {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
     gap: "12px",
     marginBottom: "14px",
 };
@@ -710,56 +694,48 @@ const grid = {
 const clientCard = {
     position: "relative",
     padding: "14px",
-    background: palette.bg,
-    border: `1px solid ${palette.border}`,
-    borderRadius: "10px",
+    background: colors.bgCard,
+    border: `1.5px solid ${colors.border}`,
+    borderRadius: `${radius.md}px`,
     overflow: "hidden",
-};
-
-const cardTopAccent = {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: "2px",
-    background: "linear-gradient(90deg, transparent, rgba(56,189,248,0.6), transparent)",
-    opacity: 0.8,
 };
 
 const cardHeaderRow = {
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
+    flexWrap: "wrap",
+    rowGap: "6px",
     gap: "8px",
 };
 
 const avatarBadge = {
     width: "30px",
     height: "30px",
-    borderRadius: "8px",
+    borderRadius: `${radius.sm}px`,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    border: "1px solid rgba(56,189,248,0.3)",
-    background: "rgba(56,189,248,0.12)",
-    color: palette.accent,
+    border: `1.5px solid color-mix(in srgb, ${colors.brand} 30%, transparent)`,
+    background: colors.brandDim,
+    color: colors.brand,
     flexShrink: 0,
 };
 
 const clientName = {
-    color: palette.text,
+    color: colors.ink,
     fontSize: "13px",
     fontWeight: 600,
-    fontFamily: palette.display,
+    fontFamily: fonts.display,
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
 };
 
 const cardMeta = {
-    fontFamily: palette.mono,
+    fontFamily: fonts.mono,
     fontSize: "9.5px",
-    color: palette.faint,
+    color: colors.inkFaint,
     marginTop: "3px",
     whiteSpace: "nowrap",
     overflow: "hidden",
@@ -770,14 +746,14 @@ const cardDeleteButton = {
     width: "26px",
     height: "26px",
     flexShrink: 0,
-    borderRadius: "6px",
+    borderRadius: `${radius.sm}px`,
     background: "transparent",
-    border: "1px solid rgba(239,68,68,0.4)",
-    color: palette.danger,
+    border: `1.5px solid ${colors.danger}66`,
+    color: colors.danger,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    transition: "background 0.15s",
+    transition: "background 150ms ease",
 };
 
 const deleteAllButton = {
@@ -788,29 +764,29 @@ const deleteAllButton = {
     justifyContent: "center",
     gap: "8px",
     padding: "11px",
-    border: `1px solid ${palette.danger}`,
-    background: "rgba(239,68,68,0.08)",
-    color: palette.danger,
-    borderRadius: "7px",
+    border: `1.5px solid ${colors.danger}`,
+    background: "transparent",
+    color: colors.danger,
+    borderRadius: `${radius.full}px`,
     cursor: "pointer",
-    fontFamily: palette.mono,
+    fontFamily: fonts.mono,
     fontSize: "10.5px",
     letterSpacing: "0.08em",
-    transition: "background 0.15s",
+    transition: "background 150ms ease",
 };
 
 const inputStyle = {
     width: "100%",
     padding: "10px 12px",
-    background: palette.bg,
-    border: `1px solid ${palette.border}`,
-    borderRadius: "7px",
-    color: palette.text,
+    background: colors.bgInset,
+    border: `1.5px solid ${colors.border}`,
+    borderRadius: `${radius.md}px`,
+    color: colors.ink,
     fontSize: "13px",
     fontFamily: "inherit",
     outline: "none",
     boxSizing: "border-box",
-    transition: "border-color 0.2s, box-shadow 0.2s",
+    transition: "border-color 150ms ease",
 };
 
 const saveButton = {
@@ -820,16 +796,15 @@ const saveButton = {
     justifyContent: "center",
     gap: "9px",
     padding: "12px",
-    background: "linear-gradient(180deg, rgba(56,189,248,0.16), rgba(56,189,248,0.08))",
-    border: "1px solid rgba(56,189,248,0.4)",
-    borderRadius: "8px",
-    color: palette.accent,
+    background: colors.ink,
+    border: "1.5px solid transparent",
+    borderRadius: `${radius.full}px`,
+    color: colors.bg,
     fontSize: "11.5px",
-    fontFamily: palette.mono,
+    fontFamily: fonts.mono,
     fontWeight: 700,
     letterSpacing: "0.12em",
-    textShadow: "0 0 14px rgba(56,189,248,0.4)",
-    transition: "background 0.2s",
+    transition: "filter 150ms ease",
 };
 
 const validationBad = {
@@ -837,10 +812,10 @@ const validationBad = {
     alignItems: "center",
     gap: "8px",
     padding: "10px 12px",
-    borderRadius: "7px",
-    color: palette.danger,
-    border: `1px solid ${palette.danger}`,
-    background: "rgba(244,63,94,0.08)",
+    borderRadius: `${radius.md}px`,
+    color: colors.danger,
+    border: `1.5px solid ${colors.danger}`,
+    background: "rgba(255,107,107,0.08)",
     fontSize: "11px",
-    fontFamily: palette.mono,
+    fontFamily: fonts.mono,
 };

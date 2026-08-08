@@ -37,7 +37,7 @@ One section per legacy JSON file. Sections may be worked in the Stage
 
 ### Revised Scope: games.json remains a host configuration file alongside config.json. Phase 25 migrates runtime and user data to SQLite while retaining host-specific configuration in JSON.
 
-## `data/recovery_events.json` → `recovery_events` table
+## `data/recovery_events.json` → `recovery_events` table  - Migration Complete
 
 - [ ] Create `RecoveryRepository`.
 - [ ] Import all existing events — default to importing every row

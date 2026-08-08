@@ -1,12 +1,13 @@
 /**
  * dashboard/layout/DashboardHeader.jsx
  *
- * Top app bar. Same content/behavior as the old inline <header> in
- * pages/Dashboard.jsx (logo mark, WS status, last update, user/role,
- * logout) — extracted verbatim and given an optional mobile menu button.
+ * Top app bar. Same content/behavior as before (logo mark, WS status, last
+ * update, user/role, logout) with an optional mobile menu button — flat
+ * accents only, no glow.
  */
 
-import { colors, fonts, nav } from "../theme.js";
+import { Menu } from "lucide-react";
+import { colors, fonts, nav, radius } from "../theme.js";
 
 export function DashboardHeader({
   connected,
@@ -22,37 +23,41 @@ export function DashboardHeader({
 
   return (
     <header
+      className="pcgo-header"
       style={{
         height: `${nav.headerHeight}px`,
-        borderBottom: `1px solid ${colors.border}`,
+        minHeight: `${nav.headerHeight}px`,
+        borderBottom: `1.5px solid ${colors.border}`,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "0 20px 0 16px",
+        gap: "8px",
+        padding: "0 12px 0 8px",
         flexShrink: 0,
         background: colors.bg,
         zIndex: 50,
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "4px", minWidth: 0, flex: 1 }}>
         {onToggleMobileMenu && (
           <button
             ref={mobileMenuButtonRef}
             onClick={onToggleMobileMenu}
             className="pcgo-mobile-menu-btn"
+            aria-label="Toggle navigation menu"
             style={{
               display: "none",
               background: "transparent",
-              border: `1px solid ${colors.borderSubtle}`,
-              borderRadius: "6px",
-              color: colors.textDim,
-              width: "32px",
-              height: "32px",
+              border: `1.5px solid ${colors.borderSubtle}`,
+              borderRadius: `${radius.sm}px`,
+              color: colors.inkDim,
+              width: "44px",
+              height: "44px",
+              flexShrink: 0,
               cursor: "pointer",
-              fontSize: "14px",
             }}
           >
-            ☰
+            <Menu size={15} strokeWidth={2} style={{ margin: "0 auto" }} />
           </button>
         )}
 
@@ -63,51 +68,70 @@ export function DashboardHeader({
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "12px",
+            gap: "10px",
             background: "transparent",
             border: "none",
-            padding: 0,
+            padding: "0 4px",
             margin: 0,
+            minWidth: 0,
             cursor: onLogoClick ? "pointer" : "default",
           }}
           title={onLogoClick ? "Go to Home" : undefined}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "1px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "1px", flexShrink: 0 }}>
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
                 style={{
                   width: "3px",
                   height: `${10 + i * 5}px`,
-                  background: colors.accent,
+                  background: colors.brand,
                   borderRadius: "1px",
                   opacity: 0.6 + i * 0.2,
-                  boxShadow: "0 0 6px rgba(56,189,248,0.5)",
                 }}
               />
             ))}
           </div>
 
-          <div>
+          <div style={{ minWidth: 0, overflow: "hidden", textAlign: "left" }}>
             <span
+              className="pcgo-header-title-full"
               style={{
                 fontSize: "14px",
                 fontWeight: 700,
-                letterSpacing: "0.12em",
-                color: colors.text,
+                letterSpacing: "0.04em",
+                color: colors.ink,
+                fontFamily: fonts.display,
+                whiteSpace: "nowrap",
               }}
             >
-              CLOUD GAMING <span style={{ color: colors.accent }}>ORCHESTRATOR</span>
+              CLOUD GAMING <span style={{ color: colors.brand }}>ORCHESTRATOR</span>
+            </span>
+            <span
+              className="pcgo-header-title-short"
+              style={{
+                display: "none",
+                fontSize: "14px",
+                fontWeight: 700,
+                letterSpacing: "0.02em",
+                color: colors.ink,
+                fontFamily: fonts.display,
+                whiteSpace: "nowrap",
+              }}
+            >
+              CG<span style={{ color: colors.brand }}>O</span>
             </span>
 
             <span
               className="pcgo-header-subtitle"
               style={{
                 marginLeft: "12px",
-                fontSize: "9px",
-                color: colors.textGhost,
+                fontSize: "9.5px",
+                fontWeight: 700,
+                color: colors.inkGhost,
                 letterSpacing: "0.1em",
-                fontFamily: fonts.mono,
+                fontFamily: fonts.body,
+                whiteSpace: "nowrap",
               }}
             >
               {subtitle}
@@ -116,7 +140,7 @@ export function DashboardHeader({
         </button>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "18px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "18px", flexShrink: 0 }}>
         <div className="pcgo-header-optional" style={{ display: "flex", alignItems: "center", gap: "7px" }}>
           <span
             style={{
@@ -124,15 +148,15 @@ export function DashboardHeader({
               height: "6px",
               borderRadius: "50%",
               background: connected ? colors.success : colors.danger,
-              boxShadow: connected ? "0 0 10px rgba(16,217,138,0.8)" : "0 0 10px rgba(244,63,94,0.8)",
             }}
           />
           <span
             style={{
-              fontSize: "9px",
-              color: colors.textMuted,
-              letterSpacing: "0.12em",
-              fontFamily: fonts.mono,
+              fontSize: "10px",
+              fontWeight: 700,
+              color: colors.inkFaint,
+              letterSpacing: "0.08em",
+              fontFamily: fonts.body,
               textTransform: "uppercase",
             }}
           >
@@ -143,9 +167,10 @@ export function DashboardHeader({
         <div
           className="pcgo-header-optional"
           style={{
-            fontSize: "9px",
-            color: colors.textFaint,
-            letterSpacing: "0.08em",
+            fontSize: "10px",
+            fontWeight: 500,
+            color: colors.inkFaint,
+            letterSpacing: "0.02em",
             fontFamily: fonts.mono,
           }}
         >
@@ -155,9 +180,10 @@ export function DashboardHeader({
         <div
           className="pcgo-header-optional"
           style={{
-            fontSize: "9px",
-            color: colors.textFaint,
-            letterSpacing: "0.08em",
+            fontSize: "10px",
+            fontWeight: 500,
+            color: colors.inkFaint,
+            letterSpacing: "0.02em",
             fontFamily: fonts.mono,
             textTransform: "uppercase",
           }}
@@ -167,20 +193,26 @@ export function DashboardHeader({
 
         <button
           onClick={onLogout}
+          aria-label="Log out"
           style={{
-            padding: "6px 12px",
-            border: "1px solid rgba(244,63,94,0.35)",
-            background: colors.dangerDim,
-            color: "#fb7185",
-            borderRadius: "6px",
-            fontSize: "9px",
-            fontFamily: fonts.mono,
-            letterSpacing: "0.08em",
+            padding: "10px 14px",
+            minHeight: "36px",
+            border: `1.5px solid ${colors.danger}`,
+            background: "transparent",
+            color: colors.danger,
+            borderRadius: `${radius.full}px`,
+            fontSize: "10px",
+            fontWeight: 700,
+            fontFamily: fonts.body,
+            letterSpacing: "0.06em",
             cursor: "pointer",
             textTransform: "uppercase",
+            whiteSpace: "nowrap",
+            flexShrink: 0,
+            transition: "background 150ms ease",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(244,63,94,0.18)")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = colors.dangerDim)}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,107,107,0.1)")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
         >
           Logout
         </button>

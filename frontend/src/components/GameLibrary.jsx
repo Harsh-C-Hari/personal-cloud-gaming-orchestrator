@@ -3,28 +3,18 @@
  *
  * Same props (games, selectedGameId, onSelectGame) and same selection
  * logic as before — only the presentation was reworked to match
- * GameManager.jsx's card grid exactly (same palette, card/meta/top-accent
- * styles, icon-labeled meta rows), since this is the same "browse games"
- * pattern used in a different context (game *selection* here vs game
- * *management* there).
+ * GameManager.jsx's card grid (Chalkboard Neo-Brutalist tokens, flat
+ * borders instead of shadows, icon-labeled meta rows), since this is the
+ * same "browse games" pattern used in a different context (game
+ * *selection* here vs game *management* there).
  *
  * Also fixes a real contrast bug: the old empty-state text color
  * (#080b0f) was nearly black on a near-black background, making it
  * effectively invisible.
  */
 
-import { FaGamepad, FaHashtag, FaFileImport, FaMicrochip, FaCheckCircle } from "react-icons/fa";
-
-const palette = {
-    bg: "#000000",
-    border: "#1c2130",
-    text: "#e2e8f0",
-    dim: "#94a3b8",
-    faint: "#64748b",
-    muted: "#475569",
-    accent: "#38bdf8",
-    mono: "'JetBrains Mono', monospace",
-};
+import { Gamepad2, Hash, FileInput, Cpu, CheckCircle2 } from "lucide-react";
+import { colors, fonts, radius } from "../dashboard/theme.js";
 
 export function GameLibrary({ games, selectedGameId, onSelectGame }) {
     const entries = Object.entries(games || {});
@@ -32,8 +22,8 @@ export function GameLibrary({ games, selectedGameId, onSelectGame }) {
     if (entries.length === 0) {
         return (
             <div style={emptyBox}>
-                <FaGamepad size={20} style={{ color: palette.muted, opacity: 0.6 }} />
-                <div style={{ fontSize: "11px", color: palette.dim, fontFamily: palette.mono }}>No games found</div>
+                <Gamepad2 size={20} strokeWidth={1.5} style={{ color: colors.inkFaint }} />
+                <div style={{ fontSize: "11px", color: colors.inkDim, fontFamily: fonts.mono }}>No games found</div>
             </div>
         );
     }
@@ -50,32 +40,29 @@ export function GameLibrary({ games, selectedGameId, onSelectGame }) {
                         onClick={() => onSelectGame(gameId)}
                         style={{
                             ...card,
-                            borderColor: selected ? "rgba(56,189,248,0.5)" : palette.border,
-                            background: selected ? "rgba(56,189,248,0.06)" : palette.bg,
-                            boxShadow: selected ? "0 0 20px rgba(56,189,248,0.12)" : "none",
+                            borderColor: selected ? colors.borderInk : colors.border,
+                            background: selected ? colors.brandDim : colors.bgCard,
                         }}
                         onMouseEnter={(e) => {
-                            if (!selected) e.currentTarget.style.background = "rgba(56,189,248,0.04)";
+                            if (!selected) e.currentTarget.style.background = colors.bgCardHover;
                         }}
                         onMouseLeave={(e) => {
-                            if (!selected) e.currentTarget.style.background = palette.bg;
+                            if (!selected) e.currentTarget.style.background = colors.bgCard;
                         }}
                     >
-                        {selected && <div style={cardTopAccent} />}
-
                         <div style={cardHeader}>
                             <div style={cardTitle}>{game.name || gameId}</div>
-                            {selected && <FaCheckCircle size={14} style={{ color: palette.accent, flexShrink: 0 }} />}
+                            {selected && <CheckCircle2 size={14} strokeWidth={2} style={{ color: colors.brand, flexShrink: 0 }} />}
                         </div>
 
                         <div style={cardMeta}>
-                            <FaHashtag size={9} style={{ opacity: 0.7 }} /> {gameId}
+                            <Hash size={9} strokeWidth={2} style={{ opacity: 0.7 }} /> {gameId}
                         </div>
                         <div style={cardMeta}>
-                            <FaFileImport size={9} style={{ opacity: 0.7 }} /> {game.exe_name || "unknown"}
+                            <FileInput size={9} strokeWidth={2} style={{ opacity: 0.7 }} /> {game.exe_name || "unknown"}
                         </div>
                         <div style={cardMeta}>
-                            <FaMicrochip size={9} style={{ opacity: 0.7 }} /> {game.process_name || "unknown"}
+                            <Cpu size={9} strokeWidth={2} style={{ opacity: 0.7 }} /> {game.process_name || "unknown"}
                         </div>
                     </button>
                 );
@@ -96,29 +83,21 @@ const card = {
     width: "100%",
     textAlign: "left",
     padding: "16px",
-    border: `1px solid ${palette.border}`,
-    borderRadius: "10px",
-    color: palette.text,
+    border: `1.5px solid ${colors.border}`,
+    borderRadius: `${radius.lg}px`,
+    color: colors.ink,
     cursor: "pointer",
     overflow: "hidden",
     boxSizing: "border-box",
-    transition: "border-color 0.15s, background 0.15s, box-shadow 0.15s",
-};
-
-const cardTopAccent = {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: "2px",
-    background: "linear-gradient(90deg, transparent, rgba(56,189,248,0.6), transparent)",
-    opacity: 0.8,
+    transition: "border-color 150ms ease, background 150ms ease",
 };
 
 const cardHeader = {
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
+    flexWrap: "wrap",
+    rowGap: "6px",
     gap: "8px",
     marginBottom: "10px",
 };
@@ -126,17 +105,17 @@ const cardHeader = {
 const cardTitle = {
     fontSize: "15px",
     fontWeight: 700,
-    color: palette.text,
-    fontFamily: "'Rajdhani', sans-serif",
+    color: colors.ink,
+    fontFamily: fonts.display,
 };
 
 const cardMeta = {
     display: "flex",
     alignItems: "center",
     gap: "6px",
-    fontFamily: palette.mono,
+    fontFamily: fonts.mono,
     fontSize: "10px",
-    color: palette.faint,
+    color: colors.inkFaint,
     marginTop: "5px",
 };
 
@@ -147,7 +126,7 @@ const emptyBox = {
     justifyContent: "center",
     gap: "8px",
     padding: "24px",
-    border: `1px dashed ${palette.border}`,
-    borderRadius: "10px",
+    border: `1.5px dashed ${colors.border}`,
+    borderRadius: `${radius.lg}px`,
     textAlign: "center",
 };

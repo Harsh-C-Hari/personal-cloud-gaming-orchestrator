@@ -45,11 +45,11 @@ export function DashboardLayout({
 
   return (
     <div
+      className="pcgo-shell-root"
       style={{
-        height: "100vh",
         overflow: "hidden",
         background: colors.bg,
-        color: colors.text,
+        color: colors.ink,
         display: "flex",
         flexDirection: "column",
       }}

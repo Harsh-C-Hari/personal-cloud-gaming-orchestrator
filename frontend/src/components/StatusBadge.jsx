@@ -11,20 +11,22 @@
  *   "stopped"    — stop_session() called, NO WS broadcast (poll only)
  */
 
-/** @type {Record<string, { label: string, color: string, glow: string, pulse: boolean }>} */
+import { colors, radius } from "../dashboard/theme.js";
+
+/** @type {Record<string, { label: string, color: string, wash: string, pulse: boolean }>} */
 const STATUS_CONFIG = {
-  starting:     { label: "STARTING",    color: "#f5a524", glow: "rgba(245,165,36,0.5)",  pulse: true  },
-  running:      { label: "RUNNING",     color: "#10d98a", glow: "rgba(16,217,138,0.55)", pulse: true  },
-  restarting:   { label: "RESTARTING",  color: "#38bdf8", glow: "rgba(56,189,248,0.5)",  pulse: true  },
-  restarted:    { label: "RESTARTED",   color: "#10d98a", glow: "rgba(16,217,138,0.55)", pulse: true  },
-  stopping:     { label: "STOPPING",    color: "#f5a524", glow: "rgba(245,165,36,0.5)",  pulse: false },
-  cleaning:     { label: "CLEANING",    color: "#38bdf8", glow: "rgba(56,189,248,0.45)", pulse: false },
-  completed:    { label: "COMPLETED",   color: "#94a3b8", glow: "rgba(148,163,184,0.35)",pulse: false },
-  failed:       { label: "FAILED",      color: "#de193a", glow: "rgba(244,63,94,0.5)",   pulse: false },
-  stopped:      { label: "STOPPED",     color: "#e6a822", glow: "rgba(230,168,34,0.4)",  pulse: false },
+  starting:     { label: "STARTING",    color: colors.warning, wash: "rgba(245,215,110,0.14)", pulse: true  },
+  running:      { label: "RUNNING",     color: colors.success, wash: "rgba(110,231,176,0.14)", pulse: true  },
+  restarting:   { label: "RESTARTING",  color: colors.info,    wash: "rgba(126,200,242,0.14)", pulse: true  },
+  restarted:    { label: "RESTARTED",   color: colors.success, wash: "rgba(110,231,176,0.14)", pulse: true  },
+  stopping:     { label: "STOPPING",    color: colors.warning, wash: "rgba(245,215,110,0.14)", pulse: false },
+  cleaning:     { label: "CLEANING",    color: colors.info,    wash: "rgba(126,200,242,0.14)", pulse: false },
+  completed:    { label: "COMPLETED",   color: colors.neutral, wash: "rgba(185,183,174,0.14)", pulse: false },
+  failed:       { label: "FAILED",      color: colors.danger,  wash: "rgba(255,107,107,0.14)", pulse: false },
+  stopped:      { label: "STOPPED",     color: colors.inkDim,  wash: "rgba(185,183,174,0.10)", pulse: false },
 };
 
-const FALLBACK = { label: "UNKNOWN", color: "#475569", glow: "transparent", pulse: false };
+const FALLBACK = { label: "UNKNOWN", color: colors.inkGhost, wash: "rgba(74,74,72,0.14)", pulse: false };
 
 /**
  * @param {{ status: string }} props
@@ -39,15 +41,14 @@ export function StatusBadge({ status }) {
         alignItems:    "center",
         gap:           "6px",
         padding:       "3px 10px 3px 7px",
-        borderRadius:  "3px",
-        background:    `${cfg.color}12`,
-        border:        `1px solid ${cfg.color}30`,
+        borderRadius:  `${radius.full}px`,
+        background:    cfg.wash,
+        border:        `1.5px solid ${cfg.color}4d`,
         color:         cfg.color,
         fontSize:      "9.5px",
         fontFamily:    "'JetBrains Mono', monospace",
         fontWeight:    700,
         letterSpacing: "0.13em",
-        textShadow:    `0 0 10px ${cfg.glow}`,
         flexShrink:    0,
         userSelect:    "none",
       }}
@@ -59,20 +60,11 @@ export function StatusBadge({ status }) {
           height:       6,
           borderRadius: "50%",
           background:   cfg.color,
-          boxShadow:    `0 0 7px ${cfg.color}`,
           flexShrink:   0,
           animation:    cfg.pulse ? "badge-pulse 1.6s ease-in-out infinite" : "none",
         }}
       />
       {cfg.label}
-
-      {/* Scoped keyframe — injected once into DOM */}
-      <style>{`
-        @keyframes badge-pulse {
-          0%, 100% { opacity: 1;    transform: scale(1);    }
-          50%       { opacity: 0.2; transform: scale(0.8);  }
-        }
-      `}</style>
     </span>
   );
 }

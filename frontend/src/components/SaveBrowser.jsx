@@ -3,49 +3,36 @@
  *
  * Same props (type, name, saves, loading, error, deleting, onTypeChange,
  * onNameChange, onDelete) and same hasSaves/options derivation as before —
- * only the presentation was reworked to match the FieldLabel + focus-glow
+ * only the presentation was reworked to match the FieldLabel + focus-ring
  * input pattern used by its parent, StartSessionForm.jsx. It already
- * renders inside that form's own `cardSection` (bordered card) under a
- * "Save Data" section heading, so the old nested box/title here was a
- * redundant "card inside a card" — dropped in favor of just the controls.
+ * renders inside that form's own bordered card under a "Save Data" section
+ * heading, so the old nested box/title here was a redundant "card inside a
+ * card" — dropped in favor of just the controls.
  */
 
-import { FaLayerGroup, FaFileArchive, FaTrashAlt, FaExclamationTriangle, FaInbox } from "react-icons/fa";
-
-const palette = {
-    bg: "#080a0f",
-    border: "#1c2130",
-    text: "#e2e8f0",
-    dim: "#94a3b8",
-    faint: "#64748b",
-    muted: "#475569",
-    accent: "#38bdf8",
-    danger: "#f43f5e",
-    mono: "'JetBrains Mono', monospace",
-};
+import { Layers, Archive, Trash2, AlertTriangle, Inbox } from "lucide-react";
+import { colors, fonts, radius } from "../dashboard/theme.js";
 
 const inputStyle = {
     width: "100%",
     padding: "10px 12px",
-    background: palette.bg,
-    border: `1px solid ${palette.border}`,
-    borderRadius: "7px",
-    color: palette.text,
+    background: colors.bgInset,
+    border: `1.5px solid ${colors.border}`,
+    borderRadius: `${radius.md}px`,
+    color: colors.ink,
     fontSize: "13px",
     fontFamily: "inherit",
     outline: "none",
     cursor: "pointer",
     boxSizing: "border-box",
-    transition: "border-color 0.2s, box-shadow 0.2s",
+    transition: "border-color 150ms ease",
 };
 
 function focusBorder(e) {
-    e.target.style.borderColor = "rgba(56,189,248,0.5)";
-    e.target.style.boxShadow = "0 0 0 3px rgba(56,189,248,0.08)";
+    e.target.style.borderColor = colors.ink;
 }
 function blurBorder(e) {
-    e.target.style.borderColor = palette.border;
-    e.target.style.boxShadow = "none";
+    e.target.style.borderColor = colors.border;
 }
 
 function FieldLabel({ icon, children }) {
@@ -56,10 +43,11 @@ function FieldLabel({ icon, children }) {
                 alignItems: "center",
                 gap: "6px",
                 fontSize: "9.5px",
-                color: palette.muted,
+                color: colors.inkFaint,
                 letterSpacing: "0.13em",
                 textTransform: "uppercase",
-                fontFamily: palette.mono,
+                fontFamily: fonts.mono,
+                fontWeight: 700,
                 marginBottom: "8px",
             }}
         >
@@ -79,7 +67,7 @@ function HintLine({ icon, color, children }) {
                 marginTop: "9px",
                 fontSize: "10.5px",
                 color,
-                fontFamily: palette.mono,
+                fontFamily: fonts.mono,
             }}
         >
             {icon}
@@ -118,7 +106,7 @@ export function SaveBrowser({
         <div>
             {hasSaves && (
                 <div>
-                    <FieldLabel icon={<FaLayerGroup size={10} />}>Save Source</FieldLabel>
+                    <FieldLabel icon={<Layers size={11} strokeWidth={2} />}>Save Source</FieldLabel>
                     <select
                         style={inputStyle}
                         value={type}
@@ -134,19 +122,19 @@ export function SaveBrowser({
             )}
 
             {loading && (
-                <HintLine icon={<FaLayerGroup size={10} />} color={palette.faint}>
+                <HintLine icon={<Layers size={11} strokeWidth={2} />} color={colors.inkFaint}>
                     Loading saves…
                 </HintLine>
             )}
 
             {error && (
-                <HintLine icon={<FaExclamationTriangle size={10} />} color={palette.danger}>
+                <HintLine icon={<AlertTriangle size={11} strokeWidth={2} />} color={colors.danger}>
                     {error}
                 </HintLine>
             )}
 
             {!loading && !hasSaves && (
-                <HintLine icon={<FaInbox size={10} />} color={palette.faint}>
+                <HintLine icon={<Inbox size={11} strokeWidth={2} />} color={colors.inkFaint}>
                     No saves found for this user.
                 </HintLine>
             )}
@@ -154,7 +142,7 @@ export function SaveBrowser({
             {hasSaves && type !== "latest" && (
                 <>
                     <div style={{ marginTop: "12px" }}>
-                        <FieldLabel icon={<FaFileArchive size={10} />}>
+                        <FieldLabel icon={<Archive size={11} strokeWidth={2} />}>
                             Select {type === "archives" ? "Archive" : "Backup"}
                         </FieldLabel>
                         <select
@@ -186,25 +174,25 @@ export function SaveBrowser({
                                 width: "100%",
                                 marginTop: "10px",
                                 padding: "9px 10px",
-                                background: "rgba(244,63,94,0.08)",
-                                border: "1px solid rgba(244,63,94,0.35)",
-                                borderRadius: "7px",
-                                color: palette.danger,
+                                background: "transparent",
+                                border: `1.5px solid ${colors.danger}`,
+                                borderRadius: `${radius.full}px`,
+                                color: colors.danger,
                                 fontSize: "10.5px",
-                                fontFamily: palette.mono,
+                                fontFamily: fonts.mono,
                                 letterSpacing: "0.04em",
                                 cursor: deleting ? "not-allowed" : "pointer",
                                 opacity: deleting ? 0.6 : 1,
-                                transition: "background 0.15s",
+                                transition: "background 150ms ease",
                             }}
                             onMouseEnter={(e) => {
-                                e.currentTarget.style.background = "rgba(244,63,94,0.16)";
+                                if (!deleting) e.currentTarget.style.background = "rgba(255,107,107,0.1)";
                             }}
                             onMouseLeave={(e) => {
-                                e.currentTarget.style.background = "rgba(244,63,94,0.08)";
+                                e.currentTarget.style.background = "transparent";
                             }}
                         >
-                            <FaTrashAlt size={10} />
+                            <Trash2 size={11} strokeWidth={2} />
                             {deleting ? "Deleting…" : `Delete ${type === "archives" ? "archive" : "backup"}`}
                         </button>
                     )}
@@ -212,7 +200,7 @@ export function SaveBrowser({
             )}
 
             {type !== "latest" && options.length === 0 && !loading && (
-                <HintLine icon={<FaInbox size={10} />} color={palette.faint}>
+                <HintLine icon={<Inbox size={11} strokeWidth={2} />} color={colors.inkFaint}>
                     No {type === "archives" ? "archives" : "backups"} found
                 </HintLine>
             )}

@@ -1,9 +1,9 @@
 import time
-import json
-import os
-from pathlib import Path
 from host_agent.logging_config import (
     configure_logger,
+)
+from host_agent.repositories.recovery_repository import (
+    recovery_repository,
 )
 logger = configure_logger()
 
@@ -12,17 +12,8 @@ def get_recovery_events(
     limit=100,
 ):
 
-    recovery_path = Path(
-        "data/recovery_events.json"
-    )
-
-    events = _safe_read_json(
-        recovery_path,
-        [],
-    )
-
-    return list(
-        reversed(events[-limit:])
+    return recovery_repository.get_events(
+        limit=limit,
     )
 
 def get_recovery_stats():
@@ -123,100 +114,9 @@ def append_recovery_event(
     details=None,
 ):
 
-    recovery_path = Path("data/recovery_events.json")
-    recovery_path.parent.mkdir(
-        parents=True,
-        exist_ok=True,
+    recovery_repository.append_event(
+        event_time=time.time(),
+        service=service,
+        event=event,
+        details=details,
     )
-
-    record = {
-        "time": time.time(),
-        "service": service,
-        "event": event,
-        "details": details,
-    }
-
-    recovery = _safe_read_json(
-        recovery_path,
-        [],
-    )
-
-    recovery.append(record)
-    
-    recovery = recovery[-1000:]
-
-    _safe_write_json(
-        path = recovery_path,
-        data = recovery,
-    )
-
-def _safe_write_json(
-    path,
-    data,
-) -> None:
-
-    path.parent.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    temp_path = path.with_suffix(
-        path.suffix + ".tmp"
-    )
-
-    last_error = None
-
-    for _ in range(5):
-
-        try:
-            with temp_path.open(
-                "w",
-                encoding="utf-8",
-            ) as file:
-                json.dump(
-                    data,
-                    file,
-                    indent=2,
-                    ensure_ascii=False,
-                )
-
-                file.flush()
-                os.fsync(file.fileno())
-
-            temp_path.replace(path)
-            return
-
-        except PermissionError as error:
-            last_error = error
-            time.sleep(0.2)
-
-        except Exception as error:
-            logger.error(
-                f"Failed to write JSON file {path}: {error}"
-            )
-            return
-
-    logger.error(
-        f"Failed to write JSON file {path} after retries: {last_error}"
-    )
-
-def _safe_read_json(
-    path,
-    default,
-):
-
-    try:
-
-        if not path.exists():
-            return default
-
-        with path.open(
-            "r",
-            encoding="utf-8",
-        ) as file:
-
-            return json.load(file)
-
-    except Exception:
-
-        return default

@@ -2,8 +2,10 @@
  * dashboard/layout/MobileHeader.jsx
  *
  * Off-canvas nav drawer for small screens. Renders the same `items` list
- * Sidebar uses, as a left-edge sliding panel (like a standard mobile app
- * drawer) instead of a full-width dropdown.
+ * Sidebar uses, as a left-edge sliding panel, mirroring Sidebar's
+ * morphing-pill active state (filled `ink` pill) instead of the old
+ * glassmorphic/glow treatment — flat fill, border instead of shadow, per
+ * DESIGN_SYSTEM.md §5 (Nav) / §4 (no glassmorphism, no glow).
  *
  * Same data contract / behavior as before (open, items, activeRoute,
  * onNavigate, onClose) — only the visual design/entry direction changed.
@@ -12,8 +14,8 @@
  * pushed off-screen and made non-interactive while closed.
  */
 
-import { FaTimes } from "react-icons/fa";
-import { colors, fonts, nav } from "../theme.js";
+import { X } from "lucide-react";
+import { colors, fonts, nav, radius, shadow } from "../theme.js";
 
 export function MobileHeader({ open, items, activeRoute, onNavigate, onClose }) {
   return (
@@ -28,32 +30,16 @@ export function MobileHeader({ open, items, activeRoute, onNavigate, onClose }) 
         width: "min(280px, 82vw)",
         display: "flex",
         flexDirection: "column",
-        borderRight: "1px solid rgba(148,163,184,0.16)",
-        background: "linear-gradient(165deg, rgba(0, 0, 0, 0.6), rgba(1, 8, 28, 0.72))",
-        backdropFilter: "blur(10px) saturate(160%)",
-        WebkitBackdropFilter: "blur(0px) saturate(160%)",
-        boxShadow: open
-          ? "inset -1px 0 0 rgba(255,255,255,0.04), 24px 0 48px -20px rgba(0,0,0,0.75)"
-          : "none",
+        borderRight: `1.5px solid ${colors.border}`,
+        background: colors.bgElevated,
+        boxShadow: open ? shadow.overlay : "none",
         zIndex: 45,
         transform: open ? "translateX(0)" : "translateX(-100%)",
-        transition: "transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.22s",
+        transition: "transform 220ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 220ms ease",
         pointerEvents: open ? "auto" : "none",
         overflowY: "auto",
-        isolation: "isolate",
       }}
     >
-      {/* Glass sheen overlay — soft diagonal light catching the panel */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 32%)",
-          pointerEvents: "none",
-          zIndex: -1,
-        }}
-      />
       {/* Section header */}
       <div
         style={{
@@ -61,30 +47,31 @@ export function MobileHeader({ open, items, activeRoute, onNavigate, onClose }) 
           alignItems: "center",
           justifyContent: "space-between",
           padding: "14px 16px",
-          borderBottom: `1px solid ${colors.borderSubtle}`,
+          borderBottom: `1.5px solid ${colors.borderSubtle}`,
           flexShrink: 0,
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <span
             style={{
-              fontSize: "9.5px",
-              color: colors.textMuted,
+              fontSize: "10px",
+              fontWeight: 700,
+              color: colors.inkFaint,
               letterSpacing: "0.15em",
               textTransform: "uppercase",
-              fontFamily: fonts.mono,
+              fontFamily: fonts.body,
             }}
           >
             Navigation
           </span>
           <span
             style={{
-              fontSize: "9px",
-              color: colors.textGhost,
+              fontSize: "10px",
+              color: colors.inkGhost,
               fontFamily: fonts.mono,
-              border: `1px solid ${colors.borderSubtle}`,
-              borderRadius: "10px",
-              padding: "1px 7px",
+              border: `1.5px solid ${colors.borderSubtle}`,
+              borderRadius: `${radius.full}px`,
+              padding: "1px 8px",
             }}
           >
             {items.length}
@@ -95,28 +82,29 @@ export function MobileHeader({ open, items, activeRoute, onNavigate, onClose }) 
           onClick={onClose}
           aria-label="Close navigation menu"
           style={{
-            width: "26px",
-            height: "26px",
+            width: "44px",
+            height: "44px",
+            flexShrink: 0,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            borderRadius: "6px",
-            border: `1px solid ${colors.borderSubtle}`,
+            borderRadius: `${radius.sm}px`,
+            border: `1.5px solid ${colors.borderSubtle}`,
             background: "transparent",
-            color: colors.textFaint,
+            color: colors.inkFaint,
             cursor: "pointer",
-            transition: "background 0.15s, color 0.15s",
+            transition: "background 150ms ease, color 150ms ease",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(244,63,94,0.1)";
-            e.currentTarget.style.color = "#fb7185";
+            e.currentTarget.style.background = "rgba(255,107,107,0.1)";
+            e.currentTarget.style.color = colors.danger;
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.color = colors.textFaint;
+            e.currentTarget.style.color = colors.inkFaint;
           }}
         >
-          <FaTimes size={11} />
+          <X size={13} strokeWidth={2} />
         </button>
       </div>
 
@@ -132,80 +120,43 @@ export function MobileHeader({ open, items, activeRoute, onNavigate, onClose }) 
                 onClose();
               }}
               style={{
-                position: "relative",
                 display: "flex",
                 alignItems: "center",
                 gap: "12px",
-                padding: "10px 14px 10px 16px",
-                borderRadius: "8px",
-                border: `1px solid ${active ? "rgba(56,189,248,0.3)" : "transparent"}`,
-                background: active ? colors.accentDim : "transparent",
-                color: active ? colors.accent : colors.textDim,
-                fontSize: "13px",
-                fontFamily: fonts.display,
+                minHeight: "44px",
+                padding: "12px 14px",
+                borderRadius: `${radius.full}px`,
+                border: "1.5px solid transparent",
+                background: active ? colors.ink : "transparent",
+                color: active ? colors.bg : colors.inkDim,
+                fontSize: "13.5px",
+                fontFamily: fonts.body,
                 fontWeight: active ? 700 : 500,
-                letterSpacing: "0.01em",
                 cursor: "pointer",
                 textAlign: "left",
-                transition: "background 0.15s, border-color 0.15s",
+                transition: "background 150ms ease, color 150ms ease",
               }}
               onMouseEnter={(e) => {
-                if (!active) e.currentTarget.style.background = "rgba(148,163,184,0.06)";
+                if (!active) e.currentTarget.style.background = "rgba(237,235,227,0.06)";
               }}
               onMouseLeave={(e) => {
                 if (!active) e.currentTarget.style.background = "transparent";
               }}
             >
-              {/* Active accent bar */}
-              {active && (
-                <span
-                  style={{
-                    position: "absolute",
-                    left: 0,
-                    top: "18%",
-                    bottom: "18%",
-                    width: "3px",
-                    borderRadius: "0 3px 3px 0",
-                    background: colors.accent,
-                    boxShadow: "0 0 8px rgba(56,189,248,0.6)",
-                  }}
-                />
-              )}
-
-              {/* Icon badge */}
               <span
                 style={{
                   flexShrink: 0,
-                  width: "30px",
-                  height: "30px",
-                  borderRadius: "8px",
+                  width: "18px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  background: active ? "rgba(56,189,248,0.15)" : "rgba(148,163,184,0.06)",
-                  border: `1px solid ${active ? "rgba(56,189,248,0.35)" : colors.borderSubtle}`,
                   fontSize: "14px",
-                  color: active ? colors.accent : colors.textFaint,
                 }}
               >
                 {item.icon}
               </span>
 
               <span>{item.label}</span>
-
-              {active && (
-                <span
-                  style={{
-                    marginLeft: "auto",
-                    width: "6px",
-                    height: "6px",
-                    borderRadius: "50%",
-                    background: colors.accent,
-                    boxShadow: "0 0 8px rgba(56,189,248,0.7)",
-                    flexShrink: 0,
-                  }}
-                />
-              )}
             </button>
           );
         })}

@@ -205,7 +205,7 @@ preserve that exact behavior.
 
 ---
 
-## `recovery_events`
+## `recovery_events` - Migration Complete
 
 Replaces `data/recovery_events.json` (previously capped at 1000, cap
 removed for the same reason as above).

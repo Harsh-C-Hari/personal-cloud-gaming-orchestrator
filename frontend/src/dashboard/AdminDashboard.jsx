@@ -11,17 +11,17 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  FaHome,
-  FaServer,
-  FaSyncAlt,
-  FaPlay,
-  FaGamepad,
-  FaUsersCog,
-  FaChartBar,
-  FaHistory,
-  FaClipboardList,
-  FaCog,
-} from "react-icons/fa";
+  Home as HomeIcon,
+  Server,
+  RefreshCw,
+  Play,
+  Gamepad2,
+  UserCog,
+  BarChart3,
+  History,
+  ClipboardList,
+  Settings,
+} from "lucide-react";
 import { useDashboardData } from "../hooks/useDashboardData.js";
 import { forceUnlockSession, startSunshine, restartSunshine, enableMaintenance, disableMaintenance, revalidateHost } from "../api/client.js";
 import { useSessionShell } from "./useSessionShell.js";
@@ -45,28 +45,28 @@ import { ChangePasswordPage } from "./pages/ChangePasswordPage.jsx";
 import { NotFoundPage } from "./pages/NotFoundPage.jsx";
 
 const NAV_ITEMS = [
-  { route: "home", icon: <FaHome />, label: "Home" },
-  { route: "monitor", icon: <FaServer />, label: "Host Monitor" },
-  { route: "recovery", icon: <FaSyncAlt />, label: "Recovery" },
-  { route: "streams", icon: <FaPlay />, label: "Sunshine" },
-  { route: "game-manager", icon: <FaGamepad />, label: "Game Manager" },
-  { route: "users", icon: <FaUsersCog />, label: "User Management" },
-  { route: "analytics", icon: <FaChartBar />, label: "Analytics" },
-  { route: "history", icon: <FaHistory />, label: "Session History" },
-  { route: "logs", icon: <FaClipboardList />, label: "Logs" },
-  { route: "settings", icon: <FaCog />, label: "Settings" },
+  { route: "home", icon: <HomeIcon size={15} strokeWidth={2} />, label: "Home" },
+  { route: "monitor", icon: <Server size={15} strokeWidth={2} />, label: "Host Monitor" },
+  { route: "recovery", icon: <RefreshCw size={15} strokeWidth={2} />, label: "Recovery" },
+  { route: "streams", icon: <Play size={15} strokeWidth={2} />, label: "Sunshine" },
+  { route: "game-manager", icon: <Gamepad2 size={15} strokeWidth={2} />, label: "Game Manager" },
+  { route: "users", icon: <UserCog size={15} strokeWidth={2} />, label: "User Management" },
+  { route: "analytics", icon: <BarChart3 size={15} strokeWidth={2} />, label: "Analytics" },
+  { route: "history", icon: <History size={15} strokeWidth={2} />, label: "Session History" },
+  { route: "logs", icon: <ClipboardList size={15} strokeWidth={2} />, label: "Logs" },
+  { route: "settings", icon: <Settings size={15} strokeWidth={2} />, label: "Settings" },
 ];
 
 const HOME_NAV_CARDS = [
-  { route: "game-manager", icon: <FaGamepad />, label: "Games", description: "Manage Games" },
-  { route: "monitor", icon: <FaServer />, label: "Host Monitor", description: "Live host status" },
-  { route: "recovery", icon: <FaSyncAlt />, label: "Recovery", description: "Recovery stats & events" },
-  { route: "streams", icon: <FaPlay />, label: "Sunshine", description: "Client pairing & stream history" },
-  { route: "analytics", icon: <FaChartBar />, label: "Analytics", description: "Usage trends" },
-  { route: "history", icon: <FaHistory />, label: "History", description: "Past sessions" },
-  { route: "logs", icon: <FaClipboardList />, label: "Logs", description: "Activity log" },
-  { route: "users", icon: <FaUsersCog />, label: "Users", description: "User management" },
-  { route: "settings", icon: <FaCog />, label: "Settings", description: "Password, config, about" },
+  { route: "game-manager", icon: <Gamepad2 size={20} strokeWidth={1.75} />, label: "Games", description: "Manage Games" },
+  { route: "monitor", icon: <Server size={20} strokeWidth={1.75} />, label: "Host Monitor", description: "Live host status" },
+  { route: "recovery", icon: <RefreshCw size={20} strokeWidth={1.75} />, label: "Recovery", description: "Recovery stats & events" },
+  { route: "streams", icon: <Play size={20} strokeWidth={1.75} />, label: "Sunshine", description: "Client pairing & stream history" },
+  { route: "analytics", icon: <BarChart3 size={20} strokeWidth={1.75} />, label: "Analytics", description: "Usage trends" },
+  { route: "history", icon: <History size={20} strokeWidth={1.75} />, label: "History", description: "Past sessions" },
+  { route: "logs", icon: <ClipboardList size={20} strokeWidth={1.75} />, label: "Logs", description: "Activity log" },
+  { route: "users", icon: <UserCog size={20} strokeWidth={1.75} />, label: "Users", description: "User management" },
+  { route: "settings", icon: <Settings size={20} strokeWidth={1.75} />, label: "Settings", description: "Password, config, about" },
 ];
 
 export function AdminDashboard({ username }) {

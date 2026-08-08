@@ -4,6 +4,135 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cloud Gaming Orchestrator</title>
+    <script>
+      (function () {
+        // Apply the persisted theme before the app mounts / stylesheet
+        // paints, so there's no flash of the default (amber) theme.
+        // Kept in sync with the `cgo-theme` / `cgo-theme-custom-hex` keys
+        // and defaults read by dashboard/ThemeContext.jsx — update both
+        // if either changes.
+        //
+        // The "custom" branch below is a deliberately standalone, compact
+        // copy of dashboard/theme-derive.js's HSL math (not an ES module
+        // import) — this script must run synchronously before first
+        // paint with zero import latency to actually prevent a flash; a
+        // module import here could resolve after paint in some browsers.
+        // If you change theme-derive.js's algorithm, update this copy too.
+        try {
+          var BUILTIN = ["amber", "verdant", "ember", "classic", "mono"];
+          var storedTheme = window.localStorage.getItem("cgo-theme");
+          var theme =
+            BUILTIN.indexOf(storedTheme) !== -1 || storedTheme === "custom"
+              ? storedTheme
+              : "amber";
+
+          if (theme === "custom") {
+            var hex = window.localStorage.getItem("cgo-theme-custom-hex");
+            if (!/^#[0-9a-fA-F]{6}$/.test(hex || "")) hex = "#E0A458";
+
+            var AMBER_NEUTRALS = {
+              "--color-bg": "#0B0B0D",
+              "--color-bg-elevated": "#131316",
+              "--color-bg-card": "#151517",
+              "--color-bg-card-hover": "#1B1B1F",
+              "--color-bg-inset": "#0E0E10",
+              "--color-ink": "#EDEBE3",
+              "--color-ink-dim": "#B9B7AE",
+              "--color-ink-faint": "#7D7C77",
+              "--color-ink-ghost": "#4A4A48",
+            };
+            var SAT_SCALE = 1.35;
+
+            var hexToRgb = function (h) {
+              h = h.replace("#", "");
+              return [
+                parseInt(h.slice(0, 2), 16),
+                parseInt(h.slice(2, 4), 16),
+                parseInt(h.slice(4, 6), 16),
+              ];
+            };
+            var rgbToHex = function (rgb) {
+              return (
+                "#" +
+                rgb
+                  .map(function (c) {
+                    return Math.max(0, Math.min(255, Math.round(c)))
+                      .toString(16)
+                      .padStart(2, "0");
+                  })
+                  .join("")
+                  .toUpperCase()
+              );
+            };
+            var rgbToHsl = function (rgb) {
+              var r = rgb[0] / 255, g = rgb[1] / 255, b = rgb[2] / 255;
+              var max = Math.max(r, g, b), min = Math.min(r, g, b);
+              var h, s, l = (max + min) / 2;
+              if (max === min) { h = 0; s = 0; }
+              else {
+                var d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+                else if (max === g) h = (b - r) / d + 2;
+                else h = (r - g) / d + 4;
+                h /= 6;
+              }
+              return [h, s, l];
+            };
+            var hue2rgb = function (p, q, t) {
+              if (t < 0) t += 1;
+              if (t > 1) t -= 1;
+              if (t < 1 / 6) return p + (q - p) * 6 * t;
+              if (t < 1 / 2) return q;
+              if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+              return p;
+            };
+            var hslToRgb = function (hsl) {
+              var h = hsl[0], s = hsl[1], l = hsl[2];
+              if (s === 0) return [l * 255, l * 255, l * 255];
+              var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+              var p = 2 * l - q;
+              return [
+                hue2rgb(p, q, h + 1 / 3) * 255,
+                hue2rgb(p, q, h) * 255,
+                hue2rgb(p, q, h - 1 / 3) * 255,
+              ];
+            };
+
+            var hue = rgbToHsl(hexToRgb(hex))[0];
+            var root = document.documentElement.style;
+            root.setProperty("--color-brand", hex);
+            var br = hexToRgb(hex);
+            root.setProperty(
+              "--color-brand-dim",
+              "rgba(" + br[0] + "," + br[1] + "," + br[2] + ",0.14)"
+            );
+
+            var ink = null;
+            for (var key in AMBER_NEUTRALS) {
+              var hsl = rgbToHsl(hexToRgb(AMBER_NEUTRALS[key]));
+              var newS = Math.min(1, hsl[1] * SAT_SCALE);
+              var derived = rgbToHex(hslToRgb([hue, newS, hsl[2]]));
+              root.setProperty(key, derived);
+              if (key === "--color-ink") ink = derived;
+            }
+            var inkRgb = hexToRgb(ink);
+            var inkR = inkRgb[0], inkG = inkRgb[1], inkB = inkRgb[2];
+            root.setProperty("--color-border", "rgba(" + inkR + "," + inkG + "," + inkB + ",0.12)");
+            root.setProperty("--color-border-subtle", "rgba(" + inkR + "," + inkG + "," + inkB + ",0.07)");
+            root.setProperty("--color-border-strong", "rgba(" + inkR + "," + inkG + "," + inkB + ",0.28)");
+            root.setProperty("--color-border-ink", ink);
+
+            document.documentElement.dataset.theme = "custom";
+          } else if (theme !== "amber") {
+            document.documentElement.dataset.theme = theme;
+          }
+        } catch (e) {
+          // localStorage unavailable (private mode, etc) — fall back to
+          // the default amber theme, which needs no attribute set.
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

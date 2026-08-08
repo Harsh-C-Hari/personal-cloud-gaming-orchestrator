@@ -4,7 +4,7 @@
  * Renders the WebSocket event history.
  * Purely presentational — receives events as a prop, no fetching here.
  * Same props/data contract as before (events, connected); only the visual
- * design was reworked for a more production/professional look.
+ * design was reworked to flat Chalkboard Neo-Brutalist tokens (no glow).
  *
  * Event shape (from session_service.py broadcast calls):
  *   { type: "status_update", session_id: string, status: string, ts: string, date: string }
@@ -19,23 +19,25 @@
  * }} props
  */
 
+import { colors, fonts } from "../dashboard/theme.js";
+
 const STATUS_STYLES = {
-  starting: { color: "#38bdf8", bg: "rgba(56,189,248,0.12)", label: "Starting" },
-  running: { color: "#10d98a", bg: "rgba(16,217,138,0.12)", label: "Running" },
-  restarted: { color: "#179f69", bg: "rgba(23,159,105,0.12)", label: "Restarted" },
-  stopping: { color: "#f5a524", bg: "rgba(245,165,36,0.12)", label: "Stopping" },
-  cleaning: { color: "#818cf8", bg: "rgba(129,140,248,0.12)", label: "Cleaning" },
-  completed: { color: "#38bdf8", bg: "rgba(56,189,248,0.12)", label: "Completed" },
-  failed: { color: "#f43f5e", bg: "rgba(244,63,94,0.12)", label: "Failed" },
+  starting: { color: colors.info, label: "Starting" },
+  running: { color: colors.success, label: "Running" },
+  restarted: { color: colors.success, label: "Restarted" },
+  stopping: { color: colors.warning, label: "Stopping" },
+  cleaning: { color: colors.info, label: "Cleaning" },
+  completed: { color: colors.info, label: "Completed" },
+  failed: { color: colors.danger, label: "Failed" },
 };
 
-const FALLBACK_STYLE = { color: "#94a3b8", bg: "rgba(148,163,184,0.1)", label: "Update" };
+const FALLBACK_STYLE = { color: colors.inkDim, label: "Update" };
 
 export function EventLog({ events, connected }) {
   return (
     <div
       style={{
-        height: "100%",
+        flex: "1 1 auto",
         display: "flex",
         flexDirection: "column",
         gap: "10px",
@@ -48,6 +50,8 @@ export function EventLog({ events, connected }) {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          flexWrap: "wrap",
+          rowGap: "6px",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -57,18 +61,17 @@ export function EventLog({ events, connected }) {
               width: "6px",
               height: "6px",
               borderRadius: "50%",
-              background: connected ? "#10d98a" : "#334155",
-              boxShadow: connected ? "0 0 8px rgba(16,217,138,0.7)" : "none",
+              background: connected ? colors.success : colors.inkGhost,
               animation: connected ? "log-blink 2s ease-in-out infinite" : "none",
             }}
           />
           <span
             style={{
               fontSize: "10px",
-              color: "#64748b",
+              color: colors.inkFaint,
               letterSpacing: "0.12em",
               textTransform: "uppercase",
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: fonts.mono,
               fontWeight: 700,
             }}
           >
@@ -79,9 +82,9 @@ export function EventLog({ events, connected }) {
         <span
           style={{
             fontSize: "9px",
-            color: "#475569",
-            fontFamily: "'JetBrains Mono', monospace",
-            border: "1px solid #1c2130",
+            color: colors.inkFaint,
+            fontFamily: fonts.mono,
+            border: `1.5px solid ${colors.borderSubtle}`,
             borderRadius: "10px",
             padding: "1px 8px",
           }}
@@ -111,8 +114,8 @@ export function EventLog({ events, connected }) {
               height: "100%",
               minHeight: "60px",
               fontSize: "11px",
-              color: "#334155",
-              fontFamily: "'JetBrains Mono', monospace",
+              color: colors.inkGhost,
+              fontFamily: fonts.mono,
               fontStyle: "italic",
             }}
           >
@@ -131,12 +134,12 @@ export function EventLog({ events, connected }) {
                   padding: "7px 10px 7px 9px",
                   borderRadius: "6px",
                   borderLeft: `2px solid ${style.color}`,
-                  background: "rgba(15,17,23,0.5)",
-                  animation: i === 0 ? "card-in 0.2s ease forwards" : "none",
-                  transition: "background 0.15s",
+                  background: colors.bgInset,
+                  animation: i === 0 ? "card-in 180ms ease forwards" : "none",
+                  transition: "background 150ms ease",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(21,24,33,0.75)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(15,17,23,0.5)")}
+                onMouseEnter={(e) => (e.currentTarget.style.background = colors.bgCardHover)}
+                onMouseLeave={(e) => (e.currentTarget.style.background = colors.bgInset)}
               >
                 <div
                   style={{
@@ -152,8 +155,8 @@ export function EventLog({ events, connected }) {
                     <span
                       style={{
                         fontSize: "8px",
-                        color: "#334155",
-                        fontFamily: "'JetBrains Mono', monospace",
+                        color: colors.inkGhost,
+                        fontFamily: fonts.mono,
                         letterSpacing: "0.02em",
                       }}
                     >
@@ -163,8 +166,8 @@ export function EventLog({ events, connected }) {
                   <span
                     style={{
                       fontSize: "9px",
-                      color: "#475569",
-                      fontFamily: "'JetBrains Mono', monospace",
+                      color: colors.inkFaint,
+                      fontFamily: fonts.mono,
                     }}
                   >
                     {ev.ts}
@@ -182,10 +185,10 @@ export function EventLog({ events, connected }) {
                     letterSpacing: "0.06em",
                     textTransform: "uppercase",
                     color: style.color,
-                    background: style.bg,
+                    background: `${style.color}24`,
                     borderRadius: "10px",
                     padding: "2px 6px",
-                    fontFamily: "'JetBrains Mono', monospace",
+                    fontFamily: fonts.mono,
                   }}
                 >
                   {style.label}
@@ -194,8 +197,8 @@ export function EventLog({ events, connected }) {
                 <span
                   style={{
                     fontSize: "10px",
-                    color: "#64748b",
-                    fontFamily: "'JetBrains Mono', monospace",
+                    color: colors.inkFaint,
+                    fontFamily: fonts.mono,
                     overflow: "hidden",
                     whiteSpace: "nowrap",
                     textOverflow: "ellipsis",
@@ -213,7 +216,7 @@ export function EventLog({ events, connected }) {
       <style>{`
         @keyframes log-blink {
           0%, 100% { opacity: 1; }
-          50%       { opacity: 0.15; }
+          50%       { opacity: 0.3; }
         }
       `}</style>
     </div>

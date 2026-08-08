@@ -5,7 +5,7 @@
  *   ‹ Back    Title                                  [optional actions]
  */
 
-import { FaArrowLeft } from "react-icons/fa";
+import { ArrowLeft } from "lucide-react";
 import { colors, fonts } from "../theme.js";
 
 export function PageHeader({ title, subtitle, onBack, backLabel = "Back", actions }) {
@@ -31,19 +31,19 @@ export function PageHeader({ title, subtitle, onBack, backLabel = "Back", action
               alignSelf: "flex-start",
               background: "transparent",
               border: "none",
-              color: colors.textFaint,
+              color: colors.inkFaint,
               fontSize: "10px",
               fontFamily: fonts.mono,
               letterSpacing: "0.1em",
               textTransform: "uppercase",
               cursor: "pointer",
               padding: "4px 0",
-              transition: "color 0.15s",
+              transition: "color 150ms ease",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = colors.accent)}
-            onMouseLeave={(e) => (e.currentTarget.style.color = colors.textFaint)}
+            onMouseEnter={(e) => (e.currentTarget.style.color = colors.ink)}
+            onMouseLeave={(e) => (e.currentTarget.style.color = colors.inkFaint)}
           >
-            <FaArrowLeft size={9} />
+            <ArrowLeft size={12} strokeWidth={2} />
             {backLabel}
           </button>
         )}
@@ -52,10 +52,10 @@ export function PageHeader({ title, subtitle, onBack, backLabel = "Back", action
           <h1
             style={{
               margin: 0,
-              fontSize: "20px",
+              fontSize: "25px",
               fontWeight: 700,
-              letterSpacing: "0.04em",
-              color: colors.text,
+              letterSpacing: "-0.01em",
+              color: colors.ink,
               fontFamily: fonts.display,
             }}
           >
@@ -65,9 +65,10 @@ export function PageHeader({ title, subtitle, onBack, backLabel = "Back", action
             <p
               style={{
                 margin: "4px 0 0",
-                fontSize: "11.5px",
-                color: colors.textFaint,
-                fontFamily: fonts.mono,
+                fontSize: "12.5px",
+                fontWeight: 500,
+                color: colors.inkFaint,
+                fontFamily: fonts.body,
               }}
             >
               {subtitle}

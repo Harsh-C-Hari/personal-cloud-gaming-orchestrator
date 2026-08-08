@@ -27,8 +27,6 @@ FILES = {
 
     "data/session_events.json": [],
 
-    "data/recovery_events.json": [],
-
     "data/sunshine_stream_history.json": [],
 
     "data/sunshine_stream_state.json": {

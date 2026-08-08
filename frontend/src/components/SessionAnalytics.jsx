@@ -10,39 +10,32 @@
  *     (success / danger / warning / accent).
  *   - Ranked list cards ("BY USER", "BY GAME", "BY USER + GAME") styled as
  *     bordered rows with rank badges and mono stat readouts.
+ *
+ * No chart library is used anywhere in this component — every metric is a
+ * numeric stat tile or a ranked text list, so there was no chart chrome
+ * (axes/gridlines/tooltips) to adapt for the redesign.
+ *
+ * Redesign note: local cyan-glow `palette` replaced with theme.js tokens,
+ * react-icons/fa replaced with lucide-react.
  */
 
 import { useEffect, useState } from "react";
 import {
-  FaChartBar,
-  FaSyncAlt,
-  FaClock,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaHistory,
-  FaPercentage,
-  FaStopwatch,
-  FaHeartbeat,
-  FaUser,
-  FaGamepad,
-  FaUsers,
-} from "react-icons/fa";
+  BarChart3,
+  RefreshCw,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  History,
+  Percent,
+  Timer,
+  HeartPulse,
+  User,
+  Gamepad2,
+  Users,
+} from "lucide-react";
 import { fetchSessionAnalytics } from "../api/client";
-
-const palette = {
-  border: "rgba(148,163,184,0.18)",
-  borderSubtle: "#1c2130",
-  card: "rgba(0, 0, 0, 0.45)",
-  text: "#e2e8f0",
-  dim: "#94a3b8",
-  faint: "#64748b",
-  muted: "#475569",
-  accent: "#38bdf8",
-  success: "#10d98a",
-  warning: "#f59e0b",
-  danger: "#f43f5e",
-  mono: "'JetBrains Mono', monospace",
-};
+import { colors, fonts, radius } from "../dashboard/theme.js";
 
 function formatPlayedTime(seconds) {
   if (seconds == null) return "--";
@@ -67,30 +60,20 @@ function formatPlayedTime(seconds) {
   return `${secs}s`;
 }
 
-function StatTile({ icon, label, value, tone = palette.accent }) {
+function StatTile({ icon, label, value, tone = colors.brand }) {
   return (
-    <div
-      style={{
-        padding: "12px",
-        borderRadius: "8px",
-        background: palette.card,
-        border: `1px solid ${palette.borderSubtle}`,
-        display: "flex",
-        alignItems: "center",
-        gap: "12px",
-      }}
-    >
+    <div style={statTile}>
       <div
         style={{
           flexShrink: 0,
           width: "32px",
           height: "32px",
-          borderRadius: "8px",
+          borderRadius: `${radius.sm}px`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: `${tone}1a`,
-          border: `1px solid ${tone}40`,
+          background: `color-mix(in srgb, ${tone} 10%, transparent)`,
+          border: `1.5px solid color-mix(in srgb, ${tone} 25%, transparent)`,
           color: tone,
           fontSize: "13px",
         }}
@@ -102,7 +85,7 @@ function StatTile({ icon, label, value, tone = palette.accent }) {
           style={{
             fontSize: "17px",
             fontWeight: 700,
-            fontFamily: palette.mono,
+            fontFamily: fonts.mono,
             color: tone,
             lineHeight: 1.1,
             whiteSpace: "nowrap",
@@ -110,107 +93,38 @@ function StatTile({ icon, label, value, tone = palette.accent }) {
         >
           {value}
         </div>
-        <div
-          style={{
-            fontSize: "9px",
-            color: palette.faint,
-            letterSpacing: "0.08em",
-            fontFamily: palette.mono,
-            marginTop: "3px",
-            textTransform: "uppercase",
-          }}
-        >
-          {label}
-        </div>
+        <div style={statLabel}>{label}</div>
       </div>
     </div>
   );
 }
 
-function StatList({ title, items, labelKey, icon }) {
+function StatList({ title: listTitle, items, labelKey, icon }) {
   return (
-    <div
-      style={{
-        padding: "14px",
-        borderRadius: "8px",
-        background: palette.card,
-        border: `1px solid ${palette.borderSubtle}`,
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "7px",
-          marginBottom: "12px",
-          fontSize: "9.5px",
-          color: palette.faint,
-          letterSpacing: "0.13em",
-          textTransform: "uppercase",
-          fontFamily: palette.mono,
-        }}
-      >
+    <div style={listCard}>
+      <div style={listHeading}>
         {icon}
-        {title}
+        {listTitle}
       </div>
 
       {items.length === 0 ? (
-        <div
-          style={{
-            padding: "16px",
-            textAlign: "center",
-            border: `1px dashed ${palette.borderSubtle}`,
-            borderRadius: "8px",
-            color: palette.muted,
-            fontSize: "10.5px",
-            fontFamily: palette.mono,
-          }}
-        >
-          No data yet.
-        </div>
+        <div style={emptyBox}>No data yet.</div>
       ) : (
         <div style={{ display: "grid", gap: "8px" }}>
           {items.slice(0, 5).map((item, idx) => (
             <div
               key={
                 labelKey === "user_game"
-                    ? `${title}-${item.user_id}-${item.game_id}`
-                    : `${title}-${item[labelKey]}`
+                    ? `${listTitle}-${item.user_id}-${item.game_id}`
+                    : `${listTitle}-${item[labelKey]}`
               }
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: "10px",
-                padding: "9px 10px",
-                borderRadius: "6px",
-                background: "rgba(2,6,23,0.4)",
-                border: `1px solid ${palette.borderSubtle}`,
-              }}
+              style={listRow}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "9px", minWidth: 0 }}>
+                <span style={rankBadge}>{idx + 1}</span>
                 <span
                   style={{
-                    flexShrink: 0,
-                    width: "18px",
-                    height: "18px",
-                    borderRadius: "5px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: "rgba(56,189,248,0.12)",
-                    border: "1px solid rgba(56,189,248,0.3)",
-                    color: palette.accent,
-                    fontSize: "8.5px",
-                    fontFamily: palette.mono,
-                    fontWeight: 700,
-                  }}
-                >
-                  {idx + 1}
-                </span>
-                <span
-                  style={{
-                    color: palette.text,
+                    color: colors.ink,
                     fontSize: "11.5px",
                     fontWeight: 600,
                     overflow: "hidden",
@@ -223,15 +137,7 @@ function StatList({ title, items, labelKey, icon }) {
                       : item[labelKey]}
                 </span>
               </div>
-              <span
-                style={{
-                  flexShrink: 0,
-                  fontFamily: palette.mono,
-                  fontSize: "10px",
-                  color: palette.dim,
-                  whiteSpace: "nowrap",
-                }}
-              >
+              <span style={{ flexShrink: 0, fontFamily: fonts.mono, fontSize: "10px", color: colors.inkDim, whiteSpace: "nowrap" }}>
                 {item.sessions}x · {formatPlayedTime(item.played_seconds)} · avg {formatPlayedTime(item.average_played_seconds)}
               </span>
             </div>
@@ -321,16 +227,16 @@ export function SessionAnalytics({
     switch (reliability) {
 
       case "Excellent":
-        return "#22c55e";
+        return colors.success;
 
       case "Good":
-        return "#38bdf8";
+        return colors.brand;
 
       case "Warning":
-        return "#f59e0b";
+        return colors.warning;
 
       default:
-        return "#ef4444";
+        return colors.danger;
     }
   }
 
@@ -344,50 +250,14 @@ export function SessionAnalytics({
   }, [refreshKey]);
 
   return (
-    <section
-      style={{
-        padding: "16px",
-        border: `1px solid ${palette.border}`,
-        borderRadius: "10px",
-        background: "rgba(0, 0, 0, 0.55)",
-      }}
-    >
+    <section style={box}>
       {/* ── Header ─────────────────────────────────────────────── */}
-      <div
-        style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: "16px",
-        }}
-        >
-        <div style={{ display: "flex", alignItems: "center", gap: "9px" }}>
-          <div
-            style={{
-              width: "28px",
-              height: "28px",
-              borderRadius: "7px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "rgba(56,189,248,0.12)",
-              border: "1px solid rgba(56,189,248,0.3)",
-              color: palette.accent,
-            }}
-          >
-            <FaChartBar size={12} />
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", rowGap: "8px", columnGap: "12px", marginBottom: "16px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "9px", minWidth: 0 }}>
+          <div style={headerIcon}>
+            <BarChart3 size={13} strokeWidth={2} />
           </div>
-          <h2
-              style={{
-              margin: 0,
-              fontSize: "13px",
-              letterSpacing: "0.12em",
-              color: palette.text,
-              fontFamily: palette.mono,
-              }}
-          >
-              SESSION ANALYTICS
-          </h2>
+          <h2 style={title}>Session Analytics</h2>
         </div>
 
         <button
@@ -395,50 +265,28 @@ export function SessionAnalytics({
           disabled={loading}
           onClick={loadAnalytics}
           style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-          border: `1px solid ${palette.border}`,
-          background: palette.card,
-          color: palette.dim,
-          borderRadius: "6px",
-          padding: "5px 10px",
-          fontSize: "9px",
-          fontFamily: palette.mono,
-          letterSpacing: "0.08em",
-          cursor: loading ? "not-allowed" : "pointer",
-          opacity: loading ? 0.6 : 1,
-          transition: "background 0.15s, color 0.15s",
+            ...refreshButton,
+            flexShrink: 0,
+            cursor: loading ? "not-allowed" : "pointer",
+            opacity: loading ? 0.6 : 1,
           }}
           onMouseEnter={(e) => {
             if (loading) return;
-            e.currentTarget.style.background = "rgba(56,191,248,0.08)";
-            e.currentTarget.style.color = palette.accent;
+            e.currentTarget.style.color = colors.ink;
+            e.currentTarget.style.borderColor = colors.borderStrong;
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = palette.card;
-            e.currentTarget.style.color = palette.dim;
+            e.currentTarget.style.color = colors.inkDim;
+            e.currentTarget.style.borderColor = colors.border;
           }}
         >
-          <FaSyncAlt size={10} style={loading ? { animation: "sa-spin 0.8s linear infinite" } : undefined} />
+          <RefreshCw size={10} strokeWidth={2} style={loading ? { animation: "sa-spin 0.8s linear infinite" } : undefined} />
           {loading ? "REFRESHING..." : "REFRESH"}
         </button>
       </div>
 
       {error ? (
-        <div
-          style={{
-            padding: "10px 12px",
-            borderRadius: "8px",
-            border: `1px solid ${palette.danger}`,
-            background: "rgba(244,63,94,0.08)",
-            color: palette.danger,
-            fontSize: "11.5px",
-            fontFamily: palette.mono,
-          }}
-        >
-          {error}
-        </div>
+        <div style={errorBox}>{error}</div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           <div
@@ -450,60 +298,60 @@ export function SessionAnalytics({
             }}
           >
             <StatTile
-              icon={<FaHistory size={13} />}
+              icon={<History size={13} strokeWidth={2} />}
               label="Total Sessions"
               value={analytics.total_sessions}
-              tone={palette.accent}
+              tone={colors.brand}
             />
 
             <StatTile
-              icon={<FaClock size={13} />}
+              icon={<Clock size={13} strokeWidth={2} />}
               label="Total Played Duration"
               value={formatPlayedTime(analytics.total_played_seconds)}
-              tone={palette.accent}
+              tone={colors.brand}
             />
 
             <StatTile
-              icon={<FaCheckCircle size={13} />}
+              icon={<CheckCircle2 size={13} strokeWidth={2} />}
               label="Successful"
               value={analytics.successful_sessions}
-              tone={palette.success}
+              tone={colors.success}
             />
 
             <StatTile
-              icon={<FaTimesCircle size={13} />}
+              icon={<XCircle size={13} strokeWidth={2} />}
               label="Failed"
               value={analytics.failed_sessions}
-              tone={palette.danger}
+              tone={colors.danger}
             />
 
             <StatTile
-              icon={<FaSyncAlt size={13} />}
+              icon={<RefreshCw size={13} strokeWidth={2} />}
               label="Recovered"
               value={analytics.recovered_sessions}
-              tone={palette.warning}
+              tone={colors.warning}
             />
 
             { analytics?.total_sessions != 0 && (
               <StatTile
-                icon={<FaPercentage size={13} />}
+                icon={<Percent size={13} strokeWidth={2} />}
                 label="Success Rate"
                 value={`${analytics.success_rate}%`}
-                tone={palette.success}
+                tone={colors.success}
               />
             )}
 
             <StatTile
-              icon={<FaStopwatch size={13} />}
+              icon={<Timer size={13} strokeWidth={2} />}
               label="Avg Playtime"
               value={formatPlayedTime(analytics.average_playtime_seconds)}
-              tone={palette.accent}
+              tone={colors.brand}
             />
 
             { analytics?.total_sessions != 0 &&
               isAdmin && (
               <StatTile
-                icon={<FaHeartbeat size={13} />}
+                icon={<HeartPulse size={13} strokeWidth={2} />}
                 label="Reliability"
                 value={analytics.system_reliability}
                 tone={getReliabilityColor(analytics.system_reliability)}
@@ -514,7 +362,7 @@ export function SessionAnalytics({
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))",
+              gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
               gap: "10px",
             }}
           >
@@ -523,7 +371,7 @@ export function SessionAnalytics({
                     title="By User"
                     items={analytics.by_user}
                     labelKey="user_id"
-                    icon={<FaUser size={9} />}
+                    icon={<User size={9} strokeWidth={2} />}
                 />
             )}
 
@@ -531,7 +379,7 @@ export function SessionAnalytics({
               title="By Game"
               items={analytics.by_game}
               labelKey="game_id"
-              icon={<FaGamepad size={9} />}
+              icon={<Gamepad2 size={9} strokeWidth={2} />}
             />
 
             {isAdmin && (
@@ -539,7 +387,7 @@ export function SessionAnalytics({
                     title="By User + Game"
                     items={analytics.by_user_game}
                     labelKey="user_game"
-                    icon={<FaUsers size={9} />}
+                    icon={<Users size={9} strokeWidth={2} />}
                 />
             )}
           </div>
@@ -550,3 +398,134 @@ export function SessionAnalytics({
     </section>
   );
 }
+
+const box = {
+  padding: "20px",
+  border: `1.5px solid ${colors.border}`,
+  borderRadius: `${radius.lg}px`,
+  background: colors.bgCard,
+};
+
+const title = {
+  margin: 0,
+  fontSize: "15px",
+  fontWeight: 700,
+  color: colors.ink,
+  fontFamily: fonts.display,
+};
+
+const headerIcon = {
+  width: "28px",
+  height: "28px",
+  borderRadius: `${radius.sm}px`,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: colors.brandDim,
+  border: `1.5px solid ${colors.brand}`,
+  color: colors.brand,
+};
+
+const refreshButton = {
+  display: "flex",
+  alignItems: "center",
+  gap: "6px",
+  border: `1.5px solid ${colors.border}`,
+  background: "transparent",
+  color: colors.inkDim,
+  borderRadius: `${radius.full}px`,
+  padding: "5px 12px",
+  fontSize: "9px",
+  fontFamily: fonts.mono,
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  transition: "color 150ms ease, border-color 150ms ease",
+};
+
+const errorBox = {
+  padding: "10px 12px",
+  borderRadius: `${radius.md}px`,
+  border: `1.5px solid ${colors.danger}`,
+  background: "rgba(255,107,107,0.08)",
+  color: colors.danger,
+  fontSize: "11.5px",
+  fontFamily: fonts.mono,
+};
+
+const statTile = {
+  padding: "12px",
+  borderRadius: `${radius.md}px`,
+  background: colors.bgInset,
+  border: `1.5px solid ${colors.border}`,
+  display: "flex",
+  alignItems: "center",
+  gap: "12px",
+};
+
+const statLabel = {
+  fontSize: "9px",
+  color: colors.inkFaint,
+  letterSpacing: "0.08em",
+  fontFamily: fonts.mono,
+  marginTop: "3px",
+  textTransform: "uppercase",
+};
+
+const listCard = {
+  padding: "14px",
+  borderRadius: `${radius.md}px`,
+  background: colors.bgInset,
+  border: `1.5px solid ${colors.border}`,
+};
+
+const listHeading = {
+  display: "flex",
+  alignItems: "center",
+  gap: "7px",
+  marginBottom: "12px",
+  fontSize: "9.5px",
+  color: colors.inkFaint,
+  letterSpacing: "0.13em",
+  textTransform: "uppercase",
+  fontFamily: fonts.mono,
+  fontWeight: 700,
+};
+
+const emptyBox = {
+  padding: "16px",
+  textAlign: "center",
+  border: `1.5px dashed ${colors.borderSubtle}`,
+  borderRadius: `${radius.md}px`,
+  color: colors.inkFaint,
+  fontSize: "10.5px",
+  fontFamily: fonts.mono,
+};
+
+const listRow = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  flexWrap: "wrap",
+  rowGap: "4px",
+  gap: "10px",
+  padding: "9px 10px",
+  borderRadius: `${radius.sm}px`,
+  background: colors.bgElevated,
+  border: `1.5px solid ${colors.borderSubtle}`,
+};
+
+const rankBadge = {
+  flexShrink: 0,
+  width: "18px",
+  height: "18px",
+  borderRadius: `${radius.sm}px`,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: colors.brandDim,
+  border: `1.5px solid ${colors.brand}`,
+  color: colors.brand,
+  fontSize: "8.5px",
+  fontFamily: fonts.mono,
+  fontWeight: 700,
+};

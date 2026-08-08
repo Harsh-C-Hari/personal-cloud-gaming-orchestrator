@@ -12,7 +12,7 @@
  */
 
 import { useEffect, useMemo, useState } from "react";
-import { FaHome, FaChartBar, FaHistory, FaClipboardList, FaLock } from "react-icons/fa";
+import { Home as HomeIcon, BarChart3, History, ClipboardList, Lock } from "lucide-react";
 import { useUserDashboardData } from "../hooks/useUserDashboardData.js";
 import { useSessionShell } from "./useSessionShell.js";
 import { useRoute } from "./hooks/useRoute.js";
@@ -28,18 +28,18 @@ import { ChangePasswordPage } from "./pages/ChangePasswordPage.jsx";
 import { NotFoundPage } from "./pages/NotFoundPage.jsx";
 
 const NAV_ITEMS = [
-  { route: "home", icon: <FaHome />, label: "Home" },
-  { route: "analytics", icon: <FaChartBar />, label: "Analytics" },
-  { route: "history", icon: <FaHistory />, label: "Session History" },
-  { route: "logs", icon: <FaClipboardList />, label: "Logs" },
-  { route: "change-password", icon: <FaLock />, label: "Change Password" },
+  { route: "home", icon: <HomeIcon size={15} strokeWidth={2} />, label: "Home" },
+  { route: "analytics", icon: <BarChart3 size={15} strokeWidth={2} />, label: "Analytics" },
+  { route: "history", icon: <History size={15} strokeWidth={2} />, label: "Session History" },
+  { route: "logs", icon: <ClipboardList size={15} strokeWidth={2} />, label: "Logs" },
+  { route: "change-password", icon: <Lock size={15} strokeWidth={2} />, label: "Change Password" },
 ];
 
 const HOME_NAV_CARDS = [
-  { route: "analytics", icon: <FaChartBar />, label: "Analytics", description: "Usage trends" },
-  { route: "history", icon: <FaHistory />, label: "History", description: "Past sessions" },
-  { route: "logs", icon: <FaClipboardList />, label: "Logs", description: "Activity log" },
-  { route: "change-password", icon: <FaLock />, label: "Change Password", description: "Update your password" },
+  { route: "analytics", icon: <BarChart3 size={20} strokeWidth={1.75} />, label: "Analytics", description: "Usage trends" },
+  { route: "history", icon: <History size={20} strokeWidth={1.75} />, label: "History", description: "Past sessions" },
+  { route: "logs", icon: <ClipboardList size={20} strokeWidth={1.75} />, label: "Logs", description: "Activity log" },
+  { route: "change-password", icon: <Lock size={20} strokeWidth={1.75} />, label: "Change Password", description: "Update your password" },
 ];
 
 export function UserDashboard({ username }) {

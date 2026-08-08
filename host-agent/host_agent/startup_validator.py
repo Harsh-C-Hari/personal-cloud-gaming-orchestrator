@@ -242,7 +242,6 @@ def validate_startup():
             "data/active_sessions.json": dict,
             "data/session_history.json": list,
             "data/session_events.json": list,
-            "data/recovery_events.json": list,
             "data/sunshine_stream_history.json": list,
         }
 

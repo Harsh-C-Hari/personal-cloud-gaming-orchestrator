@@ -4,7 +4,8 @@
  * A single tappable tile in the Home page's "Quick Navigation" grid.
  */
 
-import { colors, fonts } from "../theme.js";
+import { Chip } from "../../components/ui/primitives.jsx";
+import { colors, fonts, radius } from "../theme.js";
 
 export function NavigationCard({ icon, label, description, badge, onClick }) {
   return (
@@ -17,16 +18,16 @@ export function NavigationCard({ icon, label, description, badge, onClick }) {
         gap: "10px",
         textAlign: "left",
         padding: "18px",
-        borderRadius: "10px",
-        border: `1px solid ${colors.border}`,
+        borderRadius: `${radius.lg}px`,
+        border: `1.5px solid ${colors.border}`,
         background: colors.bgCard,
         cursor: "pointer",
-        transition: "transform 0.15s ease, border-color 0.15s ease, background 0.15s ease",
+        transition: "transform 150ms ease, border-color 150ms ease, background 150ms ease",
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = colors.borderStrong;
         e.currentTarget.style.background = colors.bgCardHover;
-        e.currentTarget.style.transform = "translateY(-2px)";
+        e.currentTarget.style.transform = "translateY(-1px)";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = colors.border;
@@ -35,32 +36,17 @@ export function NavigationCard({ icon, label, description, badge, onClick }) {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-        <span style={{ fontSize: "20px",color: colors.text , lineHeight: 1 }}>{icon}</span>
-        {badge != null && (
-          <span
-            style={{
-              fontSize: "9px",
-              fontFamily: fonts.mono,
-              color: colors.accent,
-              border: `1px solid ${colors.accentDim}`,
-              background: colors.accentDim,
-              borderRadius: "10px",
-              padding: "1px 7px",
-            }}
-          >
-            {badge}
-          </span>
-        )}
+        <span style={{ fontSize: "20px", color: colors.ink, lineHeight: 1 }}>{icon}</span>
+        {badge != null && <Chip tone="blue">{badge}</Chip>}
       </div>
 
       <div>
         <div
           style={{
-            fontSize: "13px",
+            fontSize: "14px",
             fontWeight: 700,
-            color: colors.text,
+            color: colors.ink,
             fontFamily: fonts.display,
-            letterSpacing: "0.02em",
           }}
         >
           {label}
@@ -68,10 +54,11 @@ export function NavigationCard({ icon, label, description, badge, onClick }) {
         {description && (
           <div
             style={{
-              fontSize: "10.5px",
-              color: colors.textFaint,
+              fontSize: "11.5px",
+              fontWeight: 500,
+              color: colors.inkFaint,
               marginTop: "3px",
-              fontFamily: fonts.mono,
+              fontFamily: fonts.body,
             }}
           >
             {description}
