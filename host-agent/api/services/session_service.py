@@ -26,6 +26,9 @@ from host_agent.session_stats_manager import (
 from host_agent.repositories.session_history_repository import (
     session_history_repository,
 )
+from host_agent.repositories.session_events_repository import (
+    session_events_repository,
+)
 from host_agent.models import SessionState
 from api.websocket_manager import (
     websocket_manager,
@@ -201,37 +204,43 @@ class SessionService:
         message: str = "",
     ) -> None:
 
-        events_path = Path("data/session_events.json")
-        events_path.parent.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
-
         with registry_lock:
-            session = active_sessions.get(session_id)
 
-            record = {
-                "time": time.time(),
-                "session_id": session_id,
-                "user_id": session.get("user_id") if session else None,
-                "game_id": session.get("game_id") if session else None,
-                "status": status,
-                "message": message,
-            }
+            session = active_sessions.get(
+                session_id
+            )
 
-        events = self._safe_read_json(
-            events_path,
-            [],
-        )
+            user_id = (
+                session.get("user_id")
+                if session
+                else None
+            )
 
-        events.append(record)
-        
-        events = events[-1000:]
+            game_id = (
+                session.get("game_id")
+                if session
+                else None
+            )
 
-        self._safe_write_json(
-            events_path,
-            events,
-        )
+        try:
+
+            session_events_repository.append_event(
+                event_time=time.time(),
+                session_id=session_id,
+                user_id=user_id,
+                game_id=game_id,
+                status=status,
+                message=message,
+            )
+
+        except Exception as error:
+
+            logger.error(
+                f"Failed to append session event: {error}",
+                extra={
+                    "session_id": session_id
+                },
+            )
     
     def start_session(
         self,
@@ -1296,31 +1305,11 @@ class SessionService:
         session_id: str | None = None,
         user_id=None,
     ):
-        events_path = Path("data/session_events.json")
 
-        events = self._safe_read_json(
-            events_path,
-            [],
-        )
-
-        if user_id is not None:
-
-            events = [
-                event
-                for event in events
-                if event.get("user_id") == user_id
-            ]
-        
-        if session_id:
-            events = [
-                event for event in events
-                if event.get("session_id") == session_id
-            ]
-
-        return list(
-            reversed(
-                events[-limit:]
-            )
+        return session_events_repository.get_events(
+            limit=limit,
+            session_id=session_id,
+            user_id=user_id,
         )
 
     def get_session_analytics(
@@ -1870,7 +1859,6 @@ class SessionService:
     def get_session_health(self):
 
         lock_path = Path("metadata/session.lock")
-        events_path = Path("data/session_events.json")
 
         with registry_lock:
             active_count = len(active_sessions)
@@ -1879,9 +1867,8 @@ class SessionService:
             session_history_repository.count()
         )
 
-        events = self._safe_read_json(
-            events_path,
-            [],
+        event_count = (
+            session_events_repository.count()
         )
 
         lock_info = {}
@@ -1915,7 +1902,7 @@ class SessionService:
                 "pid"
             ),
             "history_count": history_count,
-            "event_count": len(events),
+            "event_count": event_count,
         }
 
     def get_active_session(

@@ -240,7 +240,6 @@ def validate_startup():
 
         checks = {
             "data/active_sessions.json": dict,
-            "data/session_events.json": list,
             "data/sunshine_stream_history.json": list,
         }
 

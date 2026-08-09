@@ -181,7 +181,7 @@ Indexes: `idx_session_history_user_id (user_id, recorded_at DESC)`,
 
 ---
 
-## `session_events`
+## `session_events` - Migration Complete
 
 Replaces `data/session_events.json` (previously capped at 1000, same
 reasoning as `session_history` above — cap removed).

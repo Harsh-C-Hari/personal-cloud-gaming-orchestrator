@@ -15,6 +15,7 @@ Scope: `host-agent/` (the only tier with persistence; `frontend/` has none).
 `session_stats.json` - Migration Complete
 `recovery_events.json` - Migration Complete
 `session_history.json` - Migration Complete
+`session_events.json` - Migration Complete
 
 ---
 

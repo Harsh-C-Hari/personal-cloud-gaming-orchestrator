@@ -103,3 +103,30 @@ ON session_history(game_id);
 
 CREATE INDEX IF NOT EXISTS idx_session_history_started
 ON session_history(started_at);
+
+
+CREATE TABLE IF NOT EXISTS session_events (
+
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    time REAL NOT NULL,
+
+    session_id TEXT NOT NULL,
+
+    user_id TEXT,
+
+    game_id TEXT,
+
+    status TEXT NOT NULL,
+
+    message TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_session_events_session
+ON session_events(session_id);
+
+CREATE INDEX IF NOT EXISTS idx_session_events_user
+ON session_events(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_session_events_time
+ON session_events(time);
