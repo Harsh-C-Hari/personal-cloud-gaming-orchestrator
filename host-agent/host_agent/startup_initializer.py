@@ -17,9 +17,6 @@ DIRECTORIES = [
 ]
 
 FILES = {
-    "metadata/session_metadata.json": {
-        "sessions": {}
-    },
 
     "data/active_sessions.json": {},
 

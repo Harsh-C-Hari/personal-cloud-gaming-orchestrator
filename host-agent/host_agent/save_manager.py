@@ -77,12 +77,6 @@ class SaveManager:
             "storage", "enable_integrity_hashing"
         )
 
-        metadata_path = Path(
-            config_manager.get(
-                "metadata", "metadata_path"
-            )
-        )
-
         lock_file = Path(
             config_manager.get(
                 "metadata", "lock_file"
@@ -116,9 +110,7 @@ class SaveManager:
             lock_file_path=lock_file,
         )
 
-        self.metadata_manager = MetadataManager(
-            metadata_path=metadata_path,
-        )
+        self.metadata_manager = MetadataManager()
 
         self.integrity = IntegrityManager()
 

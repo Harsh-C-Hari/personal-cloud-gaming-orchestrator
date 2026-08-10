@@ -50,7 +50,6 @@ DEFAULT_CONFIG = {
     },
 
     "metadata": {
-        "metadata_path": "metadata/session_metadata.json",
         "lock_file": "metadata/session.lock",
     },
 

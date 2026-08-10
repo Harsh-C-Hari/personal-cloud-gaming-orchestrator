@@ -165,3 +165,81 @@ ON sunshine_stream_history(started_at);
 
 CREATE INDEX IF NOT EXISTS idx_sunshine_stream_history_app
 ON sunshine_stream_history(app_name);
+
+
+
+CREATE TABLE IF NOT EXISTS session_metadata (
+
+    session_id TEXT PRIMARY KEY,
+
+    user_id TEXT NOT NULL,
+
+    game_id TEXT NOT NULL,
+
+    exe_name TEXT NOT NULL,
+
+    game_save_path TEXT NOT NULL,
+
+    backup_path TEXT NOT NULL,
+
+    state TEXT NOT NULL,
+
+    created_at REAL NOT NULL,
+
+    updated_at REAL NOT NULL,
+
+    ended_at REAL,
+
+    crash_recovery_required INTEGER,
+
+    latest_save_hash TEXT,
+
+    injected_save_hash TEXT,
+
+    archive_hash TEXT,
+
+    archive_path TEXT,
+
+    latest_manifest_verified INTEGER,
+
+    backup_manifest_verified INTEGER,
+
+    archive_verified INTEGER,
+
+    integrity_verified INTEGER,
+
+    restore_verified INTEGER,
+
+    restore_source TEXT,
+
+    live_sync_triggered INTEGER NOT NULL DEFAULT 0,
+
+    live_sync_count INTEGER NOT NULL DEFAULT 0,
+
+    live_sync_last_time REAL,
+
+    live_sync_preserved INTEGER NOT NULL DEFAULT 0,
+
+    live_sync_hash TEXT,
+
+    live_sync_fallback INTEGER NOT NULL DEFAULT 0,
+
+    backup_failed INTEGER NOT NULL DEFAULT 0,
+
+    archive_failed INTEGER NOT NULL DEFAULT 0,
+
+    cleanup_result TEXT
+
+);
+
+CREATE INDEX IF NOT EXISTS idx_session_metadata_user
+ON session_metadata(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_session_metadata_game
+ON session_metadata(game_id);
+
+CREATE INDEX IF NOT EXISTS idx_session_metadata_state
+ON session_metadata(state);
+
+CREATE INDEX IF NOT EXISTS idx_session_metadata_created
+ON session_metadata(created_at);

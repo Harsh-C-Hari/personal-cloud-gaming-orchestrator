@@ -59,7 +59,6 @@ REQUIRED_CONFIG = {
     ],
 
     "metadata": [
-        "metadata_path",
         "lock_file",
     ],
 

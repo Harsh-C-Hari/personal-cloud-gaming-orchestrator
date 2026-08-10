@@ -179,10 +179,6 @@ CONFIG_SCHEMA = {
     "metadata": {
 
         # Critical internal files.
-        "metadata_path": {
-            "editable": False,
-        },
-
         "lock_file": {
             "editable": False,
         },

@@ -1,15 +1,14 @@
 from __future__ import annotations
 
-import json
-import time
 import threading
-import os
-from dataclasses import asdict
-from pathlib import Path
-from typing import Dict, List, Optional
+import time
+from typing import List, Optional
 
 from host_agent.logging_config import configure_logger
 from host_agent.models import SessionMetadata
+from host_agent.repositories.session_metadata_repository import (
+    session_metadata_repository,
+)
 
 logger = configure_logger()
 
@@ -18,61 +17,27 @@ class MetadataManager:
 
     def __init__(
         self,
-        metadata_path: Path,
+        metadata_path=None,
     ) -> None:
 
-        self.metadata_path = Path(metadata_path)
-
-        self.metadata_path.parent.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
+        # Kept only for constructor compatibility.
+        # Session metadata is now persisted in SQLite.
+        self.metadata_path = metadata_path
 
         self.metadata_lock = threading.Lock()
-        
-        if not self.metadata_path.exists():
-            with self.metadata_lock:
-                self._write_metadata_atomic(
-                    {"sessions": {}}
-                )
 
-    def read_metadata(self) -> Dict:
+    def read_metadata(self) -> dict:
 
-        with open(
-            self.metadata_path,
-            "r",
-            encoding="utf-8",
-        ) as file:
-
-            return json.load(file)
-
-    def _write_metadata_atomic(
-        self,
-        data: Dict,
-    ) -> None:
-
-        temp_path = (
-            self.metadata_path.parent
-            / "session_metadata.tmp"
+        records = (
+            session_metadata_repository.list()
         )
 
-        with open(
-            temp_path,
-            "w",
-            encoding="utf-8",
-        ) as file:
-
-            json.dump(
-                data,
-                file,
-                indent=4,
-                ensure_ascii=False,
-            )
-
-            file.flush()
-            os.fsync(file.fileno())
-
-        temp_path.replace(self.metadata_path)
+        return {
+            "sessions": {
+                record["session_id"]: record
+                for record in records
+            }
+        }
 
     def save_session(
         self,
@@ -81,14 +46,19 @@ class MetadataManager:
     ) -> None:
 
         with self.metadata_lock:
-        
-            data = self.read_metadata()
 
-            data["sessions"][session_id] = asdict(
-                metadata
+            record = {
+                "session_id": session_id,
+                **metadata.__dict__,
+            }
+
+            # Ensure the explicit session_id argument
+            # remains authoritative.
+            record["session_id"] = session_id
+
+            session_metadata_repository.save(
+                record
             )
-
-            self._write_metadata_atomic(data)
 
             logger.info(
                 f"Session metadata saved: {session_id}",
@@ -104,16 +74,18 @@ class MetadataManager:
         session_id: str,
     ) -> Optional[SessionMetadata]:
 
-        data = self.read_metadata()
-
-        session_data = data["sessions"].get(
-            session_id
+        record = (
+            session_metadata_repository.get(
+                session_id
+            )
         )
 
-        if session_data is None:
+        if record is None:
             return None
 
-        return SessionMetadata(**session_data)
+        return SessionMetadata(
+            **record
+        )
 
     def update_session_state(
         self,
@@ -122,10 +94,13 @@ class MetadataManager:
     ) -> None:
 
         with self.metadata_lock:
-        
-            metadata = self.read_metadata()
 
-            if session_id not in metadata["sessions"]:
+            if (
+                session_metadata_repository.get(
+                    session_id
+                )
+                is None
+            ):
 
                 logger.error(
                     f"Session not found for update: "
@@ -134,20 +109,22 @@ class MetadataManager:
 
                 return
 
-            metadata["sessions"][session_id][
-                "state"
-            ] = state
+            updated_at = int(
+                time.time()
+            )
 
-            metadata["sessions"][session_id][
-                "updated_at"
-            ] = int(time.time())
-
-            self._write_metadata_atomic(metadata)
+            session_metadata_repository.update_state(
+                session_id,
+                state,
+                updated_at,
+            )
 
             logger.info(
                 f"Session state updated: "
                 f"{session_id} → {state}",
-                extra={"session_id": session_id},
+                extra={
+                    "session_id": session_id
+                },
             )
 
     def update_session_field(
@@ -158,10 +135,13 @@ class MetadataManager:
     ) -> None:
 
         with self.metadata_lock:
-        
-            metadata = self.read_metadata()
 
-            if session_id not in metadata["sessions"]:
+            if (
+                session_metadata_repository.get(
+                    session_id
+                )
+                is None
+            ):
 
                 logger.error(
                     f"Session not found for field "
@@ -170,15 +150,16 @@ class MetadataManager:
 
                 return
 
-            metadata["sessions"][session_id][
-                field
-            ] = value
+            updated_at = int(
+                time.time()
+            )
 
-            metadata["sessions"][session_id][
-                "updated_at"
-            ] = int(time.time())
-
-            self._write_metadata_atomic(metadata)
+            session_metadata_repository.update_field(
+                session_id,
+                field,
+                value,
+                updated_at,
+            )
 
     def list_sessions(
         self,
@@ -186,33 +167,17 @@ class MetadataManager:
         game_id: Optional[str] = None,
     ) -> List[SessionMetadata]:
 
-        data = self.read_metadata()
-
-        results = []
-
-        for session_data in data[
-            "sessions"
-        ].values():
-
-            if (
-                user_id
-                and session_data.get("user_id")
-                != user_id
-            ):
-                continue
-
-            if (
-                game_id
-                and session_data.get("game_id")
-                != game_id
-            ):
-                continue
-
-            results.append(
-                SessionMetadata(**session_data)
+        records = (
+            session_metadata_repository.list(
+                user_id=user_id,
+                game_id=game_id,
             )
+        )
 
-        return results
+        return [
+            SessionMetadata(**record)
+            for record in records
+        ]
 
     def delete_session(
         self,
@@ -220,16 +185,12 @@ class MetadataManager:
     ) -> None:
 
         with self.metadata_lock:
-        
-            data = self.read_metadata()
 
-            if session_id in data["sessions"]:
+            session_metadata_repository.delete(
+                session_id
+            )
 
-                del data["sessions"][session_id]
-
-                self._write_metadata_atomic(data)
-
-                logger.info(
-                    f"Session metadata deleted: "
-                    f"{session_id}"
-                )
+            logger.info(
+                f"Session metadata deleted: "
+                f"{session_id}"
+            )

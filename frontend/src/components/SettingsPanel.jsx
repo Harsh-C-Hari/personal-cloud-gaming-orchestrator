@@ -1008,13 +1008,6 @@ export function SettingsPanel() {
             <Card style={{ padding: "16px" }}>
                 <SectionHeader icon={<Tags size={12} strokeWidth={2} />} title="Metadata" readOnly />
 
-                <FieldLabel>Metadata Path</FieldLabel>
-                <input
-                    style={readOnlyStyle}
-                    disabled
-                    value={getValue(config.metadata.metadata_path)}
-                />
-
                 <FieldLabel>Metadata Lock File Path</FieldLabel>
                 <input
                     style={readOnlyStyle}

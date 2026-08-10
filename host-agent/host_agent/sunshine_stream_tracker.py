@@ -121,8 +121,6 @@ class SunshineStreamTracker:
         self,
     ):
 
-        print(">>> SunshineStreamTracker.stream_stopped() CALLED")
-        
         state = self.read()
 
         state["state"] = "idle"
@@ -159,9 +157,6 @@ class SunshineStreamTracker:
                 state["hdr"],
             "stream_ended_intentionally": True,
         }
-
-        print(">>> Appending Sunshine stream history:")
-        print(history_entry)
 
         self.append_history(
             history_entry
