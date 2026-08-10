@@ -36,10 +36,10 @@ Stored information includes:
 
 ## Stream History
 
-Historical stream information is stored in:
+Historical stream information is stored in database:
 
 ```text
-sunshine_stream_history.json
+data/pcgo.db
 ```
 
 This enables:

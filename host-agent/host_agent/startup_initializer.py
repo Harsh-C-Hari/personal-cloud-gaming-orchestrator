@@ -23,8 +23,6 @@ FILES = {
 
     "data/active_sessions.json": {},
 
-    "data/sunshine_stream_history.json": [],
-
     "data/sunshine_stream_state.json": {
         "state": "idle",
         "app_name": None,

@@ -240,7 +240,6 @@ def validate_startup():
 
         checks = {
             "data/active_sessions.json": dict,
-            "data/sunshine_stream_history.json": list,
         }
 
         for file_path, expected_type in checks.items():

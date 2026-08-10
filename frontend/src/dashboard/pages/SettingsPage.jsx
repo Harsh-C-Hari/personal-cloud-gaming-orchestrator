@@ -66,6 +66,12 @@ function PlaceholderCard({ label, description }) {
 }
 
 function ThemeSwatchCard({ theme, selected, onClick }) {
+  const swatchStyle = theme.swatchPreview ?? { background: theme.brand };
+  // The checkmark needs to contrast against whichever fill is showing —
+  // normally that's colors.bg (dark) against a light brand fill, but an
+  // override like OLED's black swatch needs a light checkmark instead.
+  const checkColor = theme.swatchPreview ? colors.ink : colors.bg;
+
   return (
     <Card
       role="button"
@@ -94,13 +100,14 @@ function ThemeSwatchCard({ theme, selected, onClick }) {
           height: "28px",
           borderRadius: "50%",
           flexShrink: 0,
-          background: theme.brand,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          boxSizing: "border-box",
+          ...swatchStyle,
         }}
       >
-        {selected && <Check size={15} strokeWidth={3} color={colors.bg} />}
+        {selected && <Check size={15} strokeWidth={3} color={checkColor} />}
       </span>
       <span style={{ fontSize: "13px", color: colors.ink, fontFamily: fonts.display, fontWeight: 600 }}>
         {theme.label}

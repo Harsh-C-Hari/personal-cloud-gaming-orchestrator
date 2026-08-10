@@ -271,7 +271,7 @@ Replaces `data/sunshine_stream_state.json` (singleton object).
 
 ---
 
-## `stream_history`
+## `stream_history` - Migration Complete
 
 Replaces `data/sunshine_stream_history.json`.
 

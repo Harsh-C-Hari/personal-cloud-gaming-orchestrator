@@ -39,6 +39,17 @@ export const THEMES = [
   { id: "ember", label: "Ember", brand: "#D97757", brandDim: "rgba(217,119,87,0.14)" },
   { id: "classic", label: "Classic", brand: "#7EC8F2", brandDim: "rgba(126,200,242,0.14)" },
   { id: "mono", label: "Mono", brand: "#FFFFFF", brandDim: "rgba(255,255,255,0.14)" },
+  // OLED's brand is also pure white, same as mono's — swatchPreview overrides
+  // just the picker's swatch-circle rendering (solid black fill + white
+  // ring, no gradient) so the two are visually distinguishable at a glance;
+  // it changes nothing about the actual applied theme. See ThemeSwatchCard.
+  {
+    id: "oled",
+    label: "OLED",
+    brand: "#FFFFFF",
+    brandDim: "rgba(255,255,255,0.14)",
+    swatchPreview: { background: "#000000", border: "3px solid #FFFFFF" },
+  },
 ];
 
 const BUILT_IN_IDS = THEMES.map((t) => t.id);

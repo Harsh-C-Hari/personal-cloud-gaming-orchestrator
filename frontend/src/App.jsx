@@ -120,6 +120,29 @@ const GLOBAL_CSS = `
     --color-border-ink: #E8E8E8;
   }
 
+  [data-theme="oled"] {
+    /* True pure black (#000000) and pure white (#FFFFFF) — the endpoints
+       of the lightness range, pushed further than "mono" deliberately.
+       On an actual OLED panel, #000000 pixels are fully off (max contrast,
+       real power saving); "mono"'s softer near-black is NOT the same
+       thing and stays as its own, separate, more moderate option. */
+    --color-brand: #FFFFFF;
+    --color-brand-dim: rgba(255,255,255,0.14);
+    --color-bg: #000000;
+    --color-bg-elevated: #0A0A0A;
+    --color-bg-card: #0D0D0D;
+    --color-bg-card-hover: #161616;
+    --color-bg-inset: #050505;
+    --color-ink: #FFFFFF;
+    --color-ink-dim: #B8B8B8;
+    --color-ink-faint: #7A7A7A;
+    --color-ink-ghost: #464646;
+    --color-border: rgba(255,255,255,0.12);
+    --color-border-subtle: rgba(255,255,255,0.07);
+    --color-border-strong: rgba(255,255,255,0.28);
+    --color-border-ink: #FFFFFF;
+  }
+
   *, *::before, *::after {
     margin: 0;
     padding: 0;

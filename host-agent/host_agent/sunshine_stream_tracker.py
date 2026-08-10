@@ -3,6 +3,10 @@ import json
 import os
 import time
 
+from host_agent.repositories.sunshine_stream_history_repository import (
+    sunshine_stream_history_repository,
+)
+
 
 class SunshineStreamTracker:
 
@@ -18,12 +22,6 @@ class SunshineStreamTracker:
             PROJECT_ROOT
             / "data"
             / "sunshine_stream_state.json"
-        )
-
-        self.history_path = (
-            PROJECT_ROOT
-            / "data"
-            / "sunshine_stream_history.json"
         )
 
     def read(self):
@@ -88,64 +86,12 @@ class SunshineStreamTracker:
             self.path
         )
 
-    def read_history(self):
-
-        if not self.history_path.exists():
-            return []
-
-        with open(
-            self.history_path,
-            "r",
-            encoding="utf-8",
-        ) as file:
-            return json.load(file)
-
-    def write_history(
-        self,
-        history,
-    ):
-
-        self.history_path.parent.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
-
-        temp = self.history_path.with_suffix(
-            ".tmp"
-        )
-
-        with open(
-            temp,
-            "w",
-            encoding="utf-8",
-        ) as file:
-
-            json.dump(
-                history,
-                file,
-                indent=4,
-            )
-
-            file.flush()
-
-            os.fsync(
-                file.fileno()
-            )
-
-        temp.replace(
-            self.history_path
-        )
-
     def append_history(
         self,
         stream,
     ):
-        history = self.read_history()
-
-        history.append(stream)
-
-        self.write_history(
-            history
+        sunshine_stream_history_repository.append(
+            stream
         )
     
     def stream_started(
@@ -175,6 +121,8 @@ class SunshineStreamTracker:
         self,
     ):
 
+        print(">>> SunshineStreamTracker.stream_stopped() CALLED")
+        
         state = self.read()
 
         state["state"] = "idle"
@@ -211,6 +159,9 @@ class SunshineStreamTracker:
                 state["hdr"],
             "stream_ended_intentionally": True,
         }
+
+        print(">>> Appending Sunshine stream history:")
+        print(history_entry)
 
         self.append_history(
             history_entry

@@ -62,10 +62,10 @@ Stored fields include the active stream flag, the connected client, stream start
 
 # Stream History
 
-Every completed stream is appended to a persisted history file:
+Every completed stream is appended to a persisted history table in database.
 
 ```text
-sunshine_stream_history.json
+data/pcgo.db
 ```
 
 `GET /host/sunshine/history` (admin only) returns the most recent entries (default limit 50), used by the Sunshine dashboard page to show past stream durations and timestamps for diagnostics and usage review.

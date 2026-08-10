@@ -8,6 +8,9 @@ from requests.auth import HTTPBasicAuth
 from host_agent.logging_config import (
     configure_logger,
 )
+from host_agent.repositories.sunshine_stream_history_repository import (
+    sunshine_stream_history_repository,
+)
 logger = configure_logger()
 
 urllib3.disable_warnings(
@@ -426,17 +429,15 @@ def _safe_read_json(
     return default
 
 def get_stream_history(
-        limit: int = 50,
-    ):
+    limit: int = 50,
+):
 
-        history_path = Path("data/sunshine_stream_history.json")
-
-        history = _safe_read_json(
-            history_path,
-            [],
+    return (
+        sunshine_stream_history_repository
+        .get_history(
+            limit=limit,
         )
-
-        return list(reversed(history[-limit:]))
+    )
 
 def close_stream():
 

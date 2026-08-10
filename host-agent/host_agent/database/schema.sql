@@ -130,3 +130,38 @@ ON session_events(user_id);
 
 CREATE INDEX IF NOT EXISTS idx_session_events_time
 ON session_events(time);
+
+
+CREATE TABLE IF NOT EXISTS sunshine_stream_history (
+
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    recorded_at REAL NOT NULL,
+
+    app_name TEXT,
+
+    started_at REAL NOT NULL,
+
+    ended_at REAL NOT NULL,
+
+    duration_seconds REAL NOT NULL,
+
+    width INTEGER NOT NULL,
+
+    height INTEGER NOT NULL,
+
+    fps REAL NOT NULL,
+
+    hdr INTEGER NOT NULL DEFAULT 0,
+
+    stream_ended_intentionally INTEGER DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS idx_sunshine_stream_history_recorded
+ON sunshine_stream_history(recorded_at);
+
+CREATE INDEX IF NOT EXISTS idx_sunshine_stream_history_started
+ON sunshine_stream_history(started_at);
+
+CREATE INDEX IF NOT EXISTS idx_sunshine_stream_history_app
+ON sunshine_stream_history(app_name);
