@@ -248,7 +248,7 @@ this safe with no additional Python-level lock.
 
 ---
 
-## `stream_state`
+## `stream_state` - Migration Complete 
 
 Replaces `data/sunshine_stream_state.json` (singleton object).
 

@@ -202,38 +202,6 @@ def validate_startup():
                         f"{field} must "
                         "be a list."
                     )
-
-    def validate_sunshine_stream_state():
-
-        path = Path(
-            "data/sunshine_stream_state.json"
-        )
-
-        data = json.loads(
-            path.read_text(
-                encoding="utf-8"
-            )
-        )
-
-        required = [
-            "state",
-            "app_name",
-            "started_at",
-            "ended_at",
-            "duration_seconds",
-            "width",
-            "height",
-            "fps",
-            "hdr",
-        ]
-
-        for key in required:
-
-            if key not in data:
-                raise RuntimeError(
-                    f"sunshine_stream_state missing "
-                    f"{key}"
-                )
     
     def validate_json_types():
 
@@ -263,7 +231,6 @@ def validate_startup():
     
     validate_config()
     validate_games()
-    validate_sunshine_stream_state()
     validate_json_types()
 
     logger.info(

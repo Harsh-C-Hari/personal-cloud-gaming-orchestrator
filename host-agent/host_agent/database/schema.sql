@@ -243,3 +243,70 @@ ON session_metadata(state);
 
 CREATE INDEX IF NOT EXISTS idx_session_metadata_created
 ON session_metadata(created_at);
+
+
+
+CREATE TABLE IF NOT EXISTS sunshine_stream_state (
+
+    id INTEGER PRIMARY KEY CHECK(id = 1),
+
+    state TEXT NOT NULL,
+
+    app_name TEXT,
+
+    started_at REAL,
+
+    ended_at REAL,
+
+    duration_seconds REAL,
+
+    width INTEGER,
+
+    height INTEGER,
+
+    fps REAL,
+
+    hdr INTEGER,
+
+    transport_connected INTEGER NOT NULL DEFAULT 0,
+
+    awaiting_reconnect INTEGER NOT NULL DEFAULT 0,
+
+    last_disconnect_at REAL,
+
+    last_reconnect_at REAL
+
+);
+
+INSERT OR IGNORE INTO sunshine_stream_state (
+    id,
+    state,
+    app_name,
+    started_at,
+    ended_at,
+    duration_seconds,
+    width,
+    height,
+    fps,
+    hdr,
+    transport_connected,
+    awaiting_reconnect,
+    last_disconnect_at,
+    last_reconnect_at
+)
+VALUES (
+    1,
+    'idle',
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    0,
+    0,
+    NULL,
+    NULL
+);

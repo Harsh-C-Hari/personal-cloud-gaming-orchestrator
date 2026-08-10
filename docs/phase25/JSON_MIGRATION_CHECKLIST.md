@@ -51,7 +51,7 @@ One section per legacy JSON file. Sections may be worked in the Stage
 - [ ] Verify `sunshine_watchdog.py`/`tailscale_watchdog.py` call sites
       are unchanged.
 
-## `data/sunshine_stream_state.json` + `data/sunshine_stream_history.json` → `SunshineRepository` (`stream_state` + `stream_history` tables)
+## `data/sunshine_stream_state.json` + `data/sunshine_stream_history.json` → `SunshineRepository` (`stream_state` + `stream_history` tables) - Migration Complete 
 
 - [ ] Create `SunshineRepository` (one class, both tables — mirrors
       today's single `SunshineStreamTracker`).

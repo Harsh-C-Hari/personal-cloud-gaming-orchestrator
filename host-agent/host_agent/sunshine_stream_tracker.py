@@ -1,99 +1,38 @@
-from pathlib import Path
-import json
-import os
 import time
 
 from host_agent.repositories.sunshine_stream_history_repository import (
     sunshine_stream_history_repository,
 )
 
+from host_agent.repositories.sunshine_stream_state_repository import (
+    sunshine_stream_state_repository,
+)
+
 
 class SunshineStreamTracker:
 
-    def __init__(self):
-        PROJECT_ROOT = (
-            Path(__file__)
-            .resolve()
-            .parent
-            .parent
-        )
-
-        self.path = (
-            PROJECT_ROOT
-            / "data"
-            / "sunshine_stream_state.json"
-        )
-
     def read(self):
 
-        if not self.path.exists():
-            return {
-                "state": "idle",
-                "app_name": None,
-                "started_at": None,
-                "ended_at": None,
-                "duration_seconds": None,
-                "width": None,
-                "height": None,
-                "fps": None,
-                "hdr": None,
-                "transport_connected": False,
-                "awaiting_reconnect": False,
-                "last_disconnect_at": None,
-                "last_reconnect_at": None,
-            }
-
-        with open(
-            self.path,
-            "r",
-            encoding="utf-8",
-        ) as file:
-            return json.load(file)
+        return sunshine_stream_state_repository.get()
 
     def write(
         self,
         data,
     ):
 
-        self.path.parent.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
-
-        temp = self.path.with_suffix(
-            ".tmp"
-        )
-
-        with open(
-            temp,
-            "w",
-            encoding="utf-8",
-        ) as file:
-
-            json.dump(
-                data,
-                file,
-                indent=4,
-            )
-
-            file.flush()
-
-            os.fsync(
-                file.fileno()
-            )
-
-        temp.replace(
-            self.path
+        sunshine_stream_state_repository.save(
+            data
         )
 
     def append_history(
         self,
         stream,
     ):
+
         sunshine_stream_history_repository.append(
             stream
         )
-    
+
     def stream_started(
         self,
         app_name,
@@ -125,36 +64,31 @@ class SunshineStreamTracker:
 
         state["state"] = "idle"
         state["ended_at"] = time.time()
+        state["awaiting_reconnect"] = False
+
         if state["started_at"]:
 
             state["duration_seconds"] = (
                 state["ended_at"]
                 - state["started_at"]
             )
+
         else:
+
             state["duration_seconds"] = None
 
         self.write(state)
 
         history_entry = {
-            "recorded_at":
-                time.time(),
-            "app_name":
-                state["app_name"],
-            "started_at":
-                state["started_at"],
-            "ended_at":
-                state["ended_at"],
-            "duration_seconds":
-                state["duration_seconds"],
-            "width":
-                state["width"],
-            "height":
-                state["height"],
-            "fps":
-                state["fps"],
-            "hdr":
-                state["hdr"],
+            "recorded_at": time.time(),
+            "app_name": state["app_name"],
+            "started_at": state["started_at"],
+            "ended_at": state["ended_at"],
+            "duration_seconds": state["duration_seconds"],
+            "width": state["width"],
+            "height": state["height"],
+            "fps": state["fps"],
+            "hdr": state["hdr"],
             "stream_ended_intentionally": True,
         }
 
@@ -165,11 +99,14 @@ class SunshineStreamTracker:
     def get_state(
         self,
     ):
+
         state = self.read()
+
         if (
             state["state"] == "streaming"
             and state["started_at"]
         ):
+
             state["duration_seconds"] = (
                 time.time()
                 - state["started_at"]
@@ -177,18 +114,25 @@ class SunshineStreamTracker:
 
         return state
 
-    def transport_connected(self):
+    def transport_connected(
+        self,
+    ):
+
         state = self.read()
 
         state["transport_connected"] = True
         state["awaiting_reconnect"] = False
 
         if state["last_disconnect_at"] is not None:
+
             state["last_reconnect_at"] = time.time()
 
         self.write(state)
 
-    def transport_disconnected(self):
+    def transport_disconnected(
+        self,
+    ):
+
         state = self.read()
 
         state["transport_connected"] = False

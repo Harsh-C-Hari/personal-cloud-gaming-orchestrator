@@ -22,7 +22,7 @@ This prevents network failures from immediately terminating gameplay sessions.
 Stream state information is persisted using:
 
 ```text
-sunshine_stream_state.json
+data/pcgo.db
 ```
 
 Stored information includes:

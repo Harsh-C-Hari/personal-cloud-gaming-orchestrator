@@ -17,6 +17,7 @@ Scope: `host-agent/` (the only tier with persistence; `frontend/` has none).
 `session_history.json` - Migration Complete
 `session_events.json` - Migration Complete
 `sunshine_stream_history.json` - Migration Complete
+`sunshine_stream_state.json` - Migration Complete 
 ---
 
 ## 1. Current Persistence Audit

@@ -53,7 +53,7 @@ All calls to Sunshine's local API use HTTP Basic Auth with credentials from `con
 Whether a session is active and whether a stream is active are tracked separately (see [Session Persistence & Reconnection Architecture](session-persistence-and-reconnection.md) for the full lifecycle-separation rationale). `SunshineStreamTracker` owns the current stream state:
 
 ```text
-sunshine_stream_state.json
+data/pcgo.db
 ```
 
 Stored fields include the active stream flag, the connected client, stream start time, and current transport (connected/disconnected) state. `GET /host/sunshine/stream` returns this, merged with the active session's own `stream_active` / `stream_started_at` / `stream_ended_at` / `stream_app` fields when a session is running, so the dashboard has one endpoint to read from regardless of which subsystem last updated the state.
