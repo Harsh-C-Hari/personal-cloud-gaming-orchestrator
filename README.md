@@ -287,9 +287,9 @@ The primary administrative interface for monitoring the host, launching gaming s
 
 The dashboard provides a centralized view of active sessions, recovery statistics, host metrics, and administrative tools.
 
-![Host Dashboard Overview](assets/screenshots/admin_dashboard/home_page/admin_home_page__eventlog_and_navigation.png)
-
 ![Host Dashboard - Launch a Session & Active Alerts](assets/screenshots/admin_dashboard/home_page/admin_home_page__session%20start_form.png)
+
+![Host Dashboard Overview](assets/screenshots/admin_dashboard/home_page/admin_home_page__eventlog_and_navigation.png)
 
 ---
 
