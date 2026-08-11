@@ -1,6 +1,6 @@
 # Phase 25 — Implementation Plan: JSON → SQLite Persistence Migration (v2, simplified)
 
-Status: **Design only — not yet implemented.**
+Status: **Implemented.** Users, session stats, recovery events, session history, session events, session metadata, and Sunshine stream history/state are now SQLite-backed (see `host_agent/database/schema.sql` and `host_agent/repositories/`). This document is kept as the original design record; where the final implementation diverged from this plan, see the notes below and in `DATABASE_SCHEMA.md`. Notably: the actual schema has no `games` table, no foreign-key constraints, and no `schema_migrations` table, and there is no automated JSON-to-SQLite data-import routine in the codebase — `data/active_sessions.json` also remained a separate JSON file rather than merging into `session_metadata` as originally planned here.
 Scope: `host-agent/` (the only tier with persistence; `frontend/` has none).
 
 > Revision note: this version reflects the critical review — fewer

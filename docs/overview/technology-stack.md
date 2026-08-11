@@ -88,16 +88,19 @@ Responsibilities:
 
 ## Persistence
 
+### SQLite
+
+Session history, session events, session metadata, recovery events, Sunshine stream history/state, and user accounts are stored in a local SQLite database (`host-agent/data/pcgo.db`), accessed through a dedicated repository layer.
+
 ### JSON-Based Storage
 
-Current MVP persistence relies primarily on JSON files.
+Host configuration and select runtime state remain JSON files by design.
 
 Used for:
 
-* Session history
-* Recovery events
-* Analytics
-* Configuration data
+* Host configuration (`config.json`)
+* Game library (`games.json`)
+* Active-session runtime/crash-recovery snapshot (`data/active_sessions.json`)
 
 ---
 
@@ -105,14 +108,13 @@ Used for:
 
 ### WebSockets
 
-WebSockets provide real-time communication between backend services and the dashboard.
+WebSockets provide real-time session status updates between backend services and the dashboard.
 
 Used for:
 
-* Status updates
-* Session updates
-* Monitoring updates
-* Recovery events
+* Session status updates (a single `status_update` broadcast type)
+
+Host monitoring, recovery events, and Sunshine/Tailscale status are refreshed by the dashboard via REST polling, not WebSocket.
 
 ---
 

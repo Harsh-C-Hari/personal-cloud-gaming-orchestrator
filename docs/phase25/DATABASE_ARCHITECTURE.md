@@ -6,6 +6,19 @@
 > a single-host SQLite project and are simplified below. See §6 for
 > the full diff against v1.
 
+> **Implementation note:** the shipped repository layer
+> (`host_agent/repositories/`) is more granular than this document's
+> "one repository per real-world concern" recommendation — it has
+> eight separate repository classes (`UserRepository`,
+> `SessionHistoryRepository`, `SessionEventsRepository`,
+> `SessionMetadataRepository`, `SessionStatsRepository`,
+> `SunshineStreamHistoryRepository`, `SunshineStreamStateRepository`,
+> `RecoveryRepository`), closer to the "v1" layout this document
+> argues against than to the merged design proposed below. There is
+> no `GameRepository` — `games.json` remained a JSON configuration
+> file. Treat the `repositories/` directory itself as the source of
+> truth for the current structure.
+
 ## 1. Should Repository Classes Be Introduced?
 
 **Yes**, but fewer than v1 proposed. Justification, from the actual

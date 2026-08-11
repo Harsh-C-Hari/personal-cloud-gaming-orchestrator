@@ -67,6 +67,8 @@ One section per legacy JSON file. Sections may be worked in the Stage
 
 ## `metadata/session_metadata.json` + `data/active_sessions.json` → `session_metadata` table (merged, via `SessionRepository`)
 
+### Actual outcome: `metadata/session_metadata.json` was migrated to the `session_metadata` table via `SessionMetadataRepository`. `data/active_sessions.json` was **not** merged into that table — it intentionally remains a separate JSON file, read and written by `api/services/session_service.py`, and is still what the startup crash-recovery routine (`recover_sessions_on_startup`) reads to find in-flight sessions. No `SessionRepository` class exists; there is no automated JSON-import routine for any of the legacy files below.
+
 - [ ] Create `SessionRepository` covering both metadata fields and
       runtime/status fields in one table (see `DATABASE_SCHEMA.md`).
 - [ ] Import: for each session in `session_metadata.json`, create the

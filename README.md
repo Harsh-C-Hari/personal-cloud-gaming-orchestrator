@@ -241,7 +241,7 @@ personal-cloud-gaming-orchestrator/
 
 * Single-Host Only: This initial release supports only one gaming host. Multi-host orchestration is excluded (planned later).
 
-* JSON Persistence: The system uses local JSON files for state (no DB). Future versions will migrate to a database (Phase 25).
+* Persistence: Session history, session events, session metadata, recovery events, Sunshine stream history/state, and user accounts are stored in a local SQLite database (`host-agent/data/pcgo.db`). Host configuration (`config.json`), the game library (`games.json`), and the in-flight active-session snapshot used for crash recovery (`data/active_sessions.json`) intentionally remain JSON files rather than database tables.
 
 * Optional Streaming: Sunshine and Tailscale are optional in v0.1. The system will operate on a local host without them.
 
@@ -498,7 +498,7 @@ Python Host Agent
 - Live save synchronization with gameplay-based change detection.
 - Stale session recovery and automatic lock cleanup after backend failures.
 - Automated Sunshine watchdog and recovery workflows, plus Sunshine client pairing management and persisted stream history.
-- Real-time monitoring dashboard with WebSocket updates.
+- Session status updates pushed to the dashboard over WebSocket, with host monitoring and recovery data refreshed via REST polling.
 
 ---
 
@@ -762,13 +762,8 @@ Topics covered include:
 
 ### Storage
 
-Current MVP:
-
-* JSON-based persistence
-
-Future:
-
-* Database migration planned in Phase 25.
+* SQLite (`host-agent/data/pcgo.db`) — session history, session events, session metadata, recovery events, Sunshine stream history/state, and user accounts.
+* JSON files — host configuration (`config.json`), the game library (`games.json`), and the active-session runtime/crash-recovery snapshot (`data/active_sessions.json`).
 
 ---
 
@@ -791,12 +786,12 @@ Completed:
 * Recovery infrastructure
 * Session persistence & reconnection foundation
 * Authentication & role-based authorization
+* SQLite persistence for session history, session events, session metadata, recovery events, Sunshine stream history/state, and user accounts
 
 Current development is focused on:
 - Testing and reliability validation
 - Documentation
 - Deployment preparation
-- Transition into Phase 25 (Database Migration) development
 
 ---
 
@@ -807,7 +802,7 @@ Current release status:
 - 21 automated frontend tests
 - Engineering documentation
 - Runtime validation
-- WebSocket monitoring
+- WebSocket connection for real-time session status
 - Static analysis and linting
 - Release hardening completed
 
@@ -825,11 +820,11 @@ Persistent session registry, session resurrection after backend restart, and lif
 
 JWT-based login, bcrypt password hashing, admin/user roles, first-run bootstrap, and role-aware dashboards.
 
+### Phase 25 — Database Migration (Completed)
+
+Migrated session history, session events, session metadata, recovery events, Sunshine stream history/state, and user accounts from JSON files to a SQLite database (`host-agent/data/pcgo.db`). Host configuration (`config.json`), the game library (`games.json`), and the active-session crash-recovery snapshot (`data/active_sessions.json`) were intentionally kept as JSON files rather than migrated.
+
 Upcoming phases:
-
-### Phase 25 — Database Migration
-
-Move from JSON persistence to a structured database system.
 
 ### Phase 26 — User Application Foundation
 

@@ -40,4 +40,4 @@ The v0.1 Host Foundation Release is complete.
 
 Session Persistence & Reconnection and Authentication & Authorization have both since been completed.
 
-Looking forward to continuing development through database migration, a dedicated user application, deployment tooling, and additional reliability improvements.
+Looking forward to continuing development through a dedicated user application, deployment tooling, and additional reliability improvements.

@@ -141,6 +141,7 @@ Examples:
 
 ```text
 GET  /host/status  # Sunshine and Tailscale information is included there
+GET  /host/tailscale/status
 POST /host/sunshine/restart
 POST /host/sunshine/start
 POST /host/sunshine/stop
@@ -173,6 +174,69 @@ GET /admin/logs/download    (admin)
 GET /admin/my-logs          (user)
 GET /admin/my-log-sessions  (user)
 GET /admin/my-logs/download (user)
+```
+
+---
+
+## Configuration APIs
+
+*Admin only.* Responsibilities:
+
+* Reading the current runtime configuration
+* Updating individual configuration sections with validation
+* Reloading configuration from disk
+
+Examples:
+
+```text
+GET  /config/            (admin)
+POST /config/reload      (admin)
+PUT  /config/{section}   (admin)
+```
+
+See [Administrative Settings Panel Architecture](../architecture/settings-panel-architecture.md).
+
+---
+
+## Save APIs
+
+Responsibilities:
+
+* Listing a user's saves for a game
+* Deleting a specific save
+* Force-unlocking a stuck save operation
+
+Examples:
+
+```text
+GET    /saves/{game_id}
+DELETE /saves/{game_id}/{save_type}/{save_name}
+POST   /saves/{game_id}/force-unlock
+```
+
+---
+
+## System APIs
+
+*Admin only.* Native Windows file/folder picker dialogs used by the Game Manager UI when configuring executable and save paths.
+
+Examples:
+
+```text
+GET /system/select-file
+GET /system/select-folder
+```
+
+---
+
+## Health API
+
+*Admin only.* A single endpoint returning the Save Manager's internal health check (used for diagnostics rather than the general host-readiness data exposed under `/host`).
+
+Examples:
+
+```text
+GET /health/
 ```
 
 ---

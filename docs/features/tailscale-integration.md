@@ -85,13 +85,16 @@ Log Event
 
 # Recovery Logging
 
-Recovery actions are recorded through the recovery event system.
+Recovery actions are recorded through the recovery event system (`service: "tailscale"`).
 
-Examples:
+Examples of actual logged events:
 
-* recovery_started
-* recovery_success
-* recovery_failed
+* state_changed / initial_state / failure_mode_changed
+* health_warning / health_cleared
+* failure_detected / recovered
+* recovery_attempt_ipn / recovery_started_ipn / recovery_failed_ipn
+* recovery_attempt_service / recovery_started_service / recovery_failed_service
+* recovery_attempt_up / recovery_started_up / recovery_failed_up
 
 ---
 

@@ -75,11 +75,10 @@ This allows the platform to recover automatically without manual intervention.
 
 # Future Development
 
-Session persistence & reconnection and authentication & authorization were originally planned future phases; both have since been completed (see [Session Persistence & Reconnection Architecture](../engineering/session-persistence-and-reconnection.md) and [Authentication & Role-Based Access](../features/authentication.md)).
+Session persistence & reconnection, authentication & authorization, and the database migration were originally planned future phases; all three have since been completed (see [Session Persistence & Reconnection Architecture](../engineering/session-persistence-and-reconnection.md), [Authentication & Role-Based Access](../features/authentication.md), and the `docs/phase25/` engineering documentation).
 
 Remaining planned phases include:
 
-* Database migration
 * A dedicated user application (beyond the current shared, role-aware web dashboard)
 * Embedded Tailscale onboarding
 * Moonlight automation

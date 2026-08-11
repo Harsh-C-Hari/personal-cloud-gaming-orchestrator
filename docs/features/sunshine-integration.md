@@ -70,7 +70,7 @@ Stream activity is tracked independently of session activity — a session can b
 
 Both callers authenticate using a separate internal event token rather than a user credential — see [Internal Event Authentication](../engineering/internal-event-authentication.md).
 
-Every completed stream is recorded to a persisted stream history file, viewable from the dashboard for diagnostics and usage review.
+Every completed stream is recorded to a persisted stream history table in the SQLite database, viewable from the dashboard for diagnostics and usage review.
 
 ---
 

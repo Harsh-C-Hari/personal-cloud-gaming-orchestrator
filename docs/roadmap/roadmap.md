@@ -19,7 +19,7 @@ Phase 23 Session Persistence & Reconnection has been completed.
 
 Phase 24 Authentication & Authorization has been completed.
 
-Current development focus has shifted to Phase 25 Database Migration.
+Phase 25 Database Migration has been completed.
 ```
 
 Completed:
@@ -42,6 +42,7 @@ Completed:
 * Recovery Infrastructure
 * Authentication & Role-Based Authorization
 * Internal Event Authentication
+* SQLite Database Migration
 
 ---
 
@@ -120,7 +121,6 @@ Not yet delivered (carried forward to later phases):
 * Refresh tokens
 * Login rate limiting / account lockout
 * Structured security audit logging (Phase 31)
-* Database-backed account storage (Phase 25)
 
 Benefits realized:
 
@@ -129,22 +129,21 @@ Benefits realized:
 
 ---
 
-# Phase 25
+# Phase 25 — Completed
 
 ## Database Migration
 
-Goals:
+Session history, session events, session metadata, recovery events, Sunshine stream history/state, and user accounts were migrated from JSON files to a SQLite database (`host-agent/data/pcgo.db`), accessed through a dedicated repository layer (`host_agent/repositories/`).
 
-* Replace JSON persistence
-* Structured storage layer
-* Improved querying
-* Improved scalability
+Host configuration (`config.json`), the game library (`games.json`), and the active-session runtime/crash-recovery snapshot (`data/active_sessions.json`) were intentionally kept as JSON files rather than migrated. Log files remain plain rotating log files.
 
-Expected Benefits:
+Delivered:
 
-* Reliability
-* Data consistency
-* Easier expansion
+* SQLite-backed repositories for the data listed above
+* Structured storage layer with indexes supporting existing query patterns
+* Aggregate SQL queries for recovery statistics (replacing in-Python tallying)
+
+See `docs/phase25/` for the full engineering design and schema documentation.
 
 ---
 

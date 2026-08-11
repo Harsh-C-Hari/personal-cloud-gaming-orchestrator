@@ -137,18 +137,27 @@ Responsibilities:
 
 ## Persistence Layer
 
-Current persistence is file-based.
+Historical and analytical data is stored in a SQLite database, accessed through a repository layer.
 
-Stored Data:
+Stored Data (SQLite, `host-agent/data/pcgo.db`):
 
-* Session history
+* Session history and session events
+* Session metadata
 * Recovery events
-* Analytics
-* Configuration
+* Sunshine stream history and current stream state
+* Session statistics
+* User accounts
+
+Stored Data (JSON, kept intentionally file-based):
+
+* Host configuration (`config.json`)
+* Game library (`games.json`)
+* Active-session runtime/crash-recovery snapshot (`data/active_sessions.json`)
 
 Technology:
 
-* JSON storage
+* SQLite (via the Python standard library `sqlite3`)
+* JSON storage for configuration and runtime recovery state
 
 ---
 

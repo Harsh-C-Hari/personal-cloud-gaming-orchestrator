@@ -151,11 +151,21 @@ See [Authentication & Role-Based Access](../features/authentication.md) and [Int
 
 ---
 
-## Current Phase
+## Phase 25: Database Migration
 
-### Phase 25
+Completed:
 
-Database Migration
+* SQLite database (`host-agent/data/pcgo.db`) with a dedicated repository layer (`host_agent/repositories/`)
+* Session history, session events, session metadata, session statistics, recovery events, Sunshine stream history, Sunshine stream state, and user accounts migrated to SQLite
+* Aggregate SQL queries replacing in-Python tallying for recovery statistics
+
+Intentionally kept as JSON files (not migrated):
+
+* Host configuration (`config.json`)
+* Game library (`games.json`)
+* Active-session runtime/crash-recovery snapshot (`data/active_sessions.json`)
+
+See `docs/phase25/` for the full engineering design and schema documentation.
 
 ---
 

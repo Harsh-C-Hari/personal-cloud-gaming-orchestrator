@@ -157,8 +157,8 @@ Two components — Sunshine's own stream hook script and a background thread tai
 
 The v0.1 Host Foundation Release is complete.
 
-Session Persistence & Reconnection (Phase 23) and Authentication & Authorization (Phase 24) have both been completed since the initial release.
+Session Persistence & Reconnection (Phase 23), Authentication & Authorization (Phase 24), and Database Migration (Phase 25) have all been completed since the initial release.
 
 Current focus:
 
-* Phase 25 (Database Migration) and beyond
+* Phase 26 (User Application Foundation) and beyond

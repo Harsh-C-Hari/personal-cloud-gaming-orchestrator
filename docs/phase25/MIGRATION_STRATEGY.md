@@ -5,6 +5,15 @@
 > single-check, single-transaction import and a one-file schema. See
 > `DATABASE_ARCHITECTURE.md` §9 for the full rationale.
 
+> **Implementation note:** no `migrate_from_json` (or equivalent
+> one-time JSON-import) module exists anywhere in the repository.
+> `host_agent/database/init_db.py` only creates the SQLite database
+> and applies `schema.sql` — it does not import any pre-existing
+> legacy JSON data into the new tables. The startup sequence
+> described below should be read as the original design, not as a
+> description of what `startup_initializer.py`/`init_db.py` actually
+> do today.
+
 ## 1. Startup Sequence (new)
 
 Current `startup_initializer.initialize_startup()` does, in order:

@@ -14,7 +14,7 @@ Remaining known limitations of the current authentication implementation:
 
 See [Authentication & Role-Based Access](../features/authentication.md).
 
-The `/ws` WebSocket connection is a separate exception: it does not require a JWT and broadcasts to every connected client without role-based filtering. See [WebSocket Events](../api/websocket-events.md).
+The `/ws` WebSocket connection requires a valid JWT to connect (passed as a `token` query parameter and validated the same way as REST tokens), but has no per-connection role or session filtering after that — every connected client receives every broadcast message, including other users' session status updates. See [WebSocket Events](../api/websocket-events.md).
 
 ---
 

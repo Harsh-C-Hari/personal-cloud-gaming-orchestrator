@@ -112,9 +112,9 @@ This phase focused on:
 - Documentation
 - Public release preparation
 
-The resulting implementation forms the **v0.1 Host Foundation Release**, establishing the architectural foundation for future phases including Database Migration, a dedicated User Application, and Production Deployment.
+The resulting implementation forms the **v0.1 Host Foundation Release**, establishing the architectural foundation for future phases including a dedicated User Application and Production Deployment.
 
-Session Persistence & Reconnection (Phase 23) and Authentication & Authorization (Phase 24) — originally listed below as future phases — have since been completed and are documented in [Session Persistence & Reconnection Architecture](../engineering/session-persistence-and-reconnection.md) and [Authentication & Role-Based Access](../features/authentication.md).
+Session Persistence & Reconnection (Phase 23), Authentication & Authorization (Phase 24), and Database Migration (Phase 25) — originally listed below as future phases — have since been completed and are documented in [Session Persistence & Reconnection Architecture](../engineering/session-persistence-and-reconnection.md), [Authentication & Role-Based Access](../features/authentication.md), and the `docs/phase25/` engineering documentation.
 
 ---
 
@@ -159,6 +159,7 @@ Completed Major Systems:
 * Role-Aware Dashboard (Admin Dashboard and User Dashboard)
 * Sunshine Client Pairing & Stream History Tracking
 * Internal Event Authentication (shared-secret channel for the Sunshine hook/transport monitor)
+* SQLite Persistence Layer (session history/events/metadata, recovery events, Sunshine stream history/state, user accounts)
 
 Current focus is finalizing MVP stability, documentation, testing, and deployment preparation.
 
@@ -176,10 +177,10 @@ Completed since the original MVP scope was defined:
 
 - Phase 23: Session Persistence & Reconnection — **Completed**
 - Phase 24: Authentication & Authorization — **Completed**
+- Phase 25: Database Migration — **Completed** (historical/analytical data moved to SQLite; host configuration, the game library, and the active-session recovery snapshot intentionally remain JSON)
 
 Planned development phases:
 
-- Phase 25: Database Migration
 - Phase 26: User Application Foundation (a dedicated app beyond the current shared, role-aware web dashboard)
 - Phase 27: Embedded Tailscale
 - Phase 28: Moonlight Automation

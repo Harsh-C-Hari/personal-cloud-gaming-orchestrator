@@ -4,6 +4,22 @@
 > `session_metadata` and drops the `migration_state` table, per the
 > critical review. See bottom of file for what changed and why.
 
+> **Implementation note:** this document is the design record, not a
+> live description of the schema. The schema actually shipped
+> (`host_agent/database/schema.sql`) differs from what's below in
+> several respects: there is no `games` table (`games.json` remained
+> a JSON configuration file — see the "Revised Scope" note under
+> `games` below), no `schema_migrations` table, and no foreign-key
+> constraints on any table. The `users` table uses `username` as the
+> primary key rather than a surrogate `id`. The Sunshine tables are
+> named `sunshine_stream_state`/`sunshine_stream_history` in the
+> shipped schema, not `stream_state`/`stream_history`. Most
+> significantly, `data/active_sessions.json` was **not** merged into
+> `session_metadata` as this document proposes — it remains a
+> separate JSON file used for the crash-recovery snapshot, while
+> `session_metadata` holds only the metadata fields. Treat
+> `schema.sql` as the source of truth for the current schema.
+
 Engine: **SQLite** (stdlib `sqlite3`), single file at `data/pcgo.db`.
 Pragmas set on every connection: `PRAGMA foreign_keys=ON;`,
 `PRAGMA journal_mode=WAL;`, `PRAGMA busy_timeout=5000;`.

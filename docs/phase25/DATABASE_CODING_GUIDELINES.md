@@ -87,6 +87,16 @@ This ensures:
 - simpler transaction management
 - easier future migration to another backend
 
+> **Implementation note:** this rule was not followed as written. Every
+> shipped repository (e.g. `session_stats_repository.py`,
+> `user_repository.py`) calls `host_agent.database.connection.get_connection()`
+> directly and opens a new connection per method call, rather than
+> receiving a shared connection via dependency injection. Connection
+> configuration is still centralized (all repositories go through the
+> same `get_connection()` function, so PRAGMAs stay consistent), but
+> there is no shared/injected connection object as this guideline
+> describes.
+
 ## 9. Repositories contain data access, not business logic
 
 Repositories are responsible only for reading and writing persistent

@@ -1,5 +1,7 @@
 # Phase 25 — JSON → SQLite Migration
 
+**Status: Implemented and completed.** Session history, session events, session metadata, recovery events, Sunshine stream history/state, and user accounts are now SQLite-backed in the current codebase (`host_agent/database/schema.sql`, `host_agent/repositories/`). `config.json`, `games.json`, and `data/active_sessions.json` were intentionally kept as JSON. The documents below are the **original design record** for that work, not a live description of the shipped implementation — each has an "Implementation note" where the final result diverged from the plan. Treat `host_agent/database/schema.sql` and `host_agent/repositories/` as the source of truth for the current schema and repository layer.
+
 Engineering documentation for Phase 25: migrating the host-agent's
 persistence layer from JSON files to SQLite. This folder is a design
 blueprint plus a living progress tracker — read in the order below.

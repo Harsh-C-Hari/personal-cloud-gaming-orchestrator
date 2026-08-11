@@ -16,6 +16,7 @@ from api.dependencies import (
     cleanup_manager,
     lifecycle_manager,
     sunshine_stream_tracker,
+    sunshine_controller,
 )
 from host_agent.logging_config import (
     configure_logger,
@@ -1033,6 +1034,8 @@ class SessionService:
                 }
             )
         )
+
+        sunshine_controller.close_stream()
         
         game_id = session["game_id"]
 

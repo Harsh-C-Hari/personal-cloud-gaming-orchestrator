@@ -93,22 +93,29 @@ Examples:
 
 Responsibilities:
 
-* Live dashboard updates
-* Session broadcasts
-* Recovery event broadcasts
-* Monitoring updates
+* Live session status broadcasts (a single `status_update` message type, broadcast to every connected client)
+
+Host monitoring, recovery events/statistics, and Sunshine/Tailscale status are served over REST and refreshed by the dashboard through polling rather than pushed over WebSocket. See [WebSocket Events](../api/websocket-events.md).
 
 ---
 
 # Persistence
 
-Current storage uses JSON files.
+Historical and analytical data is stored in a SQLite database (`host-agent/data/pcgo.db`), accessed exclusively through a repository layer (`host_agent/repositories/`):
 
-Examples:
-
-* Session history
+* Session history and session events
+* Session metadata
 * Recovery events
-* Analytics
+* Sunshine stream history and current stream state
+* Session statistics
+* User accounts
+
+Two categories of data intentionally remain JSON files rather than database tables:
+
+* Host configuration (`config.json`) and the game library (`games.json`)
+* The active-session runtime snapshot (`data/active_sessions.json`), used for crash-recovery on startup
+
+Log files remain plain rotating log files and are not stored in SQLite.
 
 ---
 

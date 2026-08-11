@@ -173,6 +173,7 @@ Core systems included in the MVP:
 - Host Monitoring
 - Recovery Infrastructure
 - Session Persistence & Reconnection Foundation
+- SQLite Persistence Layer (session data, recovery events, Sunshine stream history/state, user accounts)
 - Authentication & Role-Based Authorization
 - Role-Aware Dashboard (Admin and User)
 - Administrative Dashboard
@@ -184,7 +185,6 @@ Features intentionally excluded from the MVP include:
 
 - Multi-host support
 - A dedicated, standalone User Application (separate from the current shared web dashboard)
-- Database-backed persistence
 - Embedded Tailscale
 - Moonlight Automation
 - Production Host Dashboard
@@ -213,10 +213,10 @@ Completed:
 
 - Phase 23: Session Persistence & Reconnection
 - Phase 24: Authentication & Authorization
+- Phase 25: Database Migration
 
 Planned after the current core platform stabilization work:
 
-- Phase 25: Database Migration
 - Phase 26: User App Foundation
 - Phase 27: Embedded Tailscale
 - Phase 28: Moonlight Automation

@@ -77,27 +77,24 @@ Responsibilities:
 Implemented features:
 
 * Session duration limits
-* Warning notifications
+* Warning notifications (logged server-side; a `warning_sent` flag on the session record prevents repeat warnings)
 * Automatic expiration
 
-Timer events:
-
-* warning_sent
-* timer_expired
+Warning and expiration are tracked as fields on the session record (`warning_sent`, `expires_at`) and logged via the server log, not as distinct entries in the session event log or WebSocket messages.
 
 ---
 
 # Session Event Logging
 
-The system records important lifecycle events.
+The system records lifecycle events to the `session_events` table (`GET /sessions/events`, `GET /sessions/my-events`). Each entry's `status` is one of the session lifecycle values:
 
-Examples:
-
-* session_started
-* session_completed
-* session_failed
-* warning_sent
-* timer_expired
+* starting
+* running
+* restarted
+* stopping
+* cleaning
+* completed
+* failed
 
 ---
 
