@@ -1,5 +1,6 @@
 import os
 import time
+import asyncio
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
@@ -8,7 +9,9 @@ from api.session_registry import (
     active_sessions,
     registry_lock,
 )
-
+from api.websocket_manager import (
+    websocket_manager,
+)
 from api.dependencies import (
     host_monitor,
     sunshine_controller,
@@ -33,12 +36,119 @@ from api.auth import get_current_user
 from api.internal_event_auth import (
     require_internal_event_token,
 )
+from api.models.sunshine_models import (
+    StreamStartedRequest,
+)
 logger = configure_logger()
 
 router = APIRouter(
     prefix="/host",
     tags=["host"],
 )
+
+
+def _get_enriched_sunshine_state():
+    """
+    Shared by GET /sunshine/stream and _broadcast_sunshine_state so the
+    WS payload is always a drop-in replacement for the REST response —
+    same base tracker state, enriched with the same session-derived
+    stream_active/stream_started_at/stream_ended_at/stream_app fields.
+    """
+
+    stream = (
+        sunshine_stream_tracker.get_state()
+    )
+
+    session = (
+        session_service
+        .get_active_session()
+    )
+
+    if session:
+
+        stream[
+            "stream_active"
+        ] = session.get(
+            "stream_active",
+            False,
+        )
+
+        stream[
+            "stream_started_at"
+        ] = session.get(
+            "stream_started_at"
+        )
+
+        stream[
+            "stream_ended_at"
+        ] = session.get(
+            "stream_ended_at"
+        )
+
+        stream[
+            "stream_app"
+        ] = session.get(
+            "stream_app"
+        )
+
+    return stream
+
+
+def _broadcast_sunshine_state():
+    """
+    Push the current Sunshine stream state to all connected dashboards.
+    Called from the stream-started/stream-ended/transport-connected/
+    transport-disconnected handlers so the UI updates immediately
+    instead of waiting on its next poll.
+    """
+
+    try:
+
+        asyncio.run(
+            websocket_manager.broadcast(
+                {
+                    "type": "sunshine_state_update",
+                    "state": _get_enriched_sunshine_state(),
+                }
+            )
+        )
+
+    except Exception as error:
+
+        logger.warning(
+            f"Failed to broadcast sunshine state: {error}"
+        )
+
+
+def _broadcast_sunshine_history():
+    """
+    Push the latest Sunshine stream history to all connected dashboards.
+    Called only from stream_ended(), the sole place a new history row
+    is created (sunshine_stream_tracker.stream_stopped(), invoked by
+    the external stream hook script before it calls this endpoint).
+    """
+
+    try:
+
+        streams = sunshine_controller.get_stream_history(
+            limit=20,
+        )
+
+        asyncio.run(
+            websocket_manager.broadcast(
+                {
+                    "type": "sunshine_history_update",
+                    "streams": streams,
+                }
+            )
+        )
+
+    except Exception as error:
+
+        logger.warning(
+            f"Failed to broadcast sunshine history: {error}"
+        )
+
 
 @router.get("/status")
 def get_host_status(
@@ -560,41 +670,7 @@ def sunshine_stream_status(
     ),
 ):
     
-    stream = (
-        sunshine_stream_tracker.get_state()
-    )
-
-    session = (
-        session_service
-        .get_active_session()
-    )
-    
-    if session:
-
-        stream[
-            "stream_active"
-        ] = session.get(
-            "stream_active",
-            False,
-        )
-
-        stream[
-            "stream_started_at"
-        ] = session.get(
-            "stream_started_at"
-        )
-
-        stream[
-            "stream_ended_at"
-        ] = session.get(
-            "stream_ended_at"
-        )
-
-        stream[
-            "stream_app"
-        ] = session.get(
-            "stream_app"
-        )
+    stream = _get_enriched_sunshine_state()
 
     return JSONResponse(
         content=stream,
@@ -661,13 +737,27 @@ def close_sunshine_stream(
     ],
 )
 def stream_ended():
-    
+
+    # Do the actual state mutation here, in-process, instead of in the
+    # standalone hook script that calls this endpoint. The hook script
+    # runs as a separate OS process each time Sunshine invokes it, so a
+    # threading.Lock inside SunshineStreamTracker can't protect against
+    # it racing with transport_connected()/transport_disconnected()
+    # (which run as threads inside *this* process). Doing the mutation
+    # here means every sunshine_stream_tracker write goes through the
+    # same lock, in the same process, closing that race for good.
+    sunshine_stream_tracker.stream_stopped()
+
     sessions = (
         session_service
         .get_active_sessions()
     )
 
     if not sessions:
+
+        _broadcast_sunshine_state()
+        _broadcast_sunshine_history()
+
         return {
             "success": True,
             "message":
@@ -690,6 +780,10 @@ def stream_ended():
         "cleaning",
         "completed",
     ):
+
+        _broadcast_sunshine_state()
+        _broadcast_sunshine_history()
+
         return {
             "success": True,
             "message": "Session already stopping."
@@ -727,6 +821,9 @@ def stream_ended():
         session_id
     )
 
+    _broadcast_sunshine_state()
+    _broadcast_sunshine_history()
+
     return {
         "success": True,
         "message":
@@ -739,14 +836,31 @@ def stream_ended():
         Depends(require_internal_event_token)
     ],
 )
-def stream_started():
-    
+def stream_started(
+    payload: StreamStartedRequest,
+):
+
+    # Same reasoning as stream_ended(): do the mutation in-process so it
+    # goes through SunshineStreamTracker's lock, instead of racing with
+    # transport_connected() from the standalone hook script's own
+    # process.
+    sunshine_stream_tracker.stream_started(
+        app_name=payload.app_name,
+        width=payload.width,
+        height=payload.height,
+        fps=payload.fps,
+        hdr=payload.hdr,
+    )
+
     sessions = (
         session_service
         .get_active_sessions()
     )
     
     if not sessions:
+
+        _broadcast_sunshine_state()
+
         return {
             "success": True,
             "message": "No active session."
@@ -804,6 +918,8 @@ def stream_started():
 
     session_service._persist_active_sessions()
 
+    _broadcast_sunshine_state()
+
     return {
         "success": True
     }
@@ -817,6 +933,8 @@ def stream_started():
 def transport_disconnected():
     
     sunshine_stream_tracker.transport_disconnected()
+
+    _broadcast_sunshine_state()
     
     sessions = (
         session_service
@@ -867,6 +985,8 @@ def transport_disconnected():
 def transport_connected():
     
     sunshine_stream_tracker.transport_connected()
+
+    _broadcast_sunshine_state()
     
     sessions = (
         session_service

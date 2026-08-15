@@ -492,6 +492,22 @@ class SessionService:
                 self._persist_active_sessions()
                 raise
 
+            # Give the process a moment to actually register with the OS
+            # before we start polling for it to have exited. Without this,
+            # a slow-launching executable can be mistaken for one that
+            # already exited on the very first poll below.
+            if not game_launcher.wait_for_process_start(
+                process_name,
+                timeout=15,
+                session_id=session_id,
+                game_id=request.game_id,
+                user_id=user_id,
+            ):
+                raise RuntimeError(
+                    f"Game process did not start within timeout: "
+                    f"{process_name}"
+                )
+
             save_manager._set_state(
                 session_id,
                 SessionState.GAME_RUNNING,
@@ -561,6 +577,22 @@ class SessionService:
                             game_id=request.game_id,
                             user_id=user_id,
                         )
+
+                        # Same race as the initial launch: don't let the
+                        # very next poll (which happens immediately via
+                        # `continue` below, with no sleep) catch the new
+                        # process before it has registered with the OS.
+                        if not game_launcher.wait_for_process_start(
+                            process_name,
+                            timeout=15,
+                            session_id=session_id,
+                            game_id=request.game_id,
+                            user_id=user_id,
+                        ):
+                            raise RuntimeError(
+                                f"Game process did not restart within "
+                                f"timeout: {process_name}"
+                            )
 
                         with registry_lock:
 

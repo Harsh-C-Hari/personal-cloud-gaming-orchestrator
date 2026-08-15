@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi import WebSocket
+from starlette import status as ws_status
 
 from api.routes.health import router as health_router
 from api.routes.games import router as games_router

@@ -19,7 +19,7 @@ class RecoveryRepository:
         service: str,
         event: str,
         details=None,
-    ) -> None:
+    ) -> int:
 
         details_json = (
             json.dumps(details)
@@ -48,6 +48,8 @@ class RecoveryRepository:
                     details_json,
                 ),
             )
+
+            return cursor.lastrowid
 
     def get_events(
         self,

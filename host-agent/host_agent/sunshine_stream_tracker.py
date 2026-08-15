@@ -1,4 +1,5 @@
 import time
+import threading
 
 from host_agent.repositories.sunshine_stream_history_repository import (
     sunshine_stream_history_repository,
@@ -10,6 +11,19 @@ from host_agent.repositories.sunshine_stream_state_repository import (
 
 
 class SunshineStreamTracker:
+
+    def __init__(self):
+
+        # Every mutator below does read() -> mutate a few fields ->
+        # write() (a full-row overwrite). Without serializing that
+        # sequence, two handlers firing close together (e.g. Sunshine's
+        # "stream started" hook and the transport monitor's "client
+        # connected" event, which realistically land within the same
+        # second) can interleave: thread B reads the row before thread
+        # A's write lands, so thread B's own write silently reverts
+        # whatever field thread A just changed. This lock makes each
+        # read-modify-write atomic with respect to the others.
+        self._lock = threading.Lock()
 
     def read(self):
 
@@ -42,104 +56,114 @@ class SunshineStreamTracker:
         hdr,
     ):
 
-        state = self.read()
+        with self._lock:
 
-        state["state"] = "streaming"
-        state["app_name"] = app_name
-        state["started_at"] = time.time()
-        state["ended_at"] = None
-        state["duration_seconds"] = 0
-        state["width"] = width
-        state["height"] = height
-        state["fps"] = fps
-        state["hdr"] = hdr
+            state = self.read()
 
-        self.write(state)
+            state["state"] = "streaming"
+            state["app_name"] = app_name
+            state["started_at"] = time.time()
+            state["ended_at"] = None
+            state["duration_seconds"] = 0
+            state["width"] = width
+            state["height"] = height
+            state["fps"] = fps
+            state["hdr"] = hdr
+
+            self.write(state)
 
     def stream_stopped(
         self,
     ):
 
-        state = self.read()
+        with self._lock:
 
-        state["state"] = "idle"
-        state["ended_at"] = time.time()
-        state["awaiting_reconnect"] = False
+            state = self.read()
 
-        if state["started_at"]:
+            state["state"] = "idle"
+            state["ended_at"] = time.time()
+            state["awaiting_reconnect"] = False
 
-            state["duration_seconds"] = (
-                state["ended_at"]
-                - state["started_at"]
+            if state["started_at"]:
+
+                state["duration_seconds"] = (
+                    state["ended_at"]
+                    - state["started_at"]
+                )
+
+            else:
+
+                state["duration_seconds"] = None
+
+            self.write(state)
+
+            history_entry = {
+                "recorded_at": time.time(),
+                "app_name": state["app_name"],
+                "started_at": state["started_at"],
+                "ended_at": state["ended_at"],
+                "duration_seconds": state["duration_seconds"],
+                "width": state["width"],
+                "height": state["height"],
+                "fps": state["fps"],
+                "hdr": state["hdr"],
+                "stream_ended_intentionally": True,
+            }
+
+            self.append_history(
+                history_entry
             )
-
-        else:
-
-            state["duration_seconds"] = None
-
-        self.write(state)
-
-        history_entry = {
-            "recorded_at": time.time(),
-            "app_name": state["app_name"],
-            "started_at": state["started_at"],
-            "ended_at": state["ended_at"],
-            "duration_seconds": state["duration_seconds"],
-            "width": state["width"],
-            "height": state["height"],
-            "fps": state["fps"],
-            "hdr": state["hdr"],
-            "stream_ended_intentionally": True,
-        }
-
-        self.append_history(
-            history_entry
-        )
 
     def get_state(
         self,
     ):
 
-        state = self.read()
+        with self._lock:
 
-        if (
-            state["state"] == "streaming"
-            and state["started_at"]
-        ):
+            state = self.read()
 
-            state["duration_seconds"] = (
-                time.time()
-                - state["started_at"]
-            )
+            if (
+                state["state"] == "streaming"
+                and state["started_at"]
+            ):
 
-        return state
+                state["duration_seconds"] = (
+                    time.time()
+                    - state["started_at"]
+                )
+
+            return state
 
     def transport_connected(
         self,
     ):
 
-        state = self.read()
+        with self._lock:
 
-        state["transport_connected"] = True
-        state["awaiting_reconnect"] = False
+            state = self.read()
 
-        if state["last_disconnect_at"] is not None:
+            state["transport_connected"] = True
+            state["awaiting_reconnect"] = False
 
-            state["last_reconnect_at"] = time.time()
+            if state["last_disconnect_at"] is not None:
 
-        self.write(state)
+                state["last_reconnect_at"] = time.time()
+
+            self.write(state)
 
     def transport_disconnected(
         self,
     ):
 
-        state = self.read()
+        with self._lock:
 
-        state["transport_connected"] = False
-        state["awaiting_reconnect"] = True
-        state["last_disconnect_at"] = time.time()
+            state = self.read()
 
-        self.write(state)
+            state["transport_connected"] = False
+            state["awaiting_reconnect"] = True
+            state["last_disconnect_at"] = time.time()
+
+            self.write(state)
 
 
 sunshine_stream_tracker = (

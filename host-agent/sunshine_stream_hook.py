@@ -18,10 +18,6 @@ sys.path.insert(
 import os
 import requests
 
-from host_agent.sunshine_stream_tracker import (
-    sunshine_stream_tracker,
-)
-
 
 action = (
     sys.argv[1]
@@ -95,42 +91,41 @@ event_headers = (
 
 if action == "start":
 
-    sunshine_stream_tracker.stream_started(
-        app_name=os.getenv(
-            "SUNSHINE_APP_NAME"
-        ),
-        width=int(
-            os.getenv(
-                "SUNSHINE_CLIENT_WIDTH",
-                0,
-            )
-        ),
-        height=int(
-            os.getenv(
-                "SUNSHINE_CLIENT_HEIGHT",
-                0,
-            )
-        ),
-        fps=int(
-            os.getenv(
-                "SUNSHINE_CLIENT_FPS",
-                0,
-            )
-        ),
-        hdr=(
-            os.getenv(
-                "SUNSHINE_CLIENT_HDR",
-                "false",
-            ).lower()
-            == "true"
-        ),
-    )
-
     try:
 
         requests.post(
             f"{internal_api_url}/host/sunshine/stream-started",
             headers=event_headers,
+            json={
+                "app_name": os.getenv(
+                    "SUNSHINE_APP_NAME"
+                ),
+                "width": int(
+                    os.getenv(
+                        "SUNSHINE_CLIENT_WIDTH",
+                        0,
+                    )
+                ),
+                "height": int(
+                    os.getenv(
+                        "SUNSHINE_CLIENT_HEIGHT",
+                        0,
+                    )
+                ),
+                "fps": int(
+                    os.getenv(
+                        "SUNSHINE_CLIENT_FPS",
+                        0,
+                    )
+                ),
+                "hdr": (
+                    os.getenv(
+                        "SUNSHINE_CLIENT_HDR",
+                        "false",
+                    ).lower()
+                    == "true"
+                ),
+            },
             timeout=5,
         )
 
@@ -141,8 +136,6 @@ elif action == "stop":
     
     try:
 
-        sunshine_stream_tracker.stream_stopped()
-        
         requests.post(
             f"{internal_api_url}/host/sunshine/stream-ended",
             headers=event_headers,
