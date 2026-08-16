@@ -15,23 +15,25 @@ export function RecoveryPage({
   onBack,
 }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
-      <PageHeader title="Recovery" subtitle="Host recovery statistics and event history" onBack={onBack} />
+    <div className="pcgo-feature-page pcgo-recovery-page">
+      <PageHeader title="Recovery" subtitle="Automated recovery activity, failure signals, and event history" onBack={onBack} />
 
-      <RecoveryStats
-        recoveryStats={recoveryStats}
-        showTailscaleRecoveryDetails={showTailscaleRecoveryDetails}
-        setShowTailscaleRecoveryDetails={setShowTailscaleRecoveryDetails}
-        showTailscaleFailureDetails={showTailscaleFailureDetails}
-        setShowTailscaleFailureDetails={setShowTailscaleFailureDetails}
-      />
+      <div className="pcgo-recovery-layout">
+        <RecoveryStats
+          recoveryStats={recoveryStats}
+          showTailscaleRecoveryDetails={showTailscaleRecoveryDetails}
+          setShowTailscaleRecoveryDetails={setShowTailscaleRecoveryDetails}
+          showTailscaleFailureDetails={showTailscaleFailureDetails}
+          setShowTailscaleFailureDetails={setShowTailscaleFailureDetails}
+        />
 
-      <RecoveryEvents
-        recoveryEvents={recoveryEvents}
-        recoveryEventsLoading={recoveryEventsLoading}
-        showAllRecoveryEvents={showAllRecoveryEvents}
-        setShowAllRecoveryEvents={setShowAllRecoveryEvents}
-      />
+        <RecoveryEvents
+          recoveryEvents={recoveryEvents}
+          recoveryEventsLoading={recoveryEventsLoading}
+          showAllRecoveryEvents={showAllRecoveryEvents}
+          setShowAllRecoveryEvents={setShowAllRecoveryEvents}
+        />
+      </div>
     </div>
   );
 }

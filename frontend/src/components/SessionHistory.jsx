@@ -1,33 +1,14 @@
-/**
- * components/SessionHistory.jsx
- *
- * Same props (refreshKey), same data fetching (fetchSessionHistory,
- * fetchSessionEvents), same formatting helpers (formatPlayedTime,
- * formatDate, getStatusBadge), and same expand/collapse behavior as
- * before — only the presentation was reworked to match the visual
- * language already used by RecoveryEvents / RecoveryStats / HostStatusPanel:
- *   - Icon-badged section header with a live count + refresh button.
- *   - A "Total Played" stat tile instead of a plain text line.
- *   - Each history entry is now a bordered card with icon-labeled rows
- *     and a colored status pill (still driven by the untouched
- *     getStatusBadge() text logic — only its hard-coded hex colors were
- *     swapped for flat theme tokens).
- *   - Expanded lifecycle events render as a small timeline, matching
- *     RecoveryEvents' event rows.
- *
- * Redesign note: local cyan-glow `palette` replaced with theme.js tokens,
- * react-icons/fa replaced with lucide-react.
- */
-
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  History,
-  RefreshCw,
-  Gamepad2,
-  Clock,
+  AlertTriangle,
   CheckCircle2,
-  XCircle,
   ChevronDown,
+  Clock,
+  Gamepad2,
+  History,
+  Info,
+  RefreshCw,
+  XCircle,
 } from "lucide-react";
 import { fetchSessionHistory, fetchSessionEvents } from "../api/client";
 import { colors, fonts, radius } from "../dashboard/theme.js";
@@ -45,92 +26,128 @@ function formatPlayedTime(seconds) {
 function formatDate(timestamp) {
   if (!timestamp) return "--";
 
-  return new Date(timestamp * 1000).toLocaleString();
+  return new Date(timestamp * 1000).toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+}
+
+function formatStatus(status) {
+  return status ? status.replace(/_/g, " ").toUpperCase() : "UNKNOWN";
 }
 
 function getStatusBadge(item) {
-
-  if (
-    item.error ===
-    "Recovered after backend restart"
-  ) {
+  if (item.error === "Recovered after backend restart") {
     return {
-      text: "↺ RECOVERED",
+      key: "recovered",
+      text: "RECOVERED",
       color: colors.warning,
+      icon: <RefreshCw size={10} strokeWidth={2} />,
     };
   }
 
   if (item.status === "completed") {
     return {
-      text: "✓ COMPLETED",
+      key: "completed",
+      text: "COMPLETED",
       color: colors.success,
+      icon: <CheckCircle2 size={10} strokeWidth={2} />,
     };
   }
 
   if (item.status === "failed") {
     return {
-      text: "✕ FAILED",
+      key: "failed",
+      text: "FAILED",
       color: colors.danger,
+      icon: <XCircle size={10} strokeWidth={2} />,
     };
   }
 
   return {
-    text: item.status?.toUpperCase(),
-    color: colors.inkDim,
+    key: "unknown",
+    text: formatStatus(item.status),
+    color: colors.neutral,
+    icon: <Info size={10} strokeWidth={2} />,
   };
 }
 
-export function SessionHistory({
-  refreshKey = 0,
-}) {
+function sessionDetailId(sessionId) {
+  const safeId = String(sessionId || "session").replace(/[^a-zA-Z0-9_-]/g, "-");
+  return `session-history-detail-${safeId}`;
+}
+
+function LoadingRows() {
+  return (
+    <div className="pcgo-session-history-loading" role="status" aria-live="polite" aria-label="Loading session history">
+      {[1, 2, 3].map((row) => (
+        <div className="pcgo-session-history-loading__row" key={row}>
+          <span className="pcgo-session-history-loading__game" />
+          <span className="pcgo-session-history-loading__meta" />
+          <span className="pcgo-session-history-loading__status" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function SessionHistory({ refreshKey = 0 }) {
   const [history, setHistory] = useState([]);
   const [error, setError] = useState("");
   const [expanded, setExpanded] = useState(false);
   const [expandedSessionId, setExpandedSessionId] = useState("");
   const [sessionEvents, setSessionEvents] = useState({});
+  const [sessionEventLoading, setSessionEventLoading] = useState({});
+  const [sessionEventErrors, setSessionEventErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const loadingRef = useRef(false);
 
   async function loadHistory() {
-    if (loading) return;
+    if (loadingRef.current) return;
+
+    loadingRef.current = true;
+    setLoading(true);
+
     try {
-      setLoading(true);
       const data = await fetchSessionHistory(10);
       setHistory(data.history || []);
       setError("");
     } catch (err) {
-      setError(err.message || "Failed to load history.");
+      setError(err.message || "Failed to load session history.");
     } finally {
+      loadingRef.current = false;
       setLoading(false);
     }
   }
 
   async function toggleSessionEvents(sessionId) {
     if (expandedSessionId === sessionId) {
-        setExpandedSessionId("");
-        return;
+      setExpandedSessionId("");
+      return;
     }
 
     setExpandedSessionId(sessionId);
 
-    if (sessionEvents[sessionId]) {
-        return;
+    if (Object.prototype.hasOwnProperty.call(sessionEvents, sessionId)) {
+      return;
     }
 
-    try {
-        const data = await fetchSessionEvents({
-        sessionId,
-        limit: 20,
-        });
+    setSessionEventLoading((prev) => ({ ...prev, [sessionId]: true }));
+    setSessionEventErrors((prev) => ({ ...prev, [sessionId]: "" }));
 
-        setSessionEvents((prev) => ({
+    try {
+      const data = await fetchSessionEvents({ sessionId, limit: 20 });
+      setSessionEvents((prev) => ({
         ...prev,
         [sessionId]: data.events || [],
-        }));
-    } catch {
-        setSessionEvents((prev) => ({
+      }));
+    } catch (err) {
+      setSessionEventErrors((prev) => ({
         ...prev,
-        [sessionId]: [],
-        }));
+        [sessionId]: err.message || "Failed to load lifecycle events.",
+      }));
+    } finally {
+      setSessionEventLoading((prev) => ({ ...prev, [sessionId]: false }));
     }
   }
 
@@ -140,38 +157,38 @@ export function SessionHistory({
 
   useEffect(() => {
     if (!refreshKey) return;
-
     loadHistory();
   }, [refreshKey]);
 
-  const visibleHistory = expanded
-    ? history
-    : history.slice(0, 3);
-
-  const totalPlayedSeconds = history.reduce(
-    (sum, item) => sum + (item.played_seconds || 0),
-    0
-  );
+  const visibleHistory = expanded ? history : history.slice(0, 3);
+  const totalPlayedSeconds = history.reduce((sum, item) => sum + (item.played_seconds || 0), 0);
+  const completedCount = history.filter((item) => item.status === "completed").length;
+  const recoveredCount = history.filter((item) => item.error === "Recovered after backend restart").length;
+  const failedCount = history.filter(
+    (item) => item.status === "failed" && item.error !== "Recovered after backend restart"
+  ).length;
+  const hasHistory = history.length > 0;
 
   return (
-    <section style={box}>
-      {/* ── Header ─────────────────────────────────────────────── */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", rowGap: "8px", columnGap: "12px", marginBottom: "14px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "9px", minWidth: 0 }}>
+    <section className="pcgo-session-history" style={box} aria-labelledby="session-history-title">
+      <div className="pcgo-session-history__header">
+        <div className="pcgo-session-history__heading">
           <div style={headerIcon}>
             <History size={13} strokeWidth={2} />
           </div>
-          <h2 style={title}>Session History</h2>
-
-          {history.length > 0 && (
-            <span style={countPill}>{history.length}</span>
-          )}
+          <div style={{ minWidth: 0 }}>
+            <div className="pcgo-session-history__eyebrow">AUTHORITATIVE RECORD</div>
+            <h2 id="session-history-title" style={title}>Session History</h2>
+            <p className="pcgo-session-history__description">Completed and failed sessions, ordered by most recent end time.</p>
+          </div>
+          {hasHistory && <span style={countPill}>{history.length} RECORDS</span>}
         </div>
 
         <button
           type="button"
           disabled={loading}
           onClick={loadHistory}
+          aria-label={loading ? "Refreshing session history" : "Refresh session history"}
           style={{
             ...refreshButton,
             flexShrink: 0,
@@ -194,137 +211,111 @@ export function SessionHistory({
         </button>
       </div>
 
-      {/* ── Total played stat tile ───────────────────────────────── */}
-      <div style={statTile}>
-        <div style={statIcon}>
-          <Clock size={13} strokeWidth={2} />
-        </div>
-        <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: "19px", fontWeight: 700, fontFamily: fonts.mono, color: colors.ink, lineHeight: 1.1 }}>
-            {formatPlayedTime(totalPlayedSeconds)}
-          </div>
-          <div style={statLabel}>Total Played</div>
-        </div>
+      <div className="pcgo-session-history__window-note">
+        <Info size={11} strokeWidth={2} />
+        Showing the latest {history.length || 10} records returned by the history service.
       </div>
 
-      {error && <div style={errorBox}>{error}</div>}
-
-      {!error && history.length === 0 && (
-        <div style={emptyBox}>No completed sessions yet.</div>
+      {hasHistory && (
+        <div className="pcgo-session-history__summary" aria-label="History summary">
+          <div style={statTile}>
+            <div style={statIcon}><History size={13} strokeWidth={2} /></div>
+            <div style={{ minWidth: 0 }}>
+              <div style={statValue}>{history.length}</div>
+              <div style={statLabel}>Records in view</div>
+            </div>
+          </div>
+          <div style={statTile}>
+            <div style={{ ...statIcon, color: colors.success, borderColor: colors.success, background: colors.accentGreenDim }}><CheckCircle2 size={13} strokeWidth={2} /></div>
+            <div style={{ minWidth: 0 }}>
+              <div style={statValue}>{completedCount}</div>
+              <div style={statLabel}>Completed</div>
+            </div>
+          </div>
+          <div style={statTile}>
+            <div style={{ ...statIcon, color: colors.danger, borderColor: colors.danger, background: colors.dangerDim }}><XCircle size={13} strokeWidth={2} /></div>
+            <div style={{ minWidth: 0 }}>
+              <div style={statValue}>{failedCount}</div>
+              <div style={statLabel}>Failed</div>
+            </div>
+          </div>
+          <div style={statTile}>
+            <div style={{ ...statIcon, color: colors.brand }}><Clock size={13} strokeWidth={2} /></div>
+            <div style={{ minWidth: 0 }}>
+              <div style={statValue}>{formatPlayedTime(totalPlayedSeconds)}</div>
+              <div style={statLabel}>Played in record</div>
+            </div>
+          </div>
+        </div>
       )}
 
-      {!error && history.length > 0 && (
-        <div style={{ display: "grid", gap: "10px" }}>
+      {recoveredCount > 0 && (
+        <div className="pcgo-session-history__recovery-note" role="status">
+          <RefreshCw size={11} strokeWidth={2} />
+          {recoveredCount} record{recoveredCount === 1 ? "" : "s"} recovered after backend restart.
+        </div>
+      )}
+
+      {error && (
+        <div style={errorBox} role="alert">
+          <AlertTriangle size={12} strokeWidth={2} />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {loading && !hasHistory && <LoadingRows />}
+
+      {!loading && !error && !hasHistory && (
+        <div style={emptyBox} role="status">
+          <History size={19} strokeWidth={1.5} />
+          <strong>No historical sessions yet.</strong>
+          <span>Completed and failed sessions will appear here after the first session lifecycle finishes.</span>
+        </div>
+      )}
+
+      {hasHistory && (
+        <div className="pcgo-session-history__list" aria-label="Historical sessions">
           {visibleHistory.map((item) => {
             const badge = getStatusBadge(item);
             const integrityOk = item.integrity_verified === true;
+            const detailsId = sessionDetailId(item.session_id);
+            const isExpanded = expandedSessionId === item.session_id;
 
             return (
-              <div
+              <article
                 key={item.session_id}
+                className="pcgo-session-history__record"
                 style={{
                   borderRadius: `${radius.md}px`,
                   background: colors.bgInset,
-                  border: `1.5px solid ${colors.border}`,
+                  border: `1px solid ${colors.border}`,
                   borderLeft: `2px solid ${badge.color}`,
                   overflow: "hidden",
                 }}
               >
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr auto",
-                    gap: "10px",
-                    padding: "12px",
-                  }}
-                >
+                <div className="pcgo-session-history__record-main">
                   <div style={{ minWidth: 0 }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "7px",
-                        color: colors.ink,
-                        fontSize: "12.5px",
-                        fontWeight: 700,
-                      }}
-                    >
-                      <Gamepad2 size={11} strokeWidth={2} style={{ color: colors.brand, flexShrink: 0 }} />
-                      {item.game_id} · {item.user_id}
+                    <div className="pcgo-session-history__record-title">
+                      <Gamepad2 size={12} strokeWidth={2} style={{ color: colors.brand, flexShrink: 0 }} />
+                      <strong title={item.game_id || "Unknown game"}>{item.game_id || "Unknown game"}</strong>
                     </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        color: colors.inkDim,
-                        fontSize: "11px",
-                        marginTop: "5px",
-                      }}
-                    >
-                      <Clock size={9} strokeWidth={2} style={{ opacity: 0.7, flexShrink: 0 }} />
-                      {formatDate(item.started_at)}
+                    <div className="pcgo-session-history__record-status" style={{ color: badge.color }}>
+                      {badge.icon}
+                      <span>{badge.text}</span>
                     </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        marginTop: "7px",
-                        fontSize: "10px",
-                        color: integrityOk ? colors.success : colors.warning,
-                        fontFamily: fonts.mono,
-                      }}
-                    >
-                      {integrityOk ? <CheckCircle2 size={10} strokeWidth={2} /> : <XCircle size={10} strokeWidth={2} />}
-                      INTEGRITY: {integrityOk ? "VERIFIED" : "NOT VERIFIED"}
-                    </div>
-
-                    <div style={metaLine}>
-                      {item.integrity_verified === true &&
-                      item.latest_manifest_verified == null &&
-                      item.backup_manifest_verified == null &&
-                      item.archive_verified == null
-                        ? "NO SAVE CHANGE"
-                        : (
-                          <>
-                            LATEST: {item.latest_manifest_verified == null ? "--" : String(item.latest_manifest_verified)} · BACKUP:{" "}
-                            {item.backup_manifest_verified == null ? "--" : String(item.backup_manifest_verified)} · ARCHIVE:{" "}
-                            {item.archive_verified == null ? "--" : String(item.archive_verified)}
-                          </>
-                        )}
-                    </div>
-
-                    {item.restore_verified != null && (
-                      <div style={metaLine}>
-                        RESTORE: {item.restore_verified == null ? "--" : String(item.restore_verified)}
-                      </div>
-                    )}
+                    {item.error && <div className="pcgo-session-history__record-note" title={item.error}>{item.error}</div>}
                   </div>
 
-                  <div style={{ textAlign: "right", fontFamily: fonts.mono, fontSize: "11px", color: colors.inkDim }}>
-                    <div
-                      style={{
-                        color: badge.color,
-                        fontWeight: 700,
-                        fontSize: "9px",
-                        letterSpacing: "0.06em",
-                        padding: "3px 8px",
-                        borderRadius: `${radius.full}px`,
-                        background: `${badge.color}22`,
-                        border: `1.5px solid ${badge.color}4d`,
-                        display: "inline-block",
-                        marginBottom: "6px",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {badge.text}
+                  <div className="pcgo-session-history__record-side">
+                    <div className="pcgo-session-history__duration">
+                      <Clock size={10} strokeWidth={2} />
+                      <span>{formatPlayedTime(item.played_seconds)}</span>
                     </div>
-                    <div style={{ color: colors.inkDim }}>PLAYED {formatPlayedTime(item.played_seconds)}</div>
                     <button
                       type="button"
+                      aria-expanded={isExpanded}
+                      aria-controls={detailsId}
+                      aria-label={`${isExpanded ? "Hide" : "Show"} details for ${item.game_id || item.session_id}`}
                       onClick={() => toggleSessionEvents(item.session_id)}
                       style={detailsButton}
                       onMouseEnter={(e) => {
@@ -336,66 +327,61 @@ export function SessionHistory({
                         e.currentTarget.style.borderColor = colors.border;
                       }}
                     >
-                    {expandedSessionId === item.session_id ? "HIDE" : "DETAILS"}
-                    <ChevronDown
-                      size={8}
-                      strokeWidth={2}
-                      style={{
-                        transform: expandedSessionId === item.session_id ? "rotate(180deg)" : "rotate(0deg)",
-                        transition: "transform 0.2s",
-                      }}
-                    />
+                      {isExpanded ? "HIDE" : "DETAILS"}
+                      <ChevronDown size={8} strokeWidth={2} style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
                     </button>
                   </div>
                 </div>
 
-                {expandedSessionId === item.session_id && (
-                  <div
-                      style={{
-                      padding: "10px 12px 12px",
-                      borderTop: `1.5px solid ${colors.borderSubtle}`,
-                      display: "grid",
-                      gap: "6px",
-                      }}
-                  >
-                      {(sessionEvents[item.session_id] || []).length === 0 ? (
-                        <div style={{ color: colors.inkFaint, fontSize: "10px", fontFamily: fonts.mono }}>
-                          No lifecycle events found.
-                        </div>
-                      ) : (
-                        (sessionEvents[item.session_id] || []).map((event) => (
-                            <div
-                              key={`${event.session_id}-${event.status}-${event.time}`}
-                              style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              gap: "10px",
-                              padding: "6px 8px",
-                              borderRadius: `${radius.sm}px`,
-                              background: colors.bgElevated,
-                              border: `1.5px solid ${colors.borderSubtle}`,
-                              fontSize: "10px",
-                              color: colors.inkDim,
-                              fontFamily: fonts.mono,
-                              }}
-                            >
-                              <span>{event.status?.toUpperCase()}</span>
-                              <span style={{ color: colors.inkFaint }}>{new Date(event.time * 1000).toLocaleTimeString()}</span>
-                            </div>
-                        ))
-                      )}
+                <div className="pcgo-session-history__record-meta">
+                  <div><span>USER</span><strong title={item.user_id || "--"}>{item.user_id || "--"}</strong></div>
+                  <div><span>STARTED</span><time dateTime={item.started_at ? new Date(item.started_at * 1000).toISOString() : undefined}>{formatDate(item.started_at)}</time></div>
+                  <div><span>ENDED</span><time dateTime={item.ended_at ? new Date(item.ended_at * 1000).toISOString() : undefined}>{formatDate(item.ended_at)}</time></div>
+                  <div><span>SESSION ID</span><strong title={item.session_id || "--"}>{item.session_id || "--"}</strong></div>
+                  <div><span>SAVE INTEGRITY</span><strong className={integrityOk ? "is-good" : "is-attention"}>{integrityOk ? "VERIFIED" : "NOT VERIFIED"}</strong></div>
+                </div>
+
+                {isExpanded && (
+                  <div id={detailsId} className="pcgo-session-history__details">
+                    <div className="pcgo-session-history__details-grid">
+                      <div><span>GAME ENDED</span><strong>{formatDate(item.game_ended_at)}</strong></div>
+                      <div><span>RESTART COUNT</span><strong>{item.restart_count ?? "--"}</strong></div>
+                      <div><span>RESTORE</span><strong>{item.restore_verified == null ? "--" : String(item.restore_verified).toUpperCase()}</strong></div>
+                      <div><span>LAST RESTART</span><strong>{formatDate(item.last_restart_time)}</strong></div>
+                    </div>
+
+                    <div className="pcgo-session-history__events-label">LIFECYCLE EVENTS · NEWEST FIRST</div>
+                    {sessionEventLoading[item.session_id] && <div className="pcgo-session-history__event-message" role="status">Loading lifecycle events…</div>}
+                    {!sessionEventLoading[item.session_id] && sessionEventErrors[item.session_id] && (
+                      <div className="pcgo-session-history__event-message is-error" role="alert">{sessionEventErrors[item.session_id]}</div>
+                    )}
+                    {!sessionEventLoading[item.session_id] && !sessionEventErrors[item.session_id] && (sessionEvents[item.session_id] || []).length === 0 && (
+                      <div className="pcgo-session-history__event-message">No lifecycle events found.</div>
+                    )}
+                    {!sessionEventLoading[item.session_id] && !sessionEventErrors[item.session_id] && (sessionEvents[item.session_id] || []).length > 0 && (
+                      <div className="pcgo-session-history__events-list">
+                        {(sessionEvents[item.session_id] || []).map((event) => (
+                          <div className="pcgo-session-history__event" key={`${event.id || event.session_id}-${event.status}-${event.time}`}>
+                            <strong>{formatStatus(event.status)}</strong>
+                            <span title={event.message || ""}>{event.message || "--"}</span>
+                            <time dateTime={event.time ? new Date(event.time * 1000).toISOString() : undefined}>{event.time ? new Date(event.time * 1000).toLocaleTimeString() : "--"}</time>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
-              </div>
+              </article>
             );
           })}
         </div>
       )}
 
-      {history.length > 3 && (
+      {hasHistory && history.length > 3 && (
         <button
           type="button"
-          onClick={() => setExpanded((v) => !v)}
+          onClick={() => setExpanded((value) => !value)}
+          aria-expanded={expanded}
           style={showAllButton}
           onMouseEnter={(e) => {
             e.currentTarget.style.color = colors.ink;
@@ -406,14 +392,8 @@ export function SessionHistory({
             e.currentTarget.style.borderColor = colors.border;
           }}
         >
-          {expanded
-          ? "SHOW LESS"
-          : `SHOW ALL ${history.length} SESSIONS`}
-          <ChevronDown
-            size={9}
-            strokeWidth={2}
-            style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
-          />
+          {expanded ? "SHOW LESS" : `SHOW ALL ${history.length} SESSIONS`}
+          <ChevronDown size={9} strokeWidth={2} style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
         </button>
       )}
 
@@ -424,7 +404,7 @@ export function SessionHistory({
 
 const box = {
   padding: "20px",
-  border: `1.5px solid ${colors.border}`,
+  border: `1px solid ${colors.border}`,
   borderRadius: `${radius.lg}px`,
   background: colors.bgCard,
 };
@@ -450,23 +430,24 @@ const headerIcon = {
 };
 
 const countPill = {
-  fontSize: "10px",
+  fontSize: "9px",
   color: colors.inkFaint,
   fontFamily: fonts.mono,
   fontWeight: 700,
-  border: `1.5px solid ${colors.borderSubtle}`,
-  borderRadius: `${radius.full}px`,
-  padding: "1px 8px",
+  border: `1px solid ${colors.borderSubtle}`,
+  borderRadius: `${radius.sm}px`,
+  padding: "4px 8px",
+  letterSpacing: "0.06em",
 };
 
 const refreshButton = {
   display: "flex",
   alignItems: "center",
   gap: "6px",
-  border: `1.5px solid ${colors.border}`,
-  background: "transparent",
+  border: `1px solid ${colors.border}`,
+  background: colors.bgElevated,
   color: colors.inkDim,
-  borderRadius: `${radius.full}px`,
+  borderRadius: `${radius.sm}px`,
   padding: "5px 12px",
   fontSize: "9px",
   fontFamily: fonts.mono,
@@ -478,61 +459,71 @@ const refreshButton = {
 const statTile = {
   display: "flex",
   alignItems: "center",
-  gap: "12px",
-  padding: "12px",
+  gap: "10px",
+  minWidth: 0,
+  padding: "11px 12px",
   borderRadius: `${radius.md}px`,
   background: colors.bgInset,
-  border: `1.5px solid ${colors.border}`,
-  marginBottom: "14px",
+  border: `1px solid ${colors.borderSubtle}`,
 };
 
 const statIcon = {
   flexShrink: 0,
-  width: "32px",
-  height: "32px",
+  width: "28px",
+  height: "28px",
   borderRadius: `${radius.sm}px`,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   background: colors.brandDim,
-  border: `1.5px solid ${colors.brand}`,
+  border: `1px solid ${colors.brand}`,
   color: colors.brand,
 };
 
+const statValue = {
+  color: colors.ink,
+  fontSize: "17px",
+  fontWeight: 700,
+  lineHeight: 1.1,
+  fontFamily: fonts.mono,
+  overflowWrap: "anywhere",
+};
+
 const statLabel = {
-  fontSize: "9.5px",
+  fontSize: "8.5px",
   color: colors.inkFaint,
   letterSpacing: "0.08em",
   fontFamily: fonts.mono,
-  marginTop: "2px",
+  marginTop: "3px",
   textTransform: "uppercase",
 };
 
 const errorBox = {
+  display: "flex",
+  alignItems: "flex-start",
+  gap: "8px",
   padding: "10px 12px",
   borderRadius: `${radius.md}px`,
   border: `1.5px solid ${colors.danger}`,
   background: "rgba(255,107,107,0.08)",
   color: colors.danger,
-  fontSize: "11.5px",
+  fontSize: "11px",
   fontFamily: fonts.mono,
+  overflowWrap: "anywhere",
 };
 
 const emptyBox = {
-  padding: "26px",
-  textAlign: "center",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: "8px",
+  padding: "30px 20px",
   border: `1.5px dashed ${colors.borderSubtle}`,
   borderRadius: `${radius.md}px`,
   color: colors.inkFaint,
   fontSize: "11px",
   fontFamily: fonts.mono,
-};
-
-const metaLine = {
-  marginTop: "4px",
-  fontSize: "9px",
-  color: colors.inkFaint,
-  fontFamily: fonts.mono,
+  textAlign: "center",
 };
 
 const detailsButton = {
@@ -540,10 +531,10 @@ const detailsButton = {
   alignItems: "center",
   gap: "5px",
   marginTop: "8px",
-  border: `1.5px solid ${colors.border}`,
-  background: "transparent",
+  border: `1px solid ${colors.border}`,
+  background: colors.bgElevated,
   color: colors.inkDim,
-  borderRadius: `${radius.full}px`,
+  borderRadius: `${radius.sm}px`,
   padding: "4px 10px",
   fontSize: "9px",
   fontFamily: fonts.mono,

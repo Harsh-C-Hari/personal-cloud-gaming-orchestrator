@@ -14,11 +14,12 @@ export function ActiveAlerts({ alerts }) {
 
   return (
     <section
+      className="pcgo-home-alert-strip"
       style={{
         padding: "14px 16px",
-        borderRadius: `${radius.lg}px`,
+        borderRadius: `${radius.sm}px`,
         background: "rgba(255,107,107,0.10)",
-        border: `1.5px solid rgba(255,107,107,0.3)`,
+        border: `1px solid rgba(255,107,107,0.3)`,
       }}
     >
       <div

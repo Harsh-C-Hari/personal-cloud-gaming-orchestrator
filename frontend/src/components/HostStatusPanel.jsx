@@ -24,6 +24,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { SunshineStreamCard } from "./SunshineStreamCard.jsx";
+import { Button } from "./ui/primitives.jsx";
 import { colors, fonts, radius } from "../dashboard/theme.js";
 
 export function HostStatusPanel({
@@ -47,7 +48,7 @@ export function HostStatusPanel({
   
   if (error && !status) {
     return (
-      <div style={box}>
+      <div className="pcgo-host-status-panel" style={box}>
         <div style={{ display: "flex", alignItems: "center", gap: "9px", color: colors.danger, fontFamily: fonts.mono, fontSize: "11.5px" }}>
           <AlertTriangle size={13} strokeWidth={2} /> Host status unavailable
         </div>
@@ -56,14 +57,7 @@ export function HostStatusPanel({
   }
 
   if (!status) {
-    return (
-      <div style={box}>
-        <div style={{ display: "flex", alignItems: "center", gap: "9px", color: colors.inkFaint, fontFamily: fonts.mono, fontSize: "11.5px" }}>
-          <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: colors.brand, animation: "badge-pulse 1.6s ease-in-out infinite" }} />
-          Checking host...
-        </div>
-      </div>
-    );
+    return <HostStatusLoadingState />;
   }
 
   function formatStreamDuration(seconds) {
@@ -89,24 +83,34 @@ export function HostStatusPanel({
     return `${secs}s`;
   }
 
-  const hostStateTone =
-    status.host_state === "ready"
-      ? "ok"
-      : status.host_state === "degraded"
-      ? "warning"
-      : status.host_state === "busy"
-      ? "info"
-      : status.host_state === "starting"
-      ? "neutral"
-      : "bad";
+  // Readiness is the operator-facing truth for this page. Keep the badge,
+  // tone, message, and action context derived from the same interpretation so
+  // a host can never look ready while the copy says it cannot serve sessions.
+  const readinessTone = status.host_ready
+    ? "ok"
+    : status.recovery_required
+    ? "bad"
+    : status.host_state === "starting"
+    ? "neutral"
+    : status.host_state === "degraded"
+    ? "warning"
+    : "bad";
+
+  const readinessLabel = status.host_ready
+    ? "READY"
+    : status.recovery_required
+    ? "BLOCKED"
+    : status.host_state === "starting"
+    ? "STARTING"
+    : "NOT READY";
 
   const healthTone =
     metrics?.health === "healthy" ? "ok" : metrics?.health === "warning" ? "warning" : "bad";
 
   return (
-    <div style={box}>
+    <div className="pcgo-host-status-panel" style={box} aria-busy={loading || revalidating}>
       {/* Header */}
-      <div style={headerRow} className="hsp-header">
+      <div style={headerRow} className="hsp-header pcgo-host-status-panel__header">
         <div style={{ display: "flex", alignItems: "center", gap: "9px" }}>
           <div style={headerIcon}>
             <Server size={13} strokeWidth={2} />
@@ -115,13 +119,39 @@ export function HostStatusPanel({
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }} className="hsp-header-badges">
-          {loading && <span style={updatingDot}>● updating</span>}
-          {status.host_state && <Badge tone={hostStateTone}>{status.host_state.toUpperCase()}</Badge>}
+          {loading && (
+            <span style={updatingDot} role="status" aria-live="polite">
+              <RefreshCw size={10} strokeWidth={2} style={{ animation: "hsp-spin 0.8s linear infinite" }} />
+              Syncing host data
+            </span>
+          )}
+          <Badge tone={readinessTone}>{readinessLabel}</Badge>
+        </div>
+      </div>
+
+      <div className={`pcgo-host-readiness-summary pcgo-host-readiness-summary--${readinessTone}`}>
+        <div>
+          <span className="pcgo-host-readiness-summary__eyebrow">Operational readiness</span>
+          <strong>{status.host_ready ? "Ready to serve sessions" : "Host cannot serve sessions"}</strong>
+          <span>{status.host_ready_reason || "Readiness is currently being evaluated."}</span>
+        </div>
+        <div className="pcgo-host-readiness-summary__actions">
+          <span className="pcgo-host-readiness-summary__state">{readinessLabel}</span>
+          <Button
+            variant="secondary"
+            className="pcgo-host-revalidate"
+            disabled={revalidating}
+            onClick={handleRevalidate}
+            style={revalidating ? disabledButton : actionButton}
+          >
+            <RefreshCw size={11} strokeWidth={2} style={revalidating ? { animation: "hsp-spin 0.8s linear infinite" } : undefined} />
+            {revalidating ? "Revalidating..." : "Revalidate Host"}
+          </Button>
         </div>
       </div>
 
       {metrics && (
-        <SectionCard icon={<Server size={11} strokeWidth={2} />} title="System">
+        <SectionCard className="pcgo-host-system-card" icon={<Server size={11} strokeWidth={2} />} title="System">
           <StatGrid>
             <StatRow label="Host" value={metrics.hostname} />
             <StatRow label="OS" value={metrics.os} />
@@ -132,7 +162,7 @@ export function HostStatusPanel({
       )}
 
       {/* Readiness / Session */}
-      <SectionCard icon={sessionHealth?.lock_exists ? <Lock size={11} strokeWidth={2} /> : <Unlock size={11} strokeWidth={2} />} title="Readiness &amp; Session">
+      <SectionCard className="pcgo-host-readiness-card" icon={sessionHealth?.lock_exists ? <Lock size={11} strokeWidth={2} /> : <Unlock size={11} strokeWidth={2} />} title="Session & Recovery">
         <StatRow
           label="Session Lock"
           value={<Badge tone={sessionHealth?.lock_exists ? "warning" : "ok"}>{sessionHealth?.lock_exists ? "LOCKED" : "FREE"}</Badge>}
@@ -160,29 +190,19 @@ export function HostStatusPanel({
           </div>
         )}
 
-        <button
-          disabled={revalidating}
-          onClick={handleRevalidate}
-          style={revalidating ? disabledButton : actionButton}
-          onMouseEnter={(e) => !revalidating && (e.currentTarget.style.background = "rgba(237,235,227,0.1)")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = revalidating ? actionButton.background : "rgba(237,235,227,0.06)")}
-        >
-          <RefreshCw size={11} strokeWidth={2} style={revalidating ? { animation: "hsp-spin 0.8s linear infinite" } : undefined} />
-          {revalidating ? "Revalidating..." : "Revalidate Host"}
-        </button>
-
         <div style={{ marginTop: "12px" }}>
           <StatRow
             label="Maintenance"
             value={
-              <button
+              <Button
+                variant="secondary"
                 disabled={maintenanceAction}
                 onClick={handleMaintenanceToggle}
                 style={maintenanceAction ? disabledButton : status.maintenance_mode ? disableButton : enableButton}
               >
                 <Wrench size={10} strokeWidth={2} />
                 {maintenanceAction ? "Updating..." : status.maintenance_mode ? "Disable" : "Enable"}
-              </button>
+              </Button>
             }
           />
         </div>
@@ -207,7 +227,7 @@ export function HostStatusPanel({
       </SectionCard>
 
       {/* Sunshine */}
-      <SectionCard icon={<Zap size={11} strokeWidth={2} />} title="Sunshine">
+      <SectionCard className="pcgo-host-sunshine-card" icon={<Zap size={11} strokeWidth={2} />} title="Sunshine Dependency">
         <StatGrid>
           <StatRow
             label="Sunshine"
@@ -231,19 +251,25 @@ export function HostStatusPanel({
         </StatGrid>
 
         <div style={buttonRow}>
-          <button
-            disabled={sunshineAction || status.sunshine_running}
+          <Button
+            variant="secondary"
+            disabled={Boolean(sunshineAction || status.sunshine_running)}
             onClick={onStartSunshine}
             style={sunshineAction || status.sunshine_running ? disabledButton : actionButton}
           >
             <Zap size={11} strokeWidth={2} />
             {sunshineAction === "starting" ? "Starting..." : "Start"}
-          </button>
+          </Button>
 
-          <button disabled={!!sunshineAction} onClick={onRestartSunshine} style={sunshineAction ? disabledButton : actionButton}>
+          <Button
+            variant="secondary"
+            disabled={Boolean(sunshineAction)}
+            onClick={onRestartSunshine}
+            style={sunshineAction ? disabledButton : actionButton}
+          >
             <RefreshCw size={11} strokeWidth={2} style={sunshineAction === "restarting" ? { animation: "hsp-spin 0.8s linear infinite" } : undefined} />
             {sunshineAction === "restarting" ? "Restarting..." : "Restart"}
-          </button>
+          </Button>
         </div>
 
         {status.sunshine_error && (
@@ -259,7 +285,7 @@ export function HostStatusPanel({
       </SectionCard>
 
       {/* Tailscale */}
-      <SectionCard icon={<Satellite size={11} strokeWidth={2} />} title="Tailscale">
+      <SectionCard className="pcgo-host-tailscale-card" icon={<Satellite size={11} strokeWidth={2} />} title="Tailscale Dependency">
         <StatGrid>
           <StatRow label="Tailscale" value={<Badge tone={status.tailscale_running ? "ok" : "bad"}>{status.tailscale_running ? "ON" : "OFF"}</Badge>} />
           <StatRow label="Configured" value={<Badge tone={tailscaleStatus?.configured ? "ok" : "bad"}>{tailscaleStatus?.configured ? "Yes" : "No"}</Badge>} />
@@ -272,7 +298,7 @@ export function HostStatusPanel({
       </SectionCard>
 
       {/* Hardware */}
-      <SectionCard icon={<Cpu size={11} strokeWidth={2} />} title="Hardware &amp; Performance">
+      <SectionCard className="pcgo-host-diagnostics-card" icon={<Cpu size={11} strokeWidth={2} />} title="Diagnostics & Performance">
         <StatGrid>
           <StatRow label="GPU" value={<Badge tone={status.gpu_available ? "ok" : "bad"}>{status.gpu_available ? "READY" : "NO"}</Badge>} />
           {metrics && <StatRow label="CPU" value={metrics.cpu_name} />}
@@ -298,6 +324,62 @@ export function HostStatusPanel({
           <StatRow label="Disk Free" value={`${status.disk_free_gb} GB`} />
         </div>
       </SectionCard>
+    </div>
+  );
+}
+
+function HostStatusLoadingState() {
+  return (
+    <div className="pcgo-host-status-panel pcgo-host-status-panel--loading" style={box} aria-busy="true" aria-label="Loading host status">
+      <div style={headerRow} className="hsp-header">
+        <div style={{ display: "flex", alignItems: "center", gap: "9px" }}>
+          <div style={headerIcon}>
+            <Server size={13} strokeWidth={2} />
+          </div>
+          <span style={title}>Host Status</span>
+        </div>
+        <span style={loadingStateLabel} role="status" aria-live="polite">
+          <span style={loadingDot} />
+          Checking host
+        </span>
+      </div>
+
+      <div className="pcgo-host-readiness-summary pcgo-host-readiness-summary--neutral" aria-hidden="true">
+        <div>
+          <span className="pcgo-host-readiness-summary__eyebrow">Operational readiness</span>
+          <strong>Waiting for host status</strong>
+          <span>Readiness and dependency state will appear when the host responds.</span>
+        </div>
+        <div className="pcgo-host-readiness-summary__actions">
+          <span className="pcgo-host-readiness-summary__state">PENDING</span>
+        </div>
+      </div>
+
+      <LoadingSection icon={<Server size={11} strokeWidth={2} />} title="System" rows={["Host identity", "Operating system", "OS version", "Device type"]} />
+      <LoadingSection icon={<Unlock size={11} strokeWidth={2} />} title="Session & Recovery" rows={["Session lock", "Host readiness", "Maintenance", "Startup state"]} />
+      <LoadingSection icon={<Zap size={11} strokeWidth={2} />} title="Sunshine Dependency" rows={["Sunshine", "Sunshine API", "Paired clients", "Apps"]} />
+      <LoadingSection icon={<Satellite size={11} strokeWidth={2} />} title="Tailscale Dependency" rows={["Tailscale", "Service state", "IPN state", "Authentication"]} />
+      <LoadingSection icon={<Cpu size={11} strokeWidth={2} />} title="Diagnostics & Performance" rows={["GPU", "CPU", "Disk", "Performance telemetry"]} />
+    </div>
+  );
+}
+
+function LoadingSection({ icon, title: heading, rows }) {
+  return (
+    <div className="pcgo-host-section-card pcgo-host-loading-section" style={sectionCard} aria-hidden="true">
+      <div style={sectionHeading}>
+        <span style={{ color: colors.brand, display: "flex" }}>{icon}</span>
+        {heading}
+      </div>
+      <div style={{ display: "grid", gap: "9px" }}>
+        {rows.map((label) => (
+          <div key={label} style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: 0 }}>
+            <span style={{ color: colors.inkFaint, fontSize: "10.5px", fontFamily: fonts.mono, whiteSpace: "nowrap" }}>{label}</span>
+            <span style={{ flex: 1, borderBottom: `1px dotted ${colors.border}`, marginBottom: "3px" }} />
+            <span style={loadingValue} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -337,9 +419,9 @@ function Badge({ tone = "neutral", children }) {
   );
 }
 
-function SectionCard({ icon, title: heading, children }) {
+function SectionCard({ className = "", icon, title: heading, children }) {
   return (
-    <div style={sectionCard}>
+    <div className={`pcgo-host-section-card ${className}`.trim()} style={sectionCard}>
       <div style={sectionHeading}>
         <span style={{ color: colors.brand, display: "flex" }}>{icon}</span>
         {heading}
@@ -428,8 +510,8 @@ function ProgressStat({ label, percent, suffix = "%", max = 100 }) {
 
 const box = {
   marginTop: "14px",
-  padding: "16px",
-  border: `1.5px solid ${colors.border}`,
+  padding: "18px",
+  border: `1px solid ${colors.border}`,
   borderRadius: `${radius.lg}px`,
   background: colors.bgCard,
   color: colors.ink,
@@ -465,18 +547,52 @@ const headerIcon = {
 };
 
 const updatingDot = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "5px",
   fontSize: "9px",
   color: colors.brand,
   fontFamily: fonts.mono,
   textTransform: "uppercase",
   fontWeight: 700,
+  whiteSpace: "nowrap",
+};
+
+const loadingStateLabel = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "6px",
+  color: colors.brand,
+  fontSize: "9px",
+  fontFamily: fonts.mono,
+  fontWeight: 700,
+  letterSpacing: "0.05em",
+  textTransform: "uppercase",
+  whiteSpace: "nowrap",
+};
+
+const loadingDot = {
+  width: "7px",
+  height: "7px",
+  borderRadius: "50%",
+  background: colors.brand,
   animation: "badge-pulse 1.6s ease-in-out infinite",
+  flexShrink: 0,
+};
+
+const loadingValue = {
+  width: "54px",
+  height: "10px",
+  borderRadius: "2px",
+  background: colors.bgInset,
+  border: `1px solid ${colors.borderSubtle}`,
+  flexShrink: 0,
 };
 
 const sectionCard = {
-  padding: "14px",
+  padding: "16px",
   borderRadius: `${radius.md}px`,
-  border: `1.5px solid ${colors.border}`,
+  border: `1px solid ${colors.borderSubtle}`,
   background: colors.bgElevated,
 };
 
@@ -511,10 +627,10 @@ const actionButton = {
   display: "inline-flex",
   alignItems: "center",
   gap: "6px",
-  background: "rgba(237,235,227,0.06)",
+  background: colors.bgElevated,
   color: colors.ink,
-  border: `1.5px solid ${colors.borderStrong}`,
-  borderRadius: `${radius.full}px`,
+  border: `1px solid ${colors.borderStrong}`,
+  borderRadius: `${radius.sm}px`,
   padding: "7px 12px",
   fontSize: "10px",
   fontFamily: fonts.mono,
@@ -539,10 +655,10 @@ const reasonText = {
 
 const issueBox = {
   marginTop: "10px",
-  padding: "8px 10px",
+  padding: "10px 12px",
   borderRadius: `${radius.sm}px`,
   background: colors.accentYellowDim,
-  border: `1.5px solid ${colors.warning}`,
+  border: `1px solid ${colors.warning}`,
   fontSize: "10px",
   color: colors.warning,
   fontFamily: fonts.mono,
@@ -551,8 +667,8 @@ const issueBox = {
 
 const recoveryBox = {
   marginTop: "10px",
-  padding: "9px 10px",
-  border: `1.5px solid ${colors.danger}`,
+  padding: "10px 12px",
+  border: `1px solid ${colors.danger}`,
   background: "rgba(255,107,107,0.08)",
   borderRadius: `${radius.sm}px`,
 };

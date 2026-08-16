@@ -1,13 +1,4 @@
-/**
- * App.jsx
- *
- * Root component. Injects global styles and renders Dashboard.
- * Kept intentionally thin — all layout lives in Dashboard.
- */
-
-import {
-    isLoggedIn,
-} from "./api/client";
+import { isLoggedIn } from "./api/client";
 import Login from "./pages/Login";
 import { Dashboard } from "./dashboard/Dashboard.jsx";
 import { ToastProvider } from "./components/ui/Toast.jsx";
@@ -17,221 +8,166 @@ import { ThemeProvider } from "./dashboard/ThemeContext.jsx";
 import { colors, fonts } from "./dashboard/theme.js";
 
 const GLOBAL_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-  /* Multi-theme support (DESIGN_SYSTEM.md §8) — every background, ink,
-     border, AND the brand accent vary per theme now (expanded from the
-     original brand-only scope). Semantic status colors (success/warning/
-     danger/info) and the 5 tag-accent colors stay literal hex in theme.js
-     forever, identical across every theme — status meaning must not shift
-     with the user's cosmetic choice. All 5 themes share the exact same
-     lightness ladder (only hue lean + saturation differ), verified to
-     preserve WCAG AA contrast (ink/inkDim/inkFaint against bg) in every
-     theme, matching amber's own baseline. Default (unset [data-theme], or
-     data-theme="amber") is the original amber theme, values unchanged
-     from the original single-theme release. */
   :root {
-    --color-brand: #E0A458;
-    --color-brand-dim: rgba(224,164,88,0.14);
-    --color-bg: #0B0B0D;
-    --color-bg-elevated: #131316;
-    --color-bg-card: #151517;
-    --color-bg-card-hover: #1B1B1F;
-    --color-bg-inset: #0E0E10;
-    --color-ink: #EDEBE3;
-    --color-ink-dim: #B9B7AE;
-    --color-ink-faint: #7D7C77;
-    --color-ink-ghost: #4A4A48;
-    --color-border: rgba(237,235,227,0.12);
-    --color-border-subtle: rgba(237,235,227,0.07);
-    --color-border-strong: rgba(237,235,227,0.28);
-    --color-border-ink: #EDEBE3;
+    --color-brand: #E8B66C;
+    --color-brand-dim: rgba(232,182,108,0.12);
+    --color-bg: #0a0b0d;
+    --color-bg-elevated: #101216;
+    --color-bg-card: #15181d;
+    --color-bg-card-hover: #1b2027;
+    --color-bg-inset: #0d0f13;
+    --color-ink: #f1f0ec;
+    --color-ink-dim: #b8b9b6;
+    --color-ink-faint: #7d8180;
+    --color-ink-ghost: #4b4f52;
+    --color-border: rgba(241,240,236,0.115);
+    --color-border-subtle: rgba(241,240,236,0.065);
+    --color-border-strong: rgba(241,240,236,0.25);
+    --color-border-ink: #f1f0ec;
   }
 
   [data-theme="verdant"] {
-    --color-brand: #4FAE7E;
-    --color-brand-dim: rgba(79,174,126,0.14);
-    --color-bg: #0B0D0C;
-    --color-bg-elevated: #121714;
-    --color-bg-card: #151716;
-    --color-bg-card-hover: #1A201D;
-    --color-bg-inset: #0E100F;
-    --color-ink: #E1EFE8;
-    --color-ink-dim: #ACBBB3;
-    --color-ink-faint: #767E7A;
-    --color-ink-ghost: #484A49;
-    --color-border: rgba(225,239,232,0.12);
-    --color-border-subtle: rgba(225,239,232,0.07);
-    --color-border-strong: rgba(225,239,232,0.28);
-    --color-border-ink: #E1EFE8;
+    --color-brand: #77c99a;
+    --color-brand-dim: rgba(119,201,154,0.12);
+    --color-bg: #090d0b;
+    --color-bg-elevated: #101713;
+    --color-bg-card: #141b17;
+    --color-bg-card-hover: #1b2520;
+    --color-bg-inset: #0c120f;
+    --color-ink: #edf4ef;
+    --color-ink-dim: #b4c3b9;
+    --color-ink-faint: #7d8a82;
+    --color-ink-ghost: #49544d;
+    --color-border: rgba(237,244,239,0.115);
+    --color-border-subtle: rgba(237,244,239,0.065);
+    --color-border-strong: rgba(237,244,239,0.25);
+    --color-border-ink: #edf4ef;
   }
 
   [data-theme="ember"] {
-    --color-brand: #D97757;
-    --color-brand-dim: rgba(217,119,87,0.14);
-    --color-bg: #0D0B0B;
-    --color-bg-elevated: #171412;
-    --color-bg-card: #171515;
-    --color-bg-card-hover: #201C1A;
-    --color-bg-inset: #100E0E;
-    --color-ink: #EFE5E1;
-    --color-ink-dim: #BBB1AC;
-    --color-ink-faint: #7E7876;
-    --color-ink-ghost: #4A4848;
-    --color-border: rgba(239,229,225,0.12);
-    --color-border-subtle: rgba(239,229,225,0.07);
-    --color-border-strong: rgba(239,229,225,0.28);
-    --color-border-ink: #EFE5E1;
+    --color-brand: #e9936f;
+    --color-brand-dim: rgba(233,147,111,0.12);
+    --color-bg: #100b0a;
+    --color-bg-elevated: #19110f;
+    --color-bg-card: #1c1513;
+    --color-bg-card-hover: #271d19;
+    --color-bg-inset: #120d0c;
+    --color-ink: #f5ebe7;
+    --color-ink-dim: #c3b5af;
+    --color-ink-faint: #8d7e79;
+    --color-ink-ghost: #554946;
+    --color-border: rgba(245,235,231,0.115);
+    --color-border-subtle: rgba(245,235,231,0.065);
+    --color-border-strong: rgba(245,235,231,0.25);
+    --color-border-ink: #f5ebe7;
   }
 
   [data-theme="classic"] {
-    --color-brand: #7EC8F2;
-    --color-brand-dim: rgba(126,200,242,0.14);
-    --color-bg: #0B0C0D;
-    --color-bg-elevated: #121517;
-    --color-bg-card: #151617;
-    --color-bg-card-hover: #1A1D20;
-    --color-bg-inset: #0E0F10;
-    --color-ink: #E1E9EF;
-    --color-ink-dim: #ACB5BB;
-    --color-ink-faint: #767B7E;
-    --color-ink-ghost: #48494A;
-    --color-border: rgba(225,233,239,0.12);
-    --color-border-subtle: rgba(225,233,239,0.07);
-    --color-border-strong: rgba(225,233,239,0.28);
-    --color-border-ink: #E1E9EF;
+    --color-brand: #8dc8e6;
+    --color-brand-dim: rgba(141,200,230,0.12);
+    --color-bg: #090c0f;
+    --color-bg-elevated: #10161b;
+    --color-bg-card: #141b21;
+    --color-bg-card-hover: #1a242c;
+    --color-bg-inset: #0b1116;
+    --color-ink: #edf4f7;
+    --color-ink-dim: #b4c2c9;
+    --color-ink-faint: #7e8b92;
+    --color-ink-ghost: #48545b;
+    --color-border: rgba(237,244,247,0.115);
+    --color-border-subtle: rgba(237,244,247,0.065);
+    --color-border-strong: rgba(237,244,247,0.25);
+    --color-border-ink: #edf4f7;
   }
 
   [data-theme="mono"] {
-    --color-brand: #FFFFFF;
-    --color-brand-dim: rgba(255,255,255,0.14);
-    --color-bg: #0C0C0C;
-    --color-bg-elevated: #141414;
-    --color-bg-card: #161616;
-    --color-bg-card-hover: #1D1D1D;
-    --color-bg-inset: #0F0F0F;
-    --color-ink: #E8E8E8;
-    --color-ink-dim: #B3B3B3;
-    --color-ink-faint: #7A7A7A;
-    --color-ink-ghost: #494949;
-    --color-border: rgba(232,232,232,0.12);
-    --color-border-subtle: rgba(232,232,232,0.07);
-    --color-border-strong: rgba(232,232,232,0.28);
-    --color-border-ink: #E8E8E8;
+    --color-brand: #f4f4f2;
+    --color-brand-dim: rgba(244,244,242,0.12);
+    --color-bg: #0b0b0b;
+    --color-bg-elevated: #121212;
+    --color-bg-card: #171717;
+    --color-bg-card-hover: #202020;
+    --color-bg-inset: #0f0f0f;
+    --color-ink: #f1f1ef;
+    --color-ink-dim: #b8b8b6;
+    --color-ink-faint: #7a7a78;
+    --color-ink-ghost: #494947;
+    --color-border: rgba(241,241,239,0.115);
+    --color-border-subtle: rgba(241,241,239,0.065);
+    --color-border-strong: rgba(241,241,239,0.25);
+    --color-border-ink: #f1f1ef;
   }
 
   [data-theme="oled"] {
-    /* True pure black (#000000) and pure white (#FFFFFF) — the endpoints
-       of the lightness range, pushed further than "mono" deliberately.
-       On an actual OLED panel, #000000 pixels are fully off (max contrast,
-       real power saving); "mono"'s softer near-black is NOT the same
-       thing and stays as its own, separate, more moderate option. */
-    --color-brand: #FFFFFF;
-    --color-brand-dim: rgba(255,255,255,0.14);
+    --color-brand: #ffffff;
+    --color-brand-dim: rgba(255,255,255,0.12);
     --color-bg: #000000;
-    --color-bg-elevated: #0A0A0A;
-    --color-bg-card: #0D0D0D;
-    --color-bg-card-hover: #161616;
+    --color-bg-elevated: #080808;
+    --color-bg-card: #0e0e0e;
+    --color-bg-card-hover: #171717;
     --color-bg-inset: #050505;
-    --color-ink: #FFFFFF;
-    --color-ink-dim: #B8B8B8;
-    --color-ink-faint: #7A7A7A;
-    --color-ink-ghost: #464646;
-    --color-border: rgba(255,255,255,0.12);
+    --color-ink: #ffffff;
+    --color-ink-dim: #bdbdbd;
+    --color-ink-faint: #7e7e7e;
+    --color-ink-ghost: #484848;
+    --color-border: rgba(255,255,255,0.13);
     --color-border-subtle: rgba(255,255,255,0.07);
     --color-border-strong: rgba(255,255,255,0.28);
-    --color-border-ink: #FFFFFF;
+    --color-border-ink: #ffffff;
   }
 
-  *, *::before, *::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
+  *, *::before, *::after { box-sizing: border-box; }
+  html { background: ${colors.bg}; }
   body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    min-height: 100dvh;
     background: ${colors.bg};
     color: ${colors.ink};
     font-family: ${fonts.body};
     font-weight: 500;
-    min-height: 100vh;
-    min-height: 100dvh;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
     overflow: hidden;
   }
 
-  input, select, button, textarea {
-    font-family: ${fonts.body};
+  button, input, select, textarea { font: inherit; }
+  button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid ${colors.brand};
+    outline-offset: 2px;
   }
-
-  /* Tame number spinner */
-  input[type=number]::-webkit-inner-spin-button,
-  input[type=number]::-webkit-outer-spin-button { opacity: 0.3; }
-
-  /* Dark select options */
+  input::placeholder, textarea::placeholder { color: ${colors.inkGhost}; }
   select option { background: ${colors.bgInset}; color: ${colors.ink}; }
+  input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { opacity: 0.35; }
 
-  /* Thin scrollbars */
-  /* Firefox */
-  * {
-      scrollbar-width: thin;
-      scrollbar-color: ${colors.border} transparent;
-  }
+  * { scrollbar-width: thin; scrollbar-color: ${colors.border} transparent; }
+  *::-webkit-scrollbar { width: 7px; height: 7px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb { background: ${colors.border}; border-radius: 6px; }
+  *::-webkit-scrollbar-thumb:hover { background: ${colors.borderStrong}; }
 
-  /* Chromium */
-  *::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-  }
+  @keyframes cgo-fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes cgo-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .42; } }
+  @keyframes cgo-spin { to { transform: rotate(360deg); } }
 
-  *::-webkit-scrollbar-track {
-      background: transparent;
-  }
+  .pcgo-page-enter { animation: cgo-fade-up 220ms ease both; }
+  .pcgo-eyebrow { color: ${colors.inkFaint}; font: 600 10px/1.2 ${fonts.mono}; letter-spacing: .14em; text-transform: uppercase; }
+  .pcgo-mono { font-family: ${fonts.mono}; }
+  .pcgo-muted { color: ${colors.inkFaint}; }
+  .pcgo-status-dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; }
 
-  *::-webkit-scrollbar-thumb {
-      background: ${colors.border};
-      border-radius: 999px;
-  }
-
-  *::-webkit-scrollbar-thumb:hover {
-      background: ${colors.borderStrong};
-  }
-
-  *::-webkit-scrollbar-corner {
-      background: transparent;
-  }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: ${colors.border}; border-radius: 2px; }
-
-  /* Shared animation keyframes referenced by multiple components */
-  @keyframes badge-pulse {
-    0%, 100% { opacity: 1;   }
-    50%       { opacity: 0.3; }
-  }
-
-  @keyframes card-in {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0);   }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
   }
 `;
 
 export default function App() {
   const loggedIn = isLoggedIn();
-
-  // Keep the URL bar honest: "/login" should only ever be visible while
-  // logged out, and logging in should never leave "/login" (or a blank
-  // "/") sitting in the address bar.
-  //
-  // This runs synchronously here in the render body — NOT in a
-  // useEffect — on purpose. Dashboard (and its useRoute hook) reads
-  // window.location.pathname during ITS first render, which happens in
-  // the same synchronous render pass as this component's first render,
-  // before any effect has a chance to run. If this correction lived in
-  // an effect, Dashboard could briefly (and, since replaceState doesn't
-  // re-render anything, indefinitely) initialize its route from a stale
-  // "/login" left over from before login/logout, showing a 404 for a
-  // route that isn't real.
   const path = window.location.pathname;
+
   if (!loggedIn && path !== "/login") {
     window.history.replaceState(null, "", "/login");
   } else if (loggedIn && (path === "/login" || path === "/")) {

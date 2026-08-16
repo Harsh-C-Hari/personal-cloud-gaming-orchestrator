@@ -3,8 +3,8 @@ import { PageHeader } from "../components/PageHeader.jsx";
 
 export function AnalyticsPage({ refreshKey, onBack }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-      <PageHeader title="Analytics" subtitle="Session usage and performance trends" onBack={onBack} />
+    <div className="pcgo-feature-page">
+      <PageHeader title="Analytics" subtitle="Aggregate patterns across session history" onBack={onBack} />
       <SessionAnalytics refreshKey={refreshKey} />
     </div>
   );

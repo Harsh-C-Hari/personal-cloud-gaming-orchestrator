@@ -69,7 +69,7 @@ const DEFAULT_GAME = {
   },
 };
 
-export function GameManager({ games, refreshGames }) {
+export function GameManager({ games, gamesLoading = false, refreshGames }) {
   const toast = useToast();
   const confirm = useConfirm();
   const [showForm, setShowForm] = useState(false);
@@ -329,7 +329,7 @@ export function GameManager({ games, refreshGames }) {
   };
 
   return (
-    <div style={outerWrap}>
+    <div className="pcgo-game-manager-config-panel" style={outerWrap}>
       {/* ── Header ─────────────────────────────────────────────── */}
       <div style={headerBar}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -337,9 +337,9 @@ export function GameManager({ games, refreshGames }) {
             <Gamepad2 size={15} strokeWidth={2} />
           </div>
           <div>
-            <div style={headerTitle}>Game Library</div>
+            <div style={headerTitle}>Configuration Manager</div>
             <div style={headerSubtitle}>
-              {entries.length} game{entries.length === 1 ? "" : "s"} configured
+              {entries.length} configured launch target{entries.length === 1 ? "" : "s"}
             </div>
           </div>
         </div>
@@ -374,14 +374,19 @@ export function GameManager({ games, refreshGames }) {
       <div style={{ padding: "20px" }}>
         {/* Game selector grid (shown by default) */}
         {!showForm &&
-          (entries.length === 0 ? (
+          (gamesLoading ? (
+            <div className="pcgo-game-manager-config-loading" role="status" aria-live="polite">
+              <span className="pcgo-game-manager-config-loading__dot" />
+              Loading configured launch targets…
+            </div>
+          ) : entries.length === 0 ? (
             <div style={emptyBox}>
               <Gamepad2 size={24} strokeWidth={1.5} style={{ color: colors.inkFaint, opacity: 0.7 }} />
               <div style={{ fontSize: "11px", color: colors.inkDim, fontFamily: fonts.mono }}>
-                No games configured yet
+                No configured launch targets
               </div>
               <div style={{ fontSize: "10px", color: colors.inkFaint, fontFamily: fonts.mono }}>
-                Click <strong style={{ color: colors.success }}>+</strong> to add your first game
+                Use <strong style={{ color: colors.success }}>+</strong> to add a target to the launch console.
               </div>
             </div>
           ) : (
@@ -391,8 +396,14 @@ export function GameManager({ games, refreshGames }) {
                   key={gameId}
                   role="button"
                   tabIndex={0}
+                  aria-label={`Edit launch target ${game.name || gameId}`}
                   onClick={() => openGameCard(gameId)}
-                  onKeyDown={(e) => e.key === "Enter" && openGameCard(gameId)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openGameCard(gameId);
+                    }
+                  }}
                   style={card}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.borderColor = colors.borderStrong;
@@ -428,13 +439,13 @@ export function GameManager({ games, refreshGames }) {
                   </div>
 
                   <div style={cardMeta}>
-                    <Hash size={10} strokeWidth={2} style={{ opacity: 0.7 }} /> {gameId}
+                    <Hash size={10} strokeWidth={2} style={{ opacity: 0.7 }} /> ID: {gameId}
                   </div>
                   <div style={cardMeta}>
-                    <FileInput size={10} strokeWidth={2} style={{ opacity: 0.7 }} /> {game.exe_name || "unknown"}
+                    <FileInput size={10} strokeWidth={2} style={{ opacity: 0.7 }} /> EXE: {game.exe_name || "unknown"}
                   </div>
                   <div style={cardMeta}>
-                    <Cpu size={10} strokeWidth={2} style={{ opacity: 0.7 }} /> {game.process_name || "unknown"}
+                    <Cpu size={10} strokeWidth={2} style={{ opacity: 0.7 }} /> PROCESS: {game.process_name || "unknown"}
                   </div>
                 </div>
               ))}
@@ -717,7 +728,7 @@ export function GameManager({ games, refreshGames }) {
                 </button>
 
                 {validation && (
-                  <div style={validation.valid ? validationOk : validationBad}>
+                  <div role={validation.valid ? "status" : "alert"} style={validation.valid ? validationOk : validationBad}>
                     {validation.valid ? <CheckCircle2 size={12} strokeWidth={2} /> : <XCircle size={12} strokeWidth={2} />}
                     {validation.valid ? "Game configuration is valid." : validation.errors.join(" ")}
                   </div>
@@ -738,7 +749,7 @@ export function GameManager({ games, refreshGames }) {
 // convention used by StartSessionForm.
 
 const outerWrap = {
-  border: `1.5px solid ${colors.border}`,
+  border: `1px solid ${colors.border}`,
   borderRadius: `${radius.lg}px`,
   background: colors.bgCard,
   overflow: "hidden",
@@ -752,7 +763,7 @@ const headerBar = {
   rowGap: "8px",
   gap: "10px",
   padding: "16px 20px",
-  borderBottom: `1.5px solid ${colors.border}`,
+  borderBottom: `1px solid ${colors.border}`,
   background: colors.bgElevated,
 };
 
@@ -822,9 +833,9 @@ const grid = {
 const card = {
   position: "relative",
   textAlign: "left",
-  padding: "16px",
+  padding: "18px",
   background: colors.bgCard,
-  border: `1.5px solid ${colors.border}`,
+  border: `1px solid ${colors.border}`,
   borderRadius: `${radius.md}px`,
   color: colors.ink,
   cursor: "pointer",
@@ -901,9 +912,9 @@ const formHeading = {
 };
 
 const cardSection = {
-  padding: "16px",
+  padding: "18px",
   borderRadius: `${radius.md}px`,
-  border: `1.5px solid ${colors.border}`,
+  border: `1px solid ${colors.borderSubtle}`,
   background: colors.bgElevated,
 };
 
@@ -912,7 +923,7 @@ const inputStyle = {
   padding: "10px 12px",
   background: colors.bgInset,
   border: `1.5px solid ${colors.border}`,
-  borderRadius: `${radius.md}px`,
+  borderRadius: `${radius.sm}px`,
   color: colors.ink,
   fontSize: "13px",
   fontFamily: fonts.body,
@@ -955,7 +966,7 @@ const buttonBase = {
   flex: 1,
   minWidth: "120px",
   padding: "10px",
-  borderRadius: `${radius.full}px`,
+  borderRadius: `${radius.sm}px`,
   fontFamily: fonts.mono,
   fontSize: "10.5px",
   fontWeight: 700,

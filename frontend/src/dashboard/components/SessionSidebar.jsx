@@ -15,15 +15,18 @@ import { colors, fonts, radius } from "../theme.js";
 export function SessionSidebar({ activeCount, totalCount, connected, events }) {
   return (
     <div
+      className="pcgo-operational-rail"
       style={{
         borderRadius: `${radius.lg}px`,
         background: colors.bgCard,
-        border: `1.5px solid ${colors.border}`,
+        border: `1px solid ${colors.border}`,
         overflow: "hidden",
       }}
     >
-      <DashboardStats
-        stats={[
+      <div className="pcgo-operational-rail__summary">
+        <div className="pcgo-operational-rail__eyebrow">Live system pulse</div>
+        <DashboardStats
+          stats={[
           { label: "Active", val: activeCount, color: colors.success, icon: <Zap size={15} strokeWidth={2} /> },
           { label: "Total", val: totalCount, color: colors.brand, icon: <Layers size={15} strokeWidth={2} /> },
           {
@@ -32,13 +35,15 @@ export function SessionSidebar({ activeCount, totalCount, connected, events }) {
             color: connected ? colors.success : colors.danger,
             icon: <Satellite size={15} strokeWidth={2} />,
           },
-        ]}
-      />
+          ]}
+        />
+      </div>
 
       <div
+        className="pcgo-operational-rail__activity"
         style={{
           padding: "16px 18px 18px",
-          borderTop: `1.5px solid ${colors.border}`,
+          borderTop: `1px solid ${colors.border}`,
         }}
       >
         <div
@@ -66,7 +71,7 @@ export function SessionSidebar({ activeCount, totalCount, connected, events }) {
             >
               <ListTree size={13} strokeWidth={2} />
             </div>
-            <span
+            <span className="pcgo-operational-rail__caption"
               style={{
                 fontSize: "14px",
                 fontWeight: 700,
@@ -99,7 +104,7 @@ export function SessionSidebar({ activeCount, totalCount, connected, events }) {
             padding: "12px",
             borderRadius: `${radius.md}px`,
             background: colors.bgInset,
-            border: `1.5px solid ${colors.borderSubtle}`,
+            border: `1px solid ${colors.borderSubtle}`,
             overflow: "hidden",
           }}
         >

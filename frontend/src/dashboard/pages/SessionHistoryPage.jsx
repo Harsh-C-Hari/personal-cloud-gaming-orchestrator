@@ -3,8 +3,8 @@ import { PageHeader } from "../components/PageHeader.jsx";
 
 export function SessionHistoryPage({ refreshKey, onBack }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-      <PageHeader title="Session History" subtitle="Past sessions" onBack={onBack} />
+    <div className="pcgo-feature-page">
+      <PageHeader title="Session History" subtitle="Authoritative record of completed and failed sessions" onBack={onBack} />
       <SessionHistory refreshKey={refreshKey} />
     </div>
   );

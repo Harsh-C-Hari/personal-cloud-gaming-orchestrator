@@ -1,110 +1,34 @@
-/* dashboard/layout/dashboard-shell.css
- *
- * Responsive rules for the dashboard shell. Scoped via specific class
- * names (pcgo-*), so this cannot affect any existing component's styling.
- *
- * Desktop (>880px): vertical Sidebar rail is shown, mobile menu button is
- * hidden, MobileHeader drawer stays off-screen (see MobileHeader.jsx's own
- * transform:translateX(-100%) default).
- * Narrow (<=880px): Sidebar is hidden, the mobile menu button appears in
- * the header, and MobileHeader becomes the only way to navigate.
- */
+.pcgo-sidebar { display: flex; }
+.pcgo-mobile-menu-btn { display: none; }
+.pcgo-shell-root { height: 100vh; height: 100dvh; }
+.pcgo-shell-root { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+.pcgo-header { padding-top: env(safe-area-inset-top, 0px); }
+.pcgo-mobile-nav { padding-bottom: env(safe-area-inset-bottom, 0px); }
 
-.pcgo-sidebar {
-  display: flex;
-}
-
-.pcgo-mobile-menu-btn {
-  display: none;
-}
-
-/* Root shell height: 100vh first (older browsers), 100dvh overrides where
- * supported so mobile browser chrome (address bar show/hide) never clips
- * the layout or causes a phantom scroll area. */
-.pcgo-shell-root {
-  height: 100vh;
-  height: 100dvh;
-}
-
-/* Safe-area support for notches / home-indicator on iOS + Android gesture
- * bars. Falls back to 0px on devices without env() support. */
-.pcgo-shell-root {
-  padding-left: env(safe-area-inset-left, 0px);
-  padding-right: env(safe-area-inset-right, 0px);
-}
-
-.pcgo-header {
-  padding-top: env(safe-area-inset-top, 0px);
-}
-
-.pcgo-mobile-nav {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+@media (max-width: 1040px) {
+  .pcgo-header-optional { display: none !important; }
+  .pcgo-logout-label { display: none; }
 }
 
 @media (max-width: 880px) {
-  .pcgo-sidebar {
-    display: none !important;
-  }
-
-  .pcgo-mobile-menu-btn {
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .pcgo-header-subtitle,
-  .pcgo-header-optional {
-    display: none !important;
-  }
+  .pcgo-sidebar { display: none !important; }
+  .pcgo-mobile-menu-btn { display: inline-flex !important; align-items: center; justify-content: center; }
+  .pcgo-header-subtitle, .pcgo-header-optional { display: none !important; }
 }
 
-/* Below ~360px even the trimmed header (logo + menu btn + logout) gets
- * tight; drop the "ORCHESTRATOR" half of the wordmark and shrink type. */
+@media (max-width: 540px) {
+  .pcgo-header { padding-left: 12px !important; padding-right: 12px !important; }
+}
+
 @media (max-width: 360px) {
-  .pcgo-header-title-full {
-    display: none !important;
-  }
-  .pcgo-header-title-short {
-    display: inline !important;
-  }
+  .pcgo-header-title-full { display: none !important; }
+  .pcgo-header-title-short { display: inline !important; }
 }
 
-@media (min-width: 361px) {
-  .pcgo-header-title-short {
-    display: none !important;
-  }
-}
+@media (min-width: 361px) { .pcgo-header-title-short { display: none !important; } }
 
-/* Landscape phones (short viewport height): trim vertical chrome so
- * content isn't squeezed into a sliver below the keyboard/header. */
-@media (max-height: 420px) and (orientation: landscape) {
-  .pcgo-header {
-    height: 44px !important;
-  }
-}
+@media (max-height: 420px) and (orientation: landscape) { .pcgo-header { height: 48px !important; } }
 
-/* ---------------------------------------------------------------------
- * Shared responsive utility classes (global — this stylesheet is loaded
- * once, app-wide, via DashboardLayout). Used anywhere a component has a
- * fixed "1fr 1fr" (or similar) grid of form fields / stat pairs that
- * gets too cramped on narrow phones and should stack to one column
- * instead.
- * ------------------------------------------------------------------- */
-.pcgo-2col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-@media (max-width: 480px) {
-  .pcgo-2col {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-/* Generic horizontal-scroll wrapper for wide/tabular content (tables,
- * long log lines, wide button rows) so it scrolls within its own box on
- * narrow screens instead of blowing out the page width. */
-.pcgo-scroll-x {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
+.pcgo-2col { display: grid; grid-template-columns: 1fr 1fr; }
+@media (max-width: 480px) { .pcgo-2col { grid-template-columns: 1fr !important; } }
+.pcgo-scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }

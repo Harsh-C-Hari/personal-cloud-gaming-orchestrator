@@ -19,6 +19,7 @@
  * }} props
  */
 
+import { useEffect, useRef, useState } from "react";
 import { colors, fonts } from "../dashboard/theme.js";
 
 const STATUS_STYLES = {
@@ -32,10 +33,49 @@ const STATUS_STYLES = {
 };
 
 const FALLBACK_STYLE = { color: colors.inkDim, label: "Update" };
+const ANNOUNCED_STATUSES = new Set(["starting", "running", "restarted", "stopping", "cleaning", "completed", "failed"]);
+const visuallyHidden = {
+  position: "absolute",
+  width: "1px",
+  height: "1px",
+  padding: 0,
+  margin: "-1px",
+  overflow: "hidden",
+  clip: "rect(0, 0, 0, 0)",
+  whiteSpace: "nowrap",
+  border: 0,
+};
 
 export function EventLog({ events, connected }) {
+  const [announcement, setAnnouncement] = useState("");
+  const lastAnnouncedKey = useRef(null);
+  const latest = events[0];
+  const latestKey = latest
+    ? [latest.type, latest.session_id, latest.status, latest.message].filter(Boolean).join("|")
+    : "";
+  const latestStyle = latest ? STATUS_STYLES[latest.status] ?? FALLBACK_STYLE : FALLBACK_STYLE;
+  const latestMessage = latest?.message || latestStyle.label;
+  const shouldAnnounce = Boolean(latest && (ANNOUNCED_STATUSES.has(latest.status) || latest.type === "recovery_event" || latest.type === "host_state_update"));
+
+  useEffect(() => {
+    if (!latestKey) return;
+    if (lastAnnouncedKey.current === null) {
+      lastAnnouncedKey.current = latestKey;
+      return;
+    }
+    if (lastAnnouncedKey.current === latestKey) return;
+
+    lastAnnouncedKey.current = latestKey;
+    if (!shouldAnnounce) return;
+
+    setAnnouncement(`${latestStyle.label}: ${latestMessage}${latest.session_id ? `, session ${latest.session_id}` : ""}`);
+    const timeoutId = window.setTimeout(() => setAnnouncement(""), 1800);
+    return () => window.clearTimeout(timeoutId);
+  }, [latestKey, latestMessage, latest.session_id, latestStyle.label, shouldAnnounce]);
+
   return (
     <div
+      className="pcgo-event-stream"
       style={{
         flex: "1 1 auto",
         display: "flex",
@@ -44,8 +84,10 @@ export function EventLog({ events, connected }) {
         minHeight: 0,
       }}
     >
+      <span role="status" aria-live="polite" aria-atomic="true" style={visuallyHidden}>{announcement}</span>
       {/* Header */}
       <div
+        className="pcgo-event-stream__header"
         style={{
           display: "flex",
           alignItems: "center",
@@ -127,6 +169,7 @@ export function EventLog({ events, connected }) {
             return (
               <div
                 key={i}
+                className={`pcgo-event-stream__row${i === 0 ? " pcgo-event-stream__row--latest" : ""}`}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -175,6 +218,7 @@ export function EventLog({ events, connected }) {
                 </div>
 
                 <span
+                  className="pcgo-event-stream__status"
                   style={{
                     flexShrink: 0,
                     width: "84px",

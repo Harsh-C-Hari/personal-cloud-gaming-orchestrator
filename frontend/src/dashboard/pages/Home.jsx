@@ -1,15 +1,9 @@
 /**
  * dashboard/pages/Home.jsx
  *
- * Primary landing page (GeForce NOW / Steam style):
- *   1. Active alerts
- *   2. Current active session (large card) — OR — Start Session form
- *   3. Live activity panel (stats + recent events)
- *   4. Quick navigation grid to every other page
- *
- * All session/host data and handlers are owned by AdminDashboard /
- * UserDashboard and simply passed in as props — this page has no data
- * fetching or business logic of its own.
+ * Primary landing page: a focused launch console, compact operational rail,
+ * and command index. All data and handlers remain owned by AdminDashboard /
+ * UserDashboard and are passed through unchanged.
  */
 
 import { SessionCard } from "../../components/SessionCard.jsx";
@@ -22,13 +16,16 @@ import { LoadingState } from "../components/LoadingState.jsx";
 import { colors, fonts } from "../theme.js";
 
 const EYEBROW_STYLE = {
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
   fontSize: "9.5px",
   color: colors.inkFaint,
   letterSpacing: "0.15em",
   textTransform: "uppercase",
   fontFamily: fonts.mono,
   fontWeight: 700,
-  marginBottom: "14px",
+  marginBottom: "12px",
 };
 
 export function Home({
@@ -48,47 +45,52 @@ export function Home({
   const hasActiveSession = activeSessions.length > 0;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+    <div className="pcgo-feature-page pcgo-home-page">
       <ActiveAlerts alerts={activeAlerts} />
 
-      <section>
-        <div style={EYEBROW_STYLE}>{hasActiveSession ? "Current Session" : "Start a New Session"}</div>
-
-        {loading ? (
-          <LoadingState />
-        ) : hasActiveSession ? (
-          <div style={{ display: "grid", gap: "12px" }}>
-            {activeSessions.map((s) => (
-              <SessionCard key={s.session_id} session={s} onRefresh={refresh} />
-            ))}
+      <div className="pcgo-home-hero">
+        <main className="pcgo-home-primary">
+          <div style={EYEBROW_STYLE}>
+            <span className="pcgo-home-signal" aria-hidden="true" />
+            {hasActiveSession ? "Current Session" : "Start a New Session"}
           </div>
-        ) : (
-          <StartSessionForm games={games} onLaunched={refresh} activeSessions={sessions} hostStatus={hostStatus} />
-        )}
-      </section>
 
-      <section style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }}>
-        <SessionSidebar
-          activeCount={activeSessions.length}
-          totalCount={sessions.length}
-          connected={connected}
-          events={wsEvents}
-        />
-      </section>
+          {loading ? (
+            <LoadingState />
+          ) : hasActiveSession ? (
+            <div className="pcgo-active-session-stack">
+              {activeSessions.map((s) => (
+                <SessionCard key={s.session_id} session={s} onRefresh={refresh} />
+              ))}
+            </div>
+          ) : (
+            <StartSessionForm games={games} onLaunched={refresh} activeSessions={sessions} hostStatus={hostStatus} />
+          )}
+        </main>
 
-      <section>
-        <div style={EYEBROW_STYLE}>Quick Navigation</div>
+        <aside className="pcgo-home-rail" aria-label="Operational activity">
+          <SessionSidebar
+            activeCount={activeSessions.length}
+            totalCount={sessions.length}
+            connected={connected}
+            events={wsEvents}
+          />
+        </aside>
+      </div>
+
+      <section className="pcgo-command-section" aria-labelledby="home-command-index">
+        <div className="pcgo-command-heading">
+          <div>
+            <div className="pcgo-command-kicker">Command index</div>
+            <h2 id="home-command-index">Move through the control plane</h2>
+          </div>
+          <span className="pcgo-command-meta">{navCards.length} destinations</span>
+        </div>
 
         {navCards.length === 0 ? (
           <EmptyState label="No pages available" />
         ) : (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))",
-              gap: "12px",
-            }}
-          >
+          <div className="pcgo-command-index">
             {navCards.map((card) => (
               <NavigationCard
                 key={card.route}

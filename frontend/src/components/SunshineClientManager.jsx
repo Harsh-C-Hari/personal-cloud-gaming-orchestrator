@@ -66,7 +66,7 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
     const [clients, setClients] = useState([]);
     const [clientsReachable, setClientsReachable] = useState(true);
     const [clientsError, setClientsError] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const [pin, setPin] = useState("");
     const [pairing, setPairing] = useState(false);
@@ -202,13 +202,15 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
         }
     }
 
-    const sunshineRunning = !!hostStatus?.sunshine_running;
-    const sunshineReachable = !!hostStatus?.sunshine_api_reachable;
-    const isStreaming = streamStatus?.state === "streaming";
-    const isdisconnected = streamStatus?.state === "streaming" && !streamStatus?.transport_connected && streamStatus?.awaiting_reconnect;
+    const sunshineRunning = hostStatus ? !!hostStatus.sunshine_running : null;
+    const sunshineReachable = hostStatus ? !!hostStatus.sunshine_api_reachable : null;
+    const streamState = streamStatus?.state ?? null;
+    const isStreaming = streamState === "streaming";
+    const isdisconnected = streamState === "streaming" && !streamStatus?.transport_connected && streamStatus?.awaiting_reconnect;
+    const statusTone = sunshineRunning === null || sunshineReachable === null || streamState === null ? colors.neutral : sunshineRunning && sunshineReachable ? colors.success : colors.danger;
 
     return (
-        <div style={outerWrap}>
+        <div className="pcgo-sunshine-manager" style={outerWrap}>
 
             {/* ── Header ─────────────────────────────────────────────── */}
             <div style={headerBar}>
@@ -219,7 +221,7 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                     <div>
                         <div style={headerTitle}>Sunshine Management</div>
                         <div style={headerSubtitle}>
-                            {clients.length} paired client{clients.length === 1 ? "" : "s"}
+                            {loading ? "Checking paired-client registry" : `${clients.length} paired client${clients.length === 1 ? "" : "s"}`}
                         </div>
                     </div>
                 </div>
@@ -241,30 +243,43 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
             <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "20px" }}>
 
                 {/* Status strip */}
-                <div style={cardSection}>
+                <div className="pcgo-sunshine-status-card" style={cardSection}>
+                    <div style={visuallyHidden} role="status" aria-live="polite" aria-atomic="true">
+                        {hostStatus ? `Sunshine ${sunshineRunning ? "running" : "stopped"}; API ${sunshineReachable ? "reachable" : "unreachable"}; stream ${streamState || "pending"}.` : "Checking Sunshine operational status."}
+                    </div>
                     <div style={sectionHeadRow}>
-                        <span style={sectionLabel}>Status</span>
+                        <div>
+                            <span style={sectionLabel}>Operational status</span>
+                            <div style={sectionDescription}>Service, API, and current stream truth</div>
+                        </div>
+                        <StatusPill
+                            active={statusTone === colors.success}
+                            label={hostStatus && sunshineRunning && sunshineReachable ? "OPERATIONAL" : hostStatus ? "ATTENTION" : "PENDING"}
+                            tone={statusTone}
+                        />
                     </div>
 
-                    <div style={statusRow}>
+                    <div className="pcgo-sunshine-status-grid" style={statusRow}>
                         <StatusPill
-                            active={sunshineRunning}
-                            label={sunshineRunning ? "Sunshine Running" : "Sunshine Stopped"}
+                            active={sunshineRunning === true}
+                            label={sunshineRunning === null ? "Sunshine Pending" : sunshineRunning ? "Sunshine Running" : "Sunshine Stopped"}
+                            tone={sunshineRunning === null ? colors.neutral : sunshineRunning ? colors.success : colors.danger}
                         />
                         <StatusPill
-                            active={sunshineReachable}
-                            label={sunshineReachable ? "API Reachable" : "API Unreachable"}
+                            active={sunshineReachable === true}
+                            label={sunshineReachable === null ? "API Pending" : sunshineReachable ? "API Reachable" : "API Unreachable"}
+                            tone={sunshineReachable === null ? colors.neutral : sunshineReachable ? colors.success : colors.danger}
                         />
                         <StatusPill
                             active={isStreaming}
-                            label={isStreaming ? `Streaming: ${streamStatus?.app_name || "Unknown"}` : "Idle"}
-                            tone={isStreaming ? colors.accentBlue : undefined}
+                            label={streamState === null ? "Stream Pending" : isStreaming ? `Streaming: ${streamStatus?.app_name || "Unknown"}` : "Stream Idle"}
+                            tone={streamState === null ? colors.neutral : isStreaming ? colors.accentBlue : colors.inkDim}
                         />
-                        {isdisconnected &&(
+                        {isdisconnected && (
                             <StatusPill
                                 active={isdisconnected}
-                                label={isdisconnected ? "Transport Disconnected" : "Transport Connected"}
-                                tone={isdisconnected ? colors.danger : colors.success}
+                                label="Transport Disconnected"
+                                tone={colors.danger}
                             />
                         )}
                     </div>
@@ -298,27 +313,29 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                 {/* Paired clients */}
                 <div style={cardSection}>
                     <div style={sectionHeadRow}>
-                        <span style={sectionLabel}>Paired Clients</span>
-                        <span style={countBadge}>{clients.length}</span>
+                        <div>
+                            <span style={sectionLabel}>Paired Clients</span>
+                            <div style={sectionDescription}>Known paired devices, not active streaming clients</div>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                            {!loading && <StatusPill active={clientsReachable} label={clientsReachable ? "Registry Reachable" : "Registry Unavailable"} tone={clientsReachable ? colors.success : colors.danger} />}
+                            <span style={countBadge}>{loading ? "--" : clients.length}</span>
+                        </div>
                     </div>
 
                     {loading ? (
-                        <div style={loadingRow}>
-                            <span style={pulseDot} />
-                            Loading clients...
-                        </div>
+                        <ClientListLoadingState />
                     ) : clientsError ? (
                         <div style={validationBad}>
                             <AlertTriangle size={11} strokeWidth={2} style={{ flexShrink: 0 }} />
                             {clientsError}
                         </div>
                     ) : clients.length === 0 ? (
-                        <div style={emptyBox}>
-                            <Satellite size={22} strokeWidth={1.5} style={{ color: colors.inkFaint }} />
-                            <div style={{ fontSize: "11px", color: colors.inkDim, fontFamily: fonts.mono }}>
-                                No paired clients
+                            <div style={emptyBox}>
+                                <Satellite size={22} strokeWidth={1.5} style={{ color: colors.inkFaint }} />
+                                <strong style={{ fontSize: "11px", color: colors.inkDim, fontFamily: fonts.mono }}>No paired clients</strong>
+                                <span style={emptyDescription}>Pairing has not been completed for any Sunshine device.</span>
                             </div>
-                        </div>
                     ) : (
                         <div style={grid}>
                             {clients.map((client) => (
@@ -475,6 +492,28 @@ function StatusPill({ active, label, tone }) {
     );
 }
 
+function ClientListLoadingState() {
+    return (
+        <div className="pcgo-sunshine-client-loading" role="status" aria-live="polite">
+            <div style={loadingRow}>
+                <span style={pulseDot} />
+                Checking paired-client registry
+            </div>
+            <div className="pcgo-sunshine-client-loading-grid" aria-hidden="true">
+                {["Client identity", "Pairing record"].map((label) => (
+                    <div key={label} style={clientLoadingCard}>
+                        <span style={loadingAvatar} />
+                        <div style={{ flex: 1 }}>
+                            <span style={loadingLineWide} />
+                            <span style={loadingLineShort} />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 function FieldLabel({ children }) {
     return (
         <label
@@ -505,7 +544,7 @@ const blurBorder = (e) => {
 // ── Style primitives (matches UserPanel / GameManager / SettingsPanel) ─────
 
 const outerWrap = {
-    border: `1.5px solid ${colors.border}`,
+    border: `1px solid ${colors.border}`,
     borderRadius: `${radius.lg}px`,
     background: colors.bgCard,
     overflow: "hidden",
@@ -519,7 +558,7 @@ const headerBar = {
     rowGap: "8px",
     gap: "10px",
     padding: "16px 20px",
-    borderBottom: `1.5px solid ${colors.border}`,
+    borderBottom: `1px solid ${colors.border}`,
     background: colors.bgElevated,
 };
 
@@ -571,7 +610,7 @@ const iconGhostButton = {
 const cardSection = {
     padding: "16px",
     borderRadius: `${radius.md}px`,
-    border: `1.5px solid ${colors.border}`,
+    border: `1px solid ${colors.border}`,
     background: colors.bgInset,
 };
 
@@ -582,6 +621,34 @@ const sectionHeadRow = {
     flexWrap: "wrap",
     rowGap: "6px",
     marginBottom: "14px",
+};
+
+const visuallyHidden = {
+    position: "absolute",
+    width: "1px",
+    height: "1px",
+    padding: 0,
+    margin: "-1px",
+    overflow: "hidden",
+    clip: "rect(0, 0, 0, 0)",
+    whiteSpace: "nowrap",
+    border: 0,
+};
+
+const sectionDescription = {
+    marginTop: "4px",
+    color: colors.inkFaint,
+    fontSize: "9.5px",
+    lineHeight: 1.4,
+    fontFamily: fonts.mono,
+};
+
+const emptyDescription = {
+    maxWidth: "280px",
+    color: colors.inkFaint,
+    fontSize: "10px",
+    lineHeight: 1.45,
+    fontFamily: fonts.mono,
 };
 
 const sectionLabel = {
@@ -630,8 +697,8 @@ const statusPill = {
     fontFamily: fonts.mono,
     letterSpacing: "0.04em",
     padding: "5px 10px",
-    borderRadius: `${radius.full}px`,
-    border: "1.5px solid",
+    borderRadius: `${radius.sm}px`,
+    border: "1px solid",
     background: colors.bgInset,
 };
 
@@ -645,7 +712,7 @@ const closeStreamButton = {
     border: `1.5px solid ${colors.danger}`,
     background: "transparent",
     color: colors.danger,
-    borderRadius: `${radius.full}px`,
+    borderRadius: `${radius.sm}px`,
     fontFamily: fonts.mono,
     fontSize: "10.5px",
     letterSpacing: "0.08em",
@@ -657,10 +724,49 @@ const loadingRow = {
     display: "flex",
     alignItems: "center",
     gap: "9px",
-    padding: "16px 4px",
+    padding: "12px 4px",
     color: colors.inkDim,
     fontFamily: fonts.mono,
-    fontSize: "11.5px",
+    fontSize: "10.5px",
+};
+
+const clientLoadingCard = {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    minHeight: "58px",
+    padding: "12px",
+    background: colors.bgCard,
+    border: `1px solid ${colors.borderSubtle}`,
+    borderRadius: `${radius.md}px`,
+};
+
+const loadingAvatar = {
+    width: "30px",
+    height: "30px",
+    borderRadius: `${radius.sm}px`,
+    background: colors.bgInset,
+    border: `1px solid ${colors.borderSubtle}`,
+    flexShrink: 0,
+};
+
+const loadingLineWide = {
+    display: "block",
+    width: "min(140px, 76%)",
+    height: "8px",
+    borderRadius: "2px",
+    background: colors.bgInset,
+    border: `1px solid ${colors.borderSubtle}`,
+};
+
+const loadingLineShort = {
+    display: "block",
+    width: "84px",
+    height: "7px",
+    marginTop: "7px",
+    borderRadius: "2px",
+    background: colors.bgInset,
+    border: `1px solid ${colors.borderSubtle}`,
 };
 
 const pulseDot = {
@@ -727,9 +833,8 @@ const clientName = {
     fontSize: "13px",
     fontWeight: 600,
     fontFamily: fonts.display,
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
+    overflowWrap: "anywhere",
+    wordBreak: "break-word",
 };
 
 const cardMeta = {
@@ -737,9 +842,8 @@ const cardMeta = {
     fontSize: "9.5px",
     color: colors.inkFaint,
     marginTop: "3px",
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
+    overflowWrap: "anywhere",
+    wordBreak: "break-word",
 };
 
 const cardDeleteButton = {
@@ -798,7 +902,7 @@ const saveButton = {
     padding: "12px",
     background: colors.ink,
     border: "1.5px solid transparent",
-    borderRadius: `${radius.full}px`,
+    borderRadius: `${radius.sm}px`,
     color: colors.bg,
     fontSize: "11.5px",
     fontFamily: fonts.mono,

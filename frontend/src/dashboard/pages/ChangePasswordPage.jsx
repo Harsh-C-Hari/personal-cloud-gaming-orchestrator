@@ -1,67 +1,9 @@
-/**
- * dashboard/pages/ChangePasswordPage.jsx
- *
- * Uses the existing, already-implemented backend endpoint via the
- * existing api/client.js `changePassword({ old_password, new_password })`
- * call. No API/request/response shape changes — this page only adds a
- * production-quality UI in front of it.
- *
- * Visual language: flat "Chalkboard Neo-Brutalist" tokens — bgInset input
- * fields, bordered sections, no gradients/glow/text-shadow. Composes
- * PageHeader + the shared Card/Button primitives instead of hand-rolled
- * styles.
- */
-
 import { useState } from "react";
-import { Key, Lock, ShieldCheck, TriangleAlert } from "lucide-react";
+import { CheckCircle2, KeyRound, LockKeyhole, ShieldCheck, TriangleAlert } from "lucide-react";
 import { changePassword } from "../../api/client.js";
 import { PageHeader } from "../components/PageHeader.jsx";
-import { Card, Button } from "../../components/ui/primitives.jsx";
+import { Button } from "../../components/ui/primitives.jsx";
 import { useToast } from "../../components/ui/Toast.jsx";
-import { colors, fonts, radius } from "../theme.js";
-
-const inputStyle = {
-  width: "100%",
-  padding: "10px 12px",
-  background: colors.bgInset,
-  border: `1.5px solid ${colors.border}`,
-  borderRadius: `${radius.md}px`,
-  color: colors.ink,
-  fontSize: "13px",
-  fontFamily: fonts.body,
-  outline: "none",
-  boxSizing: "border-box",
-  transition: "border-color 150ms ease",
-};
-
-function focusBorder(e) {
-  e.target.style.borderColor = colors.borderInk;
-}
-function blurBorder(e) {
-  e.target.style.borderColor = colors.border;
-}
-
-function FieldLabel({ icon, children }) {
-  return (
-    <span
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "6px",
-        fontSize: "9.5px",
-        color: colors.inkFaint,
-        letterSpacing: "0.13em",
-        textTransform: "uppercase",
-        fontFamily: fonts.mono,
-        fontWeight: 700,
-        marginBottom: "8px",
-      }}
-    >
-      {icon}
-      {children}
-    </span>
-  );
-}
 
 export function ChangePasswordPage({ onBack }) {
   const toast = useToast();
@@ -69,6 +11,9 @@ export function ChangePasswordPage({ onBack }) {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [attempted, setAttempted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const validationError = (() => {
     if (!oldPassword || !newPassword || !confirmPassword) return null;
@@ -78,8 +23,28 @@ export function ChangePasswordPage({ onBack }) {
     return null;
   })();
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  const newPasswordError = newPassword && newPassword.length < 6
+    ? "New password must be at least 6 characters."
+    : newPassword && oldPassword && newPassword === oldPassword
+      ? "New password must be different from the current password."
+      : "";
+  const confirmationError = confirmPassword && newPassword && newPassword !== confirmPassword
+    ? "New password and confirmation do not match."
+    : "";
+  function updateField(setter) {
+    return (event) => {
+      setter(event.target.value);
+      setSubmitError("");
+      setSuccessMessage("");
+    };
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    if (submitting) return;
+
+    setAttempted(true);
+    setSubmitError("");
 
     if (!oldPassword || !newPassword || !confirmPassword) {
       toast.warning("All fields are required.");
@@ -92,152 +57,133 @@ export function ChangePasswordPage({ onBack }) {
 
     try {
       setSubmitting(true);
-      const result = await changePassword({
-        old_password: oldPassword,
-        new_password: newPassword,
-      });
-      toast.success(result?.message || "Password changed successfully.");
+      const result = await changePassword({ old_password: oldPassword, new_password: newPassword });
+      const message = result?.message || "Password changed successfully.";
+      toast.success(message);
       setOldPassword("");
       setNewPassword("");
       setConfirmPassword("");
-    } catch (err) {
-      toast.error(err.message || "Failed to change password.");
+      setAttempted(false);
+      setSuccessMessage("Password changed successfully. Your current session remains active.");
+    } catch (error) {
+      const message = error.message || "Failed to change password.";
+      setSubmitError(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <div>
-      <PageHeader title="Change Password" subtitle="Update the password for your account" onBack={onBack} />
+    <div className="pcgo-feature-page pcgo-change-password-page">
+      <PageHeader title="Change password" subtitle="Account security" onBack={onBack} />
 
-      <Card style={{ padding: 0, overflow: "hidden", maxWidth: "460px" }}>
-        {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            padding: "16px 20px",
-            borderBottom: `1.5px solid ${colors.border}`,
-          }}
-        >
-          <div
-            style={{
-              width: "30px",
-              height: "30px",
-              borderRadius: `${radius.sm}px`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: colors.brandDim,
-              color: colors.brand,
-              flexShrink: 0,
-            }}
-          >
-            <ShieldCheck size={15} strokeWidth={2} />
-          </div>
-          <div>
-            <div
-              style={{
-                fontSize: "13.5px",
-                fontWeight: 700,
-                color: colors.ink,
-                fontFamily: fonts.display,
-              }}
-            >
-              Account Security
+      <main className="pcgo-change-password-shell">
+        <section className="pcgo-change-password-card" aria-labelledby="change-password-title">
+          <header className="pcgo-change-password-card__header">
+            <div className="pcgo-change-password-card__mark" aria-hidden="true"><ShieldCheck size={17} /></div>
+            <div>
+              <div className="pcgo-change-password__eyebrow">ACCOUNT SECURITY</div>
+              <h2 id="change-password-title">Set a new password</h2>
+              <p>PCGO verifies your current password before updating the stored password for this account.</p>
             </div>
-            <div style={{ fontSize: "10px", color: colors.inkFaint, fontFamily: fonts.mono, marginTop: "1px" }}>
-              Set a new password for this account
-            </div>
-          </div>
-        </div>
+          </header>
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px", padding: "20px" }}>
-          {/* Current password */}
-          <div>
-            <FieldLabel icon={<Lock size={11} strokeWidth={2} />}>Current Password</FieldLabel>
-            <input
-              type="password"
+          <div className="pcgo-change-password__context">
+            <LockKeyhole size={13} aria-hidden="true" />
+            <span>Your current session remains active after a successful change.</span>
+          </div>
+
+          <form className="pcgo-change-password-form" onSubmit={handleSubmit} noValidate>
+            <PasswordField
+              id="current-password"
+              label="Current password"
+              icon={<LockKeyhole size={13} />}
               value={oldPassword}
-              onChange={(e) => setOldPassword(e.target.value)}
+              onChange={updateField(setOldPassword)}
               autoComplete="current-password"
-              style={inputStyle}
-              onFocus={focusBorder}
-              onBlur={blurBorder}
+              description="Enter the password currently protecting this account."
               required
+              requiredError={attempted && !oldPassword}
+              error=""
             />
-          </div>
 
-          {/* New password */}
-          <div>
-            <FieldLabel icon={<Key size={11} strokeWidth={2} />}>New Password</FieldLabel>
-            <input
-              type="password"
+            <PasswordField
+              id="new-password"
+              label="New password"
+              icon={<KeyRound size={13} />}
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={updateField(setNewPassword)}
               autoComplete="new-password"
-              style={inputStyle}
-              onFocus={focusBorder}
-              onBlur={blurBorder}
+              description="Minimum 6 characters, and different from your current password."
               required
+              requiredError={attempted && !newPassword}
+              error={newPasswordError}
             />
-            <div
-              style={{
-                marginTop: "9px",
-                fontSize: "10px",
-                color: colors.inkFaint,
-                fontFamily: fonts.mono,
-              }}
-            >
-              Minimum 6 characters, and different from your current password.
-            </div>
-          </div>
 
-          {/* Confirm new password */}
-          <div>
-            <FieldLabel icon={<ShieldCheck size={11} strokeWidth={2} />}>Confirm New Password</FieldLabel>
-            <input
-              type="password"
+            <PasswordField
+              id="confirm-new-password"
+              label="Confirm new password"
+              icon={<ShieldCheck size={13} />}
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={updateField(setConfirmPassword)}
               autoComplete="new-password"
-              style={inputStyle}
-              onFocus={focusBorder}
-              onBlur={blurBorder}
+              description="Re-enter the new password to confirm the change."
               required
+              requiredError={attempted && !confirmPassword}
+              error={confirmationError}
             />
-          </div>
 
-          {/* Validation hint */}
-          {validationError && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: "9px",
-                padding: "11px 14px",
-                borderRadius: `${radius.sm}px`,
-                fontSize: "11.5px",
-                fontFamily: fonts.mono,
-                background: colors.accentYellowDim,
-                border: `1.5px solid rgba(245,215,110,0.3)`,
-                color: colors.warning,
-              }}
-            >
-              <TriangleAlert size={13} strokeWidth={2} style={{ marginTop: "1px", flexShrink: 0 }} />
-              {validationError}
-            </div>
-          )}
+            {(submitError || (attempted && validationError && !newPasswordError && !confirmationError)) && (
+              <div className="pcgo-change-password__error" role="alert">
+                <TriangleAlert size={14} aria-hidden="true" />
+                <span>{submitError || validationError}</span>
+              </div>
+            )}
 
-          {/* Submit */}
-          <Button type="submit" variant="primary" disabled={submitting || !!validationError} style={{ width: "100%" }}>
-            <Key size={13} strokeWidth={2} />
-            {submitting ? "Updating…" : "Update Password"}
-          </Button>
-        </form>
-      </Card>
+            {successMessage && (
+              <div className="pcgo-change-password__success" role="status">
+                <CheckCircle2 size={14} aria-hidden="true" />
+                <span>{successMessage}</span>
+              </div>
+            )}
+
+            <Button type="submit" variant="primary" disabled={submitting} aria-busy={submitting} className="pcgo-change-password__submit">
+              <KeyRound size={14} />
+              {submitting ? "Updating password…" : "Change password"}
+            </Button>
+          </form>
+        </section>
+      </main>
+    </div>
+  );
+}
+
+function PasswordField({ id, label, icon, value, onChange, autoComplete, description, error, required, requiredError }) {
+  const descriptionId = `${id}-description`;
+  const errorId = `${id}-error`;
+  const fieldError = error || (requiredError ? "Required" : "");
+  const describedBy = fieldError ? `${descriptionId} ${errorId}` : descriptionId;
+
+  return (
+    <div className={`pcgo-change-password-field ${fieldError ? "has-error" : ""}`}>
+      <label htmlFor={id}>
+        <span className="pcgo-change-password-field__label">{icon}{label}</span>
+        <span className="pcgo-change-password-field__required">{required ? "REQUIRED" : ""}</span>
+      </label>
+      <input
+        id={id}
+        name={id}
+        type="password"
+        value={value}
+        onChange={onChange}
+        autoComplete={autoComplete}
+        aria-describedby={describedBy}
+        aria-invalid={fieldError ? "true" : "false"}
+        required={required}
+      />
+      <p id={descriptionId}>{description}</p>
+      {fieldError && <div id={errorId} className="pcgo-change-password-field__error" role="alert"><TriangleAlert size={12} />{fieldError}</div>}
     </div>
   );
 }

@@ -4,10 +4,12 @@ import { PageHeader } from "../components/PageHeader.jsx";
 
 export function SunshinePage({ streamHistory, streamHistoryLoading, hostStatus, streamStatus, onBack }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-      <PageHeader title="Sunshine" subtitle="Client pairing, stream control, and streaming history" onBack={onBack} />
-      <SunshineClientManager hostStatus={hostStatus} streamStatus={streamStatus} />
-      <SunshineStreamHistory streams={streamHistory} loading={streamHistoryLoading} />
+    <div className="pcgo-feature-page pcgo-sunshine-page">
+      <PageHeader title="Sunshine" subtitle="Operational status, paired clients, and stream history" onBack={onBack} />
+      <div className="pcgo-sunshine-layout">
+        <SunshineClientManager hostStatus={hostStatus} streamStatus={streamStatus} />
+        <SunshineStreamHistory streams={streamHistory} loading={streamHistoryLoading} />
+      </div>
     </div>
   );
 }

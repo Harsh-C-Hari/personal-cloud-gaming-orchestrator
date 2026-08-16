@@ -1,73 +1,55 @@
-/**
- * dashboard/layout/Sidebar.jsx
- *
- * Desktop navigation rail. Pure presentation — the list of items (and
- * which ones are visible) is decided by AdminDashboard / UserDashboard,
- * so this component has no idea about roles or permissions itself.
- *
- * TinkerHub's "morphing pill" nav concept (DESIGN_SYSTEM.md §5, Nav),
- * translated to a vertical rail: the active item renders as a filled
- * `ink` pill with icon + label; inactive items are plain icon + label in
- * `inkDim`, with a subtle hover background. No glow, no gradient.
- */
-
 import { colors, fonts, nav, radius, motion } from "../theme.js";
 
 export function Sidebar({ items, activeRoute, onNavigate }) {
   return (
     <nav
+      aria-label="Primary navigation"
       style={{
         width: `${nav.sidebarWidth}px`,
         flexShrink: 0,
-        borderRight: `1.5px solid ${colors.border}`,
+        borderRight: `1px solid ${colors.border}`,
         display: "flex",
         flexDirection: "column",
         overflowY: "auto",
-        padding: "16px 12px",
-        gap: "3px",
+        padding: "18px 14px 20px",
+        gap: "4px",
+        background: colors.bgElevated,
       }}
     >
+      <div style={{ padding: "4px 10px 14px", color: colors.inkFaint, font: `700 10px/1.2 ${fonts.mono}`, letterSpacing: ".14em", textTransform: "uppercase" }}>
+        Control plane
+      </div>
       {items.map((item) => {
         const active = item.route === activeRoute;
         return (
           <button
             key={item.route}
+            type="button"
             onClick={() => onNavigate(item.route)}
+            aria-current={active ? "page" : undefined}
             style={{
+              position: "relative",
               display: "flex",
               alignItems: "center",
               gap: "11px",
-              padding: "9px 14px",
-              borderRadius: `${radius.full}px`,
-              border: "1.5px solid transparent",
-              background: active ? colors.ink : "transparent",
-              color: active ? colors.bg : colors.inkDim,
+              minHeight: "42px",
+              padding: "10px 12px",
+              borderRadius: `${radius.sm}px`,
+              border: `1px solid ${active ? colors.brandDim : "transparent"}`,
+              background: active ? colors.brandDim : "transparent",
+              color: active ? colors.ink : colors.inkDim,
               fontSize: "13px",
               fontFamily: fonts.body,
-              fontWeight: active ? 700 : 500,
+              fontWeight: active ? 650 : 500,
               cursor: "pointer",
               textAlign: "left",
-              transition: `background ${motion.pill}, color ${motion.pill}`,
+              transition: `background ${motion.pill}, color ${motion.pill}, border-color ${motion.pill}`,
             }}
-            onMouseEnter={(e) => {
-              if (!active) e.currentTarget.style.background = "rgba(237,235,227,0.06)";
-            }}
-            onMouseLeave={(e) => {
-              if (!active) e.currentTarget.style.background = "transparent";
-            }}
+            onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = colors.bgCardHover; }}
+            onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = "transparent"; }}
           >
-            <span
-              style={{
-                fontSize: "15px",
-                width: "18px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              {item.icon}
-            </span>
+            {active && <span aria-hidden="true" style={{ position: "absolute", left: -15, width: 2, height: 20, background: colors.brand, borderRadius: 2 }} />}
+            <span style={{ color: active ? colors.brand : colors.inkFaint, width: 18, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{item.icon}</span>
             <span>{item.label}</span>
           </button>
         );

@@ -1,1102 +1,419 @@
-/**
- * components/SettingsPanel.jsx
- *
- * Same API calls / validation / state as before (getConfig, updateConfig,
- * selectFile, per-section save payloads, restart-required detection) —
- * only the presentation layer was reworked to match DESIGN_SYSTEM.md:
- *   - Section cards now use the shared `Card` primitive instead of a
- *     hand-rolled bordered div.
- *   - Save / Cancel use the shared `Button` primitive (flat, no gradient,
- *     no glow) instead of a custom cyan-gradient button.
- *   - The "READ ONLY" marker uses the shared `Chip` primitive.
- *   - Inputs/selects use `bgInset` fill + flat border-color focus (no glow
- *     ring), per DESIGN_SYSTEM.md §5.
- *   - Icons migrated from `react-icons/fa` to `lucide-react`, per
- *     DESIGN_SYSTEM.md §7.
- *   - All colors/fonts/radius now come from `dashboard/theme.js` — the old
- *     local `palette` (cyan accent, Rajdhani display font) is gone.
- *
- * No functional change: every handler, state variable, validation rule,
- * and API call below is untouched from the previous implementation.
- */
-
 import { useEffect, useState } from "react";
 import {
-    FileInput,
-    Cloud,
-    Network,
-    Clock,
-    ClipboardList,
-    Server,
-    Database,
-    Tags,
-    XCircle,
-    AlertTriangle,
-    Save,
-    RotateCcw,
-    ChevronDown,
-    Lock,
+  AlertTriangle,
+  CheckCircle2,
+  ChevronDown,
+  CircleHelp,
+  ClipboardList,
+  Cloud,
+  Database,
+  FileInput,
+  Lock,
+  Network,
+  RefreshCw,
+  RotateCcw,
+  Save,
+  Server,
+  Tags,
+  XCircle,
 } from "lucide-react";
-import {
-    getConfig,
-    updateConfig,
-    selectFile,
-} from "../api/client";
+import { getConfig, selectFile, updateConfig } from "../api/client";
 import { useToast } from "./ui/Toast.jsx";
-import { Card, Button, Chip, Spinner } from "./ui/primitives.jsx";
-import { colors, fonts, radius } from "../dashboard/theme.js";
+import { Button, Spinner } from "./ui/primitives.jsx";
 
-const inputStyle = {
-    width: "100%",
-    padding: "10px 12px",
-    background: colors.bgInset,
-    border: `1.5px solid ${colors.border}`,
-    borderRadius: `${radius.md}px`,
-    color: colors.ink,
-    fontSize: "13px",
-    fontFamily: fonts.body,
-    outline: "none",
-    boxSizing: "border-box",
-    transition: "border-color 150ms ease",
-};
+export function SettingsPanel() {
+  const toast = useToast();
+  const [config, setConfig] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [loadingConfig, setLoadingConfig] = useState(true);
+  const [originalConfig, setOriginalConfig] = useState(null);
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [configError, setConfigError] = useState("");
+  const [saveError, setSaveError] = useState("");
 
-const readOnlyStyle = {
-    ...inputStyle,
-    color: colors.inkFaint,
-    cursor: "not-allowed",
-    background: colors.bgElevated,
-};
+  useEffect(() => {
+    loadConfig();
+  }, []);
 
-const focusBorder = (e) => {
-    e.target.style.borderColor = colors.ink;
-};
-const blurBorder = (e) => {
-    e.target.style.borderColor = colors.border;
-};
+  function getValue(field) {
+    return field?.value;
+  }
 
-function SectionHeader({ icon, title, readOnly }) {
-    return (
-        <div style={{ display: "flex", alignItems: "center", gap: "9px", marginBottom: "14px" }}>
-            <div
-                style={{
-                    width: "28px",
-                    height: "28px",
-                    borderRadius: `${radius.sm}px`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: colors.brandDim,
-                    border: `1.5px solid ${colors.brand}`,
-                    color: colors.brand,
-                    flexShrink: 0,
-                }}
-            >
-                {icon}
-            </div>
-            <h3
-                style={{
-                    margin: 0,
-                    fontSize: "13px",
-                    letterSpacing: "0.12em",
-                    color: colors.ink,
-                    fontFamily: fonts.mono,
-                    textTransform: "uppercase",
-                }}
-            >
-                {title}
-            </h3>
-            {readOnly && (
-                <Chip tone="neutral" icon={<Lock size={9} strokeWidth={2} />} style={{ marginLeft: "2px" }}>
-                    Read Only
-                </Chip>
-            )}
-        </div>
+  function requiresRestartChanged(section, key) {
+    const current = config?.[section]?.[key];
+    const original = originalConfig?.[section]?.[key];
+    return Boolean(current?.requires_restart && original && current.value !== original.value);
+  }
+
+  const restartRequired = Boolean(
+    config && originalConfig && (
+      requiresRestartChanged("host_agent", "environment") ||
+      requiresRestartChanged("host_agent", "debug") ||
+      requiresRestartChanged("storage", "backup_retention") ||
+      requiresRestartChanged("storage", "archive_retention") ||
+      requiresRestartChanged("storage", "enable_archives") ||
+      requiresRestartChanged("storage", "enable_integrity_hashing") ||
+      requiresRestartChanged("logging", "console_logging")
+    )
+  );
+
+  const hasChanges = Boolean(config && originalConfig && JSON.stringify(config) !== JSON.stringify(originalConfig));
+
+  async function loadConfig() {
+    try {
+      setLoadingConfig(true);
+      setConfigError("");
+      const data = await getConfig();
+      setConfig(data);
+      setOriginalConfig(JSON.parse(JSON.stringify(data)));
+    } catch (error) {
+      const message = error.message || "Failed to load settings.";
+      setConfigError(message);
+      toast.error(message);
+    } finally {
+      setLoadingConfig(false);
+    }
+  }
+
+  async function updateSection(section, data) {
+    await updateConfig(section, data);
+  }
+
+  async function saveSettings() {
+    setValidationErrors([]);
+    setSaveError("");
+    const errors = validateSettings();
+    setValidationErrors(errors);
+    if (errors.length > 0) return;
+
+    setSaving(true);
+    try {
+      await updateSection("sunshine", {
+        api_url: config.sunshine.api_url.value,
+        username: config.sunshine.username.value,
+        password: config.sunshine.password.value,
+        path: config.sunshine.path.value,
+        verify_ssl: config.sunshine.verify_ssl.value,
+        close_stream_on_game_exit: config.sunshine.close_stream_on_game_exit.value,
+      });
+
+      await updateSection("tailscale", {
+        ipn_path: config.tailscale.ipn_path.value,
+      });
+
+      await updateSection("storage", {
+        backup_retention: config.storage.backup_retention.value,
+        archive_retention: config.storage.archive_retention.value,
+      });
+
+      await updateSection("session", {
+        max_concurrent_sessions: config.session.max_concurrent_sessions.value,
+        default_session_minutes: config.session.default_session_minutes.value,
+        warning_before_minutes: config.session.warning_before_minutes.value,
+        auto_cleanup: config.session.auto_cleanup.value,
+        force_cleanup_timeout: config.session.force_cleanup_timeout.value,
+      });
+
+      await updateSection("logging", {
+        log_level: config.logging.log_level.value,
+        console_logging: config.logging.console_logging.value,
+      });
+
+      await updateSection("host_agent", {
+        host_name: config.host_agent.host_name.value,
+        environment: config.host_agent.environment.value,
+        debug: config.host_agent.debug.value,
+      });
+
+      await loadConfig();
+      toast.success("Settings saved successfully.");
+    } catch (error) {
+      const message = error.response?.data?.detail || error.message || "Failed to save settings.";
+      setSaveError(message);
+      toast.error(message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleSelectSunshine() {
+    try {
+      const result = await selectFile();
+      if (!result.selected) return;
+      setConfig({
+        ...config,
+        sunshine: {
+          ...config.sunshine,
+          path: { ...config.sunshine.path, value: result.path },
+        },
+      });
+    } catch (error) {
+      toast.error(error.message || "Failed to select Sunshine executable.");
+    }
+  }
+
+  async function handleSelectTailscaleIPN() {
+    try {
+      const result = await selectFile();
+      if (!result.selected) return;
+      setConfig({
+        ...config,
+        tailscale: {
+          ...config.tailscale,
+          ipn_path: { ...config.tailscale.ipn_path, value: result.path },
+        },
+      });
+    } catch (error) {
+      toast.error(error.message || "Failed to select Tailscale IPN executable.");
+    }
+  }
+
+  function validateSettings() {
+    const errors = [];
+
+    if (config.sunshine.path.value && !config.sunshine.path.value.toLowerCase().endsWith(".exe")) {
+      errors.push("Sunshine path must be an executable.");
+    }
+    if (config.tailscale.ipn_path.value && !config.tailscale.ipn_path.value.toLowerCase().endsWith(".exe")) {
+      errors.push("Tailscale path must be an executable.");
+    }
+    if (config.session.warning_before_minutes.value >= config.session.default_session_minutes.value) {
+      errors.push("Warning time must be less than session duration.");
+    }
+    if (config.session.default_session_minutes.value < 5) {
+      errors.push("Session duration must be greater than 5.");
+    }
+    if (config.session.warning_before_minutes.value < 0) {
+      errors.push("Warning time cannot be negative.");
+    }
+    if (config.storage.backup_retention?.value < 1) {
+      errors.push("Backup retention must be at least 1.");
+    }
+
+    return errors;
+  }
+
+  function updateValue(section, key, value) {
+    setConfig({
+      ...config,
+      [section]: {
+        ...config[section],
+        [key]: {
+          ...config[section][key],
+          value,
+        },
+      },
+    });
+  }
+
+  if (!config) {
+    return configError ? (
+      <div className="pcgo-settings__unavailable" role="alert">
+        <AlertTriangle size={18} aria-hidden="true" />
+        <strong>Configuration unavailable</strong>
+        <p>{configError}</p>
+        <Button variant="secondary" onClick={loadConfig} disabled={loadingConfig}>
+          <RefreshCw size={13} /> Retry loading settings
+        </Button>
+      </div>
+    ) : (
+      <SettingsLoading />
     );
-}
+  }
 
-function FieldLabel({ children }) {
-    return (
-        <label
-            style={{
-                display: "block",
-                fontSize: "9.5px",
-                color: colors.inkFaint,
-                letterSpacing: "0.13em",
-                textTransform: "uppercase",
-                fontFamily: fonts.mono,
-                fontWeight: 700,
-                marginBottom: "7px",
-                marginTop: "14px",
-            }}
+  return (
+    <section className="pcgo-settings-workspace" aria-labelledby="pcgo-settings-workspace-title">
+      <div className="pcgo-settings-workspace__toolbar">
+        <div>
+          <div className="pcgo-settings__eyebrow">HOST CONFIGURATION</div>
+          <h2 id="pcgo-settings-workspace-title">Configuration workspace</h2>
+          <p>Draft changes locally, then apply the supported configuration sections together.</p>
+        </div>
+        <button
+          type="button"
+          className="pcgo-settings__refresh"
+          onClick={loadConfig}
+          disabled={loadingConfig || saving}
+          aria-label="Reload host configuration"
         >
-            {children}
-        </label>
-    );
+          <RefreshCw size={13} className={loadingConfig ? "pcgo-settings__spin" : ""} />
+          {loadingConfig ? "Refreshing" : "Reload"}
+        </button>
+      </div>
+
+      <div className="pcgo-settings__status-row" aria-label="Settings state">
+        <div className={`pcgo-settings__state ${hasChanges ? "is-dirty" : "is-saved"}`}>
+          {hasChanges ? <CircleHelp size={13} /> : <CheckCircle2 size={13} />}
+          <span>{hasChanges ? "DRAFT CHANGES" : "SAVED SNAPSHOT"}</span>
+        </div>
+        <span className="pcgo-settings__state-help">
+          {hasChanges ? "Changes stay local until Save Changes is applied." : "Values match the latest server snapshot."}
+        </span>
+        {restartRequired && <span className="pcgo-settings__restart-tag"><AlertTriangle size={12} /> RESTART REQUIRED</span>}
+      </div>
+
+      {configError && (
+        <div className="pcgo-settings__stale-note" role="status">
+          <AlertTriangle size={13} />
+          <span>Refresh failed. The last loaded configuration remains visible.</span>
+          <button type="button" onClick={loadConfig}>Retry</button>
+        </div>
+      )}
+
+      <div className="pcgo-settings__groups">
+        <SettingsGroup icon={<Cloud size={14} />} title="Sunshine" description="Connection details for the Sunshine streaming service.">
+          <SettingRow label="Sunshine API URL" description="Endpoint used by PCGO to reach the Sunshine control API.">
+            <input aria-label="Sunshine API URL" value={getValue(config.sunshine.api_url)} onChange={(event) => updateValue("sunshine", "api_url", event.target.value)} />
+          </SettingRow>
+          <SettingRow label="Sunshine executable" description="Windows executable path used when PCGO starts or restarts Sunshine.">
+            <PathControl ariaLabel="Sunshine executable path" value={getValue(config.sunshine.path)} onChange={(value) => updateValue("sunshine", "path", value)} onSelect={handleSelectSunshine} selectLabel="Select Sunshine executable" />
+          </SettingRow>
+          <div className="pcgo-settings__split-row">
+            <SettingRow label="Username" description="Credential used for Sunshine API access.">
+              <input aria-label="Sunshine username" value={getValue(config.sunshine.username)} onChange={(event) => updateValue("sunshine", "username", event.target.value)} />
+            </SettingRow>
+            <SettingRow label="Password" description="Credential used for Sunshine API access.">
+              <input aria-label="Sunshine password" type="password" autoComplete="new-password" value={getValue(config.sunshine.password)} onChange={(event) => updateValue("sunshine", "password", event.target.value)} />
+            </SettingRow>
+          </div>
+        </SettingsGroup>
+
+        <SettingsGroup icon={<Network size={14} />} title="Tailscale" description="Executable path used by the host networking integration.">
+          <SettingRow label="Tailscale IPN executable" description="Windows executable path for the Tailscale IPN process.">
+            <PathControl ariaLabel="Tailscale IPN executable path" value={getValue(config.tailscale.ipn_path)} onChange={(value) => updateValue("tailscale", "ipn_path", value)} onSelect={handleSelectTailscaleIPN} selectLabel="Select Tailscale IPN executable" />
+          </SettingRow>
+        </SettingsGroup>
+
+        <SettingsGroup icon={<Server size={14} />} title="Host agent" description="Identity and runtime environment for the host agent." >
+          <SettingRow label="Host name" description="Display name used to identify this host in the control plane.">
+            <input aria-label="Host name" value={getValue(config.host_agent.host_name)} onChange={(event) => updateValue("host_agent", "host_name", event.target.value)} />
+          </SettingRow>
+          <div className="pcgo-settings__split-row">
+            <SettingRow label="Environment" description="Runtime profile used by the host agent." restartRequired={requiresRestartChanged("host_agent", "environment")}>
+              <SelectControl ariaLabel="Host environment" value={getValue(config.host_agent.environment)} onChange={(value) => updateValue("host_agent", "environment", value)} options={["development", "production"]} />
+            </SettingRow>
+            <SettingRow label="Debug mode" description="Current value is preserved by the existing save contract." restartRequired={requiresRestartChanged("host_agent", "debug")}>
+              <ReadOnlyValue value={String(Boolean(getValue(config.host_agent.debug)))} />
+            </SettingRow>
+          </div>
+        </SettingsGroup>
+
+        <SettingsGroup icon={<ClockIcon />} title="Session" description="Default timing rules applied when a session is started.">
+          <div className="pcgo-settings__split-row">
+            <SettingRow label="Default session minutes" description="Default duration assigned to a new session.">
+              <input aria-label="Default session minutes" type="number" min="0" value={getValue(config.session.default_session_minutes)} onChange={(event) => updateValue("session", "default_session_minutes", parseInt(event.target.value, 10) || 0)} />
+            </SettingRow>
+            <SettingRow label="Warning before minutes" description="Time before expiry when the session warning is shown.">
+              <input aria-label="Warning before minutes" type="number" min="0" value={getValue(config.session.warning_before_minutes)} onChange={(event) => updateValue("session", "warning_before_minutes", parseInt(event.target.value, 10) || 0)} />
+            </SettingRow>
+          </div>
+          <div className="pcgo-settings__info-note"><CircleHelp size={13} /> Warning time must remain below the default session duration.</div>
+        </SettingsGroup>
+
+        <SettingsGroup icon={<ClipboardList size={14} />} title="Logging" description="Control the host-agent log stream and its runtime verbosity.">
+          <SettingRow label="Log level" description="The host-agent logger applies this level immediately." immediate>
+            <SelectControl ariaLabel="Log level" value={getValue(config.logging.log_level)} onChange={(value) => updateValue("logging", "log_level", value)} options={["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]} />
+          </SettingRow>
+          <SettingRow label="Console logging" description="Keep console output enabled for the host agent." restartRequired={requiresRestartChanged("logging", "console_logging")}>
+            <ToggleSwitch checked={Boolean(getValue(config.logging.console_logging))} onChange={(value) => updateValue("logging", "console_logging", value)} label="Console output enabled" />
+          </SettingRow>
+        </SettingsGroup>
+
+        <SettingsGroup icon={<Database size={14} />} title="Storage" description="Retention controls and immutable server paths for save data.">
+          <div className="pcgo-settings__split-row">
+            <SettingRow label="Backup retention" description="Number of backup sets retained by the host agent." restartRequired={requiresRestartChanged("storage", "backup_retention")}>
+              <input aria-label="Backup retention" type="number" min="1" value={getValue(config.storage.backup_retention)} onChange={(event) => updateValue("storage", "backup_retention", parseInt(event.target.value, 10) || 0)} />
+            </SettingRow>
+            <SettingRow label="Archive retention" description="Number of archive sets retained by the host agent." restartRequired={requiresRestartChanged("storage", "archive_retention")}>
+              <input aria-label="Archive retention" type="number" min="0" value={getValue(config.storage.archive_retention)} onChange={(event) => updateValue("storage", "archive_retention", parseInt(event.target.value, 10) || 0)} />
+            </SettingRow>
+          </div>
+          <div className="pcgo-settings__readonly-block">
+            <div className="pcgo-settings__readonly-heading"><Lock size={12} /> SERVER PATHS <span>READ ONLY</span></div>
+            <ReadOnlyRow label="Save folder" value={getValue(config.storage.saves_root)} />
+            <ReadOnlyRow label="Host backup folder" value={getValue(config.storage.temp_root)} />
+            <ReadOnlyRow label="Game config file" value={getValue(config.storage.games_config_path)} />
+          </div>
+        </SettingsGroup>
+
+        <SettingsGroup icon={<Tags size={14} />} title="Metadata" description="Internal coordination files used by the host agent.">
+          <ReadOnlyRow label="Metadata lock file" value={getValue(config.metadata.lock_file)} />
+        </SettingsGroup>
+      </div>
+
+      {(validationErrors.length > 0 || saveError) && (
+        <div className="pcgo-settings__errors" role="alert">
+          {saveError && <div><XCircle size={13} /> {saveError}</div>}
+          {validationErrors.map((error) => <div key={error}><XCircle size={13} /> {error}</div>)}
+        </div>
+      )}
+
+      {restartRequired && (
+        <div className="pcgo-settings__restart-note" role="status">
+          <AlertTriangle size={14} />
+          <div><strong>Restart required</strong><span>Some saved changes take effect only after the backend is restarted.</span></div>
+        </div>
+      )}
+
+      <div className="pcgo-settings__actions">
+        <Button variant="primary" disabled={saving || !hasChanges} onClick={saveSettings} aria-busy={saving}>
+          {saving ? <RefreshCw size={13} className="pcgo-settings__spin" /> : <Save size={13} />}
+          {saving ? "Saving…" : "Save changes"}
+        </Button>
+        <Button variant="secondary" disabled={saving || !hasChanges} onClick={() => { setConfig(JSON.parse(JSON.stringify(originalConfig))); setValidationErrors([]); setSaveError(""); }}>
+          <RotateCcw size={12} /> Cancel draft
+        </Button>
+        <span className="pcgo-settings__action-help">{hasChanges ? "Unsaved draft values" : "No pending changes"}</span>
+      </div>
+    </section>
+  );
 }
 
-function FieldGroup({ children }) {
-    return (
-        <div className="pcgo-2col" style={{ gap: "0 14px" }}>
-            {children}
-        </div>
-    );
+function SettingsGroup({ icon, title, description, children }) {
+  return (
+    <section className="pcgo-settings-group" aria-labelledby={`settings-group-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
+      <div className="pcgo-settings-group__header">
+        <div className="pcgo-settings-group__mark" aria-hidden="true">{icon}</div>
+        <div><h3 id={`settings-group-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>{title}</h3><p>{description}</p></div>
+      </div>
+      <div className="pcgo-settings-group__body">{children}</div>
+    </section>
+  );
 }
 
-function SelectWrap({ children }) {
-    return (
-        <div style={{ position: "relative" }}>
-            {children}
-            <ChevronDown
-                size={10}
-                style={{
-                    position: "absolute",
-                    right: "13px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    color: colors.inkFaint,
-                    pointerEvents: "none",
-                }}
-            />
-        </div>
-    );
+function SettingRow({ label, description, children, restartRequired = false, immediate = false }) {
+  return (
+    <div className="pcgo-settings-row">
+      <div className="pcgo-settings-row__copy"><div className="pcgo-settings-row__label">{label}</div><p>{description}</p><div className="pcgo-settings-row__meta">{restartRequired ? "RESTART REQUIRED" : immediate ? "IMMEDIATE" : "APPLIES ON SAVE"}</div></div>
+      <div className="pcgo-settings-row__control">{children}</div>
+    </div>
+  );
+}
+
+function ReadOnlyRow({ label, value }) {
+  return <div className="pcgo-settings-readonly-row"><span>{label}</span><strong title={value}>{value || "—"}</strong></div>;
+}
+
+function ReadOnlyValue({ value }) {
+  return <div className="pcgo-settings-readonly-value" aria-label={`Read-only value ${value}`}>{value}</div>;
+}
+
+function PathControl({ ariaLabel, value, onChange, onSelect, selectLabel }) {
+  return <div className="pcgo-settings-path-control"><input aria-label={ariaLabel} value={value || ""} onChange={(event) => onChange(event.target.value)} /><button type="button" aria-label={selectLabel} title={selectLabel} onClick={onSelect}><FileInput size={14} /></button></div>;
+}
+
+function SelectControl({ ariaLabel, value, onChange, options }) {
+  return <div className="pcgo-settings-select-control"><select aria-label={ariaLabel} value={value || ""} onChange={(event) => onChange(event.target.value)}>{options.map((option) => <option key={option} value={option}>{option}</option>)}</select><ChevronDown size={12} aria-hidden="true" /></div>;
 }
 
 function ToggleSwitch({ checked, onChange, label }) {
-    return (
-        <div
-            role="checkbox"
-            aria-checked={checked}
-            tabIndex={0}
-            onClick={() => onChange(!checked)}
-            onKeyDown={(e) => {
-                if (e.key === " " || e.key === "Enter") onChange(!checked);
-            }}
-            style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                cursor: "pointer",
-                userSelect: "none",
-                marginTop: "14px",
-                padding: "8px 0",
-                minHeight: "44px",
-                boxSizing: "border-box",
-            }}
-        >
-            <div
-                style={{
-                    width: "36px",
-                    height: "20px",
-                    borderRadius: `${radius.full}px`,
-                    background: checked ? colors.brandDim : colors.bgInset,
-                    border: `1.5px solid ${checked ? colors.brand : colors.border}`,
-                    position: "relative",
-                    transition: "background 150ms ease, border-color 150ms ease",
-                    flexShrink: 0,
-                }}
-            >
-                <div
-                    style={{
-                        position: "absolute",
-                        top: "2px",
-                        left: checked ? "16px" : "2px",
-                        width: "14px",
-                        height: "14px",
-                        borderRadius: "50%",
-                        background: checked ? colors.brand : colors.inkGhost,
-                        transition: "left 150ms ease, background 150ms ease",
-                    }}
-                />
-            </div>
-            <span style={{ fontSize: "12px", color: colors.inkDim, fontFamily: fonts.mono }}>{label}</span>
-        </div>
-    );
+  return <button type="button" role="switch" aria-checked={checked} aria-label={label} className={`pcgo-settings-switch ${checked ? "is-on" : ""}`} onClick={() => onChange(!checked)}><span aria-hidden="true" /><strong>{checked ? "ON" : "OFF"}</strong></button>;
 }
 
-export function SettingsPanel() {
-
-    const toast = useToast();
-    const [config, setConfig] = useState(null);
-    const [saving, setSaving] = useState(false);
-    const [originalConfig, setOriginalConfig] = useState(null);
-    const [validationErrors, setValidationErrors] = useState([]);
-    useEffect(() => {
-        loadConfig();
-    }, []);
-
-    function getValue(field) {
-        return field?.value;
-    }
-
-    function requiresRestartChanged(
-        section,
-        key,
-    ) {
-
-        if (
-            !config ||
-            !originalConfig
-        ) {
-            return false;
-        }
-
-        return (
-            config[section][key]
-                .requires_restart &&
-            config[section][key].value !==
-            originalConfig[section][key].value
-        );
-    }
-
-    const restartRequired =
-        config &&
-        originalConfig &&
-        (
-            requiresRestartChanged(
-                "host_agent",
-                "environment"
-            ) ||
-            requiresRestartChanged(
-                "host_agent",
-                "debug"
-            ) ||
-            requiresRestartChanged(
-                "storage",
-                "backup_retention"
-            ) ||
-            requiresRestartChanged(
-                "storage",
-                "archive_retention"
-            ) ||
-            requiresRestartChanged(
-                "storage",
-                "enable_archives"
-            ) ||
-            requiresRestartChanged(
-                "storage",
-                "enable_integrity_hashing"
-            ) ||
-            requiresRestartChanged(
-                "logging",
-                "console_logging"
-            )
-        );
-
-    async function loadConfig() {
-
-        try {
-
-            const data =
-                await getConfig();
-
-            setConfig(data);
-
-            setOriginalConfig(
-                JSON.parse(
-                    JSON.stringify(data)
-                )
-            );
-
-        } catch {
-
-            toast.error(
-                "Failed to load settings."
-            );
-        }
-    }
-
-    async function updateSection(
-        section,
-        data,
-    ) {
-        await updateConfig(
-            section,
-            data,
-        );
-    }
-
-    async function saveSettings() {
-
-        setValidationErrors([]);
-        const errors = validateSettings();
-
-        setValidationErrors(errors);
-
-        if (errors.length > 0) {
-            return;
-        }
-
-        setSaving(true);
-
-        try {
-
-            await updateSection(
-                "sunshine",
-                {
-                    api_url:
-                        config.sunshine.api_url.value,
-
-                    username:
-                        config.sunshine.username.value,
-
-                    password:
-                        config.sunshine.password.value,
-
-                    path:
-                        config.sunshine.path.value,
-
-                    verify_ssl:
-                        config.sunshine.verify_ssl.value,
-
-                    close_stream_on_game_exit:
-                        config.sunshine
-                            .close_stream_on_game_exit
-                            .value,
-                },
-            );
-
-            await updateSection(
-                "tailscale",
-                {
-                    ipn_path:
-                        config.tailscale.ipn_path.value,
-                },
-            );
-
-            await updateSection(
-                "storage",
-                {
-                    backup_retention:
-                        config.storage.backup_retention.value,
-
-                    archive_retention:
-                        config.storage.archive_retention.value,
-                },
-            );
-
-            await updateSection(
-                "session",
-                {
-                    max_concurrent_sessions:
-                        config.session
-                            .max_concurrent_sessions
-                            .value,
-
-                    default_session_minutes:
-                        config.session
-                            .default_session_minutes
-                            .value,
-
-                    warning_before_minutes:
-                        config.session
-                            .warning_before_minutes
-                            .value,
-
-                    auto_cleanup:
-                        config.session
-                            .auto_cleanup
-                            .value,
-
-                    force_cleanup_timeout:
-                        config.session
-                            .force_cleanup_timeout
-                            .value,
-                },
-            );
-
-            await updateSection(
-                "logging",
-                {
-                    log_level:
-                        config.logging
-                            .log_level
-                            .value,
-
-                    console_logging:
-                        config.logging
-                            .console_logging
-                            .value,
-                },
-            );
-
-            await updateSection(
-                "host_agent",
-                {
-                    host_name:
-                        config.host_agent
-                            .host_name
-                            .value,
-
-                    environment:
-                        config.host_agent
-                            .environment
-                            .value,
-
-                    debug:
-                        config.host_agent
-                            .debug
-                            .value,
-                },
-            );
-
-            await loadConfig();
-
-            toast.success(
-                "Settings saved successfully."
-            );
-
-        } catch (error) {
-
-            toast.error(
-
-                error.response?.data?.detail ||
-
-                error.message ||
-
-                "Failed to save settings."
-
-            );
-
-        } finally {
-
-            setSaving(false);
-        }
-    }
-
-    async function handleSelectSunshine() {
-
-        try {
-
-            const result =
-                await selectFile();
-
-            if (!result.selected) {
-                return;
-            }
-
-            setConfig({
-                ...config,
-                sunshine: {
-                    ...config.sunshine,
-
-                    path: {
-                        ...config.sunshine.path,
-                        value: result.path,
-                    },
-                },
-            });
-
-        } catch {
-
-            toast.error(
-                "Failed to select Sunshine executable."
-            );
-        }
-    }
-
-    async function handleSelectTailscaleIPN() {
-
-        try {
-
-            const result =
-                await selectFile();
-
-            if (!result.selected) {
-                return;
-            }
-
-            setConfig({
-                ...config,
-                tailscale: {
-                    ...config.tailscale,
-
-                    ipn_path: {
-                        ...config.tailscale.ipn_path,
-                        value: result.path,
-                    },
-                },
-            });
-
-        } catch {
-
-            toast.error(
-                "Failed to select Tailscale IPN executable."
-            );
-        }
-    }
-
-    function validateSettings() {
-
-        const errors = [];
-
-        if (
-            config.sunshine.path.value &&
-            !config.sunshine.path.value
-                .toLowerCase()
-                .endsWith(".exe")
-        ) {
-            errors.push(
-                "Sunshine path must be an executable."
-            );
-        }
-
-        if (
-            config.tailscale.ipn_path.value &&
-            !config.tailscale.ipn_path.value
-                .toLowerCase()
-                .endsWith(".exe")
-        ) {
-            errors.push(
-                "Tailscale path must be an executable."
-            );
-        }
-
-        if (
-            config.session.warning_before_minutes.value >=
-            config.session.default_session_minutes.value
-        ) {
-            errors.push(
-                "Warning time must be less than session duration."
-            );
-        }
-
-        if (
-            config.session.default_session_minutes.value < 5
-        ) {
-            errors.push(
-                "Session duration must be greater than 5."
-            );
-        }
-
-        if (
-            config.session.warning_before_minutes.value < 0
-        ) {
-            errors.push(
-                "Warning time cannot be negative."
-            );
-        }
-
-        if (
-            config.storage.backup_retention?.value < 1
-        ) {
-            errors.push(
-                "Backup retention must be at least 1."
-            );
-        }
-
-        return errors;
-    }
-
-    const hasChanges =
-        JSON.stringify(config) !==
-        JSON.stringify(originalConfig);
-
-    if (!config) {
-
-        return (
-            <div
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "9px",
-                    padding: "16px",
-                    color: colors.inkDim,
-                    fontFamily: fonts.mono,
-                    fontSize: "11.5px",
-                }}
-            >
-                <Spinner size={14} />
-                Loading settings...
-            </div>
-        );
-    }
-
-    return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-
-            {/* Sunshine */}
-            <Card style={{ padding: "16px" }}>
-                <SectionHeader icon={<Cloud size={12} strokeWidth={2} />} title="Sunshine" />
-
-                <FieldLabel>Sunshine API URL</FieldLabel>
-                <input
-                    style={inputStyle}
-                    placeholder="Api Url"
-                    value={getValue(config.sunshine.api_url)}
-                    onFocus={focusBorder}
-                    onBlur={blurBorder}
-                    onChange={(e) =>
-                        setConfig({
-                            ...config,
-                            sunshine: {
-                                ...config.sunshine,
-                                api_url: {
-                                    ...config.sunshine.api_url,
-                                    value: e.target.value,
-                                }
-                            },
-                        })
-                    }
-                />
-
-                <FieldLabel>Sunshine Path</FieldLabel>
-                <div style={{ display: "flex", gap: "8px" }}>
-                    <input
-                        style={{ ...inputStyle, flex: 1, minWidth: 0 }}
-                        value={getValue(config.sunshine.path)}
-                        onFocus={focusBorder}
-                        onBlur={blurBorder}
-                        onChange={(e) =>
-                            setConfig({
-                                ...config,
-                                sunshine: {
-                                    ...config.sunshine,
-                                    path: {
-                                        ...config.sunshine.path,
-                                        value:
-                                            e.target.value,
-                                    },
-                                },
-                            })
-                        }
-                    />
-
-                    <button
-                        style={filePickerButton}
-                        onClick={handleSelectSunshine}
-                        title="Select Sunshine executable"
-                        aria-label="Select Sunshine executable"
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.background = colors.brandDim;
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background = "rgba(224,164,88,0.08)";
-                        }}
-                    >
-                        <FileInput size={13} strokeWidth={2} />
-                    </button>
-                </div>
-
-                <FieldGroup>
-                    <div>
-                        <FieldLabel>Sunshine Username</FieldLabel>
-                        <input
-                            style={inputStyle}
-                            placeholder="Username"
-                            value={getValue(config.sunshine.username)}
-                            onFocus={focusBorder}
-                            onBlur={blurBorder}
-                            onChange={(e) =>
-                                setConfig({
-                                    ...config,
-                                    sunshine: {
-                                        ...config.sunshine,
-                                        username: {
-                                            ...config.sunshine.username,
-                                            value: e.target.value,
-                                        }
-                                    },
-                                })
-                            }
-                        />
-                    </div>
-                    <div>
-                        <FieldLabel>Sunshine Password</FieldLabel>
-                        <input
-                            type="password"
-                            style={inputStyle}
-                            placeholder="Password"
-                            value={getValue(config.sunshine.password)}
-                            onFocus={focusBorder}
-                            onBlur={blurBorder}
-                            onChange={(e) =>
-                                setConfig({
-                                    ...config,
-                                    sunshine: {
-                                        ...config.sunshine,
-                                        password: {
-                                            ...config.sunshine.password,
-                                            value: e.target.value,
-                                        }
-                                    },
-                                })
-                            }
-                        />
-                    </div>
-                </FieldGroup>
-            </Card>
-
-            {/* Tailscale */}
-            <Card style={{ padding: "16px" }}>
-                <SectionHeader icon={<Network size={12} strokeWidth={2} />} title="Tailscale" />
-
-                <FieldLabel>Tailscale IPN Path</FieldLabel>
-                <div style={{ display: "flex", gap: "8px" }}>
-                    <input
-                        style={{ ...inputStyle, flex: 1, minWidth: 0 }}
-                        value={getValue(config.tailscale.ipn_path)}
-                        onFocus={focusBorder}
-                        onBlur={blurBorder}
-                        onChange={(e) =>
-                            setConfig({
-                                ...config,
-                                tailscale: {
-                                    ...config.tailscale,
-                                    ipn_path: {
-                                        ...config.tailscale.ipn_path,
-                                        value:
-                                            e.target.value,
-                                    },
-                                },
-                            })
-                        }
-                    />
-
-                    <button
-                        style={filePickerButton}
-                        onClick={handleSelectTailscaleIPN}
-                        title="Select Tailscale IPN executable"
-                        aria-label="Select Tailscale IPN executable"
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.background = colors.brandDim;
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background = "rgba(224,164,88,0.08)";
-                        }}
-                    >
-                        <FileInput size={13} strokeWidth={2} />
-                    </button>
-                </div>
-            </Card>
-
-            {/* Session */}
-            <Card style={{ padding: "16px" }}>
-                <SectionHeader icon={<Clock size={12} strokeWidth={2} />} title="Session" />
-
-                <FieldGroup>
-                    <div>
-                        <FieldLabel>Default Session Minutes</FieldLabel>
-                        <input
-                            style={inputStyle}
-                            type="number"
-                            value={getValue(config.session.default_session_minutes)}
-                            onFocus={focusBorder}
-                            onBlur={blurBorder}
-                            onChange={(e) =>
-                                setConfig({
-                                    ...config,
-                                    session: {
-                                        ...config.session,
-                                        default_session_minutes: {
-                                            ...config.session.default_session_minutes,
-                                            value: parseInt(
-                                                e.target.value
-                                            ) || 0,
-                                        },
-                                    },
-                                })
-                            }
-                        />
-                    </div>
-                    <div>
-                        <FieldLabel>Warning Before Minutes</FieldLabel>
-                        <input
-                            style={inputStyle}
-                            type="number"
-                            value={getValue(config.session.warning_before_minutes)}
-                            onFocus={focusBorder}
-                            onBlur={blurBorder}
-                            onChange={(e) =>
-                                setConfig({
-                                    ...config,
-                                    session: {
-                                        ...config.session,
-                                        warning_before_minutes: {
-                                            ...config.session.warning_before_minutes,
-                                            value: parseInt(
-                                                e.target.value
-                                            ) || 0,
-                                        },
-                                    },
-                                })
-                            }
-                        />
-                    </div>
-                </FieldGroup>
-            </Card>
-
-            {/* Logging */}
-            <Card style={{ padding: "16px" }}>
-                <SectionHeader icon={<ClipboardList size={12} strokeWidth={2} />} title="Logging" />
-
-                <FieldLabel>Log Level</FieldLabel>
-                <SelectWrap>
-                    <select
-                        style={{ ...inputStyle, cursor: "pointer", appearance: "none", paddingRight: "34px" }}
-                        value={getValue(config.logging.log_level)}
-                        onFocus={focusBorder}
-                        onBlur={blurBorder}
-                        onChange={(e) =>
-                            setConfig({
-                                ...config,
-                                logging: {
-                                    ...config.logging,
-                                    log_level: {
-                                        ...config.logging.log_level,
-                                        value: e.target.value,
-                                    }
-                                },
-                            })
-                        }
-                    >
-                        <option value="DEBUG">DEBUG</option>
-                        <option value="INFO">INFO</option>
-                        <option value="WARNING">WARNING</option>
-                        <option value="ERROR">ERROR</option>
-                    </select>
-                </SelectWrap>
-
-                <ToggleSwitch
-                    checked={!!getValue(config.logging.console_logging)}
-                    label="Console Logging"
-                    onChange={(next) =>
-                        setConfig({
-                            ...config,
-                            logging: {
-                                ...config.logging,
-                                console_logging: {
-                                    ...config.logging.console_logging,
-                                    value: next,
-                                },
-                            },
-                        })
-                    }
-                />
-            </Card>
-
-            {/* Host Agent */}
-            <Card style={{ padding: "16px" }}>
-                <SectionHeader icon={<Server size={12} strokeWidth={2} />} title="Host Agent" />
-
-                <FieldLabel>Name</FieldLabel>
-                <input
-                    style={inputStyle}
-                    placeholder="Host name"
-                    value={getValue(config.host_agent.host_name)}
-                    onFocus={focusBorder}
-                    onBlur={blurBorder}
-                    onChange={(e) =>
-                        setConfig({
-                            ...config,
-                            host_agent: {
-                                ...config.host_agent,
-                                host_name: {
-                                    ...config.host_agent.host_name,
-                                    value: e.target.value,
-                                }
-                            },
-                        })
-                    }
-                />
-
-                <FieldLabel>Environment</FieldLabel>
-                <SelectWrap>
-                    <select
-                        style={{ ...inputStyle, cursor: "pointer", appearance: "none", paddingRight: "34px" }}
-                        value={getValue(config.host_agent.environment)}
-                        onFocus={focusBorder}
-                        onBlur={blurBorder}
-                        onChange={(e) =>
-                            setConfig({
-                                ...config,
-                                host_agent: {
-                                    ...config.host_agent,
-                                    environment: {
-                                        ...config.host_agent.environment,
-                                        value: e.target.value,
-                                    }
-                                },
-                            })
-                        }
-                    >
-                        <option value="development">development</option>
-                        <option value="production">production</option>
-                    </select>
-                </SelectWrap>
-            </Card>
-
-            {/* Storage (read only + editable retention) */}
-            <Card style={{ padding: "16px" }}>
-                <SectionHeader icon={<Database size={12} strokeWidth={2} />} title="Storage" />
-
-                <FieldGroup>
-                    <div>
-                        <FieldLabel>Max Backup</FieldLabel>
-                        <input
-                            style={inputStyle}
-                            placeholder="Backup Limit"
-                            value={getValue(config.storage.backup_retention)}
-                            onFocus={focusBorder}
-                            onBlur={blurBorder}
-                            onChange={(e) =>
-                                setConfig({
-                                    ...config,
-                                    storage: {
-                                        ...config.storage,
-                                        backup_retention: {
-                                            ...config.storage.backup_retention,
-                                            value: parseInt(
-                                                e.target.value
-                                            ) || 0,
-                                        }
-                                    },
-                                })
-                            }
-                        />
-                    </div>
-                    <div>
-                        <FieldLabel>Max Archive</FieldLabel>
-                        <input
-                            style={inputStyle}
-                            placeholder="Archive Limit"
-                            value={getValue(config.storage.archive_retention)}
-                            onFocus={focusBorder}
-                            onBlur={blurBorder}
-                            onChange={(e) =>
-                                setConfig({
-                                    ...config,
-                                    storage: {
-                                        ...config.storage,
-                                        archive_retention: {
-                                            ...config.storage.archive_retention,
-                                            value: parseInt(
-                                                e.target.value
-                                            ) || 0,
-                                        }
-                                    },
-                                })
-                            }
-                        />
-                    </div>
-                </FieldGroup>
-
-                <div style={{ marginTop: "6px", paddingTop: "6px", borderTop: `1.5px solid ${colors.border}` }}>
-                    <FieldLabel>Save Folder</FieldLabel>
-                    <input
-                        style={readOnlyStyle}
-                        disabled
-                        value={getValue(config.storage.saves_root)}
-                    />
-
-                    <FieldLabel>Host Backup Save Folder</FieldLabel>
-                    <input
-                        style={readOnlyStyle}
-                        disabled
-                        value={getValue(config.storage.temp_root)}
-                    />
-
-                    <FieldLabel>Game Config File</FieldLabel>
-                    <input
-                        style={readOnlyStyle}
-                        disabled
-                        value={getValue(config.storage.games_config_path)}
-                    />
-                </div>
-            </Card>
-
-            {/* Metadata (read only) */}
-            <Card style={{ padding: "16px" }}>
-                <SectionHeader icon={<Tags size={12} strokeWidth={2} />} title="Metadata" readOnly />
-
-                <FieldLabel>Metadata Lock File Path</FieldLabel>
-                <input
-                    style={readOnlyStyle}
-                    disabled
-                    value={getValue(config.metadata.lock_file)}
-                />
-            </Card>
-
-            {/* Validation errors */}
-            {validationErrors.length > 0 && (
-                <div style={alertBox(colors.danger, "rgba(255,107,107,0.1)")}>
-                    {validationErrors.map((error, index) => (
-                        <div key={index} style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
-                            <XCircle size={11} strokeWidth={2} style={{ marginTop: "2px", flexShrink: 0 }} />
-                            {error}
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {/* Restart required */}
-            {restartRequired && (
-                <div style={alertBox(colors.warning, colors.accentYellowDim)}>
-                    <AlertTriangle size={11} strokeWidth={2} style={{ flexShrink: 0 }} />
-                    Some changes require a backend restart.
-                </div>
-            )}
-
-            {/* Save / Cancel */}
-            <div style={{ display: "flex", gap: "10px" }}>
-                <Button
-                    variant="primary"
-                    disabled={saving || !hasChanges}
-                    onClick={saveSettings}
-                    style={{ flex: 1 }}
-                >
-                    <Save size={12} strokeWidth={2} />
-                    {saving ? "Saving..." : "Save Changes"}
-                </Button>
-
-                <Button
-                    variant="secondary"
-                    disabled={saving}
-                    onClick={() => {
-                        setConfig(
-                            JSON.parse(
-                                JSON.stringify(
-                                    originalConfig
-                                )
-                            )
-                        );
-                    }}
-                    style={{ flex: 1 }}
-                >
-                    <RotateCcw size={11} strokeWidth={2} />
-                    Cancel
-                </Button>
-            </div>
-        </div>
-    );
+function SettingsLoading() {
+  return <div className="pcgo-settings-loading" role="status" aria-label="Loading settings"><div className="pcgo-settings-loading__toolbar"><span /><i /></div><div className="pcgo-settings-loading__group"><span /><i /><b /><b /><b /></div><div className="pcgo-settings-loading__group"><span /><i /><b /><b /></div></div>;
 }
 
-function alertBox(color, wash) {
-    return {
-        display: "flex",
-        flexDirection: "column",
-        gap: "6px",
-        alignItems: "flex-start",
-        padding: "11px 14px",
-        background: wash,
-        border: `1.5px solid ${color}`,
-        borderRadius: `${radius.sm}px`,
-        color,
-        fontSize: "11.5px",
-        fontFamily: fonts.mono,
-    };
+function ClockIcon() {
+  return <span className="pcgo-settings-clock" aria-hidden="true">◷</span>;
 }
-
-const filePickerButton = {
-    width: "42px",
-    flexShrink: 0,
-    borderRadius: `${radius.md}px`,
-    border: `1.5px solid ${colors.brand}`,
-    background: "rgba(224,164,88,0.08)",
-    color: colors.brand,
-    cursor: "pointer",
-    fontSize: "13px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    transition: "background 150ms ease",
-};

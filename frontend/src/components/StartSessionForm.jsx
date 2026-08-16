@@ -59,7 +59,7 @@ const DEFAULT_FORM = {
   save_name: "",
 };
 
-export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions}) {
+export function StartSessionForm({ games, gamesLoading = false, onLaunched, hostStatus, activeSessions, blockActiveSessions = false }) {
   const confirm = useConfirm();
   const toast = useToast();
   const [form, setForm] = useState(DEFAULT_FORM);
@@ -80,7 +80,7 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
   const [gameValidationLoading, setGameValidationLoading] = useState(false);
   const [gameValidationErr, setGameValidationErr] = useState("");
   const [showGameDetails, setShowGameDetails] = useState(false);
-  const gamesReady = Object.keys(games).length > 0;
+  const gamesReady = !gamesLoading && Object.keys(games).length > 0;
   // ── Load game list ────────────────────────────────────────────────────
 
   const entries = Object.entries(games || {});
@@ -466,8 +466,8 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
     width: "100%",
     padding: "10px 12px",
     background: colors.bgInset,
-    border: `1.5px solid ${colors.border}`,
-    borderRadius: `${radius.md}px`,
+    border: `1px solid ${colors.border}`,
+    borderRadius: `${radius.sm}px`,
     color: colors.ink,
     fontSize: "13px",
     fontFamily: fonts.body,
@@ -477,9 +477,9 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
   };
 
   const cardSection = {
-    padding: "16px",
+    padding: "18px",
     borderRadius: `${radius.md}px`,
-    border: `1.5px solid ${colors.border}`,
+    border: `1px solid ${colors.borderSubtle}`,
     background: colors.bgCard,
   };
 
@@ -543,13 +543,15 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
     );
   }
 
+  const activeSessionBlocked = blockActiveSessions && activeSessions?.length > 0;
   const launchDisabled =
-    submitting || !gamesReady || gameValidationLoading || sessionBlocked;
+    submitting || gamesLoading || !gamesReady || gameValidationLoading || sessionBlocked || activeSessionBlocked;
 
   // ── Render ────────────────────────────────────────────────────────────
 
   return (
     <div
+      className="pcgo-launch-console"
       style={{
         border: `1.5px solid ${colors.border}`,
         borderRadius: `${radius.lg}px`,
@@ -559,6 +561,7 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
     >
       {/* Header */}
       <div
+        className="pcgo-launch-console__header"
         style={{
           display: "flex",
           alignItems: "center",
@@ -602,12 +605,17 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
         </div>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px", padding: "20px" }}>
+      <div className="pcgo-launch-console__body" style={{ display: "flex", flexDirection: "column", gap: "16px", padding: "20px" }}>
         {/* Game */}
-        <div style={cardSection}>
+        <div className="pcgo-launch-console__section pcgo-launch-console__section--game" style={cardSection}>
           <FieldLabel icon={<Gamepad2 size={11} strokeWidth={2} />}>Game</FieldLabel>
 
-          {entries.length === 0 ? (
+          {gamesLoading ? (
+            <div className="pcgo-game-manager-form-loading" role="status" aria-live="polite">
+              <span className="pcgo-game-manager-form-loading__dot" />
+              Loading configured launch targets…
+            </div>
+          ) : entries.length === 0 ? (
             <div
               style={{
                 display: "flex",
@@ -623,7 +631,7 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
               }}
             >
               <AlertTriangle size={12} strokeWidth={2} />
-              No games found
+              No configured games
             </div>
           ) : (
             <div style={{ position: "relative" }}>
@@ -631,6 +639,7 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
                 style={{ ...inputStyle, cursor: "pointer", appearance: "none", paddingRight: "34px" }}
                 value={form.game_id}
                 disabled={!gamesReady}
+                aria-label="Select a game to launch"
                 onChange={(e) => set("game_id", e.target.value)}
                 onFocus={focusBorder}
                 onBlur={blurBorder}
@@ -732,7 +741,7 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
         </div>
 
         {/* Duration + Warning */}
-        <div style={cardSection}>
+        <div className="pcgo-launch-console__section pcgo-launch-console__section--timer" style={cardSection}>
           <SectionHeading>Session Timer</SectionHeading>
           <div className="pcgo-2col" style={{ gap: "12px" }}>
             <div>
@@ -820,7 +829,7 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
         </div>
 
         {/* Load Save */}
-        <div style={cardSection}>
+        <div className="pcgo-launch-console__section pcgo-launch-console__section--saves" style={cardSection}>
           <SectionHeading>Save Data</SectionHeading>
           {form.game_id ? (
             <SaveBrowser
@@ -937,6 +946,20 @@ export function StartSessionForm({ games, onLaunched, hostStatus, activeSessions
           <Rocket size={13} strokeWidth={2} />
           {submitting ? "Checking / Launching..." : "Launch Session"}
         </Button>
+
+        {activeSessionBlocked && (
+          <div className="pcgo-game-manager-launch-note" role="status">
+            <AlertTriangle size={11} strokeWidth={2} />
+            An active session is already running or cleaning. Wait for it to finish before launching another.
+          </div>
+        )}
+
+        {gamesLoading && (
+          <div className="pcgo-game-manager-launch-note" role="status">
+            <Info size={11} strokeWidth={2} />
+            Waiting for the configured game list before launch can be evaluated.
+          </div>
+        )}
 
         {sessionBlocked && hostStatus?.host_ready_reason != null && (
           <div

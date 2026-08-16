@@ -26,8 +26,8 @@ export function HostMonitorPage({
   const showForceUnlock = sessionHealth?.lock_exists && hostStatus?.active_session_count === 0;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-      <PageHeader title="Host Monitor" subtitle="Live host status, capabilities, and controls" onBack={onBack} />
+    <div className="pcgo-feature-page pcgo-host-monitor-page">
+      <PageHeader title="Host Monitor" subtitle="Readiness, dependencies, and recovery controls" onBack={onBack} />
 
       <HostStatusPanel
         status={hostStatus}
@@ -47,7 +47,20 @@ export function HostMonitorPage({
       />
 
       {sessionHealth && (
-        <SectionCard title="Session Health" bare={false}>
+        <div className="pcgo-host-session-health">
+          <SectionCard title="Session Health" bare={false}>
+          <div
+            style={{
+              marginTop: "-6px",
+              marginBottom: "12px",
+              color: colors.inkFaint,
+              fontFamily: fonts.mono,
+              fontSize: "10px",
+              lineHeight: 1.4,
+            }}
+          >
+            Aggregate and historical session telemetry
+          </div>
           <div
             style={{
               display: "grid",
@@ -58,10 +71,10 @@ export function HostMonitorPage({
             }}
           >
             <div style={{ color: colors.inkFaint }}>
-              ACTIVE <span style={{ color: colors.ink, marginLeft: "6px" }}>{sessionHealth.active_sessions}</span>
+              ACTIVE NOW <span style={{ color: colors.ink, marginLeft: "6px" }}>{sessionHealth.active_sessions}</span>
             </div>
             <div style={{ color: colors.inkFaint }}>
-              LOCK{" "}
+              LOCK STATE {""}
               <span style={{ color: sessionHealth.lock_exists ? colors.warning : colors.ink, marginLeft: "6px" }}>
                 {sessionHealth.lock_exists ? "YES" : "NO"}
               </span>
@@ -73,13 +86,16 @@ export function HostMonitorPage({
               EVENTS <span style={{ color: colors.ink, marginLeft: "6px" }}>{sessionHealth.event_count}</span>
             </div>
           </div>
-        </SectionCard>
+          </SectionCard>
+        </div>
       )}
 
       {showForceUnlock && (
-        <Button variant="danger" disabled={unlocking} onClick={onForceUnlock} style={{ width: "100%" }}>
-          {unlocking ? "Unlocking…" : "Force Unlock"}
-        </Button>
+        <div className="pcgo-host-force-unlock">
+          <Button variant="danger" disabled={unlocking} onClick={onForceUnlock} style={{ width: "100%" }}>
+            {unlocking ? "Unlocking…" : "Force Unlock"}
+          </Button>
+        </div>
       )}
     </div>
   );

@@ -96,6 +96,7 @@ export function AdminDashboard({ username }) {
     streamHistory,
     streamHistoryLoading,
     games,
+    gamesLoading,
     lastUpdated,
     refreshHostData,
     loadGames,
@@ -274,7 +275,14 @@ export function AdminDashboard({ username }) {
         onBack={goBack}
       />
     ),
-    "game-manager": <GameManagerPage games={games} loadGames={loadGames} onBack={goBack} />,
+    "game-manager": (
+      <GameManagerPage
+        games={games}
+        gamesLoading={gamesLoading}
+        loadGames={loadGames}
+        onBack={goBack}
+      />
+    ),
     users: <UserManagementPage onBack={goBack} />,
     analytics: <AnalyticsPage refreshKey={historyRefreshKey} onBack={goBack} />,
     history: <SessionHistoryPage refreshKey={historyRefreshKey} onBack={goBack} />,

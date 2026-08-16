@@ -14,17 +14,85 @@
  * Mounted once, high up the tree (see App.jsx) via <ConfirmDialogProvider>.
  */
 
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useId, useRef, useState } from "react";
 import { AlertTriangle, HelpCircle } from "lucide-react";
 import { colors, fonts, radius, shadow } from "../../dashboard/theme.js";
 
 const ConfirmContext = createContext(null);
 
+function getFocusableElements(container) {
+  if (!container) return [];
+  return [...container.querySelectorAll(
+    'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  )].filter((element) => element.getAttribute("aria-hidden") !== "true");
+}
+
+function getFallbackFocusTarget() {
+  const candidates = document.querySelectorAll(
+    'nav[aria-label="Primary navigation"] button[aria-current="page"]:not([disabled]), main button:not([disabled]), main a[href], main input:not([disabled]), main select:not([disabled]), button[aria-label="Toggle navigation menu"]'
+  );
+  const target = [...candidates].find((element) => element.getClientRects().length > 0 && element.getAttribute("aria-hidden") !== "true");
+  if (target) return target;
+
+  const main = document.querySelector("main");
+  if (main) {
+    if (!main.hasAttribute("tabindex")) main.setAttribute("tabindex", "-1");
+    return main;
+  }
+  return null;
+}
+
+function restoreFocusAfterClose(appContentRef, opener) {
+  let attempts = 0;
+  function attempt() {
+    if (appContentRef.current) {
+      appContentRef.current.inert = false;
+      appContentRef.current.removeAttribute("inert");
+      appContentRef.current.removeAttribute("aria-hidden");
+    }
+
+    const target = opener?.isConnected && !opener.disabled && opener.getAttribute("aria-hidden") !== "true"
+      ? opener
+      : getFallbackFocusTarget();
+
+    if (target?.isConnected && !target.disabled && target.getAttribute("aria-hidden") !== "true") {
+      target.focus({ preventScroll: true });
+    }
+
+    attempts += 1;
+    if (attempts < 20) window.setTimeout(attempt, 50);
+  }
+  window.setTimeout(attempt, 0);
+}
+
 export function ConfirmDialogProvider({ children }) {
   const [dialog, setDialog] = useState(null);
+  const appContentRef = useRef(null);
+  const dialogRef = useRef(null);
+  const cancelButtonRef = useRef(null);
+  const confirmButtonRef = useRef(null);
+  const openerRef = useRef(null);
+  const instanceId = useId().replace(/:/g, "");
+  const titleId = `confirm-dialog-title-${instanceId}`;
+  const messageId = `confirm-dialog-message-${instanceId}`;
+
+  const close = useCallback(
+    (result) => {
+      if (!dialog) return;
+      const opener = openerRef.current;
+      openerRef.current = null;
+      dialog.resolve(result);
+      setDialog(null);
+
+      restoreFocusAfterClose(appContentRef, opener);
+    },
+    [dialog]
+  );
 
   const confirm = useCallback((message, opts = {}) => {
     return new Promise((resolve) => {
+      const activeElement = document.activeElement;
+      openerRef.current = activeElement instanceof HTMLElement ? activeElement : null;
       setDialog({
         message,
         title: opts.title ?? (opts.danger ? "Are you sure?" : "Confirm"),
@@ -36,27 +104,71 @@ export function ConfirmDialogProvider({ children }) {
     });
   }, []);
 
-  const close = useCallback(
-    (result) => {
-      dialog?.resolve(result);
-      setDialog(null);
-    },
-    [dialog]
-  );
+  useEffect(() => {
+    const appContent = appContentRef.current;
+    if (!appContent) return undefined;
+    appContent.inert = Boolean(dialog);
+    if (dialog) appContent.setAttribute("aria-hidden", "true");
+    else appContent.removeAttribute("aria-hidden");
+    return () => {
+      appContent.inert = false;
+      appContent.removeAttribute("inert");
+      appContent.removeAttribute("aria-hidden");
+    };
+  }, [dialog]);
 
   useEffect(() => {
-    if (!dialog) return;
-    function onKeyDown(e) {
-      if (e.key === "Escape") close(false);
-      if (e.key === "Enter") close(true);
+    if (!dialog) return undefined;
+
+    const frame = window.requestAnimationFrame(() => {
+      (confirmButtonRef.current || cancelButtonRef.current || dialogRef.current)?.focus({ preventScroll: true });
+    });
+
+    function onKeyDown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        close(false);
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+      const focusable = getFocusableElements(dialogRef.current);
+      if (!focusable.length) {
+        event.preventDefault();
+        dialogRef.current?.focus({ preventScroll: true });
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+
+    function onFocusIn(event) {
+      if (dialogRef.current?.contains(event.target)) return;
+      event.preventDefault();
+      (confirmButtonRef.current || cancelButtonRef.current || dialogRef.current)?.focus({ preventScroll: true });
+    }
+
+    document.addEventListener("keydown", onKeyDown, true);
+    document.addEventListener("focusin", onFocusIn, true);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      document.removeEventListener("keydown", onKeyDown, true);
+      document.removeEventListener("focusin", onFocusIn, true);
+    };
   }, [dialog, close]);
 
   return (
     <ConfirmContext.Provider value={confirm}>
-      {children}
+      <div ref={appContentRef} style={{ display: "contents" }}>{children}</div>
 
       {dialog && (
         <div
@@ -75,9 +187,13 @@ export function ConfirmDialogProvider({ children }) {
           }}
         >
           <div
-            role="alertdialog"
+            ref={dialogRef}
+            role="dialog"
             aria-modal="true"
-            onClick={(e) => e.stopPropagation()}
+            aria-labelledby={titleId}
+            aria-describedby={messageId}
+            tabIndex={-1}
+            onClick={(event) => event.stopPropagation()}
             style={{
               width: "100%",
               maxWidth: "380px",
@@ -111,6 +227,7 @@ export function ConfirmDialogProvider({ children }) {
 
               <div style={{ minWidth: 0 }}>
                 <div
+                  id={titleId}
                   style={{
                     fontSize: "14.5px",
                     fontWeight: 700,
@@ -122,6 +239,7 @@ export function ConfirmDialogProvider({ children }) {
                   {dialog.title}
                 </div>
                 <div
+                  id={messageId}
                   style={{
                     marginTop: "6px",
                     fontSize: "12.5px",
@@ -139,6 +257,7 @@ export function ConfirmDialogProvider({ children }) {
 
             <div style={{ display: "flex", gap: "8px", marginTop: "20px" }}>
               <button
+                ref={cancelButtonRef}
                 onClick={() => close(false)}
                 style={{
                   flex: 1,
@@ -154,20 +273,21 @@ export function ConfirmDialogProvider({ children }) {
                   letterSpacing: "0.02em",
                   cursor: "pointer",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(237,235,227,0.08)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                onMouseEnter={(event) => (event.currentTarget.style.background = "rgba(237,235,227,0.08)")}
+                onMouseLeave={(event) => (event.currentTarget.style.background = "transparent")}
               >
                 {dialog.cancelLabel}
               </button>
 
               <button
+                ref={confirmButtonRef}
                 onClick={() => close(true)}
                 style={{
                   flex: 1,
                   padding: "9px",
                   minHeight: "44px",
                   borderRadius: `${radius.full}px`,
-                  border: "1.5px solid transparent",
+                  border: `1.5px solid transparent`,
                   background: dialog.danger ? colors.danger : colors.ink,
                   color: colors.bg,
                   fontSize: "12px",
@@ -176,9 +296,8 @@ export function ConfirmDialogProvider({ children }) {
                   letterSpacing: "0.02em",
                   cursor: "pointer",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(1.06)")}
-                onMouseLeave={(e) => (e.currentTarget.style.filter = "none")}
-                autoFocus
+                onMouseEnter={(event) => (event.currentTarget.style.filter = "brightness(1.06)")}
+                onMouseLeave={(event) => (event.currentTarget.style.filter = "none")}
               >
                 {dialog.confirmLabel}
               </button>

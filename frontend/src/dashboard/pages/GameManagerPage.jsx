@@ -1,11 +1,11 @@
 import { GameManager } from "../../components/GameManager.jsx";
 import { PageHeader } from "../components/PageHeader.jsx";
 
-export function GameManagerPage({ games, loadGames, onBack }) {
+export function GameManagerPage({ games, gamesLoading, loadGames, onBack }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-      <PageHeader title="Game Manager" subtitle="Add, edit, and remove Games" onBack={onBack} />
-      <GameManager games={games} refreshGames={loadGames} />
+    <div className="pcgo-feature-page pcgo-game-manager-page">
+      <PageHeader title="Game Manager" subtitle="Add, edit, and remove configured launch targets" onBack={onBack} />
+      <GameManager games={games} gamesLoading={gamesLoading} refreshGames={loadGames} />
     </div>
   );
 }
