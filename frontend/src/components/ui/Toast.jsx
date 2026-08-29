@@ -94,6 +94,15 @@ export function ToastProvider({ children }) {
                 border: `1.5px solid ${colors.border}`,
                 borderLeft: `3px solid ${tone.color}`,
                 boxShadow: shadow.overlay,
+                // motion-audit (P6-T04): keyframe-based entrance
+                // `animation:`. 180ms duration coincidentally matches
+                // motion.pill's 180ms, but motion.pill's easing is a
+                // distinct cubic-bezier(0.4,0,0.2,1) curve, not plain
+                // `ease` — a duration-only match is not a genuine exact
+                // match, and this is keyframe-based (name + forwards
+                // fill-mode) besides, same non-convertible category as
+                // primitives.jsx's Spinner (P6-T02). Left as a literal,
+                // not converted.
                 animation: "toast-in 0.18s ease forwards",
               }}
             >

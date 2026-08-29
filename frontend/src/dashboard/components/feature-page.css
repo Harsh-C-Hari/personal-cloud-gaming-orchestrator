@@ -25,7 +25,7 @@
 }
 
 .pcgo-section-card {
-  background: var(--color-bg-card);
+  background: var(--surface-l3);
   border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: 22px;
@@ -96,6 +96,9 @@
   background: var(--color-bg-inset);
   border: 1px solid var(--color-border-subtle);
   border-radius: 9px;
+  /* P6-T15 motion audit: matches `motion.base` (160ms ease) in value, but no
+     CSS-side `--motion-*` token exists yet to convert to (D-011). Left as the
+     original literal; no conversion. */
   transition: background 160ms ease, border-color 160ms ease;
 }
 
@@ -138,7 +141,7 @@
 
 .pcgo-empty-state {
   padding: 40px 20px;
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
   border: 1px dashed var(--color-border);
   border-radius: 12px;
 }
@@ -192,21 +195,66 @@
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-md);
   color: var(--color-ink-dim);
-  background: var(--color-bg-inset);
+  /* D-009 literal alias: var(--color-bg-inset) -> var(--surface-l1),
+     same custom property value, zero visual change. */
+  background: var(--surface-l1);
   font: 500 10.5px/1.4 'JetBrains Mono', monospace;
 }
 
+/* .pcgo-game-manager-config-loading__dot (below) and its
+   prefers-reduced-motion override above were checked and have zero
+   color references — pure animation/sizing rules (width/height/
+   border-radius/background: var(--color-brand) which is a brand accent,
+   not a bg/surface slot, plus the animation itself). Nothing to swap;
+   left untouched per this task's scope. */
 .pcgo-game-manager-config-loading__dot {
   width: 7px;
   height: 7px;
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--color-brand);
+  /* P6-T15 motion audit: named-keyframe `animation:` reference, not a `transition:`
+     property — `motion`'s four exports are transition-timing value strings, not
+     `@keyframes` names, so there's no valid conversion target regardless of
+     duration. 1.6s also doesn't match any `motion` step's duration. Left as the
+     original literal; no conversion. */
   animation: pcgo-pulse 1.6s ease-in-out infinite;
 }
 
 
 /* Session History: an authoritative historical record, not a generic table. */
+/* ==========================================================================
+   Session History (P5-T04) — surface/typeScale token pass.
+
+   Background aliasing (D-009): the 5 var(--color-bg-*) references in this
+   block were swapped for their byte-identical var(--surface-l*)
+   equivalents — same 1:1 verification prior P5 tasks did against App.jsx's
+   6 theme blocks:
+     - __window-note/__recovery-note background: --color-bg-inset -> l1
+     - __record-meta background:                 --color-bg-card  -> l3
+     - __details background:                     --color-bg-elevated -> l2
+     - __event background:                       --color-bg-inset -> l1
+     - -loading__row background:                 --color-bg-inset -> l1
+   Zero visual change: same CSS custom properties under new names. No other
+   var(--color-bg-*) references exist in this block (the card-level L3
+   background for the section as a whole comes from SessionHistory.jsx's
+   own `box` style object, not this stylesheet).
+
+   Typography: every font-size/weight/family combination in this block
+   (the 8.5px/700 mono eyebrow at .14em, the 9.5px/500 mono description/
+   window-note/recovery-note/record-note/event-message text, the 13px/700
+   Space Grotesk record-title, the 9px/700 mono record-status at .07em,
+   the 10px/500 mono record-side, the 8px/700 mono meta labels at .08em/
+   .1em, the 9px/500 mono meta values, the 8.5px event-strong at .05em)
+   was checked against all 6 typeScale steps and does not land on any of
+   them at matching size+weight+family — the closest is the record-status/
+   meta-label pair against meta's 10px/700/mono, but both differ on the
+   defining size and letter-spacing, not just a rounding difference. Left
+   as literal values, the same "refine, don't flatten" judgment call
+   P5-T01/T02/T03 made for their own blocks — this page's dense records-
+   list vocabulary is intentional per D-008 ("Session History = records"),
+   not an oversight.
+   ========================================================================== */
 .pcgo-session-history,
 .pcgo-session-history * {
   min-width: 0;
@@ -249,7 +297,7 @@
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-sm);
   color: var(--color-ink-faint);
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
   font: 500 9.5px/1.45 'JetBrains Mono', monospace;
   overflow-wrap: anywhere;
 }
@@ -337,7 +385,7 @@
   gap: 8px;
   padding: 10px 13px 12px;
   border-top: 1px solid var(--color-border-subtle);
-  background: var(--color-bg-card);
+  background: var(--surface-l3);
 }
 
 .pcgo-session-history__record-meta > div,
@@ -375,7 +423,7 @@
   gap: 12px;
   padding: 12px 13px 14px;
   border-top: 1px solid var(--color-border-subtle);
-  background: var(--color-bg-elevated);
+  background: var(--surface-l2);
 }
 
 .pcgo-session-history__details-grid {
@@ -403,7 +451,7 @@
   padding: 7px 8px;
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-sm);
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
   color: var(--color-ink-dim);
   font: 500 9px/1.4 'JetBrains Mono', monospace;
 }
@@ -448,7 +496,7 @@
   padding: 13px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
 }
 
 .pcgo-session-history-loading__row span {
@@ -457,6 +505,11 @@
   height: 9px;
   border-radius: var(--radius-full);
   background: var(--color-border-subtle);
+  /* P6-T15 motion audit: named-keyframe `animation:` reference, not a `transition:`
+     property — `motion`'s four exports are transition-timing value strings, not
+     `@keyframes` names, so there's no valid conversion target regardless of
+     duration. 1.6s also doesn't match any `motion` step's duration. Left as the
+     original literal; no conversion. */
   animation: pcgo-pulse 1.6s ease-in-out infinite;
 }
 
@@ -539,6 +592,56 @@
 }
 
 /* Analytics: backend aggregates and ranked patterns, without invented charts. */
+/* ==========================================================================
+   Analytics (P5-T11, FINAL P5 PAGE) — surface/typeScale token pass.
+
+   Background aliasing (D-009): both var(--color-bg-inset) references in
+   this block were swapped for their byte-identical var(--surface-l1)
+   equivalent — same CSS custom property under a new name, zero visual
+   change, confirmed 1:1 against App.jsx's 6 theme blocks, same as every
+   prior P5 block:
+     - `.pcgo-analytics__scope-note`/`.pcgo-analytics__refresh-note`
+       shared background: var(--color-bg-inset) -> var(--surface-l1).
+     - `.pcgo-analytics-loading__panel` background: var(--color-bg-inset)
+       -> var(--surface-l1).
+   No other var(--color-bg-*) references exist in this block (no L0/L2/
+   L3/L4 backgrounds live here — the card-level L3 background comes from
+   SessionAnalytics.jsx's own `box` style, not this stylesheet).
+
+   Typography intentionally left as literal `font:`/`font-size` values,
+   not routed through typeScale — same as every prior CSS-block audit,
+   there is no CSS custom-property equivalent of typeScale to route
+   through. This block has 9 `font:`/`font-size` declarations, checked
+   against typeScale's six steps. None land cleanly:
+     - `.pcgo-analytics__eyebrow` and `.pcgo-analytics__pattern-heading
+       span` (both 700 8.5px/1 mono, letter-spacing .14em) are the
+       closest candidates against `typeScale.meta` (10px/700/mono/
+       .12em/uppercase) — weight and family match, but size, line-height,
+       and letter-spacing all diverge, and neither sets an explicit
+       `text-transform: uppercase`.
+     - `.pcgo-analytics__description`, `.pcgo-analytics__scope-note`/
+       `__refresh-note` (500 9.5px/1.45 mono) and
+       `.pcgo-analytics-breakdown__metrics` (500 9px/1.35 mono) and
+       `.pcgo-analytics__pattern-heading p` (500 9px/1.4 mono) are all
+       closest to `typeScale.bodySmall` (12px/1.45/500/Inter) on weight
+       only — size and font family both diverge (mono vs. Inter).
+     - `.pcgo-analytics__empty` (500 10.5px/1.45 mono) and
+       `.pcgo-analytics-breakdown__identity` (600 10.5px/1.35 Inter) are
+       both closest to `typeScale.bodySmall`/`typeScale.subheading`
+       respectively but diverge on size, weight, and/or line-height —
+       still differing on a defining property, not just a rounding gap.
+     - `.pcgo-analytics__empty strong` (bare `font-size: 11px`, no
+       family/weight set) doesn't land on any of the six sizes.
+   Net: zero genuine typeScale conversions in this CSS block. (The
+   companion JS file, SessionAnalytics.jsx, does have one — its
+   `listHeading` group is an exact value match to Host Monitor's
+   `sectionHeading`/Game Manager's `FieldLabel` precedent; nothing in
+   this CSS block lands that close to any step.)
+
+   This is the final `.pcgo-*` CSS block in P5's page order — accepting
+   this task closes out Phase P5 entirely. Next per PLAN.md: P6 (Motion
+   + Micro-interactions).
+   ========================================================================== */
 .pcgo-analytics,
 .pcgo-analytics * {
   min-width: 0;
@@ -582,7 +685,7 @@
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-sm);
   color: var(--color-ink-faint);
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
   font: 500 9.5px/1.45 'JetBrains Mono', monospace;
   overflow-wrap: anywhere;
 }
@@ -692,6 +795,11 @@
   height: 10px;
   border-radius: var(--radius-full);
   background: var(--color-border-subtle);
+  /* P6-T15 motion audit: named-keyframe `animation:` reference, not a `transition:`
+     property — `motion`'s four exports are transition-timing value strings, not
+     `@keyframes` names, so there's no valid conversion target regardless of
+     duration. 1.6s also doesn't match any `motion` step's duration. Left as the
+     original literal; no conversion. */
   animation: pcgo-pulse 1.6s ease-in-out infinite;
 }
 
@@ -712,7 +820,7 @@
   padding: 15px;
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-md);
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
 }
 
 .pcgo-analytics-loading__panel span:first-child {
@@ -786,6 +894,32 @@
 }
 
 /* Logs: dense operational evidence with explicit severity and raw-line fidelity. */
+/* ==========================================================================
+   Logs (P5-T03) — surface/typeScale token pass.
+
+   Background aliasing (D-009): the single var(--color-bg-inset) reference
+   in this block (the shared .pcgo-logs__scope-note/__refresh-note/__error
+   background) was swapped for its byte-identical var(--surface-l1)
+   equivalent. Zero visual change: same CSS custom property under a new
+   name, same 1:1 verification P5-T01/T02 did against App.jsx's 6 theme
+   blocks. No other var(--color-bg-*) references exist in this block (no
+   L0/L2/L3/L4 backgrounds live here — the card-level L3 background comes
+   from LogPanel.jsx's own `sectionStyle`, not this stylesheet).
+
+   Typography: every font-size/weight/family combination in this block
+   (the 8px/700 mono eyebrow at .14em, the 9px/500 mono scope-note/
+   refresh-note/error text, the 8px/700 mono entry-meta badge at .08em,
+   the bare 11px .pcgo-logs__empty strong, the 10.5px mobile entry-message
+   override) was checked against all 6 typeScale steps and does not land
+   on any of them at matching size+weight+family — the closest is the
+   eyebrow/entry-meta pair against meta's 10px/700/mono, but both differ
+   on the defining size and (for the eyebrow) letter-spacing, not just a
+   rounding difference. Left as literal values, the same "refine, don't
+   flatten" judgment call P5-T01/T02 made for their own blocks — this
+   page's tighter, denser mono scale is intentional per D-008's
+   "operational evidence" character for Logs specifically, not a gap to
+   close.
+   ========================================================================== */
 .pcgo-logs,
 .pcgo-logs * {
   min-width: 0;
@@ -809,7 +943,7 @@
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-sm);
   color: var(--color-ink-faint);
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
   font: 500 9px/1.4 'JetBrains Mono', monospace;
   overflow-wrap: anywhere;
 }
@@ -880,6 +1014,11 @@
   height: 8px;
   border-radius: var(--radius-full);
   background: var(--color-border-subtle);
+  /* P6-T15 motion audit: named-keyframe `animation:` reference, not a `transition:`
+     property — `motion`'s four exports are transition-timing value strings, not
+     `@keyframes` names, so there's no valid conversion target regardless of
+     duration. 1.6s also doesn't match any `motion` step's duration. Left as the
+     original literal; no conversion. */
   animation: pcgo-pulse 1.6s ease-in-out infinite;
 }
 
@@ -939,7 +1078,30 @@
 }
 
 /* Sunshine operational console: status and client operations lead,
-   while stream history stays adjacent and quieter. */
+   while stream history stays adjacent and quieter.
+   P5-T06 audit (D-009): the client-manager-scoped selectors below
+   (.pcgo-sunshine-layout, .pcgo-sunshine-layout > *,
+   .pcgo-sunshine-status-card, .pcgo-sunshine-client-loading-grid, and
+   their two media-query blocks) have zero `var(--color-bg-*)` literal
+   references — grepped fresh before editing — so there is nothing to
+   alias to `var(--surface-l*)` here, same finding as Recovery's
+   P5-T05 block. The one custom-property reference in this scope,
+   `.pcgo-sunshine-status-card`'s `var(--color-border-strong)`, is a
+   border token, not a background/elevation one, and is unchanged.
+   The `.pcgo-sunshine-stream-history*` selectors interleaved below
+   belong to SunshineStreamHistory.jsx.
+   P5-T07 audit (D-009): the `.pcgo-sunshine-stream-history*` selectors
+   (`.pcgo-sunshine-stream-history > div:last-of-type`,
+   `.pcgo-sunshine-stream-history article`,
+   `.pcgo-sunshine-stream-history article > div:first-child`,
+   `.pcgo-sunshine-stream-history article > div:first-child >
+   div:first-child`) have zero `var(--color-bg-*)` (or any color)
+   literal references — grepped fresh before editing, confirmed they
+   are purely layout rules (`min-width`, `overflow-wrap`,
+   `word-break`) — so there is nothing to alias to `var(--surface-l*)`
+   here, same finding as Recovery's P5-T05 block and this file's own
+   client-manager block above (P5-T06). No selector or value in this
+   scope was changed. */
 .pcgo-sunshine-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.12fr) minmax(320px, 0.88fr);
@@ -1001,7 +1163,18 @@
 }
 
 /* Recovery operational console: statistics lead, recent activity stays adjacent,
-   and the layout stacks before tablet density becomes cramped. */
+   and the layout stacks before tablet density becomes cramped.
+   P5-T05 audit (D-009): this block has zero `var(--color-bg-*)` literal
+   references to begin with (grepped fresh before editing) — nothing to
+   alias to `var(--surface-l*)` here, unlike every prior P5 page's CSS
+   block. Typography: none of the `font:` shorthands below cleanly match
+   a `typeScale` step at matching size+weight+family — `.pcgo-recovery-
+   summary strong` (15px/650/1.2/display) is the closest, but misses
+   `typeScale.subheading` (17px/600/1.4/-0.01em/display) on size, weight,
+   and line-height; the remaining three (16px/700/mono, 10px/500/mono,
+   8px/700/mono/0.08em) don't sit near any step at all. Left as literal
+   per D-005/D-009 ("only convert what cleanly matches... document and
+   leave literal anything that doesn't"). */
 .pcgo-recovery-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.12fr) minmax(320px, 0.88fr);
@@ -1099,19 +1272,26 @@
 /* Home flagship vocabulary: a dominant launch console, a quiet operational rail,
    and a dense command index. These rules are scoped to Home only. */
 .pcgo-home-page {
-  gap: 28px;
+  gap: 32px;
 }
 
 .pcgo-home-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.8fr);
   align-items: start;
-  gap: 20px;
+  gap: 24px;
 }
 
 .pcgo-home-primary,
 .pcgo-home-rail {
   min-width: 0;
+}
+
+/* P3-T01: wraps the eyebrow + <h1> flagship headline (see Home.jsx),
+   separating the page's editorial "display moment" from the launch
+   console/session card that follows it. */
+.pcgo-home-intro {
+  margin-bottom: 22px;
 }
 
 .pcgo-home-signal {
@@ -1128,7 +1308,7 @@
 }
 
 .pcgo-command-section {
-  padding-top: 4px;
+  padding-top: 6px;
   border-top: 1px solid var(--color-border-subtle);
 }
 
@@ -1137,22 +1317,31 @@
   align-items: end;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
+/* P3-T01: aligned to typeScale.meta (10px/700/.12em/uppercase/mono) — was
+   9px/.15em, an ad hoc one-off next to the app's ~30+ other uses of the
+   same uppercase-mono-label pattern at meta's values. */
 .pcgo-command-kicker {
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   color: var(--color-ink-faint);
-  font: 700 9px/1.2 'JetBrains Mono', monospace;
-  letter-spacing: .15em;
+  font: 700 10px/1.3 'JetBrains Mono', monospace;
+  letter-spacing: .12em;
   text-transform: uppercase;
 }
 
+/* P3-T01: aligned to typeScale.subheading (17px/1.4/600/-0.01em) — was
+   18px/650/-.025em, a bespoke size close to but not matching any scale
+   step. This heading is a secondary, in-page section title (not the
+   page's primary <h1>, which now lives in Home.jsx per the flagship
+   headline above), so `subheading` rather than `heading` is the correct
+   tier per D-009's derivation. */
 .pcgo-command-heading h2 {
   margin: 0;
   color: var(--color-ink);
-  font: 650 18px/1.15 'Space Grotesk', sans-serif;
-  letter-spacing: -.025em;
+  font: 600 17px/1.4 'Space Grotesk', sans-serif;
+  letter-spacing: -.01em;
 }
 
 .pcgo-command-meta {
@@ -1180,6 +1369,7 @@
 
 @media (max-width: 520px) {
   .pcgo-home-page { gap: 20px; }
+  .pcgo-home-intro { margin-bottom: 18px; }
   .pcgo-command-heading { align-items: flex-start; flex-direction: column; gap: 6px; }
   .pcgo-command-index { grid-template-columns: 1fr; }
 }
@@ -1188,6 +1378,12 @@
   padding: 16px 16px 12px;
 }
 
+/* Close to typeScale.meta (10px/700/0.12em/mono/uppercase) but not an
+   exact fit — kept at its existing 9px/.14em literal values rather than
+   snapping to meta's 10px/.12em, since it's a slightly denser eyebrow used
+   specifically atop the stat row and a 1px/0.02em shift there is a real
+   (if small) visual change, not a value alias. Documented per
+   CURRENT_TASK.md's judgment-call guidance. */
 .pcgo-operational-rail__eyebrow {
   margin-bottom: 10px;
   color: var(--color-ink-faint);
@@ -1210,6 +1406,16 @@
   padding: 14px 16px 16px !important;
 }
 
+/* P4-T01 judgment call: this rule's `!important` is the value that
+   actually renders (it wins over SessionSidebar.jsx's inline
+   `fontSize: "14px"` on the same element — that inline value is
+   effectively dead). The real 13px/700-weight/Space-Grotesk "Live
+   Activity" caption sits between typeScale.bodySmall (12px, body-weight
+   500 copy) and typeScale.subheading (17px, a full section title) — it's
+   a bold mini section-title used at a size the scale doesn't cover.
+   Snapping it to either step would be a real size change (±1-4px), not a
+   value alias, so it's left as a literal value per CURRENT_TASK.md's
+   judgment-call guidance rather than forced into the nearest step. */
 .pcgo-operational-rail__caption {
   font-size: 13px !important;
   letter-spacing: -.01em;
@@ -1225,15 +1431,18 @@
   padding: 12px 13px;
   border: 1px solid var(--color-border-subtle);
   border-radius: 10px;
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
   color: var(--color-ink);
   text-align: left;
   cursor: pointer;
+  /* P6-T15 motion audit: matches `motion.base` (160ms ease) in value, but no
+     CSS-side `--motion-*` token exists yet to convert to (D-011). Left as the
+     original literal; no conversion. */
   transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
 }
 
 .pcgo-command-card:hover {
-  background: var(--color-bg-card-hover);
+  background: var(--surface-l4);
   border-color: var(--color-border-strong);
   transform: translateY(-1px);
 }
@@ -1262,6 +1471,17 @@
   gap: 3px;
 }
 
+/* P4-T01 judgment call: neither `__label` (12px/650/Space Grotesk) nor
+   `__description` (10px/500/Inter) below cleanly maps to a typeScale step.
+   `__label` reads as a compact list-item title, not a full card title —
+   forcing it to typeScale.subheading (17px/600) would be a real size
+   increase, not a value alias. `__description` is close to typeScale.meta
+   in size (10px) but meta implies a bold (700) uppercase mono label, which
+   this isn't (500 weight, sans-serif, sentence case) — forcing that would
+   change the font family and case, not just the size. Left as literal
+   values rather than picking the nearest step and calling it a fit, per
+   CURRENT_TASK.md's guidance (same category as P3-T01's
+   `.pcgo-command-meta` call). */
 .pcgo-command-card__label {
   overflow: hidden;
   color: var(--color-ink);
@@ -1287,6 +1507,9 @@
 
 .pcgo-command-card__arrow {
   font: 500 16px/1 'Space Grotesk', sans-serif;
+  /* P6-T15 motion audit: matches `motion.base` (160ms ease) in value, but no
+     CSS-side `--motion-*` token exists yet to convert to (D-011). Left as the
+     original literal; no conversion. */
   transition: color 160ms ease, transform 160ms ease;
 }
 
@@ -1470,6 +1693,56 @@
 }
 
 /* Host Monitor readiness-command-center vocabulary. */
+/* ==========================================================================
+   Host Monitor (P5-T10) — surface/typeScale token pass.
+
+   Background aliasing (D-009): all 4 var(--color-bg-*) references in this
+   block were swapped for their byte-identical var(--surface-l*)
+   equivalents, preserving each rule's existing `!important` — same CSS
+   custom properties under a new name, zero visual change, confirmed 1:1
+   against App.jsx's 6 theme blocks, same as every prior P5 block:
+     - `.pcgo-host-readiness-summary` background: var(--color-bg-card) ->
+       var(--surface-l3) (no `!important` on this one, matching baseline).
+     - `.pcgo-host-section-card` background: var(--color-bg-card)
+       !important -> var(--surface-l3) !important.
+     - `.pcgo-host-system-card` background: var(--color-bg-inset)
+       !important -> var(--surface-l1) !important.
+     - `.pcgo-host-diagnostics-card` background: var(--color-bg-inset)
+       !important -> var(--surface-l1) !important.
+
+   Typography intentionally left as literal `font:`/`font-size` values,
+   not routed through typeScale — same as every prior CSS-block audit,
+   there is no CSS custom-property equivalent of typeScale to route
+   through. This block has 4 `font:` shorthand declarations, checked
+   against typeScale's four sub-hero steps (10px meta/12px bodySmall/
+   13.5px body/17px subheading). None land cleanly:
+     - `.pcgo-host-readiness-summary__state` (700 10px/1 JetBrains Mono,
+       letter-spacing .12em) is the closest candidate — size, weight,
+       family, and letter-spacing all match `typeScale.meta` (10px/700/
+       mono/0.12em) exactly, but its line-height (1, for a single-line
+       pill badge) diverges from meta's 1.3, and it has no explicit
+       `text-transform: uppercase` (relies on already-uppercase content
+       like "READY"/"NOT READY"). Same "still differs on a defining
+       property, not just a cosmetic one" call User Management's closest
+       candidate used for an identical line-height-only divergence.
+     - `.pcgo-host-readiness-summary__eyebrow` (700 9px/1.2 JetBrains
+       Mono, letter-spacing .15em, uppercase) matches `meta` on weight/
+       family/uppercase but diverges on size (1px), line-height (0.1),
+       and letter-spacing (0.03em) — three divergences, not one.
+     - `.pcgo-host-readiness-summary strong` (650 22px/1.1 Space
+       Grotesk, letter-spacing -.03em) matches `typeScale.heading`
+       (650/-0.03em/display) exactly on weight, letter-spacing, and
+       family, but sits at 22px against heading's 28px — a deliberate
+       smaller-than-heading treatment for this inline stat, not a
+       rounding difference.
+     - `.pcgo-host-readiness-summary > div > span:last-child` (500 11px/
+       1.45 JetBrains Mono) uses the mono family where `typeScale.body`
+       (13.5px/1.5/500/Inter) specifies the body sans family — a
+       structural mismatch, not a near miss.
+   All 4 left as documented literals, matching the Settings/Sunshine/
+   Recovery/Game Manager/User Management `.pcgo-*` comment-block
+   convention and D-005's "refine, don't flatten" instruction.
+   ========================================================================== */
 .pcgo-host-monitor-page {
   gap: 20px;
 }
@@ -1509,7 +1782,7 @@
   border: 1px solid var(--color-border);
   border-left: 3px solid var(--color-brand);
   border-radius: 14px;
-  background: var(--color-bg-card);
+  background: var(--surface-l3);
 }
 
 .pcgo-host-readiness-summary--ok { border-left-color: var(--color-success); }
@@ -1558,7 +1831,7 @@
   padding: 17px !important;
   border: 1px solid var(--color-border-subtle) !important;
   border-radius: 12px !important;
-  background: var(--color-bg-card) !important;
+  background: var(--surface-l3) !important;
 }
 
 .pcgo-host-section-card > div:first-child {
@@ -1585,11 +1858,11 @@
 
 .pcgo-host-system-card {
   padding-bottom: 14px !important;
-  background: var(--color-bg-inset) !important;
+  background: var(--surface-l1) !important;
 }
 
 .pcgo-host-diagnostics-card {
-  background: var(--color-bg-inset) !important;
+  background: var(--surface-l1) !important;
 }
 
 .pcgo-host-session-health {
@@ -1660,6 +1933,47 @@
 }
 
 /* User Management: identity directory first, administrative actions second. */
+/* ==========================================================================
+   User Management (P5-T09) — surface/typeScale token pass.
+
+   Background aliasing (D-009): all 11 var(--color-bg-inset|-elevated|-card|
+   -card-hover) references in this block were swapped for their byte-
+   identical var(--surface-l1|l2|l3|l4) equivalents (no bare --color-bg/L0
+   usage existed here to begin with). Zero visual change — same CSS custom
+   properties under a new name, confirmed 1:1 against App.jsx's 6 theme
+   blocks, same as every prior P5 block.
+
+   Typography intentionally left as literal `font:`/`font-size` values, not
+   routed through typeScale — there is no CSS custom-property equivalent of
+   typeScale to route through (it's a JS-only export consumed via inline
+   style spreads elsewhere; this file has none). This block uses ~11
+   distinct font sizes (8px/9px/9.5px/10px/11px/12px/14px/15px/17px/18px,
+   several `font:` shorthands pairing size with their own weight/line-
+   height/family) against typeScale's four sub-hero steps
+   (10px meta/12px bodySmall/13.5px body/17px subheading). None land on a
+   step cleanly:
+     - The closest candidate is `.pcgo-users__field input/select` text
+       (500 12px/1.2 'Inter', sans-serif) — size, weight, and family all
+       match `bodySmall` (12px/500/Inter), but its line-height (1.2) is
+       deliberately tighter than `bodySmall`'s 1.45 for compact form-field
+       density, so the rule still differs on a defining property, not just
+       a cosmetic one.
+     - The 17px `.pcgo-users__heading h2` sits on `subheading`'s exact size
+       (17px) but uses line-height 1.15 and letter-spacing -.025em against
+       `subheading`'s 1.4/-0.01em, and has no explicit font-weight (UA
+       bold via the `<h2>` tag) against `subheading`'s explicit 600 — three
+       defining properties diverge, not one.
+     - The five ~10px uppercase JetBrains Mono labels
+       (`.pcgo-users__eyebrow`/`__section-kicker`/`__columns`/`__field
+       label`/data-label pseudo-element) are the closest in spirit to
+       `meta` (10px/700/0.12em/uppercase/mono) but sit at 8px-9px, not
+       10px, with their own bespoke letter-spacing (.08em-.14em) per rule.
+   Forcing alignment on any of these would mean genuinely resizing/
+   reweighting rules across this page's own density-tuned hierarchy —
+   exactly the "flatten existing character" outcome D-005 warns against,
+   not a token swap. Documented per EXACT SCOPE #2 rather than silently
+   left unconsidered.
+   ========================================================================== */
 .pcgo-users,
 .pcgo-users * {
   min-width: 0;
@@ -1679,7 +1993,7 @@
   padding: 16px 18px;
   border: 1px solid var(--color-border);
   border-radius: 14px;
-  background: var(--color-bg-card);
+  background: var(--surface-l3);
 }
 
 .pcgo-users__heading {
@@ -1749,6 +2063,10 @@
   letter-spacing: .08em;
   text-transform: uppercase;
   cursor: pointer;
+  /* P6-T15 motion audit: the 160ms ease group(s) match `motion.base` and the 100ms
+     ease group matches `motion.fast` in value, but no CSS-side `--motion-*` token
+     exists yet to convert either to (D-011). Left as the original literal; no
+     conversion. */
   transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 100ms ease;
 }
 
@@ -1800,7 +2118,7 @@
   border: 1px solid var(--color-border-subtle);
   border-radius: 9px;
   color: var(--color-ink-faint);
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
   font: 500 9.5px/1.45 'JetBrains Mono', monospace;
 }
 
@@ -1823,7 +2141,7 @@
   padding: 11px 13px;
   border: 1px solid var(--color-border-subtle);
   border-radius: 10px;
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
 }
 
 .pcgo-users__summary-cell span {
@@ -1854,11 +2172,11 @@
   padding: 17px;
   border: 1px solid var(--color-border);
   border-radius: 14px;
-  background: var(--color-bg-card);
+  background: var(--surface-l3);
 }
 
 .pcgo-users__create {
-  background: var(--color-bg-elevated);
+  background: var(--surface-l2);
 }
 
 .pcgo-users__section-header {
@@ -1916,13 +2234,16 @@
   padding: 10px;
   border: 1px solid var(--color-border-subtle);
   border-radius: 9px;
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
+  /* P6-T15 motion audit: matches `motion.base` (160ms ease) in value, but no
+     CSS-side `--motion-*` token exists yet to convert to (D-011). Left as the
+     original literal; no conversion. */
   transition: background 160ms ease, border-color 160ms ease;
 }
 
 .pcgo-users__row:hover {
   border-color: var(--color-border);
-  background: var(--color-bg-card-hover);
+  background: var(--surface-l4);
 }
 
 .pcgo-users__identity {
@@ -1941,7 +2262,7 @@
   border: 1px solid var(--color-border-strong);
   border-radius: 8px;
   color: var(--color-ink-dim);
-  background: var(--color-bg-elevated);
+  background: var(--surface-l2);
   font: 700 11px/1 'Space Grotesk', sans-serif;
 }
 
@@ -2090,7 +2411,7 @@
   padding: 10px;
   border: 1px solid var(--color-border-subtle);
   border-radius: 9px;
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
 }
 
 .pcgo-users__loading-row span {
@@ -2098,6 +2419,11 @@
   height: 8px;
   border-radius: var(--radius-full);
   background: var(--color-border-subtle);
+  /* P6-T15 motion audit: named-keyframe `animation:` reference, not a `transition:`
+     property — `motion`'s four exports are transition-timing value strings, not
+     `@keyframes` names, so there's no valid conversion target regardless of
+     duration. 1.6s also doesn't match any `motion` step's duration. Left as the
+     original literal; no conversion. */
   animation: pcgo-pulse 1.6s ease-in-out infinite;
 }
 
@@ -2129,15 +2455,18 @@
   border-radius: 8px;
   outline: none;
   color: var(--color-ink);
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
   font: 500 12px/1.2 'Inter', sans-serif;
+  /* P6-T15 motion audit: matches `motion.base` (160ms ease) in value, but no
+     CSS-side `--motion-*` token exists yet to convert to (D-011). Left as the
+     original literal; no conversion. */
   transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
 }
 
 .pcgo-users__field input:focus,
 .pcgo-users__field select:focus {
   border-color: var(--color-brand);
-  background: var(--color-bg-card-hover);
+  background: var(--surface-l4);
   box-shadow: 0 0 0 3px var(--color-brand-dim);
 }
 
@@ -2180,6 +2509,11 @@
 }
 
 .pcgo-users__spin {
+  /* P6-T15 motion audit: named-keyframe `animation:` reference, not a `transition:`
+     property — `motion`'s four exports are transition-timing value strings, not
+     `@keyframes` names, so there's no valid conversion target regardless of
+     duration. .8s also doesn't match any `motion` step's duration. Left as the
+     original literal; no conversion. */
   animation: pcgo-users-spin .8s linear infinite;
 }
 
@@ -2292,6 +2626,30 @@
 }
 
 /* Settings configuration workspace: real controls first, state and persistence explicit. */
+/* ==========================================================================
+   Settings (P5-T01) — surface/typeScale token pass.
+
+   Background aliasing (D-009): every var(--color-bg-inset|-elevated|-card|
+   -card-hover|(bare)) in this block was swapped for its byte-identical
+   var(--surface-l1|l2|l3|l4|l0) equivalent. Zero visual change — these are
+   the same CSS custom properties under a new name, confirmed 1:1 against
+   App.jsx's 6 theme blocks.
+
+   Typography intentionally left as literal `font:`/letter-spacing values,
+   not routed through typeScale. This block uses ~13 distinct font sizes
+   (7px/7.5px/8px/8.5px/9px/9.5px/10px/11px/11.5px/12px/13px/16px/18px,
+   several with bespoke letter-spacing), none of which land exactly on a
+   typeScale step (12px/13.5px/17px/28px) at matching weight+family — the
+   nearest candidates (e.g. this block's 18px h2 vs. subheading's 17px, or
+   its 12px strong vs. bodySmall's 12px-at-500-weight where this is 650)
+   differ on the defining size or weight property, not just letter-spacing/
+   line-height the way SectionCard.jsx's zero-change overrides did. Forcing
+   alignment here would mean genuinely resizing/reweighting ~15 rules
+   across Settings' own density-tuned hierarchy — exactly the "flatten
+   existing character" outcome D-005 warns against, not a token swap.
+   Documented per EXACT SCOPE #4 rather than silently left unconsidered.
+   ========================================================================== */
+
 .pcgo-settings-page {
   gap: 14px;
 }
@@ -2344,16 +2702,20 @@
   border: 1px solid var(--color-border-subtle);
   border-radius: 9px;
   color: var(--color-ink-faint);
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
   text-align: left;
   cursor: pointer;
+  /* P6-T15 motion audit: the 160ms ease group(s) match `motion.base` and the 100ms
+     ease group matches `motion.fast` in value, but no CSS-side `--motion-*` token
+     exists yet to convert either to (D-011). Left as the original literal; no
+     conversion. */
   transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 100ms ease;
 }
 
 .pcgo-settings-link-row:hover {
   border-color: var(--color-border-strong);
   color: var(--color-brand);
-  background: var(--color-bg-card-hover);
+  background: var(--surface-l4);
 }
 
 .pcgo-settings-link-row:active {
@@ -2405,7 +2767,7 @@
   padding: 17px;
   border: 1px solid var(--color-border);
   border-radius: 15px;
-  background: var(--color-bg-card);
+  background: var(--surface-l3);
 }
 
 .pcgo-settings-workspace__toolbar {
@@ -2446,6 +2808,10 @@
   letter-spacing: .08em;
   text-transform: uppercase;
   cursor: pointer;
+  /* P6-T15 motion audit: the 160ms ease group(s) match `motion.base` and the 100ms
+     ease group matches `motion.fast` in value, but no CSS-side `--motion-*` token
+     exists yet to convert either to (D-011). Left as the original literal; no
+     conversion. */
   transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 100ms ease;
 }
 
@@ -2472,7 +2838,7 @@
   padding: 8px 10px;
   border: 1px solid var(--color-border-subtle);
   border-radius: 8px;
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
   font: 500 9px/1.35 'JetBrains Mono', monospace;
 }
 
@@ -2546,7 +2912,7 @@
   overflow: hidden;
   border: 1px solid var(--color-border-subtle);
   border-radius: 11px;
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
 }
 
 .pcgo-settings-group:first-child {
@@ -2559,7 +2925,7 @@
   gap: 9px;
   padding: 13px 14px 11px;
   border-bottom: 1px solid var(--color-border-subtle);
-  background: var(--color-bg-elevated);
+  background: var(--surface-l2);
 }
 
 .pcgo-settings-group__mark,
@@ -2663,8 +3029,11 @@
   border-radius: 7px;
   outline: none;
   color: var(--color-ink);
-  background: var(--color-bg-card);
+  background: var(--surface-l3);
   font: 500 11px/1.2 'Inter', sans-serif;
+  /* P6-T15 motion audit: matches `motion.base` (160ms ease) in value, but no
+     CSS-side `--motion-*` token exists yet to convert to (D-011). Left as the
+     original literal; no conversion. */
   transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
 }
 
@@ -2672,7 +3041,7 @@
 .pcgo-settings-row__control select:focus,
 .pcgo-settings-path-control input:focus {
   border-color: var(--color-brand);
-  background: var(--color-bg-card-hover);
+  background: var(--surface-l4);
   box-shadow: 0 0 0 3px var(--color-brand-dim);
 }
 
@@ -2712,12 +3081,16 @@
   color: var(--color-brand);
   background: var(--color-brand-dim);
   cursor: pointer;
+  /* P6-T15 motion audit: the 160ms ease group(s) match `motion.base` and the 100ms
+     ease group matches `motion.fast` in value, but no CSS-side `--motion-*` token
+     exists yet to convert either to (D-011). Left as the original literal; no
+     conversion. */
   transition: background 160ms ease, transform 100ms ease;
 }
 
 .pcgo-settings-path-control button:hover {
   background: var(--color-brand);
-  color: var(--color-bg);
+  color: var(--surface-l0);
 }
 
 .pcgo-settings-path-control button:active {
@@ -2733,8 +3106,11 @@
   border: 1px solid var(--color-border);
   border-radius: 8px;
   color: var(--color-ink-faint);
-  background: var(--color-bg-card);
+  background: var(--surface-l3);
   cursor: pointer;
+  /* P6-T15 motion audit: matches `motion.base` (160ms ease) in value, but no
+     CSS-side `--motion-*` token exists yet to convert to (D-011). Left as the
+     original literal; no conversion. */
   transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
 }
 
@@ -2744,7 +3120,10 @@
   height: 18px;
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-full);
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
+  /* P6-T15 motion audit: matches `motion.base` (160ms ease) in value, but no
+     CSS-side `--motion-*` token exists yet to convert to (D-011). Left as the
+     original literal; no conversion. */
   transition: background 160ms ease, border-color 160ms ease;
 }
 
@@ -2757,6 +3136,9 @@
   border-radius: 50%;
   background: var(--color-ink-ghost);
   content: "";
+  /* P6-T15 motion audit: matches `motion.base` (160ms ease) in value, but no
+     CSS-side `--motion-*` token exists yet to convert to (D-011). Left as the
+     original literal; no conversion. */
   transition: transform 160ms ease, background 160ms ease;
 }
 
@@ -2789,7 +3171,7 @@
   border: 1px dashed var(--color-border);
   border-radius: 7px;
   color: var(--color-ink-faint);
-  background: var(--color-bg-elevated);
+  background: var(--surface-l2);
   font: 700 9px/1.2 'JetBrains Mono', monospace;
   text-transform: uppercase;
 }
@@ -2837,7 +3219,7 @@
   padding: 7px 8px;
   border: 1px solid var(--color-border-subtle);
   border-radius: 6px;
-  background: var(--color-bg-card);
+  background: var(--surface-l3);
 }
 
 .pcgo-settings-readonly-row span {
@@ -2924,6 +3306,11 @@
 }
 
 .pcgo-settings__spin {
+  /* P6-T15 motion audit: named-keyframe `animation:` reference, not a `transition:`
+     property — `motion`'s four exports are transition-timing value strings, not
+     `@keyframes` names, so there's no valid conversion target regardless of
+     duration. .8s also doesn't match any `motion` step's duration. Left as the
+     original literal; no conversion. */
   animation: pcgo-settings-spin .8s linear infinite;
 }
 
@@ -2963,7 +3350,7 @@
   padding: 17px;
   border: 1px solid var(--color-border);
   border-radius: 15px;
-  background: var(--color-bg-card);
+  background: var(--surface-l3);
 }
 
 .pcgo-settings-loading__toolbar,
@@ -2973,7 +3360,7 @@
   padding: 14px;
   border: 1px solid var(--color-border-subtle);
   border-radius: 10px;
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
 }
 
 .pcgo-settings-loading__toolbar {
@@ -2994,6 +3381,11 @@
   display: block;
   border-radius: var(--radius-full);
   background: var(--color-border-subtle);
+  /* P6-T15 motion audit: named-keyframe `animation:` reference, not a `transition:`
+     property — `motion`'s four exports are transition-timing value strings, not
+     `@keyframes` names, so there's no valid conversion target regardless of
+     duration. 1.6s also doesn't match any `motion` step's duration. Left as the
+     original literal; no conversion. */
   animation: pcgo-pulse 1.6s ease-in-out infinite;
 }
 
@@ -3125,6 +3517,46 @@
 }
 
 /* Change Password: focused security workflow, not a secondary Settings dashboard. */
+/* ==========================================================================
+   Change Password (P5-T02) — surface/typeScale token pass.
+
+   Background aliasing (D-009): all 3 var(--color-bg-inset|-card|-card-hover)
+   references in this block were swapped for their byte-identical
+   var(--surface-l1|l3|l4) equivalents — card background, input background,
+   input focus background respectively. Zero visual change: same CSS custom
+   properties under a new name, confirmed 1:1 against App.jsx's 6 theme
+   blocks (per D-009, same verification P5-T01 did for Settings). No
+   var(--color-bg) (L0) or var(--color-bg-elevated) (L2) references exist
+   in this block.
+
+   Typography: one rule already lands exactly on a typeScale step at
+   matching size+weight+family — `.pcgo-change-password-field input`'s
+   `500 12px 'Inter'` is identical to typeScale.bodySmall's 12px/500/Inter.
+   Documented here rather than rewritten to a var(), since typeScale (unlike
+   surface) is only exported as a JS object for inline-style spreads
+   (see SectionCard.jsx) — there's no CSS custom-property equivalent for a
+   plain stylesheet to reference, so the literal value already IS the
+   token's value. Its 1.2 line-height intentionally stays lower than
+   bodySmall's 1.45: this is a fixed-height (min-height: 42px), single-line
+   password input, not flowing body copy, so bodySmall's paragraph
+   line-height doesn't apply — the same "differs only on line-height/
+   letter-spacing, not the defining size+weight+family" category as
+   SectionCard.jsx's typeScale spreads with explicit per-property overrides.
+
+   Every other font-size/weight/family combination in this block (the
+   8px/700 mono eyebrow, the 17px/650 card `h2`, the 9-9.5px/500 mono body
+   copy, the 11.5px/650 field labels, the 7px/700 required-badge, the
+   8.5-9px/500 mono description/error/success text) was checked against all
+   6 typeScale steps and does not land on any of them at matching
+   size+weight+family. Several are close in isolation (e.g. the eyebrow's
+   8px/700/mono vs. meta's 10px/700/mono, or the `h2`'s 17px/650 vs.
+   subheading's 17px/600) but each differs on the defining size or weight,
+   not just letter-spacing/line-height — forcing alignment would mean a
+   real resize/reweight of this page's density-tuned hierarchy, not a value
+   alias. Left as literal values and documented per EXACT SCOPE #2's
+   "refine, don't flatten" instruction, the same judgment call Settings
+   (P5-T01) made for its own block.
+   ========================================================================== */
 .pcgo-change-password-page {
   gap: 14px;
 }
@@ -3137,7 +3569,7 @@
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: 14px;
-  background: var(--color-bg-card);
+  background: var(--surface-l3);
 }
 
 .pcgo-change-password-card__header {
@@ -3252,8 +3684,11 @@
   border-radius: 8px;
   outline: none;
   color: var(--color-ink);
-  background: var(--color-bg-inset);
+  background: var(--surface-l1);
   font: 500 12px/1.2 'Inter', sans-serif;
+  /* P6-T15 motion audit: matches `motion.base` (160ms ease) in value, but no
+     CSS-side `--motion-*` token exists yet to convert to (D-011). Left as the
+     original literal; no conversion. */
   transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
 }
 
@@ -3263,7 +3698,7 @@
 
 .pcgo-change-password-field input:focus {
   border-color: var(--color-brand);
-  background: var(--color-bg-card-hover);
+  background: var(--surface-l4);
   box-shadow: 0 0 0 3px var(--color-brand-dim);
 }
 

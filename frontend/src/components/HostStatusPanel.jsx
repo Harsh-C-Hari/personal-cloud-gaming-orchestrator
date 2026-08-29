@@ -10,6 +10,53 @@
  * its exact mechanic, proportions, and layout from before — only its
  * colors were swapped to the flat success/warning/danger tokens and the
  * glow `boxShadow` on the fill was removed, per DESIGN_SYSTEM.md.
+ *
+ * P5-T10 token-elevation audit (typeScale/surface, per D-008/D-009):
+ *
+ * Backgrounds: all 5 `colors.bg*` references in this file were checked
+ * and swapped for their `surface.l*` alias (bgInset->l1, bgElevated->l2,
+ * bgCard->l3) — same CSS custom properties, zero visual change.
+ * `bgCardHover` does not occur in this file, so `surface.l4` is unused
+ * here. The 5: `box`'s `colors.bgCard` (l3), `loadingValue`'s
+ * `colors.bgInset` (l1), `sectionCard`'s `colors.bgElevated` (l2),
+ * `actionButton`'s `colors.bgElevated` (l2), and the inline
+ * `ProgressStat` track background `colors.bgInset` (l1).
+ *
+ * Typography: every `fontSize`/`fontWeight`/`fontFamily` group in this
+ * file was checked against `typeScale`'s six steps. Exactly one is a
+ * genuine clean match: `sectionHeading` (9.5px/700/mono/0.13em/
+ * uppercase) is the same values GameManager.jsx's `FieldLabel` used
+ * (P5-T08, "clean fit within rounding" against `typeScale.meta`'s
+ * 10px/700/mono/0.12em/uppercase — 0.5px size gap, 0.01em
+ * letter-spacing gap) and is converted the same way, to
+ * `...typeScale.meta`. Everything else is left as a documented literal,
+ * none landing cleanly:
+ *   - `updatingDot`/`loadingStateLabel` (9px/700/mono/0.05em/uppercase)
+ *     are close to `meta` on weight/family/uppercase but diverge on both
+ *     size (1px) and letter-spacing (0.07em) — a materially bigger gap
+ *     than `sectionHeading`'s, so left literal (same reasoning
+ *     GameManager's `backButton` used for an analogous near-miss).
+ *   - `actionButton` (10px/700/mono/0.04em, no uppercase) matches `meta`
+ *     on size/weight/family but diverges on letter-spacing (0.08em gap)
+ *     and has no `textTransform` — the button labels ("Start",
+ *     "Restart", "Revalidate Host") are mixed-case, so forcing `meta`
+ *     would add an uppercase transform not currently present. Same call
+ *     GameManager's `buttonBase` made for an identical pattern.
+ *   - `title` (12.5px/700/display/0.02em) sits well below `heading`
+ *     (28px) and off `subheading` (17px/600/-0.01em) on every axis.
+ *   - `Badge` (9.5px/700/mono/0.05em, no uppercase) is close to `meta`
+ *     on size/weight/family but its letter-spacing gap (0.07em) and
+ *     missing uppercase are the same divergence as `updatingDot` above.
+ *   - The remaining groups — the two inline error/reason messages
+ *     (11.5px/11px/10.5px mono, no weight), `LoadingSection`'s row
+ *     label (10.5px mono, no weight), `StatRow`'s label/value pair
+ *     (10-11.5px mono, weight 600 on the value), `ProgressStat`'s label/
+ *     value pair (10px/10.5px mono), `smallError`, `reasonText`, and
+ *     `issueBox` (10-10.5px mono, no weight, holding sentence-case or
+ *     dynamic backend text) — all lack the weight/letter-spacing/
+ *     uppercase combination `meta` requires, or hold arbitrary dynamic
+ *     content that shouldn't be force-transformed. Left as documented
+ *     literals, matching D-005's "refine, don't flatten" instruction.
  */
 
 import {
@@ -25,7 +72,7 @@ import {
 } from "lucide-react";
 import { SunshineStreamCard } from "./SunshineStreamCard.jsx";
 import { Button } from "./ui/primitives.jsx";
-import { colors, fonts, radius } from "../dashboard/theme.js";
+import { colors, fonts, radius, surface, typeScale } from "../dashboard/theme.js";
 
 export function HostStatusPanel({
   status,
@@ -121,6 +168,12 @@ export function HostStatusPanel({
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }} className="hsp-header-badges">
           {loading && (
             <span style={updatingDot} role="status" aria-live="polite">
+              {/* P6-T10 motion audit: keyframe-based `animation:` (not `transition:`), same
+                  non-convertible category as SessionAnalytics.jsx's `sa-spin 0.8s` (P6-T08) /
+                  LogPanel.jsx's `lp-spin 0.8s` (P6-T09). `motion`'s four steps are
+                  transition-timing strings ("<duration> <easing>"), not @keyframes names, so
+                  there is no equivalent to alias to here regardless of the 0.8s duration. Left
+                  as the original literal; no conversion. */}
               <RefreshCw size={10} strokeWidth={2} style={{ animation: "hsp-spin 0.8s linear infinite" }} />
               Syncing host data
             </span>
@@ -144,6 +197,10 @@ export function HostStatusPanel({
             onClick={handleRevalidate}
             style={revalidating ? disabledButton : actionButton}
           >
+            {/* P6-T10 motion audit: keyframe-based `animation:` (not `transition:`), same
+                non-convertible category as the "Syncing host data" indicator above and
+                SessionAnalytics.jsx's `sa-spin 0.8s` (P6-T08) / LogPanel.jsx's `lp-spin 0.8s`
+                (P6-T09). Left as the original literal; no conversion. */}
             <RefreshCw size={11} strokeWidth={2} style={revalidating ? { animation: "hsp-spin 0.8s linear infinite" } : undefined} />
             {revalidating ? "Revalidating..." : "Revalidate Host"}
           </Button>
@@ -267,6 +324,9 @@ export function HostStatusPanel({
             onClick={onRestartSunshine}
             style={sunshineAction ? disabledButton : actionButton}
           >
+            {/* P6-T10 motion audit: keyframe-based `animation:` (not `transition:`), same
+                `hsp-spin` non-convertible category as the two instances above in this file.
+                Left as the original literal; no conversion. */}
             <RefreshCw size={11} strokeWidth={2} style={sunshineAction === "restarting" ? { animation: "hsp-spin 0.8s linear infinite" } : undefined} />
             {sunshineAction === "restarting" ? "Restarting..." : "Restart"}
           </Button>
@@ -491,13 +551,16 @@ function ProgressStat({ label, percent, suffix = "%", max = 100 }) {
           {hasValue ? `${percent}${suffix}` : "N/A"}
         </span>
       </div>
-      <div style={{ height: "5px", borderRadius: "3px", background: colors.bgInset, overflow: "hidden" }}>
+      <div style={{ height: "5px", borderRadius: "3px", background: surface.l1, overflow: "hidden" }}>
         <div
           style={{
             height: "100%",
             width: `${hasValue ? pct : 0}%`,
             background: tone,
             borderRadius: "3px",
+            // P6-T10 motion audit: real `transition:`, but 400ms does not exactly match any
+            // `motion` step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms
+            // cubic-bezier). Left as the original literal; no conversion.
             transition: "width 0.4s ease",
           }}
         />
@@ -513,7 +576,7 @@ const box = {
   padding: "18px",
   border: `1px solid ${colors.border}`,
   borderRadius: `${radius.lg}px`,
-  background: colors.bgCard,
+  background: surface.l3,
   color: colors.ink,
   display: "flex",
   flexDirection: "column",
@@ -576,6 +639,12 @@ const loadingDot = {
   height: "7px",
   borderRadius: "50%",
   background: colors.brand,
+  // P6-T10 motion audit: keyframe-based `animation:` (not `transition:`), same recurring
+  // pulse-dot string already documented in StatusBadge.jsx, LoadingState.jsx,
+  // RecoveryEvents.jsx, RecoveryStats.jsx (P6-T09), and (as `ssh-pulse`)
+  // SunshineStreamHistory.jsx. `motion`'s four steps are transition-timing strings, not
+  // @keyframes names, so there is no equivalent to alias to here regardless of the 1.6s
+  // duration. Left as the original literal; no conversion.
   animation: "badge-pulse 1.6s ease-in-out infinite",
   flexShrink: 0,
 };
@@ -584,7 +653,7 @@ const loadingValue = {
   width: "54px",
   height: "10px",
   borderRadius: "2px",
-  background: colors.bgInset,
+  background: surface.l1,
   border: `1px solid ${colors.borderSubtle}`,
   flexShrink: 0,
 };
@@ -593,19 +662,18 @@ const sectionCard = {
   padding: "16px",
   borderRadius: `${radius.md}px`,
   border: `1px solid ${colors.borderSubtle}`,
-  background: colors.bgElevated,
+  background: surface.l2,
 };
 
 const sectionHeading = {
   display: "flex",
   alignItems: "center",
   gap: "8px",
-  fontSize: "9.5px",
   color: colors.inkFaint,
-  letterSpacing: "0.13em",
-  textTransform: "uppercase",
-  fontFamily: fonts.mono,
-  fontWeight: 700,
+  // typeScale.meta = 10px/1.3/700/0.12em/uppercase/mono — clean fit
+  // within rounding against this rule's pre-existing 9.5px/0.13em (same
+  // 0.5px/0.01em gap GameManager's FieldLabel treated as a clean match).
+  ...typeScale.meta,
   marginBottom: "10px",
 };
 
@@ -627,7 +695,7 @@ const actionButton = {
   display: "inline-flex",
   alignItems: "center",
   gap: "6px",
-  background: colors.bgElevated,
+  background: surface.l2,
   color: colors.ink,
   border: `1px solid ${colors.borderStrong}`,
   borderRadius: `${radius.sm}px`,
@@ -637,6 +705,9 @@ const actionButton = {
   fontWeight: 700,
   letterSpacing: "0.04em",
   cursor: "pointer",
+  // P6-T10 motion audit: real `transition:`, but 150ms does not exactly match any `motion`
+  // step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms cubic-bezier). Left as the
+  // original literal; no conversion.
   transition: "background 150ms ease",
 };
 

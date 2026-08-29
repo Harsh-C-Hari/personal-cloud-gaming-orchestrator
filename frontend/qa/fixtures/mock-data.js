@@ -25,6 +25,11 @@
 
 const NOW = Date.parse("2026-08-16T15:00:00Z");
 const iso = (offsetMs) => new Date(NOW + offsetMs).toISOString();
+// Several endpoints (sessionHistory's started_at/ended_at/game_ended_at/
+// last_restart_time, streamHistory's started_at, sessionEvents' time) are
+// read by their components as Unix seconds (`new Date(x * 1000)`), not ISO
+// strings — unixSec() is the seconds-based counterpart to iso() for those.
+const unixSec = (offsetMs) => Math.floor((NOW + offsetMs) / 1000);
 
 // ── /host/status ────────────────────────────────────────────────────────
 // Shape verified against host-agent/api/routes/host.py get_host_status()
@@ -137,11 +142,25 @@ export function activeSessions(state) {
 }
 
 // ── /sessions/history, /sessions/my-history ──────────────────────────────
+// Shape verified against every `item.<field>` accessor actually used in
+// SessionHistory.jsx (re-derived from the component source for P7-T08):
+// wrapper key is `history` (not `sessions`), the played-time field is
+// `played_seconds` (not `duration_seconds` — `duration_seconds` isn't read
+// anywhere in this component), and `started_at`/`ended_at`/`game_ended_at`/
+// `last_restart_time` are all Unix-seconds timestamps consumed via
+// `formatDate()`'s `new Date(timestamp * 1000)` (an ISO string here
+// produces "Invalid Date", the same failure mode CURRENT_TASK.md flagged
+// for streamHistory()'s started_at). Also added the previously-missing
+// `error`, `integrity_verified`, `restart_count`, and `restore_verified`
+// fields the detail-expansion view reads.
 export function sessionHistory(state) {
-  if (state === "empty") return { sessions: [] };
+  if (state === "empty") return { history: [] };
   const one = {
     session_id: "4d2c5243", user_id: "tony", game_id: "notepad_test", status: "completed",
-    started_at: iso(-27_000), ended_at: iso(0), duration_seconds: 27,
+    error: null, played_seconds: 27,
+    started_at: unixSec(-27_000), ended_at: unixSec(0), game_ended_at: unixSec(-2_000),
+    integrity_verified: true, restart_count: 0, restore_verified: true,
+    last_restart_time: null,
   };
   if (state === "long") {
     const rows = [];
@@ -149,19 +168,27 @@ export function sessionHistory(state) {
     const users = ["tony", "harsh", "admin", "nishant"];
     const statuses = ["completed", "completed", "completed", "failed", "stopped"];
     for (let i = 0; i < 60; i++) {
+      const status = statuses[i % statuses.length];
+      const recovered = i % 9 === 0;
       rows.push({
         session_id: `s${1000 + i}`,
         user_id: users[i % users.length],
         game_id: games[i % games.length],
-        status: statuses[i % statuses.length],
-        started_at: iso(-i * 3_600_000),
-        ended_at: iso(-i * 3_600_000 + 90_000),
-        duration_seconds: 60 + (i % 5) * 45,
+        status: recovered ? "failed" : status,
+        error: recovered ? "Recovered after backend restart" : status === "failed" ? "Process exited unexpectedly" : null,
+        played_seconds: 60 + (i % 5) * 45,
+        started_at: unixSec(-i * 3_600_000),
+        ended_at: unixSec(-i * 3_600_000 + 90_000),
+        game_ended_at: unixSec(-i * 3_600_000 + 88_000),
+        integrity_verified: i % 4 !== 0,
+        restart_count: recovered ? 1 : 0,
+        restore_verified: status !== "failed",
+        last_restart_time: recovered ? unixSec(-i * 3_600_000 + 5_000) : null,
       });
     }
-    return { sessions: rows };
+    return { history: rows };
   }
-  return { sessions: [one] };
+  return { history: [one] };
 }
 
 // ── /sessions/events, /sessions/my-events ────────────────────────────────
@@ -274,11 +301,60 @@ export function users(state) {
 }
 
 // ── /config/ ──────────────────────────────────────────────────────────
+// Shape verified against every `config.<section>.<field>.value` /
+// `getValue()`/`updateValue()`/`requiresRestartChanged()` accessor in
+// SettingsPanel.jsx (re-derived field-by-field from the component source
+// for P7-T08, not just the earlier flat draft). Every field is wrapped as
+// `{ value, requires_restart? }` — `requires_restart: true` only on the
+// fields `requiresRestartChanged()` actually checks (host_agent.environment/
+// debug, storage.backup_retention/archive_retention/enable_archives/
+// enable_integrity_hashing, logging.console_logging); every other field
+// carries `requires_restart: false` since the component reads it
+// optionally (`current?.requires_restart`) and this keeps the shape
+// uniform. NOTE: `metadata` is its own top-level section (not nested
+// under `host_agent`) — SettingsPanel.jsx reads `config.metadata.lock_file`
+// directly, confirmed against the component's "Metadata" SettingsGroup.
 export function config() {
   return {
-    sunshine_api_url: "https://localhost:47990",
-    sunshine_path: "E:/Stream/Sunshine/Sunshine.exe",
-    sunshine_username: "",
+    sunshine: {
+      api_url: { value: "https://localhost:47990", requires_restart: false },
+      username: { value: "streamadmin", requires_restart: false },
+      password: { value: "changeme123", requires_restart: false },
+      path: { value: "E:/Stream/Sunshine/Sunshine.exe", requires_restart: false },
+      verify_ssl: { value: true, requires_restart: false },
+      close_stream_on_game_exit: { value: true, requires_restart: false },
+    },
+    tailscale: {
+      ipn_path: { value: "C:/Program Files/Tailscale/tailscaled.exe", requires_restart: false },
+    },
+    storage: {
+      backup_retention: { value: 5, requires_restart: true },
+      archive_retention: { value: 10, requires_restart: true },
+      enable_archives: { value: true, requires_restart: true },
+      enable_integrity_hashing: { value: true, requires_restart: true },
+      saves_root: { value: "D:/PCGO/saves", requires_restart: false },
+      temp_root: { value: "D:/PCGO/backup", requires_restart: false },
+      games_config_path: { value: "D:/PCGO/config/games.json", requires_restart: false },
+    },
+    session: {
+      max_concurrent_sessions: { value: 2, requires_restart: false },
+      default_session_minutes: { value: 120, requires_restart: false },
+      warning_before_minutes: { value: 10, requires_restart: false },
+      auto_cleanup: { value: true, requires_restart: false },
+      force_cleanup_timeout: { value: 30, requires_restart: false },
+    },
+    logging: {
+      log_level: { value: "INFO", requires_restart: false },
+      console_logging: { value: true, requires_restart: true },
+    },
+    host_agent: {
+      host_name: { value: "LAPTOP-RDCFAJT3", requires_restart: false },
+      environment: { value: "production", requires_restart: true },
+      debug: { value: false, requires_restart: true },
+    },
+    metadata: {
+      lock_file: { value: "D:/PCGO/config/.metadata.lock", requires_restart: false },
+    },
   };
 }
 
@@ -289,9 +365,22 @@ export function tailscaleStatus(state) {
 }
 
 // ── /admin/logs, /admin/my-logs ──────────────────────────────────────
+// Shape verified against LogPanel.jsx's real read pattern: `data.logs`
+// (not `data.entries`) is consumed as a flat array of pre-formatted
+// **strings** — `getLogMeta()` does `log.includes("[ERROR]")` and the
+// search highlighter does `log.split(...)` directly on each entry, so
+// rows must be strings containing a bracketed level tag, not
+// `{timestamp, level, message}` objects (an object row would render as
+// "[object Object]" and never match any `getLogMeta()` branch). Also
+// fixed the level tag itself: `getLogMeta()` checks for the literal
+// substring `"[WARNING]"`, but the earlier object-row draft used the
+// level `"WARN"`, which would never have matched even after the
+// object→string fix. `data.warnings`/`data.errors` (read by LogPanel.jsx
+// for its two count tiles) were also missing entirely — added, derived
+// from the actual generated rows so the counts are always accurate.
 export function logs(state) {
-  if (state === "empty") return { entries: [] };
-  const levels = ["INFO", "INFO", "WARN", "ERROR", "INFO"];
+  if (state === "empty") return { logs: [], warnings: 0, errors: 0 };
+  const levels = ["INFO", "INFO", "WARNING", "ERROR", "INFO"];
   const messages = [
     "Session 4d2c5243 started for user tony",
     "Sunshine health check passed",
@@ -302,16 +391,16 @@ export function logs(state) {
   const count = state === "long" ? 200 : 8;
   const rows = [];
   for (let i = 0; i < count; i++) {
-    rows.push({
-      timestamp: iso(-i * 60_000),
-      level: levels[i % levels.length],
-      message: state === "long" && i % 11 === 0
-        ? messages[i % messages.length] + " " + "— extended diagnostic payload with additional context that runs quite long to test wrapping behavior in the log table cell.".repeat(1)
-        : messages[i % messages.length],
-      session_id: i % 3 === 0 ? "4d2c5243" : null,
-    });
+    const level = levels[i % levels.length];
+    const sessionTag = i % 3 === 0 ? " session=4d2c5243" : "";
+    const message = state === "long" && i % 11 === 0
+      ? messages[i % messages.length] + " " + "— extended diagnostic payload with additional context that runs quite long to test wrapping behavior in the log table cell."
+      : messages[i % messages.length];
+    rows.push(`${iso(-i * 60_000)} [${level}] ${message}${sessionTag}`);
   }
-  return { entries: rows };
+  const warnings = rows.filter((row) => row.includes("[WARNING]")).length;
+  const errors = rows.filter((row) => row.includes("[ERROR]")).length;
+  return { logs: rows, warnings, errors };
 }
 
 export function logSessions() {
@@ -327,12 +416,20 @@ export function sunshineStream(state) {
 }
 
 // ── /host/sunshine/history ───────────────────────────────────────────
+// Shape verified against every `stream.<field>` accessor in
+// SunshineStreamHistory.jsx: it reads `app_name` (falls back to
+// "Unknown"), `started_at` as **Unix seconds** (`new Date(stream.started_at
+// * 1000)` — an ISO string here produces "Invalid Date"), `width`/`height`/
+// `fps`/`hdr` (rendered as "--"/"SDR" fallbacks when absent), and
+// `duration_seconds` via `formatDuration()` (kept unchanged — this field
+// name was already correct). `client`/`ended_at` are not read anywhere in
+// this component and have been dropped.
 export function streamHistory(state) {
   if (state === "empty") return { streams: [] };
   return {
     streams: [
-      { client: "Living Room PC", started_at: iso(-3_600_000), ended_at: iso(-3_000_000), duration_seconds: 600 },
-      { client: "Bedroom Steam Deck", started_at: iso(-90_000_000), ended_at: iso(-89_400_000), duration_seconds: 600 },
+      { app_name: "Resident Evil Requiem", started_at: unixSec(-3_600_000), duration_seconds: 600, width: 1920, height: 1080, fps: 60, hdr: true },
+      { app_name: "Froza Horizon 6", started_at: unixSec(-90_000_000), duration_seconds: 600, width: 2560, height: 1440, fps: 60, hdr: false },
     ],
   };
 }

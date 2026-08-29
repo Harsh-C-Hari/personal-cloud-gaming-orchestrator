@@ -123,6 +123,10 @@ export function LiveCountdown({
         color:         isWarn ? colors.warning : colors.ink,
         letterSpacing: "0.04em",
         lineHeight:    1,
+        // P6-T05 motion audit: real `transition:`, but 400ms doesn't exactly
+        // match any `motion` step (fast: 100ms, base: 160ms, cardIn: 220ms,
+        // pill: 180ms cubic-bezier). Left as the original literal; no
+        // conversion.
         transition:    "color 0.4s ease",
       }}
     >

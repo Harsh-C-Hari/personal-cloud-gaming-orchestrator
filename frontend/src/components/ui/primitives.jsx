@@ -1,6 +1,6 @@
 import { forwardRef, useState } from "react";
 import { Inbox } from "lucide-react";
-import { colors, fonts, radius } from "../../dashboard/theme.js";
+import { colors, fonts, radius, motion } from "../../dashboard/theme.js";
 
 const BUTTON_VARIANTS = {
   primary: { background: colors.brand, color: colors.bg, border: "1px solid transparent" },
@@ -59,7 +59,7 @@ export const Button = forwardRef(function Button(
         lineHeight: 1,
         cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.45 : 1,
-        transition: "filter 160ms ease, background 160ms ease, transform 100ms ease, border-color 160ms ease",
+        transition: `filter ${motion.base}, background ${motion.base}, transform ${motion.fast}, border-color ${motion.base}`,
         userSelect: "none",
         whiteSpace: "nowrap",
         ...base,
@@ -83,7 +83,7 @@ export function Card({ children, hoverable = false, style, ...rest }) {
         border: `1px solid ${hover ? colors.borderStrong : colors.border}`,
         borderRadius: `${radius.lg}px`,
         padding: "20px",
-        transition: "background 160ms ease, border-color 160ms ease, transform 160ms ease",
+        transition: `background ${motion.base}, border-color ${motion.base}, transform ${motion.base}`,
         transform: hoverable && hover ? "translateY(-1px)" : "translateY(0)",
         ...style,
       }}

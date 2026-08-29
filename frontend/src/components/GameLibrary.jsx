@@ -89,6 +89,10 @@ const card = {
     cursor: "pointer",
     overflow: "hidden",
     boxSizing: "border-box",
+    // P6-T06 motion audit: real `transition:`, two properties sharing one
+    // duration/easing. 150ms doesn't exactly match any `motion` step
+    // (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms cubic-bezier).
+    // Left as the original literal.
     transition: "border-color 150ms ease, background 150ms ease",
 };
 

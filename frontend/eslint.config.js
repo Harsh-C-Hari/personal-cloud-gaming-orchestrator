@@ -44,4 +44,28 @@ export default [
             "no-unused-vars": "off",
         },
     },
+
+    {
+        // frontend/qa/**/*.mjs is a Node-run Playwright QA harness, not
+        // browser app code. Its top-level code runs in Node (process,
+        // console, etc.) while some callback bodies (e.g. the function
+        // passed to `context.addInitScript`) are serialized and executed
+        // inside the browser (localStorage, etc.). ESLint can't tell those
+        // two contexts apart statically within one file, so this override
+        // provides both Node and browser globals for this directory only.
+        // Scoped narrowly to avoid weakening linting for `frontend/src/**`.
+        files: ["qa/**/*.mjs"],
+
+        languageOptions: {
+            globals: {
+                ...globals.node,
+                ...globals.browser,
+            },
+
+            parserOptions: {
+                ecmaVersion: "latest",
+                sourceType: "module",
+            },
+        },
+    },
 ];

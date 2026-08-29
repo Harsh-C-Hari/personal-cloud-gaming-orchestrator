@@ -21,11 +21,23 @@ const GLOBAL_CSS = `
     --color-ink: #f1f0ec;
     --color-ink-dim: #b8b9b6;
     --color-ink-faint: #7d8180;
-    --color-ink-ghost: #4b4f52;
+    /* P7-T05: inkGhost lightened #4b4f52->#7b8286 to clear WCAG AA
+       4.5:1 for real text (CC-3). Computed: 4.56:1 vs surface-l3
+       (was ~2.15:1). Same hue/saturation family, lightness only. */
+    --color-ink-ghost: #7b8286;
     --color-border: rgba(241,240,236,0.115);
     --color-border-subtle: rgba(241,240,236,0.065);
     --color-border-strong: rgba(241,240,236,0.25);
     --color-border-ink: #f1f0ec;
+
+    /* L0-L4 surface elevation scale (D-008) - aliases of the 5 legacy
+       background steps above, same values, ordered by lightness. See
+       theme.js's surface export for the full L0-L4 documentation. */
+    --surface-l0: #0a0b0d;
+    --surface-l1: #0d0f13;
+    --surface-l2: #101216;
+    --surface-l3: #15181d;
+    --surface-l4: #1b2027;
   }
 
   [data-theme="verdant"] {
@@ -39,11 +51,20 @@ const GLOBAL_CSS = `
     --color-ink: #edf4ef;
     --color-ink-dim: #b4c3b9;
     --color-ink-faint: #7d8a82;
-    --color-ink-ghost: #49544d;
+    /* P7-T05: inkGhost lightened #49544d->#75877b to clear WCAG AA
+       4.5:1 for real text (CC-3). Computed: 4.59:1 vs surface-l3
+       (was ~2.22:1). Same hue/saturation family, lightness only. */
+    --color-ink-ghost: #75877b;
     --color-border: rgba(237,244,239,0.115);
     --color-border-subtle: rgba(237,244,239,0.065);
     --color-border-strong: rgba(237,244,239,0.25);
     --color-border-ink: #edf4ef;
+
+    --surface-l0: #090d0b;
+    --surface-l1: #0c120f;
+    --surface-l2: #101713;
+    --surface-l3: #141b17;
+    --surface-l4: #1b2520;
   }
 
   [data-theme="ember"] {
@@ -57,11 +78,20 @@ const GLOBAL_CSS = `
     --color-ink: #f5ebe7;
     --color-ink-dim: #c3b5af;
     --color-ink-faint: #8d7e79;
-    --color-ink-ghost: #554946;
+    /* P7-T05: inkGhost lightened #554946->#8f7c77 to clear WCAG AA
+       4.5:1 for real text (CC-3). Computed: 4.56:1 vs surface-l3
+       (was ~2.08:1). Same hue/saturation family, lightness only. */
+    --color-ink-ghost: #8f7c77;
     --color-border: rgba(245,235,231,0.115);
     --color-border-subtle: rgba(245,235,231,0.065);
     --color-border-strong: rgba(245,235,231,0.25);
     --color-border-ink: #f5ebe7;
+
+    --surface-l0: #100b0a;
+    --surface-l1: #120d0c;
+    --surface-l2: #19110f;
+    --surface-l3: #1c1513;
+    --surface-l4: #271d19;
   }
 
   [data-theme="classic"] {
@@ -75,11 +105,20 @@ const GLOBAL_CSS = `
     --color-ink: #edf4f7;
     --color-ink-dim: #b4c2c9;
     --color-ink-faint: #7e8b92;
-    --color-ink-ghost: #48545b;
+    /* P7-T05: inkGhost lightened #48545b->#738690 to clear WCAG AA
+       4.5:1 for real text (CC-3). Computed: 4.59:1 vs surface-l3
+       (was ~2.23:1). Same hue/saturation family, lightness only. */
+    --color-ink-ghost: #738690;
     --color-border: rgba(237,244,247,0.115);
     --color-border-subtle: rgba(237,244,247,0.065);
     --color-border-strong: rgba(237,244,247,0.25);
     --color-border-ink: #edf4f7;
+
+    --surface-l0: #090c0f;
+    --surface-l1: #0b1116;
+    --surface-l2: #10161b;
+    --surface-l3: #141b21;
+    --surface-l4: #1a242c;
   }
 
   [data-theme="mono"] {
@@ -92,12 +131,24 @@ const GLOBAL_CSS = `
     --color-bg-inset: #0f0f0f;
     --color-ink: #f1f1ef;
     --color-ink-dim: #b8b8b6;
-    --color-ink-faint: #7a7a78;
-    --color-ink-ghost: #494947;
+    /* P7-T05: inkFaint lightened #7a7a78->#81817e to clear WCAG AA
+       4.5:1 for real text (CC-4, mono-only borderline failure).
+       Computed: 4.59:1 vs surface-l3 (was 4.17:1). */
+    --color-ink-faint: #81817e;
+    /* P7-T05: inkGhost lightened #494947->#81817d to clear WCAG AA
+       4.5:1 for real text (CC-3). Computed: 4.58:1 vs surface-l3
+       (was ~1.99:1). Same hue/saturation family, lightness only. */
+    --color-ink-ghost: #81817d;
     --color-border: rgba(241,241,239,0.115);
     --color-border-subtle: rgba(241,241,239,0.065);
     --color-border-strong: rgba(241,241,239,0.25);
     --color-border-ink: #f1f1ef;
+
+    --surface-l0: #0b0b0b;
+    --surface-l1: #0f0f0f;
+    --surface-l2: #121212;
+    --surface-l3: #171717;
+    --surface-l4: #202020;
   }
 
   [data-theme="oled"] {
@@ -111,11 +162,20 @@ const GLOBAL_CSS = `
     --color-ink: #ffffff;
     --color-ink-dim: #bdbdbd;
     --color-ink-faint: #7e7e7e;
-    --color-ink-ghost: #484848;
+    /* P7-T05: inkGhost lightened #484848->#7b7b7b to clear WCAG AA
+       4.5:1 for real text (CC-3). Computed: 4.56:1 vs surface-l3
+       (was ~2.11:1). Same hue family (neutral gray), lightness only. */
+    --color-ink-ghost: #7b7b7b;
     --color-border: rgba(255,255,255,0.13);
     --color-border-subtle: rgba(255,255,255,0.07);
     --color-border-strong: rgba(255,255,255,0.28);
     --color-border-ink: #ffffff;
+
+    --surface-l0: #000000;
+    --surface-l1: #050505;
+    --surface-l2: #080808;
+    --surface-l3: #0e0e0e;
+    --surface-l4: #171717;
   }
 
   *, *::before, *::after { box-sizing: border-box; }

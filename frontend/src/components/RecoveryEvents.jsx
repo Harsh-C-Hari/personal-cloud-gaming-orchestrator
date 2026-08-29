@@ -7,10 +7,51 @@
  * theme.js instead of a local cyan-glow palette, lucide-react icons instead
  * of react-icons/fa, and flat pill styling (no `color+opacity-hex` glow
  * borders) matching StatusBadge/HostStatusPanel's Badge.
+ *
+ * P5-T05 token pass (D-008/D-009):
+ *
+ * Backgrounds: all 8 `colors.bg*` references in this file (bgCard x5
+ * counting the loading skeleton, bgInset x2, one bgCardHover/bgInset
+ * pair on the newest-event highlight) have been swapped for their
+ * `surface.l*` alias per D-009 — same CSS custom property, same value,
+ * zero visual change. `colors` is still imported/used throughout for
+ * non-background tokens (ink/border/brand/status colors) and is
+ * unaffected.
+ *
+ * Typography: same dense "operational readout" character as its
+ * sibling `RecoveryStats.jsx` — bespoke sizes (9px-11px) tuned for a
+ * compact event list, not the editorial `typeScale` steps. Checked
+ * every inline font group below against `typeScale` and left all of
+ * them as documented literals, per D-005/D-009:
+ * - `title` (15px/700/display): closest candidate to
+ *   `typeScale.subheading` (17px/600/-0.01em/display) — font-family
+ *   matches, weight (700 vs 600) and size (15px vs 17px) don't — left
+ *   literal. Shared verbatim with `RecoveryStats.jsx`'s `title`.
+ * - `countPill` (10px/700/mono, no letter-spacing/uppercase — its text
+ *   content, e.g. "3 EVENTS", is a static pre-uppercased string):
+ *   size+weight+family all match `typeScale.meta` (10px/700/0.12em/
+ *   uppercase/mono), but the missing letter-spacing/`textTransform`
+ *   don't — left literal, same category of near-miss as Session
+ *   History's `showAllButton` (P5-T04).
+ * - the event-badge inline group (9px/700/0.08em/uppercase/mono, line
+ *   ~146) and `showAllButton` (9px/700/0.08em/mono): both miss
+ *   `typeScale.meta` on size and letter-spacing — left literal.
+ *   `showAllButton` is shared verbatim with `RecoveryStats.jsx`'s
+ *   `detailToggle`.
+ * - `panelDescription` (9.5px/400/mono): shared verbatim with
+ *   `RecoveryStats.jsx`'s `panelDescription` — no matching step, left
+ *   literal.
+ * - `loadingHeader` (10.5px/mono), `emptyBox` (11px/mono), the
+ *   event-service/event-name/meta-line/timestamp inline groups (11px,
+ *   10.5px, and 9px/mono respectively): none match a `typeScale` step
+ *   at matching size+weight+family — left literal.
+ * All of the above keep their exact pre-existing literal values;
+ * nothing here changes visually. See `RecoveryStats.jsx` for the
+ * sibling component's matching audit and the shared-object list.
  */
 
 import { History, CheckCircle2, XCircle, RefreshCw, Info } from "lucide-react";
-import { colors, fonts, radius } from "../dashboard/theme.js";
+import { colors, fonts, radius, surface } from "../dashboard/theme.js";
 
 function eventVisual(eventType) {
   switch (eventType) {
@@ -115,7 +156,7 @@ export function RecoveryEvents({
                     style={{
                       padding: "11px 12px",
                       borderRadius: `${radius.md}px`,
-                      background: index === 0 ? colors.bgCardHover : colors.bgInset,
+                      background: index === 0 ? surface.l4 : surface.l1,
                       border: `1px solid ${index === 0 ? colors.border : colors.borderSubtle}`,
                       borderLeft: `2px solid ${color}`,
                       display: "flex",
@@ -187,7 +228,7 @@ const box = {
   padding: "20px",
   border: `1px solid ${colors.border}`,
   borderRadius: `${radius.lg}px`,
-  background: colors.bgCard,
+  background: surface.l3,
 };
 
 const panelDescription = {
@@ -213,6 +254,14 @@ const loadingDot = {
   height: "7px",
   borderRadius: "50%",
   background: colors.brand,
+  // P6-T07 motion audit: this string is character-for-character identical
+  // to StatusBadge.jsx's already-documented `badge-pulse 1.6s` (and the
+  // same non-convertible category as LoadingState.jsx's pulse) — an
+  // @keyframes name, not a transition timing string, so there's no
+  // motion token to alias to regardless of the 1.6s duration. The
+  // recurrence across files is expected, not a sign of a prior audit
+  // error; this file still gets its own comment per the project's
+  // per-file audit convention. Left as the original literal.
   animation: "badge-pulse 1.6s ease-in-out infinite",
   flexShrink: 0,
 };
@@ -225,14 +274,14 @@ const loadingRow = {
   padding: "10px 12px",
   border: `1px solid ${colors.borderSubtle}`,
   borderRadius: `${radius.md}px`,
-  background: colors.bgInset,
+  background: surface.l1,
 };
 
 const loadingIcon = {
   width: "14px",
   height: "14px",
   borderRadius: "50%",
-  background: colors.bgCard,
+  background: surface.l3,
   border: `1px solid ${colors.borderSubtle}`,
   flexShrink: 0,
 };
@@ -242,7 +291,7 @@ const loadingLineWide = {
   width: "min(150px, 70%)",
   height: "8px",
   borderRadius: "2px",
-  background: colors.bgCard,
+  background: surface.l3,
   border: `1px solid ${colors.borderSubtle}`,
 };
 
@@ -252,7 +301,7 @@ const loadingLineShort = {
   height: "7px",
   marginTop: "7px",
   borderRadius: "2px",
-  background: colors.bgCard,
+  background: surface.l3,
   border: `1px solid ${colors.borderSubtle}`,
 };
 
@@ -260,7 +309,7 @@ const loadingTag = {
   width: "54px",
   height: "16px",
   borderRadius: `${radius.sm}px`,
-  background: colors.bgCard,
+  background: surface.l3,
   border: `1px solid ${colors.borderSubtle}`,
   flexShrink: 0,
 };
@@ -326,7 +375,7 @@ const showAllButton = {
   width: "100%",
   marginTop: "10px",
   border: `1px solid ${colors.border}`,
-  background: colors.bgElevated,
+  background: surface.l2,
   color: colors.inkDim,
   borderRadius: `${radius.sm}px`,
   padding: "8px",
@@ -335,5 +384,8 @@ const showAllButton = {
   letterSpacing: "0.08em",
   fontWeight: 700,
   cursor: "pointer",
+  // P6-T07 motion audit: 150ms does not exactly match any motion step
+  // (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms). Left as the
+  // original literal.
   transition: "color 150ms ease, border-color 150ms ease",
 };

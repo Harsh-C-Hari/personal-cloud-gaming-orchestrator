@@ -4,7 +4,9 @@ import { PageHeader } from "../components/PageHeader.jsx";
 import { SectionCard } from "../components/SectionCard.jsx";
 import { Card } from "../../components/ui/primitives.jsx";
 import { useThemeMode } from "../ThemeContext.jsx";
-import { colors, fonts, radius } from "../theme.js";
+import { colors, fonts } from "../theme.js";
+// `radius` was previously imported but unused anywhere in this file
+// (verified via grep) — dropped rather than carried forward silently.
 
 function LinkRow({ icon, label, description, onClick }) {
   return (
@@ -41,6 +43,11 @@ function ThemeSwatchCard({ theme, selected, onClick }) {
       <span aria-hidden="true" style={{ width: 25, height: 25, borderRadius: "50%", flexShrink: 0, display: "grid", placeItems: "center", boxSizing: "border-box", ...swatchStyle }}>
         {selected && <Check size={13} strokeWidth={3} color={checkColor} />}
       </span>
+      {/* 12px/650/display/lineHeight-1 doesn't land on any typeScale step:
+          bodySmall is the only 12px step, but at 500 weight/body font/1.45
+          line-height — a genuinely different, tighter swatch-label
+          character than reading copy. Left literal; same reasoning applies
+          to the two swatch-label spans below in CustomThemeSwatchCard. */}
       <span style={{ color: colors.ink, font: `650 12px/1 ${fonts.display}` }}>{theme.label}</span>
     </Card>
   );

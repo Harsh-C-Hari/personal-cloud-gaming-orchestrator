@@ -7,10 +7,58 @@
  * system: flat tokens from theme.js instead of a local cyan-glow palette,
  * lucide-react icons instead of react-icons/fa, and the shared
  * `badge-pulse` global keyframe (from App.jsx) instead of a local one.
+ *
+ * P5-T05 token pass (D-008/D-009):
+ *
+ * Backgrounds: all 9 `colors.bg*` references in this file (2x bgCard,
+ * 3x bgInset, 3x bgElevated, plus a duplicate bgCard on the loading
+ * skeleton) have been swapped for their `surface.l*` alias per D-009 —
+ * same CSS custom property, same value, zero visual change. `colors` is
+ * still imported/used throughout for non-background tokens (ink/border/
+ * brand/status colors) and is unaffected.
+ *
+ * Typography: this component's dense "operational readout" character
+ * uses a set of small, bespoke sizes (8.5px-19px) tuned for compact
+ * stat tiles and mono-numeral displays, not the editorial `typeScale`
+ * steps. Checked every inline font group below against `typeScale` and
+ * left all of them as documented literals rather than force-fitting a
+ * mismatch, per D-005/D-009 ("only convert what cleanly matches...
+ * document and leave literal anything that doesn't"):
+ * - `title` (15px/700/display): closest candidate to
+ *   `typeScale.subheading` (17px/600/-0.01em/display) — font-family
+ *   matches, but weight (700 vs 600) and size (15px vs 17px) don't —
+ *   left literal. Identical object/finding to Session History's
+ *   `title` (P5-T04) and shared verbatim with `RecoveryEvents.jsx`'s
+ *   `title` for sibling consistency.
+ * - `summaryEyebrow`, `channelHeading` (both 9px/700/0.12em/uppercase/
+ *   mono): weight/letter-spacing/case/family all match
+ *   `typeScale.meta` (10px/700/0.12em/uppercase/mono) — only the size
+ *   (9px vs 10px) doesn't — left literal as the closest near-miss in
+ *   the file.
+ * - `sectionLabel` (9px/700/0.13em/uppercase/mono): same size gap plus
+ *   a letter-spacing mismatch (0.13em vs 0.12em) — left literal.
+ * - `postureBadge`, `detailToggle` (both 9px/700/0.08em/mono, no
+ *   uppercase): size and letter-spacing both miss `typeScale.meta` —
+ *   left literal. `detailToggle` is shared verbatim with
+ *   `RecoveryEvents.jsx`'s `showAllButton`.
+ * - `panelDescription` (9.5px/400/mono, no letter-spacing/uppercase):
+ *   no `typeScale` step sits here — left literal. Shared verbatim with
+ *   `RecoveryEvents.jsx`'s `panelDescription`.
+ * - `loadingHeader` (10.5px/mono), `labelStyle` (8.5px/0.04em/
+ *   uppercase/mono), `valueStyle` (19px/700/mono), `SubStat`'s two
+ *   inline groups (15px/700/mono and 8.5px/0.08em/mono): none match a
+ *   `typeScale` step at matching size+weight+family — left literal.
+ * All of the above keep their exact pre-existing literal values;
+ * nothing here changes visually. See `RecoveryEvents.jsx` for the
+ * sibling component's matching audit — the two share several style
+ * objects verbatim (`title`, `headerIcon`, `panelDescription`, `box`)
+ * and use the same near-miss reasoning throughout, keeping the two
+ * internally consistent with each other per this task's design
+ * requirement.
  */
 
 import { ShieldAlert, Zap, Satellite, ChevronDown, AlertTriangle } from "lucide-react";
-import { colors, fonts, radius } from "../dashboard/theme.js";
+import { colors, fonts, radius, surface } from "../dashboard/theme.js";
 
 function StatTile({ icon, label: labelText, value: valueNum, tone }) {
   return (
@@ -58,7 +106,16 @@ function DetailToggle({ open, onClick, label, controls }) {
       }}
     >
       {label}
-      <ChevronDown size={9} strokeWidth={2} style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
+      <ChevronDown
+        size={9}
+        strokeWidth={2}
+        // P6-T09 motion audit: 0.2s (200ms) plain `ease`-default does not
+        // exactly match any `motion` step (fast=100ms, base=160ms,
+        // cardIn=220ms, pill=180ms cubic-bezier) — same non-match as
+        // ErrorBoundary.jsx's identical chevron pattern (P6-T04). Left as
+        // a literal, not converted.
+        style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
+      />
     </button>
   );
 }
@@ -209,9 +266,9 @@ function SubStat({ label, value }) {
 
 const box = {
   padding: "20px",
-border: `1px solid ${colors.border}`,
-    borderRadius: `${radius.lg}px`,
-  background: colors.bgCard,
+  border: `1px solid ${colors.border}`,
+  borderRadius: `${radius.lg}px`,
+  background: surface.l3,
 };
 
 const title = {
@@ -237,14 +294,14 @@ const headerIcon = {
 const card = {
   padding: "12px",
   borderRadius: `${radius.md}px`,
-  background: colors.bgInset,
+  background: surface.l1,
   border: `1px solid ${colors.border}`,
 };
 
 const subStatCard = {
   padding: "8px 10px",
   borderRadius: `${radius.sm}px`,
-  background: colors.bgElevated,
+  background: surface.l2,
   border: `1px solid ${colors.borderSubtle}`,
 };
 
@@ -276,7 +333,7 @@ const summaryBand = {
   border: `1px solid ${colors.borderSubtle}`,
   borderLeft: `2px solid ${colors.brand}`,
   borderRadius: `${radius.md}px`,
-  background: colors.bgInset,
+  background: surface.l1,
 };
 
 const summaryEyebrow = {
@@ -300,7 +357,7 @@ const channelCard = {
   padding: "12px",
   border: `1px solid ${colors.borderSubtle}`,
   borderRadius: `${radius.md}px`,
-  background: colors.bgElevated,
+  background: surface.l2,
 };
 
 const channelHeading = {
@@ -331,6 +388,13 @@ const loadingDot = {
   height: "7px",
   borderRadius: "50%",
   background: colors.brand,
+  // P6-T09 motion audit: keyframe-based `animation:` (not `transition:`),
+  // same recurring pulse-dot string already documented in StatusBadge.jsx,
+  // LoadingState.jsx, RecoveryEvents.jsx, and (as `ssh-pulse`)
+  // SunshineStreamHistory.jsx. `motion`'s four steps are transition timing
+  // strings ("<duration> <easing>"), not @keyframes names, so there is no
+  // equivalent to alias to here regardless of the 1.6s duration. Left as
+  // the original literal; no conversion.
   animation: "badge-pulse 1.6s ease-in-out infinite",
   flexShrink: 0,
 };
@@ -342,14 +406,14 @@ const loadingTile = {
   padding: "12px",
   border: `1px solid ${colors.border}`,
   borderRadius: `${radius.md}px`,
-  background: colors.bgInset,
+  background: surface.l1,
 };
 
 const loadingValue = {
   width: "38px",
   height: "19px",
   borderRadius: "2px",
-  background: colors.bgCard,
+  background: surface.l3,
   border: `1px solid ${colors.borderSubtle}`,
 };
 
@@ -357,7 +421,7 @@ const loadingLabel = {
   width: "72px",
   height: "8px",
   borderRadius: "2px",
-  background: colors.bgCard,
+  background: surface.l3,
   border: `1px solid ${colors.borderSubtle}`,
 };
 
@@ -405,7 +469,7 @@ const detailToggle = {
   width: "100%",
   marginTop: "8px",
   border: `1px solid ${colors.border}`,
-  background: colors.bgElevated,
+  background: surface.l2,
   color: colors.inkDim,
   borderRadius: `${radius.sm}px`,
   padding: "7px",
@@ -414,5 +478,9 @@ const detailToggle = {
   fontWeight: 700,
   letterSpacing: "0.08em",
   cursor: "pointer",
+  // P6-T09 motion audit: real `transition:`, but 150ms doesn't exactly
+  // match any `motion` step (fast: 100ms, base: 160ms, cardIn: 220ms,
+  // pill: 180ms cubic-bezier). Left as the original literal; no
+  // conversion.
   transition: "color 150ms ease, border-color 150ms ease",
 };

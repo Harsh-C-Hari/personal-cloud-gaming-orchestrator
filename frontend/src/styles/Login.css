@@ -17,6 +17,9 @@
   padding-bottom: 0.4em;
   background-color: #151517;
   border-radius: 16px;
+  /* P6-T14 motion audit: real `transition:`, but 150ms does not exactly match any `motion`
+     step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms cubic-bezier). Left as the
+     original literal; no conversion. */
   transition: 0.15s ease;
 }
 
@@ -73,6 +76,9 @@
   margin-right: 0.5em;
   border: 1.5px solid transparent;
   outline: none;
+  /* P6-T14 motion audit: real `transition:`, but 150ms does not exactly match any `motion`
+     step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms cubic-bezier). Left as the
+     original literal; no conversion. */
   transition: 0.15s ease;
   background-color: #edebe3;
   color: #0b0b0d;

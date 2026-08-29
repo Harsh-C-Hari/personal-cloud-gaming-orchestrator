@@ -10,7 +10,7 @@
 import { Zap, Layers, Satellite, ListTree } from "lucide-react";
 import { EventLog } from "../../components/EventLog.jsx";
 import { DashboardStats } from "./DashboardStats.jsx";
-import { colors, fonts, radius } from "../theme.js";
+import { colors, fonts, radius, surface } from "../theme.js";
 
 export function SessionSidebar({ activeCount, totalCount, connected, events }) {
   return (
@@ -18,7 +18,7 @@ export function SessionSidebar({ activeCount, totalCount, connected, events }) {
       className="pcgo-operational-rail"
       style={{
         borderRadius: `${radius.lg}px`,
-        background: colors.bgCard,
+        background: surface.l3,
         border: `1px solid ${colors.border}`,
         overflow: "hidden",
       }}
@@ -71,9 +71,20 @@ export function SessionSidebar({ activeCount, totalCount, connected, events }) {
             >
               <ListTree size={13} strokeWidth={2} />
             </div>
+            {/* Judgment call: this "Live Activity" caption is a bold mini
+                section-title that sits between typeScale.bodySmall (12px,
+                body-weight copy) and typeScale.subheading (17px, a full
+                section title) — the scale doesn't cover a size in between,
+                and forcing either would be a real size change, not a value
+                alias (documented at length on the matching
+                .pcgo-operational-rail__caption CSS rule in
+                feature-page.css, which is what actually renders — the
+                14px here was dead, overridden by that rule's
+                `font-size: 13px !important`; corrected to 13px below so
+                the inline value isn't misleading about what's visible). */}
             <span className="pcgo-operational-rail__caption"
               style={{
-                fontSize: "14px",
+                fontSize: "13px",
                 fontWeight: 700,
                 color: colors.ink,
                 fontFamily: fonts.display,
@@ -83,6 +94,11 @@ export function SessionSidebar({ activeCount, totalCount, connected, events }) {
             </span>
           </div>
 
+          {/* Judgment call: 10.5px/500/body-font subtext doesn't cleanly
+              match typeScale.meta (10px but 700/uppercase/mono) or
+              typeScale.bodySmall (12px/500/body — closest, but a 1.5px
+              size step) — left as a literal value rather than picking a
+              step and calling it a fit. */}
           <span
             style={{
               fontSize: "10.5px",
@@ -103,7 +119,7 @@ export function SessionSidebar({ activeCount, totalCount, connected, events }) {
             maxHeight: "min(260px, 40dvh)",
             padding: "12px",
             borderRadius: `${radius.md}px`,
-            background: colors.bgInset,
+            background: surface.l1,
             border: `1px solid ${colors.borderSubtle}`,
             overflow: "hidden",
           }}

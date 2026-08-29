@@ -1,3 +1,29 @@
+/**
+ * dashboard/pages/HostMonitorPage.jsx
+ *
+ * P5-T10 token-elevation audit (typeScale/surface, per D-008/D-009):
+ *
+ * Backgrounds: grepped fresh for `colors.bg*` — zero references in this
+ * file, so no D-009 background swap applies here.
+ *
+ * Typography: the file's two `fontSize` groups (the "Aggregate and
+ * historical session telemetry" caption and the stat-grid values) were
+ * checked against `typeScale`'s six steps — neither lands cleanly:
+ *   - The caption (10px/mono/1.4 line-height, no `fontWeight`) matches
+ *     `typeScale.meta`'s size and family, but `meta` is 700/0.12em/
+ *     uppercase and this caption is normal-weight sentence case with no
+ *     letter-spacing or uppercase transform — a deliberate lighter,
+ *     descriptive treatment, not a label. Forcing `meta` would bold,
+ *     track out, and uppercase a sentence, which changes its character
+ *     rather than aliasing its value.
+ *   - The stat-grid values (11px/mono, no weight) sit between `meta`
+ *     (10px) and `bodySmall` (12px) with no clean match on size, and
+ *     also lack `meta`'s weight/letter-spacing/uppercase.
+ * Both left as documented literals. This is the first P5 `*Page.jsx`
+ * file with real styles of its own to audit (every prior `*Page.jsx`
+ * was a pure prop-forwarder out of scope).
+ */
+
 import { HostStatusPanel } from "../../components/HostStatusPanel.jsx";
 import { PageHeader } from "../components/PageHeader.jsx";
 import { SectionCard } from "../components/SectionCard.jsx";

@@ -8,6 +8,37 @@
  * already used everywhere else inside its parent, HostStatusPanel.jsx,
  * using flat Chalkboard Neo-Brutalist tokens instead of bare, uncolored
  * rows.
+ *
+ * P5-T10 token-elevation audit (typeScale/surface, per D-008/D-009):
+ *
+ * Backgrounds: grepped fresh for `colors.bg*` — zero references. This
+ * file only uses status/ink/border tokens
+ * (`colors.success`/`warning`/`danger`/`inkDim`/`inkFaint`/`ink`/
+ * `border`), never a background/elevation slot. Nothing to alias;
+ * documented as checked-and-confirmed-empty, matching the dispatch's
+ * fresh-grep finding.
+ *
+ * Typography: all 4 `fontSize`/`fontWeight`/`fontFamily` groups checked
+ * against `typeScale`'s six steps — none land cleanly:
+ *   - `Badge` (9.5px/700/0.05em, no explicit `fontFamily`) is close to
+ *     `typeScale.meta` (10px/1.3/700/0.12em/uppercase/mono) on
+ *     size/weight, but has no font family set at all (inherits the
+ *     surrounding UI font rather than mono) and no uppercase transform
+ *     — two structural gaps, not a rounding difference.
+ *   - The sub-heading label ("Stream Status", 9px/0.13em/uppercase/
+ *     mono, no explicit `fontWeight`) is close in spirit to `meta` but
+ *     is missing the weight declaration entirely and sits 1px below
+ *     meta's size — a bigger gap than the 0.5px/0.01em precedent
+ *     `HostStatusPanel.jsx`'s `sectionHeading` used for its clean
+ *     conversion this same task.
+ *   - `StatRow`'s label (10.5px mono, no weight) and value (11.5px/600/
+ *     mono, no letter-spacing/uppercase) both lack the weight+
+ *     letter-spacing+uppercase combination `meta` requires, and hold
+ *     label/value pairs including arbitrary dynamic content (resolution,
+ *     timestamps, app names) that shouldn't be force-transformed.
+ * All 4 left as documented literals, matching D-005's "refine, don't
+ * flatten" instruction and this file's zero-conversion precedent from
+ * prior P5 tasks (Recovery/Sunshine).
  */
 
 import { RadioTower } from "lucide-react";

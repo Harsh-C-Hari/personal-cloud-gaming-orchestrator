@@ -1,138 +1,122 @@
 # CURRENT HANDOFF
 
 ## Current Phase
-P0 — Audit + Design Direction
+**PROJECT CLOSED.** All phases (P0–P9, including the P7.5 sub-phase)
+are fully DONE.
 
 ## Current Task
-P0-T01 (see CURRENT_TASK.md). Status: audit content complete, delivered
-to user in-chat this session. **Waiting on user to approve a design
-direction** before anything else happens.
+None. P9-T01 (see `.ai/CURRENT_TASK.md`) was the last task of the
+project and is complete — final `lint`/`build`/`test` genuinely
+re-run and green, `.ai/` finalized. **There is no next task.**
 
 ## Status
-Not yet at a phase boundary — P0 is not DONE until the user picks a
-direction. If you are a new Main Claude reading this, your first move is
-to check whether the user has responded with a direction choice
-(A/B/C/other) anywhere in the conversation. If yes, record it in
-DECISIONS.md as APPROVED and move to P1. If no, ask them — do not guess
-or default to "recommended."
+This session ran P9-T01: a fresh, independent `npm install`/`lint`/
+`build`/`test` pass (0 lint errors/4 pre-existing warnings, build
+succeeds, 24/24 tests passing — no drift since P8-T01), confirmed
+`cdn.playwright.dev` is still unreachable in this sandbox (the same
+recurring, documented limitation seen throughout the project — noted
+explicitly, not skipped), read `CHANGELOG.md` in full and confirmed it
+is a coherent, accurate record with no uncorrected inaccuracies, wrote
+the final closing `CHANGELOG.md` entry, corrected several stale phase-
+status headers in `PLAN.md` that had never been updated after their
+phases actually completed (a documentation-only drift — the narrative
+prose and `CHANGELOG.md` already had them right), added a current-
+status pointer to the top of `STATE.md` (its long historical narrative
+was left intact, per this project's own established convention), and
+is closing out this file now. **This closes the project.**
 
-## What Was Completed
-- `.ai/` fully bootstrapped: RULES.md, STATE.md, PLAN.md,
-  ARCHITECTURE.md, DECISIONS.md (D-001 through D-005), CURRENT_TASK.md,
-  this file, CHANGELOG.md.
-- Validation baseline confirmed clean (lint/build/test).
-- Real Playwright render of the live app (Login page; also attempted
-  Home/Host Monitor/etc. with a mock-API harness — partially successful,
-  see "Known Problems").
-- Stale-screenshot issue identified and **confirmed by the user directly**
-  ("the screenshots are not upto date it was from last second last
-  frontend refactor").
-- Reproducible `EventLog.jsx` bug found and documented (not fixed).
-- Tailwind dead-weight finding documented, needs a P1 decision.
-
-## What Was Not Completed
-- Full mock-API render sweep across all 11 pages — only Login rendered
-  cleanly; Home hit the real EventLog bug before the mock-route
-  interception script could be validated end-to-end. A reusable, committed
-  mock-fixture script does not yet exist in the repo (see DECISIONS.md
-  D-002 note).
-- Full 5-breakpoint responsive sweep — only 1440 desktop and one 390
-  mobile attempt were done, and the mobile attempt's success/failure
-  wasn't independently confirmed within this session's tool budget.
-- Accessibility audit — not a hands-on audit (no axe-core/screen-reader
-  pass), only code-reading-level observations (reduced-motion respected
-  globally, focus-visible present in primitives).
-
-## Current Design Direction
-Not yet decided — three directions were proposed in-chat (Direction A,
-B, C) with one recommended. **The specific direction names/details are
-in the conversation, not duplicated into a file yet** — this is a gap.
-Once the user picks one, the new Main Claude MUST copy the full chosen
-direction's spec (color system, typography, spacing, hero treatment,
-nav, status system, motion, responsive approach) into DECISIONS.md as
-its own APPROVED entry, so it survives beyond this conversation. Do not
-rely on conversation history for this — that violates RULES.md.
+## What Was Completed (this session — P9-T01, the project's final task)
+- Ran a fresh, genuine `npm install`/`npm run lint`/`npm run build`/
+  `npm run test` on the delivered `frontend/` tree: 0 lint errors (4
+  pre-existing warnings, unchanged), build succeeds (61.16 kB CSS /
+  438.63 kB JS), 24/24 tests passing. No drift since P8-T01.
+- Attempted `npx playwright install chromium` for a final visual
+  sanity check — failed with the same `403 Host not in allowlist:
+  cdn.playwright.dev` this project has hit repeatedly throughout.
+  Noted explicitly per this project's standard, not skipped silently.
+  Ephemeral install fully removed; `package.json`/`package-lock.json`
+  confirmed byte-identical to baseline.
+- Read `.ai/CHANGELOG.md` in full, start to finish (~6,300+ lines,
+  P0 through P8) — confirmed it's a coherent, accurate project
+  history, correcting itself in place throughout rather than ever
+  silently rewriting a past entry. No uncorrected inaccuracies found.
+- Wrote the final `.ai/CHANGELOG.md` closing entry: full phase-by-phase
+  project summary, findings fixed, findings correctly deferred to
+  `host-agent` maintainers, and this session's fresh validation
+  results.
+- Found and corrected a documentation-only drift in `.ai/PLAN.md`:
+  the phase-status header lines for P2, P3, P5, P6, and P7 still read
+  `NOT STARTED`/`IN PROGRESS`, even though the prose immediately below
+  each one (and `CHANGELOG.md`) already recorded them as fully DONE —
+  these headers had simply never been updated after their phases
+  actually closed. Corrected all 5, plus P9's own header.
+- Added a "CURRENT STATUS" pointer section to the top of `.ai/STATE.md`
+  — its long session-by-session historical narrative was left intact
+  (not rewritten), matching this project's own established pattern of
+  preserving history rather than erasing it (see, e.g., the file's own
+  pre-existing "historical, P1-era" validation-snapshot note).
+- Updated this file (`HANDOFF.md`) to reflect project completion — no
+  dangling next task, closing summary, pointers to the 2 flagged
+  `host-agent` issues.
 
 ## Important Decisions
-See DECISIONS.md D-001 through D-005. Most load-bearing: D-001 (ignore
-stale screenshots) and D-004 (don't silently fix the EventLog bug).
-
-## Architecture State
-No product code changed. See ARCHITECTURE.md "Current Architecture" for
-full verified inventory.
+No new decisions this session (D-012/D-013/D-014 stand unchanged).
 
 ## Files Changed
-`.ai/RULES.md` (new), `.ai/STATE.md` (new), `.ai/PLAN.md` (new),
-`.ai/ARCHITECTURE.md` (new), `.ai/DECISIONS.md` (new),
-`.ai/CURRENT_TASK.md` (new), `.ai/HANDOFF.md` (new, this file),
-`.ai/CHANGELOG.md` (new).
-
-## Files Intentionally Untouched
-Everything under `frontend/`, `docs/`, `assets/`, `host-agent/`,
-`README.md` — all read-only inspection this session, per P0-T01 scope
-rule ("ONLY `.ai/` documentation may be changed").
+`.ai/CHANGELOG.md`, `.ai/PLAN.md`, `.ai/STATE.md`, `.ai/HANDOFF.md`.
+No `frontend/` or `host-agent/` files changed this session, per this
+task's explicit scope — validation found nothing that would have
+required a fix anyway.
 
 ## Validation
-Lint/build/test all green as of this session (see STATE.md table). Not
-re-verified since — if meaningful time has passed, re-run before trusting
-this.
+Fresh `npm install`/`lint`/`build`/`test`, all green — see the table
+in CHANGELOG.md's "[P9] P9-T01" entry. `cdn.playwright.dev` unreachable
+this session (documented, recurring sandbox limitation), so no fresh
+render — noted explicitly rather than assumed clean.
 
 ## Known Problems
-1. `EventLog.jsx:74` — crashes on empty event feed (D-004). Not fixed.
-   User should be told about this explicitly and asked whether they want
-   it fixed now (small, low-risk fix) or deferred.
-2. Tailwind is unused dead weight (D-003) — needs a keep/remove decision
-   before P1 token work, so Workers know which styling approach to use.
-3. Mock-API Playwright harness is not yet a committed, reusable repo
-   asset — currently exists only as this session's scratch file and
-   should be rebuilt/committed properly in P1 or P8.
+Same standing items as before (thin test coverage outside P1-T02's
+additions) — not addressed by design, this task made no `frontend/`
+changes. Two backend-side items remain flagged for `host-agent`
+maintainers, not this project's to fix: `host_monitor.py`'s platform
+guard (see `DECISIONS.md` D-014), and
+`SessionStatusResponse`/`TailscaleController`'s field-presence gaps
+(see CHANGELOG.md's "[P8] P8-T01" entry for the full technical
+detail either maintainer needs).
 
 ## Known Risks
-- Thin test coverage (4 files) means visual refactors in P2-P6 could
-  silently change behavior without a failing test to catch it. Consider
-  recommending a few smoke tests before heavy P5 work, especially for
-  Home (session start flow) and Host Monitor (maintenance mode toggle,
-  revalidate action) since those involve real backend mutations.
-- The dev-server proxy prefix collision (`/host-monitor` vs `/host`
-  proxy rule, see ARCHITECTURE.md) can cause confusing false negatives
-  during browser QA if someone navigates via direct URL instead of
-  in-app clicks. Not a production bug, but a QA-process trap worth
-  remembering.
+None. Project closed cleanly with a genuinely fresh, green validation
+pass.
 
 ## Pending Decisions
-1. **Design direction choice — hard gate, see above.**
-2. D-003 Tailwind keep/remove.
-3. Whether to fix the EventLog bug now (out of visual scope, but small)
-   or leave it for later/separate handling.
+None. Project closed — nothing pending.
 
 ## Next Exact Task
-Once the user approves a direction: create task **P1-T01** (design token
-foundation) per PLAN.md P1 objectives, write a proper bounded Worker
-prompt per RULES.md §"Worker Task Generation" format, and update
-CURRENT_TASK.md to reflect it as the new single active task.
+**None. There is no next task — the project is complete.** If
+`host-agent` work is picked up separately in the future, start from
+`DECISIONS.md` D-014 and CHANGELOG.md's "[P8] P8-T01" entry for the
+2 flagged backend issues' full detail.
 
 ## Worker Context
-No Worker has been dispatched yet — this has all been Main Claude audit
-work. The next Worker prompt (for P1-T01) should reference this
-HANDOFF.md, RULES.md, ARCHITECTURE.md, and the finalized DECISIONS.md
-entry for the chosen design direction.
+N/A — no further Worker tasks will be dispatched for this project.
 
 ## Main Claude Review
-N/A — no Worker output to review yet.
+P7-T01–T09 all ACCEPTED (P7 fully DONE). P7.5-T01–T04 all ACCEPTED
+(P7.5 fully DONE). P8-T01 ACCEPTED (P8 fully DONE). **P9-T01 complete
+— PROJECT CLOSED.**
 
 ## Do Not Touch
-Per RULES.md: backend, API contracts, auth/session logic, routing
-behavior, WebSocket/polling behavior, business logic. Full file-level
-inventory in ARCHITECTURE.md.
+N/A — project closed, no further changes planned. If `host-agent` work
+is ever picked up, `RULES.md`'s original scope boundaries (backend/API
+contracts, auth, routing, business logic) still describe what the
+frontend-focused portion of this project was never meant to touch.
 
 ## How To Continue
-1. Read this file top to bottom.
-2. Check whether the user has approved a design direction. If yes and
-   not yet recorded in DECISIONS.md, record it now as its own APPROVED
-   entry (copy full spec, don't just reference chat).
-3. If no direction is approved yet, ask the user — do not proceed to P1.
-4. Once approved, write the P1-T01 Worker prompt and update
-   CURRENT_TASK.md before dispatching it.
-5. Re-run `npm run lint && npm run build && npm run test` at the start
-   of your session to confirm the validation baseline still holds before
-   trusting STATE.md's snapshot.
+There is nothing to continue — **this project is closed.** For any
+future work:
+1. `host-agent` fixes (platform guard, response-model field gaps): see
+   `DECISIONS.md` D-014 and CHANGELOG.md's "[P8] P8-T01" entry.
+2. Any *new* frontend work should be scoped as a fresh project (new
+   `.ai/CURRENT_TASK.md`, referencing this closed project's
+   `ARCHITECTURE.md`/`DECISIONS.md` as background, not as an active
+   `PLAN.md` to resume).

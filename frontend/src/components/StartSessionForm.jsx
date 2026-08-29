@@ -48,7 +48,7 @@ import { GameLibrary } from "./GameLibrary.jsx";
 import { useConfirm } from "./ui/ConfirmDialog.jsx";
 import { useToast } from "./ui/Toast.jsx";
 import { Button } from "./ui/primitives.jsx";
-import { colors, fonts, radius } from "../dashboard/theme.js";
+import { colors, fonts, radius, surface, typeScale } from "../dashboard/theme.js";
 
 const DEFAULT_FORM = {
   game_id:    "",
@@ -465,14 +465,26 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
   const inputStyle = {
     width: "100%",
     padding: "10px 12px",
-    background: colors.bgInset,
+    // D-009 literal alias: colors.bgInset -> surface.l1, same value,
+    // zero visual change. Genuinely effective here (unlike cardSection
+    // below): no feature-page.css rule sets background on
+    // `.pcgo-launch-console__section input`/`select`, only border-color.
+    background: surface.l1,
     border: `1px solid ${colors.border}`,
     borderRadius: `${radius.sm}px`,
     color: colors.ink,
-    fontSize: "13px",
-    fontFamily: fonts.body,
-    outline: "none",
+    // Documented small elevation, not a silent alias: prior literal was
+    // 13px/default-weight; typeScale.body is 13.5px/500/1.5/body — a
+    // 0.5px size step plus an explicit weight, same order of change as
+    // P4-T01's LoadingState 13px->13.5px adoption. Applies to this
+    // form's <select>/<input type="number"> fields; no dynamic-content
+    // corruption risk since typeScale.body doesn't force case or
+    // letter-spacing.
+    ...typeScale.body,
     boxSizing: "border-box",
+    // P6-T12 motion audit: real `transition:`, but 150ms does not exactly match any `motion`
+    // step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms cubic-bezier). Left as the
+    // original literal; no conversion.
     transition: "border-color 150ms ease",
   };
 
@@ -480,9 +492,33 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
     padding: "18px",
     borderRadius: `${radius.md}px`,
     border: `1px solid ${colors.borderSubtle}`,
-    background: colors.bgCard,
+    // D-009 literal alias: colors.bgCard -> surface.l3 (same value,
+    // zero visual change by default rule). DISCOVERY, flagged rather
+    // than silently worked around: `feature-page.css`'s
+    // `.pcgo-launch-console__section` rule (and its `--game` modifier)
+    // already force `background: var(--color-bg-inset) !important` on
+    // every section this style is applied to (Game/Session Timer/Save
+    // Data), so the actually-rendered background has been surface.l1
+    // (bg-inset), not bg-card/l3, regardless of this inline value —
+    // both before this change and after it. This is a pre-existing
+    // inline/CSS mismatch, not introduced by this task. Per
+    // CURRENT_TASK.md's instruction to stop and flag CSS-file
+    // involvement rather than assume or silently resolve it, this is
+    // surfaced in the task report/CHANGELOG rather than touched here;
+    // `feature-page.css` is outside this task's allowed-files list.
+    // The literal token swap below is still the correct D-009 mapping
+    // for the inline value itself, even though it doesn't currently win
+    // the cascade.
+    background: surface.l3,
   };
 
+  // Judgment call, this whole group (validationText/validationOk/
+  // validationBad below, reused for the "Checking game config…" /
+  // "Game config ready." / "Game validation unavailable." messages and
+  // arbitrary-case backend validation error text via
+  // gameValidation.errors.join(" ")): forcing typeScale.meta's uppercase
+  // would garble real backend error strings — same reasoning
+  // SessionCard/P4-T02 used for its own error captions. Left literal.
   const validationText = {
     marginTop: "9px",
     display: "flex",
@@ -510,12 +546,14 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
           display: "flex",
           alignItems: "center",
           gap: "6px",
-          fontSize: "9.5px",
           color: colors.inkFaint,
-          letterSpacing: "0.13em",
-          textTransform: "uppercase",
-          fontFamily: fonts.mono,
-          fontWeight: 700,
+          // Clean fit within rounding: the prior literal (9.5px/700/
+          // 0.13em/uppercase/mono) matches typeScale.meta (10px/700/
+          // 0.12em/uppercase/mono) to within 0.5px/0.01em — the same
+          // "clean fit" bar P4-T02's own microLabel used for
+          // SessionCard. Adopted directly, not a judgment-call
+          // exception.
+          ...typeScale.meta,
           marginBottom: "8px",
         }}
       >
@@ -529,12 +567,16 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
     return (
       <div
         style={{
-          fontSize: "10px",
           color: colors.inkFaint,
+          ...typeScale.meta,
+          // Documented, not silent: letterSpacing widened from meta's
+          // 0.12em default back to the section's prior 0.15em value,
+          // preserved intentionally so this section-level heading keeps
+          // slightly wider tracking than FieldLabel's field-level
+          // eyebrow above (0.12em post-alias) — a two-tier hierarchy
+          // that predates this pass, not something this task
+          // introduces.
           letterSpacing: "0.15em",
-          textTransform: "uppercase",
-          fontFamily: fonts.mono,
-          fontWeight: 700,
           marginBottom: "12px",
         }}
       >
@@ -555,7 +597,12 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
       style={{
         border: `1.5px solid ${colors.border}`,
         borderRadius: `${radius.lg}px`,
-        background: colors.bgCard,
+        // D-009 literal alias: colors.bgCard -> surface.l3, same value.
+        // feature-page.css's `.pcgo-launch-console` rule also forces
+        // this exact same background (`var(--color-bg-card)
+        // !important`), so this alias is confirmed zero-visual-change
+        // either way.
+        background: surface.l3,
         overflow: "hidden",
       }}
     >
@@ -568,7 +615,11 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
           gap: "10px",
           padding: "16px 20px",
           borderBottom: `1.5px solid ${colors.border}`,
-          background: colors.bgElevated,
+          // D-009 literal alias: colors.bgElevated -> surface.l2, same
+          // value; feature-page.css's `.pcgo-launch-console__header`
+          // rule forces this exact same background too, so confirmed
+          // zero-visual-change.
+          background: surface.l2,
         }}
       >
         <div
@@ -589,16 +640,36 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
           <Rocket size={14} strokeWidth={2} />
         </div>
         <div>
-          <div
-            style={{
-              fontSize: "14.5px",
-              fontWeight: 700,
-              color: colors.ink,
-              fontFamily: fonts.display,
-            }}
-          >
+          {/* Documented elevation, not silent: prior literal was
+              14.5px/700/display; typeScale.subheading is
+              17px/600/-0.01em/display. This elevation also happens to
+              match feature-page.css's own
+              `.pcgo-launch-console__header > div:last-child >
+              div:first-child` rule, which already forces `font-size:
+              17px !important; letter-spacing: -.025em` on this exact
+              element — so the 17px step taken here isn't a new visual
+              change, it's the inline value catching up to what has
+              already been rendering. fontWeight is kept at 700 (rather
+              than subheading's 600 default) since CSS doesn't touch
+              font-weight here and 700 is this card's existing
+              established title weight — same "keep the heading's
+              boldness" override pattern P4-T02 used for SessionCard's
+              own title. letterSpacing from typeScale.subheading
+              (-0.01em) is included for consistency with the spread, but
+              is superseded by the CSS rule's -.025em !important
+              either way. */}
+          <div style={{ ...typeScale.subheading, fontWeight: 700, color: colors.ink }}>
             Launch a Session
           </div>
+          {/* Judgment call: sentence-case caption ("Pick a game, set
+              your timer, and go") — forcing typeScale.meta's uppercase
+              would turn a natural sentence into a shouted label, a real
+              content/tone change, not a style alias. Left literal.
+              feature-page.css's sibling rule also forces this same 10px
+              font-size !important, confirming no visual regression from
+              leaving it as-is (marginTop is separately overridden to 4px
+              by that same rule — a pre-existing, out-of-scope dead
+              value, noted but not touched here). */}
           <div style={{ fontSize: "10px", color: colors.inkFaint, fontFamily: fonts.mono, marginTop: "1px" }}>
             Pick a game, set your timer, and go
           </div>
@@ -616,6 +687,16 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
               Loading configured launch targets…
             </div>
           ) : entries.length === 0 ? (
+            // Judgment call, grouped with the other status/warning
+            // banners in this file (hostStatus items, the save-picker
+            // placeholder, the launched-session indicator, the
+            // sessionBlocked footer note): all render short
+            // sentence-style status text at a similar 10.5-11px/mono
+            // size, and are kept literal as one consistent family rather
+            // than forcing typeScale.meta's uppercase onto some of them
+            // (which would corrupt the dynamic/sentence-case members)
+            // while leaving others unstyled — same reasoning as
+            // SessionCard/P4-T02's grouped captions.
             <div
               style={{
                 display: "flex",
@@ -635,6 +716,13 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
             </div>
           ) : (
             <div style={{ position: "relative" }}>
+              {/* P7-T04 (CC-9) investigation: this <select> already carries a real
+                  aria-label ("Select a game to launch"), pre-dating this task — it
+                  already provides an accessible name distinct from FieldLabel's
+                  "Game" span above it, so no fix is needed here. Confirmed this is
+                  a plain <select>, not a custom combobox/listbox: the "BROWSE GAME
+                  LIBRARY" toggle below opens a separate GameLibrary picker, which
+                  is a distinct, already-interactive component outside CC-9's scope. */}
               <select
                 style={{ ...inputStyle, cursor: "pointer", appearance: "none", paddingRight: "34px" }}
                 value={form.game_id}
@@ -686,12 +774,23 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
               color: colors.inkDim,
               borderRadius: `${radius.sm}px`,
               padding: "7px",
-              fontSize: "9.5px",
-              fontFamily: fonts.mono,
-              fontWeight: 700,
+              // Adopted typeScale.meta (10px/700/uppercase/mono — a
+              // clean fit within rounding of the prior 9.5px/700/
+              // uppercase/mono), with letterSpacing documented and kept
+              // at its prior 0.08em rather than meta's 0.12em default:
+              // this button's label text toggles between "BROWSE GAME
+              // LIBRARY" and "HIDE GAME LIBRARY", the longest text in
+              // this form, and widening its tracking risks the
+              // wrap/clip behavior CURRENT_TASK.md flagged to watch for
+              // at 360px — same button-label caution P4-T02 applied to
+              // Restart/Stop.
+              ...typeScale.meta,
               letterSpacing: "0.08em",
-              textTransform: "uppercase",
               cursor: "pointer",
+              // P6-T12 motion audit: real `transition:` with two properties, both 150ms/`ease`.
+              // 150ms does not exactly match any `motion` step (fast: 100ms, base: 160ms,
+              // cardIn: 220ms, pill: 180ms cubic-bezier) for either property. Left as the
+              // original literal; no conversion.
               transition: "background 150ms ease, color 150ms ease",
             }}
             onMouseEnter={(e) => {
@@ -709,6 +808,9 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
               strokeWidth={2}
               style={{
                 transform: showGameDetails ? "rotate(180deg)" : "rotate(0deg)",
+                // P6-T12 motion audit: real `transition:`, but 150ms does not exactly match any
+                // `motion` step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms
+                // cubic-bezier). Byte-identical original literal; no conversion.
                 transition: "transform 150ms ease",
               }}
             />
@@ -753,6 +855,7 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
                 style={{ ...inputStyle, opacity: form.skip_timer ? 0.35 : 1 }}
                 value={form.duration}
                 disabled={form.skip_timer}
+                aria-label="Duration (min)"
                 onChange={(e) => set("duration", e.target.value)}
                 onFocus={focusBorder}
                 onBlur={blurBorder}
@@ -767,6 +870,7 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
                 style={{ ...inputStyle, opacity: form.skip_timer ? 0.35 : 1 }}
                 value={form.warning}
                 disabled={form.skip_timer}
+                aria-label="Warning (min)"
                 onChange={(e) => set("warning", e.target.value)}
                 onFocus={focusBorder}
                 onBlur={blurBorder}
@@ -802,9 +906,16 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
                 width: "36px",
                 height: "20px",
                 borderRadius: `${radius.full}px`,
-                background: form.skip_timer ? colors.brandDim : colors.bgInset,
+                // D-009 literal alias: colors.bgInset -> surface.l1,
+                // same value. Genuinely effective (no CSS rule targets
+                // this nested toggle-track div).
+                background: form.skip_timer ? colors.brandDim : surface.l1,
                 border: `1.5px solid ${form.skip_timer ? colors.brand : colors.border}`,
                 position: "relative",
+                // P6-T12 motion audit: real `transition:` with two properties, both 150ms/
+                // `ease`. 150ms does not exactly match any `motion` step (fast: 100ms, base:
+                // 160ms, cardIn: 220ms, pill: 180ms cubic-bezier) for either property. Left as
+                // the original literal; no conversion.
                 transition: "background 150ms ease, border-color 150ms ease",
                 flexShrink: 0,
               }}
@@ -818,10 +929,23 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
                   height: "14px",
                   borderRadius: "50%",
                   background: form.skip_timer ? colors.brand : colors.inkGhost,
+                  // P6-T12 motion audit: real `transition:` with two properties, both 150ms/
+                  // `ease`. 150ms does not exactly match any `motion` step (fast: 100ms, base:
+                  // 160ms, cardIn: 220ms, pill: 180ms cubic-bezier) for either property. Left
+                  // as the original literal; no conversion.
                   transition: "left 150ms ease, background 150ms ease",
                 }}
               />
             </div>
+            {/* Judgment call: no typeScale step fits without a real
+                change — typeScale.bodySmall is the nearest 12px step but
+                is fonts.body (this label is intentionally fonts.mono, to
+                match the rest of this form's field-level mono aesthetic
+                sitting right above it); typeScale.meta matches the mono
+                family but is 10px/700/uppercase, which would both shrink
+                and bold-caps a plain toggle caption for no layout
+                reason. Left literal rather than force a family or case
+                change. */}
             <span style={{ fontSize: "12px", color: colors.inkDim, fontFamily: fonts.mono }}>
               Skip Timer
             </span>
@@ -847,6 +971,10 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
               onDelete={handleDeleteSave}
             />
           ) : (
+            // Judgment call (same status/warning-banner family as "No
+            // configured games" above): sentence-case static text at
+            // the same 10.5px/mono step used across the family. Left
+            // literal for consistency, not forced into meta.
             <div
               style={{
                 display: "flex",
@@ -868,6 +996,13 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
 
         {/* Launch success */}
         {launchedId && (
+          // Judgment call (same family, strongest case for it): renders
+          // the actual launched session id — a case-sensitive backend
+          // identifier — inline. Forcing typeScale.meta's uppercase here
+          // would be a real content change to an id a user may need to
+          // reference verbatim, not a style alias. Same reasoning
+          // SessionCard/P4-T02 used for its own session-id display.
+          // Left literal.
           <div
             style={{
               display: "flex",
@@ -881,6 +1016,14 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
               fontSize: "11px",
               fontFamily: fonts.mono,
               letterSpacing: "0.03em",
+              // P6-T12 motion audit: this `animation:` shares a 180ms duration with
+              // `motion.pill`, but is not a conversion candidate for two independent reasons:
+              // (1) it's a named-keyframe `animation:` reference, not a `transition:`
+              // property-list — `motion`'s four exports are transition-timing value strings,
+              // not `@keyframes` names, so there's no valid conversion target regardless of
+              // duration; and (2) its easing is plain `ease`, not `pill`'s
+              // `cubic-bezier(0.4,0,0.2,1)` — a second, independent disqualifier even if it
+              // were a `transition:`. Left as the original literal; no conversion.
               animation: "card-in 180ms ease forwards",
             }}
           >
@@ -889,6 +1032,10 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
           </div>
         )}
 
+        {/* Judgment call (same family): four short warning sentences
+            ("Sunshine is not running.", etc.) at the family's usual
+            10.5px/mono step. Left literal, same reasoning as the rest
+            of this group. */}
         {hostStatus &&
           (!hostStatus.sunshine_running ||
             !hostStatus.tailscale_running ||
@@ -928,7 +1075,25 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
             </div>
           )}
 
-        {/* Launch button */}
+        {/* Launch button. Adopted typeScale.meta (fontFamily/fontWeight/
+            textTransform all match exactly), with two documented
+            overrides:
+              - fontSize kept at this CTA's existing 12px (a deliberate
+                elevation over meta's 10px default — this is the form's
+                single primary action, sized up from the label scale on
+                purpose, not a corrupted alias).
+              - letterSpacing corrected to 0.16em (from the prior
+                0.14em). DISCOVERY: feature-page.css's
+                `.pcgo-launch-console__body > .pcgo-button,
+                > button:last-of-type` rule already forces
+                `letter-spacing: .16em !important` on this exact button,
+                so the previous 0.14em inline value never actually
+                rendered — same "correct a misleading dead inline value"
+                fix P4-T01 made for SessionSidebar's caption. Unlike the
+                cardSection background discovery above, this one is
+                harmless to correct in place since it only affects the
+                (already-superseded) inline value, not feature-page.css
+                itself. */}
         <Button
           variant="primary"
           onClick={handleLaunch}
@@ -936,11 +1101,9 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
           style={{
             width: "100%",
             padding: "13px",
+            ...typeScale.meta,
             fontSize: "12px",
-            fontFamily: fonts.mono,
-            fontWeight: 700,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
+            letterSpacing: "0.16em",
           }}
         >
           <Rocket size={13} strokeWidth={2} />
@@ -961,6 +1124,12 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
           </div>
         )}
 
+        {/* Judgment call (same family as above): the final branch
+            interpolates a raw backend reason string
+            (hostStatus?.host_ready_reason) — arbitrary case, forcing
+            typeScale.meta's uppercase would garble it. Left literal for
+            the whole conditional, including the three static branches,
+            for consistency within this one message slot. */}
         {sessionBlocked && hostStatus?.host_ready_reason != null && (
           <div
             style={{

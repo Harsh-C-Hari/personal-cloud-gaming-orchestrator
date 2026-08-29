@@ -7,7 +7,7 @@
  * by both the admin and user dashboards.
  */
 
-import { colors, fonts, radius } from "../theme.js";
+import { colors, fonts, radius, surface } from "../theme.js";
 
 export function DashboardStats({ stats }) {
   return (
@@ -37,11 +37,14 @@ export function DashboardStats({ stats }) {
               gap: "clamp(8px, 2.5vw, 12px)",
               padding: "14px clamp(8px, 3vw, 16px)",
               minWidth: 0,
-              background: colors.bgCard,
+              background: surface.l3,
+              // motion-audit (P6-T04): 150ms ease does not exactly match any
+              // `motion` step (fast=100ms, base=160ms, cardIn=220ms,
+              // pill=180ms cubic-bezier) — left as a literal, not converted.
               transition: "background 150ms ease",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = colors.bgCardHover)}
-            onMouseLeave={(e) => (e.currentTarget.style.background = colors.bgCard)}
+            onMouseEnter={(e) => (e.currentTarget.style.background = surface.l4)}
+            onMouseLeave={(e) => (e.currentTarget.style.background = surface.l3)}
           >
             {/* Top accent line — flat, no gradient */}
             <div
@@ -86,6 +89,12 @@ export function DashboardStats({ stats }) {
             </div>
 
             <div style={{ minWidth: 0, flex: 1, overflow: "hidden" }}>
+              {/* Judgment call: 18px/700/mono is a large tabular-numeral
+                  stat value, a different content category than any
+                  typeScale step (all of which are for headings/body/meta
+                  text, not standalone numeric displays) — no step fits
+                  its purpose, so it's left as a literal value rather than
+                  forced into the nearest size. */}
               <div
                 style={{
                   fontSize: "18px",
@@ -101,6 +110,13 @@ export function DashboardStats({ stats }) {
                 {s.val}
               </div>
 
+              {/* Judgment call: close to typeScale.meta in spirit
+                  (uppercase, letter-spaced, bold caption) but meta is a
+                  mono-font/700/10px/0.12em combination — this is
+                  fonts.body (sans-serif) at 9px. Same font-family
+                  mismatch as ActiveAlerts' header and NavigationCard's
+                  description above; snapping to meta would swap the
+                  typeface, a real visual change, not a value alias. */}
               <div
                 style={{
                   fontSize: "9px",
@@ -111,6 +127,8 @@ export function DashboardStats({ stats }) {
                   textTransform: "uppercase",
                   fontFamily: fonts.body,
                   whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
                 }}
               >
                 {s.label}

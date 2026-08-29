@@ -43,9 +43,23 @@ Never guess. Update `.ai/` to match reality, not the other way around.
   more premium."
 - Main Claude owns acceptance. A Worker cannot declare its own task, or the
   project, complete.
-- Changed-files-only delivery: Workers return only changed/created frontend
-  files and updated `.ai/` files. Never full repo copies, `node_modules`,
-  `.git`, `dist/`, or unrelated files.
+- Full-repo delivery: Workers return the complete `frontend/` directory
+  (minus `node_modules`/`.git`/`dist/`) as delivered, plus updated `.ai/`
+  files — not a changed-files-only subset. **Changed this session (see
+  DECISIONS.md D-010):** changed-files-only delivery required Main Claude
+  to reconstruct a candidate build by overlaying each delivery onto the
+  last accepted baseline before it could be diffed or run, which was
+  workable but consistently the most error-prone and effort-heavy step of
+  every acceptance review in this project's history so far. Full-repo
+  delivery lets Main Claude diff the delivered tree directly against the
+  last accepted full-repo baseline with a single `diff -rq`, with no
+  reconstruction step and no risk of a stale/mismatched overlay. Workers
+  still only *edit* files inside their task's allowed-files list — this
+  changes what gets zipped up for delivery, not what's permitted to
+  change. `.ai/*` must still be included and actually present in the
+  zip (verify with `unzip -l` before calling a delivery done — this
+  requirement is unchanged and has already caught a real packaging gap
+  once, see CHANGELOG.md's P4-T01 entry).
 - Checkpoint before context/usage exhaustion — don't wait until forced.
 - Important decisions must be written to `.ai/DECISIONS.md`, not left only
   in conversation.
@@ -54,10 +68,18 @@ Never guess. Update `.ai/` to match reality, not the other way around.
 
 - Node.js — installs cleanly with `npm install` (no `--legacy-peer-deps`
   needed as of this audit).
-- `npm run lint` → 0 errors, 4 pre-existing `react-refresh/only-export-components`
-  warnings (ConfirmDialog.jsx, Toast.jsx, ThemeContext.jsx ×2). Not
-  regressions to fix as part of visual work unless a task specifically
-  touches those files.
+- `npm run lint` → **RE-VERIFIED THIS SESSION, REGRESSED:** now
+  **13 errors** + the same 4 pre-existing `react-refresh/only-export-components`
+  warnings (ConfirmDialog.jsx, Toast.jsx, ThemeContext.jsx ×2, unchanged).
+  All 13 new errors are `no-undef` (`process`, `localStorage`, `console`)
+  in `frontend/qa/render.mjs` — the untracked QA harness (see
+  DECISIONS.md D-006/D-007 corrections) was added without an ESLint
+  override for its Node/QA-script context, so the project's
+  browser-focused ESLint config flags its Node globals and its
+  `page.evaluate()` browser-context globals alike. This is a real,
+  current regression, not a hypothetical — reproduced by running
+  `npm run lint` directly in this session. Low-risk, config-only fix
+  (env override or targeted `.eslintrc` ignore for `frontend/qa/**`).
 - `npm run build` → succeeds. Output: ~62KB CSS / ~436KB JS (~113KB gzip).
 - `npm run test` → 21/21 passing across 4 test files. Coverage is thin
   (client.js, Login, StartSessionForm, SessionCard only) — most components

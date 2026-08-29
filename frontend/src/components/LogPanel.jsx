@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { getLogs, getLogSessions, getApiUrl, clearToken } from "../api/client";
 import { useToast } from "./ui/Toast.jsx";
-import { colors, fonts, radius } from "../dashboard/theme.js";
+import { colors, fonts, radius, shadow, surface } from "../dashboard/theme.js";
 
 const focusBorder = (e) => { e.target.style.borderColor = colors.ink; };
 const blurBorder = (e) => { e.target.style.borderColor = colors.borderSubtle; };
@@ -123,6 +123,17 @@ export function LogPanel() {
 
   useEffect(() => {
     const style = document.createElement("style");
+    // P6-T09 motion audit: `.scroll-btn`'s `animation: scrollBounce 2s
+    // infinite;` below is keyframe-based (not `transition:`), same non-
+    // convertible category as every other `animation:` audited in this
+    // project so far. `motion`'s four steps are transition timing strings
+    // ("<duration> <easing>"), not @keyframes names, so there is no
+    // equivalent to alias to here regardless of the 2s duration. This is
+    // a raw CSS-string template literal (not a JS inline-style object),
+    // but the same `${...}` interpolation used for `colors.borderInk`
+    // just below would work identically for a `motion` value if a genuine
+    // match existed — it doesn't, so this is left as the original
+    // literal; no conversion.
     style.innerHTML = `
       @keyframes lp-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       @keyframes pcgo-log-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
@@ -230,7 +241,7 @@ export function LogPanel() {
         }}
         onMouseLeave={(e) => {
           if (active || disabled) return;
-          e.currentTarget.style.background = colors.bgElevated;
+          e.currentTarget.style.background = surface.l2;
           e.currentTarget.style.color = colors.inkDim;
           e.currentTarget.style.borderColor = colors.border;
         }}
@@ -274,10 +285,59 @@ export function LogPanel() {
       <PillButton active={autoRefresh} tone={colors.success} ariaLabel={autoRefresh ? "Pause automatic log refresh" : "Enable automatic log refresh"} onClick={() => setAutoRefresh(!autoRefresh)} icon={autoRefresh ? <RadioTower size={10} strokeWidth={2} /> : <PauseCircle size={10} strokeWidth={2} />}>
         {autoRefresh ? "AUTO-REFRESH" : "PAUSED"}
       </PillButton>
-      <PillButton ariaLabel={loading ? "Refreshing logs" : "Refresh logs"} onClick={loadLogs} disabled={loading} icon={<RefreshCw size={10} strokeWidth={2} style={loading ? { animation: "lp-spin 0.8s linear infinite" } : undefined} />}>
+      <PillButton
+        ariaLabel={loading ? "Refreshing logs" : "Refresh logs"}
+        onClick={loadLogs}
+        disabled={loading}
+        icon={
+          <RefreshCw
+            size={10}
+            strokeWidth={2}
+            style={
+              loading
+                ? {
+                    // P6-T09 motion audit: keyframe-based `animation:` (not
+                    // `transition:`), same non-convertible category as
+                    // SessionAnalytics.jsx's `sa-spin 0.8s` (P6-T08).
+                    // `motion`'s four steps are transition timing strings
+                    // ("<duration> <easing>"), not @keyframes names, so
+                    // there is no equivalent to alias to here regardless
+                    // of the 0.8s duration. Left as the original literal;
+                    // no conversion.
+                    animation: "lp-spin 0.8s linear infinite",
+                  }
+                : undefined
+            }
+          />
+        }
+      >
         {loading ? "REFRESHING..." : "REFRESH"}
       </PillButton>
-      <PillButton ariaLabel={downloading ? "Downloading logs" : "Download logs"} onClick={downloadLogs} disabled={downloading} icon={<Download size={10} strokeWidth={2} style={downloading ? { animation: "lp-spin 0.8s linear infinite" } : undefined} />}>
+      <PillButton
+        ariaLabel={downloading ? "Downloading logs" : "Download logs"}
+        onClick={downloadLogs}
+        disabled={downloading}
+        icon={
+          <Download
+            size={10}
+            strokeWidth={2}
+            style={
+              downloading
+                ? {
+                    // P6-T09 motion audit: same `lp-spin 0.8s` keyframe as
+                    // the refresh icon above — this is a second, separate
+                    // JSX element, so it gets its own comment rather than
+                    // relying on the one above. Keyframe-based, non-
+                    // convertible for the same reason (no `motion` step is
+                    // an @keyframes name). Left as the original literal;
+                    // no conversion.
+                    animation: "lp-spin 0.8s linear infinite",
+                  }
+                : undefined
+            }
+          />
+        }
+      >
         {downloading ? "DOWNLOADING..." : "DOWNLOAD"}
       </PillButton>
       <PillButton ariaLabel="Export the currently filtered logs" onClick={downloadFiltered} disabled={downloading} icon={<FileOutput size={10} strokeWidth={2} />}>EXPORT</PillButton>
@@ -353,29 +413,85 @@ export function LogPanel() {
   );
 }
 
-const sectionStyle = { padding: "16px", border: `1px solid ${colors.border}`, borderRadius: `${radius.lg}px`, background: colors.bgCard };
+/**
+ * P5-T03 token migration notes.
+ *
+ * Backgrounds: every `colors.bg*` reference below (bgCard/bgElevated/
+ * bgInset) has been swapped for its `surface.l*` alias per D-009 — same
+ * CSS custom property, same value, zero visual change.
+ *
+ * Typography: this page's dense, mono-heavy "operational evidence"
+ * character (D-008) uses a set of small, odd sizes (8px-16px) that were
+ * tuned specifically for a real-time log stream, not the editorial
+ * `typeScale` steps (which start at `bodySmall`'s 12px and are built on
+ * Space Grotesk/Inter, not JetBrains Mono for anything below `meta`).
+ * Checked every inline font group against `typeScale` and left all of
+ * them as documented literals rather than force-fitting a mismatch,
+ * per D-005 ("only convert what cleanly matches... document and leave
+ * literal anything that doesn't"):
+ * - `titleStyle` (13px/mono/0.12em, h2 default-bold): closest candidate
+ *   to `typeScale.meta` (10px/700/0.12em/uppercase/mono) — letter-spacing
+ *   and font-family already match, and the h2's browser-default weight
+ *   likely already renders at meta's 700. But forcing the 13px title
+ *   down to meta's 10px would be a real ~23% visible size cut to the
+ *   page's `<h2>`, not a zero-visual alias — left literal.
+ * - `countBadge` (9px), `pillButton`/`menuButton` (9.5px/0.08em, no
+ *   explicit weight): the action-pill/badge typography is a size step
+ *   below `meta` with a different letter-spacing and no forced weight —
+ *   left literal. (Their text content is all static uppercase strings,
+ *   so unlike SessionCard/StartSessionForm's dynamic labels, forcing
+ *   `textTransform: uppercase` here would be harmless, but the
+ *   size/letter-spacing/weight mismatch is the actual blocker.)
+ * - `selectStyle`/`searchInputStyle` (11.5px, `fontFamily: "inherit"`):
+ *   the explicit `"inherit"` (rather than any `fonts.*` value) reads as
+ *   a deliberate choice to match the surrounding form context, not an
+ *   oversight — left literal.
+ * - `statValue` (16px/700/mono) and `statLabel` (8.5px/0.08em/mono/
+ *   uppercase): both sit between `typeScale` steps with no clean match
+ *   on size+letter-spacing — left literal.
+ * - `logStyle` (11px/mono, the log-line/timestamp text) and `emptyStyle`
+ *   (11px/mono/0.02em): `logStyle` in particular renders raw,
+ *   case-sensitive backend log content — forcing any uppercase-bearing
+ *   step onto it would corrupt the evidence itself, independent of the
+ *   size mismatch — left literal.
+ * All of the above keep their exact pre-existing literal values;
+ * nothing here changes visually.
+ */
+const sectionStyle = { padding: "16px", border: `1px solid ${colors.border}`, borderRadius: `${radius.lg}px`, background: surface.l3 };
 const headerRow = { display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap", marginBottom: "12px" };
 const headerLeft = { display: "flex", alignItems: "center", gap: "9px", minWidth: 0 };
 const iconBadge = { width: "28px", height: "28px", borderRadius: `${radius.sm}px`, display: "flex", alignItems: "center", justifyContent: "center", background: colors.brandDim, border: `1.5px solid color-mix(in srgb, ${colors.brand} 30%, transparent)`, color: colors.brand, flexShrink: 0 };
 const titleStyle = { margin: 0, fontSize: "13px", letterSpacing: "0.12em", color: colors.ink, fontFamily: fonts.mono };
 const countBadge = { fontSize: "9px", color: colors.inkFaint, fontFamily: fonts.mono, border: `1.5px solid ${colors.borderSubtle}`, borderRadius: "10px", padding: "3px 8px", whiteSpace: "nowrap" };
 const actionsRow = { display: "flex", gap: "8px", flexWrap: "wrap" };
-const pillButton = { display: "inline-flex", alignItems: "center", gap: "6px", border: `1px solid ${colors.border}`, background: colors.bgElevated, color: colors.inkDim, borderRadius: `${radius.sm}px`, padding: "6px 11px", fontSize: "9.5px", fontFamily: fonts.mono, letterSpacing: "0.08em", cursor: "pointer", transition: "background 150ms ease, color 150ms ease, border-color 150ms ease" };
+// P6-T09 motion audit: `pillButton`'s `transition:` below shares one
+// 150ms/`ease` duration+easing across all three properties, but 150ms
+// doesn't exactly match any `motion` step (fast: 100ms, base: 160ms,
+// cardIn: 220ms, pill: 180ms cubic-bezier). Left as the original literal;
+// no conversion.
+const pillButton = { display: "inline-flex", alignItems: "center", gap: "6px", border: `1px solid ${colors.border}`, background: surface.l2, color: colors.inkDim, borderRadius: `${radius.sm}px`, padding: "6px 11px", fontSize: "9.5px", fontFamily: fonts.mono, letterSpacing: "0.08em", cursor: "pointer", transition: "background 150ms ease, color 150ms ease, border-color 150ms ease" };
 const activePillButton = (tone) => ({ ...pillButton, color: tone, borderColor: tone, background: `${tone}24` });
 const filtersRow = { display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "12px" };
-const selectStyle = { background: colors.bgInset, border: `1px solid ${colors.borderSubtle}`, color: colors.ink, padding: "9px 10px", borderRadius: `${radius.sm}px`, fontSize: "11.5px", fontFamily: "inherit", outline: "none" };
+const selectStyle = { background: surface.l1, border: `1px solid ${colors.borderSubtle}`, color: colors.ink, padding: "9px 10px", borderRadius: `${radius.sm}px`, fontSize: "11.5px", fontFamily: "inherit" };
 const searchWrap = { position: "relative", flex: 1, minWidth: "180px", display: "flex", alignItems: "center" };
 const searchIcon = { position: "absolute", left: "11px", color: colors.inkFaint, pointerEvents: "none" };
 const searchInputStyle = { ...selectStyle, width: "100%", padding: "8px 10px 8px 30px", boxSizing: "border-box" };
-const dropdownMenu = { position: "absolute", top: "calc(100% + 6px)", right: 0, display: "flex", flexDirection: "column", gap: "6px", padding: "8px", background: colors.bgCard, border: `1px solid ${colors.border}`, borderRadius: `${radius.md}px`, boxShadow: "0 18px 50px rgba(0,0,0,0.38)", zIndex: 20, minWidth: "180px", overflow: "hidden" };
+const dropdownMenu = { position: "absolute", top: "calc(100% + 6px)", right: 0, display: "flex", flexDirection: "column", gap: "6px", padding: "8px", background: surface.l3, border: `1px solid ${colors.border}`, borderRadius: `${radius.md}px`, boxShadow: shadow.overlay, zIndex: 20, minWidth: "180px", overflow: "hidden" };
 const menuButton = { ...pillButton, width: "100%", justifyContent: "flex-start", background: "transparent", border: `1.5px solid ${colors.borderSubtle}` };
 const statsRow = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "8px", marginBottom: "12px" };
-const statTile = { padding: "10px 12px", borderRadius: `${radius.md}px`, background: colors.bgInset, border: `1px solid ${colors.borderSubtle}`, display: "flex", alignItems: "center", gap: "10px" };
+const statTile = { padding: "10px 12px", borderRadius: `${radius.md}px`, background: surface.l1, border: `1px solid ${colors.borderSubtle}`, display: "flex", alignItems: "center", gap: "10px" };
 const statIconWrap = (tone) => ({ flexShrink: 0, width: "30px", height: "30px", borderRadius: `${radius.sm}px`, display: "flex", alignItems: "center", justifyContent: "center", background: `color-mix(in srgb, ${tone} 14%, transparent)`, border: `1px solid color-mix(in srgb, ${tone} 40%, transparent)`, color: tone, fontSize: "13px" });
 const statValue = { fontSize: "16px", fontWeight: 700, fontFamily: fonts.mono, lineHeight: 1.1, whiteSpace: "nowrap" };
 const statLabel = { fontSize: "8.5px", color: colors.inkFaint, letterSpacing: "0.08em", fontFamily: fonts.mono, marginTop: "3px", textTransform: "uppercase" };
 const logWrapper = { position: "relative" };
-const logContainer = { position: "relative", background: colors.bgInset, border: `1px solid ${colors.borderSubtle}`, borderRadius: `${radius.md}px`, padding: "10px", minHeight: "200px", maxHeight: "min(600px, 65dvh)", overflowY: "auto", overflowX: "hidden" };
+const logContainer = { position: "relative", background: surface.l1, border: `1px solid ${colors.borderSubtle}`, borderRadius: `${radius.md}px`, padding: "10px", minHeight: "200px", maxHeight: "min(600px, 65dvh)", overflowY: "auto", overflowX: "hidden" };
 const logStyle = { display: "grid", gridTemplateColumns: "92px minmax(0, 1fr)", alignItems: "start", gap: "10px", fontFamily: fonts.mono, fontSize: "11px", color: colors.inkDim, whiteSpace: "pre-wrap", overflowWrap: "anywhere", wordBreak: "break-word", width: "100%", boxSizing: "border-box", marginBottom: "5px", borderBottom: `1px solid ${colors.borderSubtle}`, borderLeft: `2px solid ${colors.inkDim}`, padding: "7px 7px 7px 9px" };
 const emptyStyle = { display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", color: colors.inkFaint, textAlign: "center", padding: "40px 20px", fontFamily: fonts.mono, fontSize: "11px", letterSpacing: "0.02em" };
-const scrollButton = { position: "absolute", left: "50%", bottom: "22px", transform: "translateX(-50%)", width: "38px", height: "38px", borderRadius: "50%", border: `1px solid ${colors.borderInk}`, background: colors.bgCard, color: colors.brand, cursor: "pointer", zIndex: 300, boxShadow: "0 8px 24px rgba(0,0,0,0.45)", transition: "all 0.2s ease", display: "flex", justifyContent: "center", alignItems: "center" };
+// P6-T09 motion audit: `scrollButton`'s `transition:` below uses the
+// `all` shorthand rather than naming specific properties (so it also
+// transitions e.g. `box-shadow` on this style object) — a different
+// semantic from a named-property transition, but that doesn't change the
+// conclusion here: 200ms doesn't exactly match any `motion` step (fast:
+// 100ms, base: 160ms, cardIn: 220ms, pill: 180ms cubic-bezier). Left as
+// the original literal; no conversion.
+const scrollButton = { position: "absolute", left: "50%", bottom: "22px", transform: "translateX(-50%)", width: "38px", height: "38px", borderRadius: "50%", border: `1px solid ${colors.borderInk}`, background: surface.l3, color: colors.brand, cursor: "pointer", zIndex: 300, boxShadow: shadow.small, transition: "all 0.2s ease", display: "flex", justifyContent: "center", alignItems: "center" };

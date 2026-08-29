@@ -56,7 +56,58 @@ import {
 } from "../api/client";
 import { useToast } from "./ui/Toast.jsx";
 import { useConfirm } from "./ui/ConfirmDialog.jsx";
-import { colors, fonts, radius } from "../dashboard/theme.js";
+import { colors, fonts, radius, surface } from "../dashboard/theme.js";
+
+/**
+ * P5-T06 token-elevation audit (typeScale/surface, per D-008/D-009):
+ *
+ * Backgrounds: all 10 `colors.bg*` references in this file are literal
+ * elevation-slot backgrounds and were swapped for their `surface.l*`
+ * alias per the established mapping (bgInset->l1, bgElevated->l2,
+ * bgCard->l3) — same CSS custom properties, zero visual change.
+ *
+ * One exception, left un-swapped: `saveButton`'s `color: colors.bg`
+ * (~line 906) is a *foreground* text-color use (light-on-dark text for
+ * the "PAIR CLIENT" button, which sits on a `colors.ink` background),
+ * not a background/elevation-slot use. D-009's `surface` alias system
+ * is explicitly framed as an elevation ladder for backgrounds
+ * ("L0 (deepest/page base)"..."L4 (highest)") — every existing
+ * `surface.l*` consumer across P2-P5 so far has been a `background`
+ * property. Re-labelling a foreground text color as an "elevation
+ * level" would be semantically wrong even though the literal value is
+ * shared, so this one is left as `colors.bg` rather than converted to
+ * `surface.l0`.
+ *
+ * Typography: every `fontSize`/`font:`/`fontFamily`/`fontWeight` group
+ * in this file (~18 distinct style objects, sizes ranging 9px-13.5px)
+ * was checked against `typeScale`'s six steps for a genuine match
+ * (matching fontSize + fontWeight + fontFamily, per the standard this
+ * project has used since P5-T01/P2-T01) — **none matched.** Same
+ * outcome as Recovery (P5-T05): this page's dense operational-console
+ * character uses its own bespoke scale, not the editorial `typeScale`
+ * steps. Closest near-misses, left as documented literals rather than
+ * forced:
+ *   - `saveButton` (11.5px/700/mono/0.12em) matches `typeScale.meta`'s
+ *     weight, font family, AND letter-spacing exactly — only the size
+ *     (11.5px vs. meta's 10px) and textTransform (this button's
+ *     "PAIR CLIENT"/"PAIRING..." text is already literal uppercase in
+ *     JSX, not CSS `text-transform: uppercase`) differ.
+ *   - `FieldLabel`'s inline style and `sectionLabel` (9.5px/700/mono/
+ *     uppercase, 0.13em and 0.15em letter-spacing respectively) are
+ *     both close to `typeScale.meta` (10px/700/mono/uppercase/0.12em)
+ *     but neither matches on size or letter-spacing.
+ *   - `headerTitle` (13.5px/700/display) coincidentally shares
+ *     `typeScale.body`'s exact font-size (13.5px) but diverges on both
+ *     font-weight (700 vs. 500) and font-family (display vs. body/
+ *     Inter) — a size-only coincidence, not a real match.
+ *   - `closeStreamButton` and `deleteAllButton` are byte-identical to
+ *     each other in their font properties (10.5px/mono/0.08em
+ *     letter-spacing, both destructive-action buttons) — a genuine
+ *     sibling-consistency pair, but neither matches any `typeScale`
+ *     step.
+ * All 18 groups are left as literal values, matching D-005's "refine,
+ * don't flatten" instruction for pages with real existing character.
+ */
 
 export function SunshineClientManager({ hostStatus, streamStatus }) {
 
@@ -235,6 +286,11 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                     onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(237,235,227,0.08)")}
                     onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                 >
+                    {/* P6-T13 motion audit: named-keyframe `animation:` reference, not a `transition:`
+                        property — `motion`'s four exports are transition-timing value strings, not
+                        `@keyframes` names, so there's no valid conversion target regardless of
+                        duration. 0.8s also doesn't match any `motion` step's duration. Left as the
+                        original literal; no conversion. */}
                     <RefreshCw size={12} strokeWidth={2} style={loading ? { animation: "scm-spin 0.8s linear infinite" } : undefined} />
                 </button>
             </div>
@@ -302,6 +358,11 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                         }}
                     >
                         {closingStream ? (
+                            // P6-T13 motion audit: named-keyframe `animation:` reference, not a
+                            // `transition:` property — `motion`'s four exports are transition-timing
+                            // value strings, not `@keyframes` names, so there's no valid conversion
+                            // target regardless of duration. 0.8s also doesn't match any `motion`
+                            // step's duration. Left as the original literal; no conversion.
                             <RefreshCw size={11} strokeWidth={2} style={{ animation: "scm-spin 0.8s linear infinite" }} />
                         ) : (
                             <Power size={11} strokeWidth={2} />
@@ -376,6 +437,12 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                                             }}
                                         >
                                             {unpairingUuid === client.uuid ? (
+                                                // P6-T13 motion audit: named-keyframe `animation:` reference, not
+                                                // a `transition:` property — `motion`'s four exports are
+                                                // transition-timing value strings, not `@keyframes` names, so
+                                                // there's no valid conversion target regardless of duration. 0.8s
+                                                // also doesn't match any `motion` step's duration. Left as the
+                                                // original literal; no conversion.
                                                 <RefreshCw size={10} strokeWidth={2} style={{ animation: "scm-spin 0.8s linear infinite" }} />
                                             ) : (
                                                 <Unlink size={11} strokeWidth={2} />
@@ -405,6 +472,11 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                         }}
                     >
                         {unpairingAll ? (
+                            // P6-T13 motion audit: named-keyframe `animation:` reference, not a
+                            // `transition:` property — `motion`'s four exports are transition-timing
+                            // value strings, not `@keyframes` names, so there's no valid conversion
+                            // target regardless of duration. 0.8s also doesn't match any `motion`
+                            // step's duration. Left as the original literal; no conversion.
                             <RefreshCw size={11} strokeWidth={2} style={{ animation: "scm-spin 0.8s linear infinite" }} />
                         ) : (
                             <Ban size={11} strokeWidth={2} />
@@ -441,6 +513,7 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                         <input
                             style={{ ...inputStyle, paddingLeft: "34px" }}
                             placeholder="4-digit PIN shown on the client"
+                            aria-label="PIN"
                             value={pin}
                             onFocus={focusBorder}
                             onBlur={blurBorder}
@@ -546,7 +619,7 @@ const blurBorder = (e) => {
 const outerWrap = {
     border: `1px solid ${colors.border}`,
     borderRadius: `${radius.lg}px`,
-    background: colors.bgCard,
+    background: surface.l3,
     overflow: "hidden",
 };
 
@@ -559,7 +632,7 @@ const headerBar = {
     gap: "10px",
     padding: "16px 20px",
     borderBottom: `1px solid ${colors.border}`,
-    background: colors.bgElevated,
+    background: surface.l2,
 };
 
 const headerIconBadge = {
@@ -603,6 +676,9 @@ const iconGhostButton = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    // P6-T13 motion audit: real `transition:`, but 150ms does not exactly match any `motion`
+    // step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms cubic-bezier). Left as the
+    // original literal; no conversion.
     transition: "background 150ms ease",
     flexShrink: 0,
 };
@@ -611,7 +687,7 @@ const cardSection = {
     padding: "16px",
     borderRadius: `${radius.md}px`,
     border: `1px solid ${colors.border}`,
-    background: colors.bgInset,
+    background: surface.l1,
 };
 
 const sectionHeadRow = {
@@ -699,7 +775,7 @@ const statusPill = {
     padding: "5px 10px",
     borderRadius: `${radius.sm}px`,
     border: "1px solid",
-    background: colors.bgInset,
+    background: surface.l1,
 };
 
 const closeStreamButton = {
@@ -716,6 +792,9 @@ const closeStreamButton = {
     fontFamily: fonts.mono,
     fontSize: "10.5px",
     letterSpacing: "0.08em",
+    // P6-T13 motion audit: real `transition:`, but 150ms does not exactly match any `motion`
+    // step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms cubic-bezier). Left as the
+    // original literal; no conversion.
     transition: "background 150ms ease",
     marginTop: "14px",
 };
@@ -736,7 +815,7 @@ const clientLoadingCard = {
     gap: "10px",
     minHeight: "58px",
     padding: "12px",
-    background: colors.bgCard,
+    background: surface.l3,
     border: `1px solid ${colors.borderSubtle}`,
     borderRadius: `${radius.md}px`,
 };
@@ -745,7 +824,7 @@ const loadingAvatar = {
     width: "30px",
     height: "30px",
     borderRadius: `${radius.sm}px`,
-    background: colors.bgInset,
+    background: surface.l1,
     border: `1px solid ${colors.borderSubtle}`,
     flexShrink: 0,
 };
@@ -755,7 +834,7 @@ const loadingLineWide = {
     width: "min(140px, 76%)",
     height: "8px",
     borderRadius: "2px",
-    background: colors.bgInset,
+    background: surface.l1,
     border: `1px solid ${colors.borderSubtle}`,
 };
 
@@ -765,7 +844,7 @@ const loadingLineShort = {
     height: "7px",
     marginTop: "7px",
     borderRadius: "2px",
-    background: colors.bgInset,
+    background: surface.l1,
     border: `1px solid ${colors.borderSubtle}`,
 };
 
@@ -774,6 +853,11 @@ const pulseDot = {
     height: "7px",
     borderRadius: "50%",
     background: colors.brand,
+    // P6-T13 motion audit: this is a named-keyframe `animation:` reference, not a
+    // `transition:` property — `motion`'s four exports are transition-timing value strings,
+    // not `@keyframes` names, so there's no valid conversion target regardless of duration.
+    // Its 1.6s duration also doesn't match any `motion` step's duration anyway. Left as the
+    // original literal; no conversion.
     animation: "scm-pulse 1.6s ease-in-out infinite",
     flexShrink: 0,
 };
@@ -800,7 +884,7 @@ const grid = {
 const clientCard = {
     position: "relative",
     padding: "14px",
-    background: colors.bgCard,
+    background: surface.l3,
     border: `1.5px solid ${colors.border}`,
     borderRadius: `${radius.md}px`,
     overflow: "hidden",
@@ -857,6 +941,9 @@ const cardDeleteButton = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    // P6-T13 motion audit: real `transition:`, but 150ms does not exactly match any `motion`
+    // step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms cubic-bezier). Left as the
+    // original literal; no conversion.
     transition: "background 150ms ease",
 };
 
@@ -876,20 +963,25 @@ const deleteAllButton = {
     fontFamily: fonts.mono,
     fontSize: "10.5px",
     letterSpacing: "0.08em",
+    // P6-T13 motion audit: real `transition:`, but 150ms does not exactly match any `motion`
+    // step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms cubic-bezier). Left as the
+    // original literal; no conversion.
     transition: "background 150ms ease",
 };
 
 const inputStyle = {
     width: "100%",
     padding: "10px 12px",
-    background: colors.bgInset,
+    background: surface.l1,
     border: `1.5px solid ${colors.border}`,
     borderRadius: `${radius.md}px`,
     color: colors.ink,
     fontSize: "13px",
     fontFamily: "inherit",
-    outline: "none",
     boxSizing: "border-box",
+    // P6-T13 motion audit: real `transition:`, but 150ms does not exactly match any `motion`
+    // step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms cubic-bezier). Left as the
+    // original literal; no conversion.
     transition: "border-color 150ms ease",
 };
 
@@ -908,6 +1000,9 @@ const saveButton = {
     fontFamily: fonts.mono,
     fontWeight: 700,
     letterSpacing: "0.12em",
+    // P6-T13 motion audit: real `transition:`, but 150ms does not exactly match any `motion`
+    // step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms cubic-bezier). Left as the
+    // original literal; no conversion.
     transition: "filter 150ms ease",
 };
 

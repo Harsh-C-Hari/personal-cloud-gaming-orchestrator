@@ -22,9 +22,12 @@ const inputStyle = {
     color: colors.ink,
     fontSize: "13px",
     fontFamily: "inherit",
-    outline: "none",
     cursor: "pointer",
     boxSizing: "border-box",
+    // P6-T07 motion audit: 150ms does not exactly match any motion step
+    // (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms) — a
+    // duration-only coincidence would not be enough anyway, but there's
+    // no exact match here at all. Left as the original literal.
     transition: "border-color 150ms ease",
 };
 
@@ -113,6 +116,7 @@ export function SaveBrowser({
                         onChange={(e) => onTypeChange(e.target.value)}
                         onFocus={focusBorder}
                         onBlur={blurBorder}
+                        aria-label="Save Source"
                     >
                         {saves.latest_exists && <option value="latest">latest save</option>}
                         {archives.length > 0 && <option value="archives">archive</option>}
@@ -151,6 +155,7 @@ export function SaveBrowser({
                             onChange={(e) => onNameChange(e.target.value)}
                             onFocus={focusBorder}
                             onBlur={blurBorder}
+                            aria-label={`Select ${type === "archives" ? "Archive" : "Backup"}`}
                         >
                             <option value="">Select {type === "archives" ? "archive" : "backup"}</option>
                             {options.map((item) => (
@@ -183,6 +188,9 @@ export function SaveBrowser({
                                 letterSpacing: "0.04em",
                                 cursor: deleting ? "not-allowed" : "pointer",
                                 opacity: deleting ? 0.6 : 1,
+                                // P6-T07 motion audit: 150ms does not exactly match any
+                                // motion step (fast: 100ms, base: 160ms, cardIn: 220ms,
+                                // pill: 180ms). Left as the original literal.
                                 transition: "background 150ms ease",
                             }}
                             onMouseEnter={(e) => {

@@ -1,4 +1,4 @@
-import { colors, fonts, nav, radius, motion } from "../theme.js";
+import { colors, nav, radius, motion, surface, typeScale } from "../theme.js";
 
 export function Sidebar({ items, activeRoute, onNavigate }) {
   return (
@@ -13,10 +13,10 @@ export function Sidebar({ items, activeRoute, onNavigate }) {
         overflowY: "auto",
         padding: "18px 14px 20px",
         gap: "4px",
-        background: colors.bgElevated,
+        background: surface.l2,
       }}
     >
-      <div style={{ padding: "4px 10px 14px", color: colors.inkFaint, font: `700 10px/1.2 ${fonts.mono}`, letterSpacing: ".14em", textTransform: "uppercase" }}>
+      <div style={{ padding: "4px 10px 14px", color: colors.inkFaint, ...typeScale.meta }}>
         Control plane
       </div>
       {items.map((item) => {
@@ -38,14 +38,13 @@ export function Sidebar({ items, activeRoute, onNavigate }) {
               border: `1px solid ${active ? colors.brandDim : "transparent"}`,
               background: active ? colors.brandDim : "transparent",
               color: active ? colors.ink : colors.inkDim,
-              fontSize: "13px",
-              fontFamily: fonts.body,
+              ...typeScale.body,
               fontWeight: active ? 650 : 500,
               cursor: "pointer",
               textAlign: "left",
               transition: `background ${motion.pill}, color ${motion.pill}, border-color ${motion.pill}`,
             }}
-            onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = colors.bgCardHover; }}
+            onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = surface.l4; }}
             onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = "transparent"; }}
           >
             {active && <span aria-hidden="true" style={{ position: "absolute", left: -15, width: 2, height: 20, background: colors.brand, borderRadius: 2 }} />}

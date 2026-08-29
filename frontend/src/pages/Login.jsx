@@ -3,9 +3,14 @@ import { User, Lock, LogIn, ShieldCheck, Info, TriangleAlert, ArrowUpRight, Acti
 import { login, setToken, bootstrapRequired, bootstrapAdmin } from "../api/client";
 import { useToast } from "../components/ui/Toast.jsx";
 import { Button } from "../components/ui/primitives.jsx";
-import { colors, fonts, radius, shadow } from "../dashboard/theme.js";
+import { colors, fonts, motion, radius, shadow } from "../dashboard/theme.js";
 
-const inputStyle = { width: "100%", minHeight: 46, padding: "11px 13px 11px 39px", background: colors.bgInset, border: `1px solid ${colors.border}`, borderRadius: radius.sm, color: colors.ink, fontSize: 13.5, fontFamily: fonts.body, outline: "none", boxSizing: "border-box", transition: "border-color 160ms ease, background 160ms ease" };
+// P6-T07 motion audit: both properties on this transition were an exact
+// "160ms ease" match to motion.base (verified against theme.js's real,
+// current value), so this is a genuine token-alias conversion — same
+// precedent as PageHeader.jsx's motion.base template-literal conversion
+// (P6-T03). Same duration/easing, zero visual change.
+const inputStyle = { width: "100%", minHeight: 46, padding: "11px 13px 11px 39px", background: colors.bgInset, border: `1px solid ${colors.border}`, borderRadius: radius.sm, color: colors.ink, fontSize: 13.5, fontFamily: fonts.body, boxSizing: "border-box", transition: `border-color ${motion.base}, background ${motion.base}` };
 
 function FieldLabel({ icon, children }) {
   return <span style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 10, fontWeight: 700, color: colors.inkFaint, letterSpacing: ".12em", textTransform: "uppercase", fontFamily: fonts.mono, marginBottom: 8 }}>{icon}{children}</span>;

@@ -9,7 +9,7 @@
  * Same prop API as before (`label`, same default) — visual only.
  */
 
-import { colors, fonts } from "../theme.js";
+import { colors, typeScale } from "../theme.js";
 
 export function LoadingState({ label = "Connecting to host agent…" }) {
   return (
@@ -19,9 +19,9 @@ export function LoadingState({ label = "Connecting to host agent…" }) {
         alignItems: "center",
         gap: "9px",
         color: colors.inkDim,
-        fontFamily: fonts.body,
-        fontWeight: 500,
-        fontSize: "13px",
+        // Body copy -> typeScale.body (13.5px, same 13-14px cluster this
+        // 13px value was already part of per D-009's own derivation notes).
+        ...typeScale.body,
         padding: "20px 0",
       }}
     >
@@ -31,6 +31,12 @@ export function LoadingState({ label = "Connecting to host agent…" }) {
           height: "7px",
           borderRadius: "50%",
           background: colors.brand,
+          // motion-audit (P6-T04): keyframe-based `animation:` (name +
+          // infinite iteration count), not a `transition:`. `motion`'s four
+          // steps are duration+easing pairs only, with no keyframe-name or
+          // iteration-count semantics — no equivalent exists, same
+          // non-convertible category as primitives.jsx's Spinner (P6-T02).
+          // Left as a literal, not converted.
           animation: "dashboard-loading-pulse 1.6s ease-in-out infinite",
           flexShrink: 0,
         }}

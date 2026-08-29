@@ -212,6 +212,10 @@ export class ErrorBoundary extends Component {
                 <ChevronDown
                   size={12}
                   strokeWidth={2}
+                  // motion-audit (P6-T04): 0.2s (200ms) plain `ease`-default
+                  // does not exactly match any `motion` step (fast=100ms,
+                  // base=160ms, cardIn=220ms, pill=180ms cubic-bezier) —
+                  // left as a literal, not converted.
                   style={{ transform: showDetails ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
                 />
                 Technical details

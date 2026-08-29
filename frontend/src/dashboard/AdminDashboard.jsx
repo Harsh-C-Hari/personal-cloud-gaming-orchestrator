@@ -306,11 +306,28 @@ export function AdminDashboard({ username }) {
       onLogout={logout}
       onLogoClick={goHome}
     >
-      {!isKnownRoute && <NotFoundPage path={route} onGoHome={goHome} />}
+      {!isKnownRoute && (
+        <div className="pcgo-page-enter">
+          <NotFoundPage path={route} onGoHome={goHome} />
+        </div>
+      )}
       {Object.entries(pages).map(([key, element]) => {
         if (!visitedRoutes.has(key) && key !== activeKey) return null;
+        // className (not just the display style) is keyed off activeKey so
+        // that becoming the active route is always a genuine "add the
+        // .pcgo-page-enter class" DOM mutation - including on a *return*
+        // visit, where the class was removed when this route was last left.
+        // That fresh add/remove is what makes the browser (re)start the
+        // cgo-fade-up animation each real navigation, without remounting
+        // {element} itself: unrelated re-renders where activeKey doesn't
+        // change produce the same className string, so React never touches
+        // the DOM's class attribute and no replay happens.
         return (
-          <div key={key} style={{ display: key === activeKey ? "block" : "none" }}>
+          <div
+            key={key}
+            className={key === activeKey ? "pcgo-page-enter" : undefined}
+            style={{ display: key === activeKey ? "block" : "none" }}
+          >
             {element}
           </div>
         );

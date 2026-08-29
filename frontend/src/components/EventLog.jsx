@@ -68,10 +68,10 @@ export function EventLog({ events, connected }) {
     lastAnnouncedKey.current = latestKey;
     if (!shouldAnnounce) return;
 
-    setAnnouncement(`${latestStyle.label}: ${latestMessage}${latest.session_id ? `, session ${latest.session_id}` : ""}`);
+    setAnnouncement(`${latestStyle.label}: ${latestMessage}${latest?.session_id ? `, session ${latest.session_id}` : ""}`);
     const timeoutId = window.setTimeout(() => setAnnouncement(""), 1800);
     return () => window.clearTimeout(timeoutId);
-  }, [latestKey, latestMessage, latest.session_id, latestStyle.label, shouldAnnounce]);
+  }, [latestKey, latestMessage, latest?.session_id, latestStyle.label, shouldAnnounce]);
 
   return (
     <div
@@ -104,6 +104,10 @@ export function EventLog({ events, connected }) {
               height: "6px",
               borderRadius: "50%",
               background: connected ? colors.success : colors.inkGhost,
+              // P6-T05 motion audit: keyframe-based `animation:`, same
+              // non-convertible category as StatusBadge.jsx's pulse (this task)
+              // and primitives.jsx's Spinner (P6-T02) — no `motion` equivalent
+              // for a @keyframes reference. Left as the original literal.
               animation: connected ? "log-blink 2s ease-in-out infinite" : "none",
             }}
           />
@@ -178,7 +182,21 @@ export function EventLog({ events, connected }) {
                   borderRadius: "6px",
                   borderLeft: `2px solid ${style.color}`,
                   background: colors.bgInset,
+                  // P6-T05 motion audit: keyframe-based `animation:` (not
+                  // `transition:`), so not eligible for a `motion.*` alias
+                  // regardless of duration. Flagging the trap explicitly: this
+                  // 180ms duration coincides with motion.pill's 180ms, but
+                  // motion.pill's easing is cubic-bezier(0.4,0,0.2,1), not the
+                  // plain "ease" used here — the easing mismatch means this
+                  // would not qualify as a genuine exact match even if it were
+                  // a `transition:`. Same duration-only-coincidence trap P6-T04
+                  // correctly caught with ConfirmDialog.jsx/Toast.jsx's 0.18s
+                  // values. Left as the original literal.
                   animation: i === 0 ? "card-in 180ms ease forwards" : "none",
+                  // P6-T05 motion audit: real `transition:`, but 150ms doesn't
+                  // exactly match any `motion` step (fast: 100ms, base: 160ms,
+                  // cardIn: 220ms, pill: 180ms cubic-bezier). Left as the
+                  // original literal; no conversion.
                   transition: "background 150ms ease",
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = colors.bgCardHover)}

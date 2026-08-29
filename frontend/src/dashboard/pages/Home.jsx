@@ -13,19 +13,45 @@ import { SessionSidebar } from "../components/SessionSidebar.jsx";
 import { NavigationCard } from "../components/NavigationCard.jsx";
 import { EmptyState } from "../components/EmptyState.jsx";
 import { LoadingState } from "../components/LoadingState.jsx";
-import { colors, fonts } from "../theme.js";
+import { colors, typeScale } from "../theme.js";
 
-const EYEBROW_STYLE = {
+/**
+ * P3-T01: previously an ad hoc inline object (fontSize 9.5px, mono, 700,
+ * .15em, uppercase) that predated the token system. That 9.5px was never a
+ * deliberate design choice next to the rest of the app's ~30+ occurrences
+ * of the same uppercase-mono-label pattern at 10px (D-009's `typeScale.meta`)
+ * — it was drift, not intent. Routed through `typeScale.meta` verbatim
+ * (10px/700/.12em/uppercase/mono) rather than carried forward.
+ */
+const eyebrowStyle = {
   display: "flex",
   alignItems: "center",
   gap: "8px",
-  fontSize: "9.5px",
+  marginBottom: "10px",
   color: colors.inkFaint,
-  letterSpacing: "0.15em",
-  textTransform: "uppercase",
-  fontFamily: fonts.mono,
-  fontWeight: 700,
-  marginBottom: "12px",
+  ...typeScale.meta,
+};
+
+/**
+ * P3-T01: Home's new flagship headline — the "real display moment" called
+ * for by D-008/DESIGN REQUIREMENTS, giving the page an actual editorial
+ * moment to match Login's ambition (it previously jumped straight from the
+ * eyebrow into the launch form with no headline at all).
+ *
+ * Deliberately built from `typeScale.heading` (28px/650/-0.03em) rather
+ * than `typeScale.hero` (clamp 42-82px): Home is an authenticated,
+ * frequently revisited operational console, not a one-time landing gate
+ * like Login — a full hero-scale headline would crowd the actual task
+ * (starting/monitoring a session) every single visit. `heading` is also
+ * exactly the size PageHeader.jsx already uses for every other page's
+ * `<h1>`, so this keeps Home's headline consistent with the rest of the
+ * app's heading hierarchy rather than inventing a one-off size.
+ */
+const headlineStyle = {
+  margin: "0",
+  maxWidth: "560px",
+  color: colors.ink,
+  ...typeScale.heading,
 };
 
 export function Home({
@@ -50,9 +76,14 @@ export function Home({
 
       <div className="pcgo-home-hero">
         <main className="pcgo-home-primary">
-          <div style={EYEBROW_STYLE}>
-            <span className="pcgo-home-signal" aria-hidden="true" />
-            {hasActiveSession ? "Current Session" : "Start a New Session"}
+          <div className="pcgo-home-intro">
+            <div style={eyebrowStyle}>
+              <span className="pcgo-home-signal" aria-hidden="true" />
+              {hasActiveSession ? "Current Session" : "Start a New Session"}
+            </div>
+            <h1 style={headlineStyle}>
+              {hasActiveSession ? "Your session is live." : "Ready to launch."}
+            </h1>
           </div>
 
           {loading ? (

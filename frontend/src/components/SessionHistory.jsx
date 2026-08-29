@@ -11,7 +11,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { fetchSessionHistory, fetchSessionEvents } from "../api/client";
-import { colors, fonts, radius } from "../dashboard/theme.js";
+import { colors, fonts, radius, surface } from "../dashboard/theme.js";
 
 function formatPlayedTime(seconds) {
   if (seconds == null) return "--";
@@ -206,6 +206,14 @@ export function SessionHistory({ refreshKey = 0 }) {
             e.currentTarget.style.borderColor = colors.border;
           }}
         >
+          {/* P6-T10 motion audit: keyframe-based `animation:` (not `transition:`), applying
+              the `sh-spin` keyframe declared via the JSX-rendered <style> tag near the end
+              of this component's render output (this is the only place `sh-spin` is
+              applied). Same non-convertible category as HostStatusPanel.jsx's `hsp-spin` /
+              SessionAnalytics.jsx's `sa-spin 0.8s` (P6-T08) / LogPanel.jsx's `lp-spin 0.8s`
+              (P6-T09). `motion`'s four steps are transition-timing strings, not @keyframes
+              names, so there is no equivalent to alias to here regardless of the 0.8s
+              duration. Left as the original literal; no conversion. */}
           <RefreshCw size={11} strokeWidth={2} style={loading ? { animation: "sh-spin 0.8s linear infinite" } : undefined} />
           {loading ? "REFRESHING..." : "REFRESH"}
         </button>
@@ -287,7 +295,7 @@ export function SessionHistory({ refreshKey = 0 }) {
                 className="pcgo-session-history__record"
                 style={{
                   borderRadius: `${radius.md}px`,
-                  background: colors.bgInset,
+                  background: surface.l1,
                   border: `1px solid ${colors.border}`,
                   borderLeft: `2px solid ${badge.color}`,
                   overflow: "hidden",
@@ -328,6 +336,11 @@ export function SessionHistory({ refreshKey = 0 }) {
                       }}
                     >
                       {isExpanded ? "HIDE" : "DETAILS"}
+                      {/* P6-T10 motion audit: real `transition:`, but 200ms does not exactly
+                          match any `motion` step (fast: 100ms, base: 160ms, cardIn: 220ms,
+                          pill: 180ms cubic-bezier) — same non-match as ErrorBoundary.jsx's /
+                          RecoveryStats.jsx's identical chevron pattern (P6-T04/P6-T09). Left
+                          as a literal, not converted. */}
                       <ChevronDown size={8} strokeWidth={2} style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
                     </button>
                   </div>
@@ -393,20 +406,74 @@ export function SessionHistory({ refreshKey = 0 }) {
           }}
         >
           {expanded ? "SHOW LESS" : `SHOW ALL ${history.length} SESSIONS`}
+          {/* P6-T10 motion audit: real `transition:`, but 200ms does not exactly match any
+              `motion` step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms
+              cubic-bezier) — same non-match as the per-record "DETAILS" chevron above and
+              ErrorBoundary.jsx's / RecoveryStats.jsx's identical chevron pattern
+              (P6-T04/P6-T09). Left as a literal, not converted. */}
           <ChevronDown size={9} strokeWidth={2} style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
         </button>
       )}
 
+      {/* P6-T10 motion audit: declares the `sh-spin` keyframe, applied via
+          `animation: "sh-spin 0.8s linear infinite"` on the refresh button's RefreshCw icon
+          near the top of this component's render output (see that comment for the full
+          non-convertible reasoning — this is a keyframe name, not a `motion` transition-timing
+          string, so there is nothing to alias here regardless of source/render shape). */}
       <style>{`@keyframes sh-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </section>
   );
 }
 
+/**
+ * P5-T04 token migration notes.
+ *
+ * Backgrounds: all 5 `colors.bg*` references in this file (2x bgInset,
+ * bgCard, 2x bgElevated) have been swapped for their `surface.l*` alias
+ * per D-009 — same CSS custom property, same value, zero visual change.
+ * `colors` is still imported/used throughout for non-background tokens
+ * (ink/border/brand/status colors) and is unaffected.
+ *
+ * Typography: this page's "authoritative record" character (D-008) uses
+ * a set of small, bespoke sizes (8.5px-17px) tuned for a dense records
+ * list, not the editorial `typeScale` steps. Checked every inline font
+ * group below against `typeScale` and left all of them as documented
+ * literals rather than force-fitting a mismatch, per D-005 ("only
+ * convert what cleanly matches... document and leave literal anything
+ * that doesn't"), matching P5-T03's precedent of requiring a genuine
+ * size+weight+family (and, where present, letter-spacing/case) match
+ * before converting:
+ * - `title` (15px/700/display, h2 default line-height): closest
+ *   candidate to `typeScale.subheading` (17px/600/-0.01em/display) —
+ *   font-family already matches, but the weight (700 vs 600) and size
+ *   (15px vs 17px, a real ~13% visible size increase) don't — left
+ *   literal.
+ * - `countPill` (9px/700/mono/0.06em), `refreshButton` (9px/700/mono/
+ *   0.08em), `detailsButton` (9px/700/mono/0.04em): all a size step
+ *   below `typeScale.meta` (10px/700/0.12em/uppercase/mono) with
+ *   mismatched letter-spacing and no `textTransform` — left literal.
+ *   (Their text content is already static uppercase strings, so unlike
+ *   SessionCard/StartSessionForm's dynamic labels, adding
+ *   `textTransform: uppercase` here would be harmless, but the
+ *   size/letter-spacing mismatch is the actual blocker.)
+ * - `showAllButton` (10px/700/mono/0.08em): size+weight+family all
+ *   match `typeScale.meta`, but letter-spacing (0.08em vs 0.12em) and
+ *   the missing `uppercase`/`lineHeight: 1.3` don't — same category of
+ *   near-miss LogPanel's `pillButton`/`menuButton` left literal for the
+ *   same reason — left literal.
+ * - `statValue` (17px/700/mono): size matches `typeScale.subheading`
+ *   (17px) but weight (700 vs 600) and font-family (mono vs display)
+ *   don't — left literal, same pattern as LogPanel's `statValue`.
+ * - `statLabel` (8.5px/mono/uppercase), `errorBox`/`emptyBox` (11px/
+ *   mono): no `typeScale` step sits at these sizes — left literal.
+ * All of the above keep their exact pre-existing literal values;
+ * nothing here changes visually.
+ */
 const box = {
   padding: "20px",
   border: `1px solid ${colors.border}`,
   borderRadius: `${radius.lg}px`,
-  background: colors.bgCard,
+  background: surface.l3,
 };
 
 const title = {
@@ -445,7 +512,7 @@ const refreshButton = {
   alignItems: "center",
   gap: "6px",
   border: `1px solid ${colors.border}`,
-  background: colors.bgElevated,
+  background: surface.l2,
   color: colors.inkDim,
   borderRadius: `${radius.sm}px`,
   padding: "5px 12px",
@@ -453,6 +520,9 @@ const refreshButton = {
   fontFamily: fonts.mono,
   fontWeight: 700,
   letterSpacing: "0.08em",
+  // P6-T10 motion audit: real `transition:`, but 150ms does not exactly match any `motion`
+  // step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms cubic-bezier). Left as the
+  // original literal; no conversion.
   transition: "color 150ms ease, border-color 150ms ease",
 };
 
@@ -463,7 +533,7 @@ const statTile = {
   minWidth: 0,
   padding: "11px 12px",
   borderRadius: `${radius.md}px`,
-  background: colors.bgInset,
+  background: surface.l1,
   border: `1px solid ${colors.borderSubtle}`,
 };
 
@@ -532,7 +602,7 @@ const detailsButton = {
   gap: "5px",
   marginTop: "8px",
   border: `1px solid ${colors.border}`,
-  background: colors.bgElevated,
+  background: surface.l2,
   color: colors.inkDim,
   borderRadius: `${radius.sm}px`,
   padding: "4px 10px",
@@ -541,6 +611,9 @@ const detailsButton = {
   fontWeight: 700,
   letterSpacing: "0.04em",
   cursor: "pointer",
+  // P6-T10 motion audit: real `transition:`, but 150ms does not exactly match any `motion`
+  // step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms cubic-bezier). Left as the
+  // original literal; no conversion.
   transition: "color 150ms ease, border-color 150ms ease",
 };
 
@@ -561,5 +634,8 @@ const showAllButton = {
   fontWeight: 700,
   letterSpacing: "0.08em",
   cursor: "pointer",
+  // P6-T10 motion audit: real `transition:`, but 150ms does not exactly match any `motion`
+  // step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms cubic-bezier). Left as the
+  // original literal; no conversion.
   transition: "color 150ms ease, border-color 150ms ease",
 };

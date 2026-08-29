@@ -20,12 +20,20 @@
   .pcgo-header { padding-left: 12px !important; padding-right: 12px !important; }
 }
 
-@media (max-width: 360px) {
+/* CC-1 fix (P7-T02): swap threshold raised from 360px to 480px so the
+   abbreviated "CGO" logo covers both 390px and 360px (RULES.md's 5
+   canonical breakpoints). At 360px the app was already correctly showing
+   "CGO"; the bug was that 390px fell in the untreated 361-480px gap,
+   where the full wordmark was still forced and got hard-clipped by the
+   header's fixed-height flex row. Verified via real render (see
+   .ai/P7_AUDIT_FINDINGS.md CC-1, .ai/CHANGELOG.md P7-T02) that 480px is
+   a safe threshold: at 768px+ the full wordmark still has ample room. */
+@media (max-width: 480px) {
   .pcgo-header-title-full { display: none !important; }
   .pcgo-header-title-short { display: inline !important; }
 }
 
-@media (min-width: 361px) { .pcgo-header-title-short { display: none !important; } }
+@media (min-width: 481px) { .pcgo-header-title-short { display: none !important; } }
 
 @media (max-height: 420px) and (orientation: landscape) { .pcgo-header { height: 48px !important; } }
 

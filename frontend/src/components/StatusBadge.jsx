@@ -61,6 +61,12 @@ export function StatusBadge({ status }) {
           borderRadius: "50%",
           background:   cfg.color,
           flexShrink:   0,
+          // P6-T05 motion audit: keyframe-based `animation:` (not `transition:`),
+          // same non-convertible category as primitives.jsx's Spinner (P6-T02) and
+          // LoadingState.jsx's pulse (P6-T04). `motion`'s tokens are transition
+          // timing strings ("<duration> <easing>"), not @keyframes names, so there
+          // is no equivalent to alias to here regardless of the 1.6s duration.
+          // Left as the original literal; no conversion.
           animation:    cfg.pulse ? "badge-pulse 1.6s ease-in-out infinite" : "none",
         }}
       />

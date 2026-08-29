@@ -1,3 +1,54 @@
+/**
+ * components/SessionAnalytics.jsx
+ *
+ * P5-T11 token-elevation audit (typeScale/surface, per D-008/D-009).
+ * Final page in Phase P5 — same fetch/refresh/loading/error logic and the
+ * same `isAdmin` gating as before; only background/typography tokens were
+ * aliased.
+ *
+ * Backgrounds: all 5 `colors.bg*` references in this file were checked
+ * and swapped for their `surface.l*` alias (bgInset->l1, bgElevated->l2,
+ * bgCard->l3) — same CSS custom properties under a new name, zero visual
+ * change, same 1:1 verification every prior P5 file used. The 5: `box`'s
+ * `colors.bgCard` (l3), `refreshButton`'s `colors.bgElevated` (l2),
+ * `statTile`'s `colors.bgInset` (l1), `listCard`'s `colors.bgInset` (l1),
+ * and `listRow`'s `colors.bgElevated` (l2). `bgCardHover`/l4 does not
+ * occur in this file.
+ *
+ * Typography: every `fontSize`/`fontWeight`/`fontFamily` group in this
+ * file was checked against `typeScale`'s six steps. There are 10 such
+ * groups (not 9 as an earlier dispatch estimate had it — the estimate
+ * folded `StatTile`'s icon-tile style and its value style into "one
+ * inline group," but they're two separate style objects: the icon-tile
+ * only sets `fontSize: "13px"`, while the value sets `fontSize`/
+ * `fontWeight`/`fontFamily`/`lineHeight` independently). Exactly one is
+ * a genuine clean match: `listHeading` (9.5px/700/mono/0.13em/uppercase)
+ * is the identical value set Host Monitor's `sectionHeading` and Game
+ * Manager's `FieldLabel` both used and both converted, "a clean fit
+ * within rounding" against `typeScale.meta`'s 10px/700/mono/0.12em/
+ * uppercase — the same 0.5px size gap / 0.01em letter-spacing gap those
+ * two precedents accepted. Converted to `...typeScale.meta`. Everything
+ * else is left as a documented literal, none landing cleanly:
+ *   - `StatTile` icon-tile (13px, no weight/family set) and `title`
+ *     (15px/700/display) both use sizes outside the 6-step scale
+ *     entirely (10/12/13.5/17/28/hero).
+ *   - `StatTile` value (17px/700/mono/1.1 line-height) is the closest
+ *     candidate against `typeScale.subheading` (17px/600/display/1.4) —
+ *     size matches, but weight, font family, and line-height all
+ *     diverge, a materially bigger gap than `listHeading`'s.
+ *   - `emptyBreakdown` (10px/mono, no weight/letter-spacing/uppercase
+ *     set) matches `meta`'s size only; weight/letter-spacing/
+ *     text-transform are all absent, so it stays literal.
+ *   - `scopePill` (8px/700/mono/0.06em), `refreshButton` (9px/700/mono/
+ *     0.08em), `errorBox` (11px/mono, no weight), `statLabel` (8.5px/
+ *     mono, no weight, 0.08em), and `rankBadge` (8.5px/700/mono, no
+ *     letter-spacing) each diverge from every step on size and/or
+ *     weight/letter-spacing by more than the accepted-precedent gap and
+ *     are left as documented literals.
+ * Net: one genuine `typeScale` conversion in this file — the same "one
+ * clean match" outcome Host Monitor/Game Manager found, not Recovery/
+ * Sunshine's "zero matches" outcome.
+ */
 import { useEffect, useRef, useState } from "react";
 import {
   BarChart3,
@@ -15,7 +66,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { fetchSessionAnalytics } from "../api/client";
-import { colors, fonts, radius } from "../dashboard/theme.js";
+import { colors, fonts, radius, surface, typeScale } from "../dashboard/theme.js";
 
 function formatPlayedTime(seconds) {
   if (seconds == null) return "--";
@@ -239,7 +290,25 @@ export function SessionAnalytics({ refreshKey = 0 }) {
             e.currentTarget.style.borderColor = colors.border;
           }}
         >
-          <RefreshCw size={10} strokeWidth={2} style={loading ? { animation: "sa-spin 0.8s linear infinite" } : undefined} />
+          <RefreshCw
+            size={10}
+            strokeWidth={2}
+            style={
+              loading
+                ? {
+                    // P6-T08 motion audit: keyframe-based `animation:` (not
+                    // `transition:`), same non-convertible category as
+                    // primitives.jsx's Spinner (P6-T02) and StatusBadge.jsx's
+                    // pulse (P6-T05). `motion`'s four steps are transition
+                    // timing strings ("<duration> <easing>"), not @keyframes
+                    // names, so there is no equivalent to alias to here
+                    // regardless of the 0.8s duration. Left as the original
+                    // literal; no conversion.
+                    animation: "sa-spin 0.8s linear infinite",
+                  }
+                : undefined
+            }
+          />
           {loading ? "REFRESHING..." : "REFRESH"}
         </button>
       </div>
@@ -305,7 +374,7 @@ const box = {
   padding: "20px",
   border: `1px solid ${colors.border}`,
   borderRadius: `${radius.lg}px`,
-  background: colors.bgCard,
+  background: surface.l3,
 };
 
 const title = {
@@ -345,7 +414,7 @@ const refreshButton = {
   alignItems: "center",
   gap: "6px",
   border: `1px solid ${colors.border}`,
-  background: colors.bgElevated,
+  background: surface.l2,
   color: colors.inkDim,
   borderRadius: `${radius.sm}px`,
   padding: "5px 12px",
@@ -353,6 +422,9 @@ const refreshButton = {
   fontFamily: fonts.mono,
   fontWeight: 700,
   letterSpacing: "0.08em",
+  // P6-T08 motion audit: 150ms does not exactly match any motion step
+  // (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms). Left as the
+  // original literal.
   transition: "color 150ms ease, border-color 150ms ease",
 };
 
@@ -374,7 +446,7 @@ const statTile = {
   minWidth: 0,
   padding: "12px",
   borderRadius: `${radius.md}px`,
-  background: colors.bgInset,
+  background: surface.l1,
   border: `1px solid ${colors.borderSubtle}`,
   display: "flex",
   alignItems: "center",
@@ -394,7 +466,7 @@ const listCard = {
   minWidth: 0,
   padding: "15px",
   borderRadius: `${radius.md}px`,
-  background: colors.bgInset,
+  background: surface.l1,
   border: `1px solid ${colors.borderSubtle}`,
 };
 
@@ -403,12 +475,12 @@ const listHeading = {
   alignItems: "center",
   gap: "7px",
   marginBottom: "10px",
-  fontSize: "9.5px",
   color: colors.inkFaint,
-  letterSpacing: "0.13em",
-  textTransform: "uppercase",
-  fontFamily: fonts.mono,
-  fontWeight: 700,
+  // typeScale.meta = 10px/1.3/700/0.12em/uppercase/mono — clean fit within
+  // rounding against this rule's pre-existing 9.5px/0.13em (same 0.5px/
+  // 0.01em gap Host Monitor's `sectionHeading`/Game Manager's `FieldLabel`
+  // both treated as a clean match).
+  ...typeScale.meta,
 };
 
 const emptyBreakdown = {
@@ -430,7 +502,7 @@ const listRow = {
   gap: "10px",
   padding: "9px 10px",
   borderRadius: `${radius.sm}px`,
-  background: colors.bgElevated,
+  background: surface.l2,
   border: `1px solid ${colors.borderSubtle}`,
 };
 
