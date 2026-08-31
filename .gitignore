@@ -37,3 +37,6 @@ Thumbs.db
 *.log
 
 .serena/
+.claude-flow/
+.claude/
+.mcp.json
