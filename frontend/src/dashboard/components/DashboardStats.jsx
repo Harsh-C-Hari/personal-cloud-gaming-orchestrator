@@ -7,7 +7,45 @@
  * by both the admin and user dashboards.
  */
 
+import { useEffect, useRef } from "react";
+import { initMotion } from "../../lib/motion/gsapSetup.js";
+import { prefersReducedMotion } from "../../lib/motion/reducedMotion.js";
 import { colors, fonts, radius, surface, typeScale } from "../theme.js";
+
+function AnimatedValue({ val, style }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+
+    const num = Number(val);
+    // Only animate if it's a valid number and not a boolean/empty
+    if (!isNaN(num) && typeof val !== "boolean" && val !== "" && ref.current) {
+      const { gsap } = initMotion();
+      const obj = { v: 0 };
+
+      const ctx = gsap.context(() => {
+        gsap.to(obj, {
+          v: num,
+          duration: 1,
+          ease: "power2.out",
+          onUpdate: () => {
+            if (ref.current) {
+              ref.current.innerHTML = Math.floor(obj.v);
+            }
+          },
+        });
+      });
+      return () => ctx.revert();
+    }
+  }, [val]);
+
+  return (
+    <div style={style} ref={ref}>
+      {val}
+    </div>
+  );
+}
 
 export function DashboardStats({ stats }) {
   return (
@@ -38,6 +76,7 @@ export function DashboardStats({ stats }) {
         return (
           <div
             key={s.label}
+            className="pcgo-dashboard-stat-tile"
             style={{
               position: "relative",
               display: "flex",
@@ -115,7 +154,8 @@ export function DashboardStats({ stats }) {
                   `typeScale.metric` — using the step here would
                   over-size. The new `typeScale.metric` exists in
                   theme.js and is used elsewhere (Host readiness, etc.) */}
-              <div
+              <AnimatedValue
+                val={s.val}
                 style={{
                   fontSize: "18px",
                   fontWeight: 700,
@@ -126,9 +166,7 @@ export function DashboardStats({ stats }) {
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                 }}
-              >
-                {s.val}
-              </div>
+              />
 
               {/* Judgment call: close to typeScale.meta in spirit
                   (uppercase, letter-spaced, bold caption) but meta is a

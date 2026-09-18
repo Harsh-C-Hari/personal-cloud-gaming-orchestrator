@@ -1,4 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext } from "react";
+import { initMotion } from "../lib/motion/gsapSetup.js";
+import { prefersReducedMotion } from "../lib/motion/reducedMotion.js";
+import { ScrollContainerContext } from "../lib/motion/scrollContainerContext.jsx";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -102,6 +105,30 @@ export function SessionHistory({ refreshKey = 0 }) {
   const [loading, setLoading] = useState(false);
   const loadingRef = useRef(false);
 
+  const containerRef = useRef(null);
+  const scrollContainer = useContext(ScrollContainerContext);
+
+  useEffect(() => {
+    if (prefersReducedMotion() || history.length === 0) return;
+    const { gsap, ScrollTrigger } = initMotion();
+
+    const ctx = gsap.context(() => {
+      ScrollTrigger.batch(".pcgo-session-history__row", {
+        scroller: scrollContainer || undefined,
+        interval: 0.1, // time window (in seconds) to put elements into a batch
+        batchMax: 15,   // max elements per batch
+        onEnter: (batch) => {
+          gsap.fromTo(batch, 
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, stagger: 0.05, duration: 0.4, ease: "power2.out", clearProps: "all" }
+          );
+        }
+      });
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, [history, scrollContainer]);
+
   async function loadHistory() {
     if (loadingRef.current) return;
 
@@ -170,7 +197,7 @@ export function SessionHistory({ refreshKey = 0 }) {
   const hasHistory = history.length > 0;
 
   return (
-    <section className="pcgo-session-history" style={box} aria-labelledby="session-history-title">
+    <section className="pcgo-session-history" style={box} aria-labelledby="session-history-title" ref={containerRef}>
       <div className="pcgo-session-history__header">
         <div className="pcgo-session-history__heading">
           <div style={headerIcon}>

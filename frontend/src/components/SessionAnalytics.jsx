@@ -49,7 +49,10 @@
  * clean match" outcome Host Monitor/Game Manager found, not Recovery/
  * Sunshine's "zero matches" outcome.
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext } from "react";
+import { initMotion } from "../lib/motion/gsapSetup.js";
+import { prefersReducedMotion } from "../lib/motion/reducedMotion.js";
+import { ScrollContainerContext } from "../lib/motion/scrollContainerContext.jsx";
 import {
   BarChart3,
   CheckCircle2,
@@ -96,6 +99,46 @@ function getReliabilityColor(reliability) {
   }
 }
 
+function AnimatedValue({ val, style }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+
+    let numStr = String(val);
+    let isPercent = numStr.endsWith("%");
+    if (isPercent) numStr = numStr.slice(0, -1);
+    
+    const num = Number(numStr);
+    
+    if (!isNaN(num) && typeof val !== "boolean" && val !== "" && numStr.trim() !== "" && ref.current) {
+      const { gsap } = initMotion();
+      const obj = { v: 0 };
+      const suffix = isPercent ? "%" : "";
+
+      const ctx = gsap.context(() => {
+        gsap.to(obj, {
+          v: num,
+          duration: 1,
+          ease: "power2.out",
+          onUpdate: () => {
+            if (ref.current) {
+              ref.current.innerHTML = Math.floor(obj.v) + suffix;
+            }
+          },
+        });
+      });
+      return () => ctx.revert();
+    }
+  }, [val]);
+
+  return (
+    <div style={style} ref={ref}>
+      {val}
+    </div>
+  );
+}
+
 function StatTile({ icon, label, value, tone = colors.brand }) {
   return (
     <div className="pcgo-analytics-stat" style={statTile}>
@@ -121,7 +164,8 @@ function StatTile({ icon, label, value, tone = colors.brand }) {
         {icon}
       </div>
       <div style={{ minWidth: 0 }}>
-        <div
+        <AnimatedValue
+          val={value}
           style={{
             fontSize: "17px",
             fontWeight: 700,
@@ -130,9 +174,7 @@ function StatTile({ icon, label, value, tone = colors.brand }) {
             lineHeight: 1.1,
             overflowWrap: "anywhere",
           }}
-        >
-          {value}
-        </div>
+        />
         <div style={statLabel}>{label}</div>
       </div>
     </div>
@@ -216,6 +258,30 @@ export function SessionAnalytics({ refreshKey = 0 }) {
   const [hasLoaded, setHasLoaded] = useState(false);
   const loadingRef = useRef(false);
 
+  const containerRef = useRef(null);
+  const scrollContainer = useContext(ScrollContainerContext);
+
+  useEffect(() => {
+    if (prefersReducedMotion() || !hasLoaded) return;
+    const { gsap, ScrollTrigger } = initMotion();
+
+    const ctx = gsap.context(() => {
+      ScrollTrigger.batch(".pcgo-analytics-breakdown__list > div", {
+        scroller: scrollContainer || undefined,
+        interval: 0.1,
+        batchMax: 15,
+        onEnter: (batch) => {
+          gsap.fromTo(batch,
+            { opacity: 0, x: -10 },
+            { opacity: 1, x: 0, stagger: 0.05, duration: 0.4, ease: "power2.out", clearProps: "all" }
+          );
+        }
+      });
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, [hasLoaded, scrollContainer]);
+
   async function loadAnalytics() {
     if (loadingRef.current) return;
 
@@ -260,7 +326,7 @@ export function SessionAnalytics({ refreshKey = 0 }) {
   const scopeLabel = isAdmin ? "LIFETIME HOST AGGREGATE" : "USER HISTORY AGGREGATE";
 
   return (
-    <section className="pcgo-analytics" style={box} aria-labelledby="analytics-title">
+    <section className="pcgo-analytics" style={box} aria-labelledby="analytics-title" ref={containerRef}>
       <div className="pcgo-analytics__header">
         <div className="pcgo-analytics__heading">
           <div style={headerIcon}><BarChart3 size={13} strokeWidth={2} /></div>
