@@ -3,6 +3,7 @@ import { User, Lock, LogIn, ShieldCheck, Info, TriangleAlert, ArrowUpRight, Acti
 import { login, setToken, bootstrapRequired, bootstrapAdmin } from "../api/client";
 import { useToast } from "../components/ui/Toast.jsx";
 import { Button } from "../components/ui/primitives.jsx";
+import { BrandMark } from "../components/ui/BrandMark.jsx";
 import { colors, fonts, motion, radius, shadow } from "../dashboard/theme.js";
 
 // P6-T07 motion audit: both properties on this transition were an exact
@@ -16,9 +17,7 @@ function FieldLabel({ icon, children }) {
   return <span style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 10, fontWeight: 700, color: colors.inkFaint, letterSpacing: ".12em", textTransform: "uppercase", fontFamily: fonts.mono, marginBottom: 8 }}>{icon}{children}</span>;
 }
 
-function BrandMark() {
-  return <div aria-hidden="true" style={{ display: "inline-flex", alignItems: "flex-end", gap: 2, height: 28 }}>{[10, 17, 25].map((height, index) => <span key={height} style={{ width: 4, height, borderRadius: 2, background: index === 2 ? colors.brand : colors.inkDim }} />)}</div>;
-}
+
 
 export default function Login() {
   const toast = useToast();
@@ -59,7 +58,7 @@ export default function Login() {
   return (
     <main style={{ minHeight: "100dvh", display: "grid", gridTemplateColumns: "minmax(0, 1.2fr) minmax(360px, 0.8fr)", background: colors.bg, color: colors.ink, overflowY: "auto" }}>
       <section style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "clamp(28px, 6vw, 84px)", borderRight: `1px solid ${colors.border}`, minHeight: "100%" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}><BrandMark /><span style={{ font: `700 16px/1 ${fonts.display}`, letterSpacing: ".06em" }}>CLOUD GAMING <span style={{ color: colors.brand }}>ORCHESTRATOR</span></span></div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}><BrandMark scale="lg" /><span style={{ font: `700 16px/1 ${fonts.display}`, letterSpacing: ".06em" }}>CLOUD GAMING <span style={{ color: colors.brand }}>ORCHESTRATOR</span></span></div>
         <div style={{ maxWidth: 610, padding: "72px 0" }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 8, color: colors.brand, font: `600 10px/1 ${fonts.mono}`, letterSpacing: ".14em", textTransform: "uppercase", marginBottom: 24 }}><Activity size={14} /> Personal gaming infrastructure</div>
           <h1 style={{ margin: 0, maxWidth: 580, font: `600 clamp(42px, 6vw, 82px)/.98 ${fonts.display}`, letterSpacing: "-.055em", color: colors.ink }}>Your games.<br /><span style={{ color: colors.brand }}>Your control plane.</span></h1>

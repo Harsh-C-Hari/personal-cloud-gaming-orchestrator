@@ -1,11 +1,15 @@
 import { ArrowLeft } from "lucide-react";
 import { colors, fonts, motion, surface, typeScale } from "../theme.js";
+import { Eyebrow } from "../../components/ui/Eyebrow.jsx";
 import "./feature-page.css";
 
 // PageHeader is imported by all 12 dashboard/pages/*.jsx files — highest
 // blast radius of any file in P5-T01, so token substitutions below are
 // held to a zero-visual-change bar wherever practical (see CURRENT_TASK.md).
-export function PageHeader({ title, subtitle, onBack, backLabel = "Back", actions }) {
+//
+// `eyebrow` is optional (ReactNode or string). When present, renders a
+// <Eyebrow> above the <h1> for pages that want a section-level kicker.
+export function PageHeader({ title, subtitle, onBack, backLabel = "Back", actions, eyebrow }) {
   return (
     <div className="pcgo-feature-header" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "16px", flexWrap: "wrap" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: "9px", minWidth: 0 }}>
@@ -23,6 +27,7 @@ export function PageHeader({ title, subtitle, onBack, backLabel = "Back", action
           </button>
         )}
         <div>
+          {eyebrow && <Eyebrow style={{ marginBottom: 8 }}>{eyebrow}</Eyebrow>}
           {/* typeScale.heading is an exact match for this h1's pre-existing
               28px/650/-0.03em/display values (it's literally where D-009
               derived the `heading` step from) — pure alias, no overrides

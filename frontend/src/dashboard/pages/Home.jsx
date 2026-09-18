@@ -13,24 +13,12 @@ import { SessionSidebar } from "../components/SessionSidebar.jsx";
 import { NavigationCard } from "../components/NavigationCard.jsx";
 import { EmptyState } from "../components/EmptyState.jsx";
 import { LoadingState } from "../components/LoadingState.jsx";
+import { Eyebrow } from "../../components/ui/Eyebrow.jsx";
 import { colors, typeScale } from "../theme.js";
 
-/**
- * P3-T01: previously an ad hoc inline object (fontSize 9.5px, mono, 700,
- * .15em, uppercase) that predated the token system. That 9.5px was never a
- * deliberate design choice next to the rest of the app's ~30+ occurrences
- * of the same uppercase-mono-label pattern at 10px (D-009's `typeScale.meta`)
- * — it was drift, not intent. Routed through `typeScale.meta` verbatim
- * (10px/700/.12em/uppercase/mono) rather than carried forward.
- */
-const eyebrowStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "8px",
-  marginBottom: "10px",
-  color: colors.inkFaint,
-  ...typeScale.meta,
-};
+// eyebrowStyle removed — replaced by the shared <Eyebrow> component.
+// See Eyebrow.jsx: reuses typeScale.meta (10px/700/.12em/uppercase/mono),
+// same values as the prior inline object, so there is no visual change.
 
 /**
  * P3-T01: Home's new flagship headline — the "real display moment" called
@@ -77,10 +65,12 @@ export function Home({
       <div className="pcgo-home-hero">
         <main className="pcgo-home-primary">
           <div className="pcgo-home-intro">
-            <div style={eyebrowStyle}>
-              <span className="pcgo-home-signal" aria-hidden="true" />
+            <Eyebrow
+              icon={<span className="pcgo-home-signal" aria-hidden="true" />}
+              style={{ marginBottom: "10px" }}
+            >
               {hasActiveSession ? "Current Session" : "Start a New Session"}
-            </div>
+            </Eyebrow>
             <h1 style={headlineStyle}>
               {hasActiveSession ? "Your session is live." : "Ready to launch."}
             </h1>

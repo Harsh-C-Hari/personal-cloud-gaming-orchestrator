@@ -1,13 +1,8 @@
 import { Menu, LogOut, Wifi, WifiOff } from "lucide-react";
 import { colors, fonts, motion, nav, radius, surface, typeScale } from "../theme.js";
+import { BrandMark } from "../../components/ui/BrandMark.jsx";
 
-function BrandMark() {
-  return (
-    <span aria-hidden="true" style={{ display: "inline-flex", alignItems: "flex-end", gap: 2, height: 22 }}>
-      {[8, 14, 20].map((height, index) => <span key={height} style={{ width: 3, height, background: index === 2 ? colors.brand : colors.inkDim, borderRadius: 2 }} />)}
-    </span>
-  );
-}
+
 
 export function DashboardHeader({ connected, lastUpdated, username, role, onLogout, onToggleMobileMenu, mobileMenuButtonRef, onLogoClick }) {
   const subtitle = role === "admin" ? "HOST OPERATIONS" : "PLAYER CONSOLE";
@@ -16,7 +11,7 @@ export function DashboardHeader({ connected, lastUpdated, username, role, onLogo
       <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: 1 }}>
         {onToggleMobileMenu && <button ref={mobileMenuButtonRef} type="button" onClick={onToggleMobileMenu} className="pcgo-mobile-menu-btn" aria-label="Toggle navigation menu" style={{ display: "none", background: surface.l3, border: `1px solid ${colors.border}`, borderRadius: `${radius.tight}px`, color: colors.inkDim, width: 40, height: 40, flexShrink: 0, cursor: "pointer" }}><Menu size={17} /></button>}
         <button type="button" onClick={onLogoClick} disabled={!onLogoClick} style={{ display: "flex", alignItems: "center", gap: 11, background: "transparent", border: "none", padding: 0, margin: 0, minWidth: 0, cursor: onLogoClick ? "pointer" : "default", color: colors.ink }} title={onLogoClick ? "Go to Home" : undefined}>
-          <BrandMark />
+          <BrandMark scale="sm" />
           <span style={{ minWidth: 0, overflow: "hidden", textAlign: "left", display: "flex", alignItems: "baseline", gap: 10 }}>
             <span className="pcgo-header-title-full" style={{ ...typeScale.subheading, fontWeight: 700, letterSpacing: ".045em", whiteSpace: "nowrap" }}>CLOUD GAMING <span style={{ color: colors.brand }}>ORCHESTRATOR</span></span>
             <span className="pcgo-header-title-short" style={{ display: "none", ...typeScale.subheading, fontWeight: 700, letterSpacing: ".03em", whiteSpace: "nowrap" }}>CG<span style={{ color: colors.brand }}>O</span></span>
