@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useContext } from "react";
-import { initMotion } from "../lib/motion/gsapSetup.js";
+import { gsap, ScrollTrigger } from "../lib/motion/gsapSetup.js";
 import { prefersReducedMotion } from "../lib/motion/reducedMotion.js";
 import { ScrollContainerContext } from "../lib/motion/scrollContainerContext.jsx";
 import {
@@ -110,7 +110,6 @@ export function SessionHistory({ refreshKey = 0 }) {
 
   useEffect(() => {
     if (prefersReducedMotion() || history.length === 0) return;
-    const { gsap, ScrollTrigger } = initMotion();
 
     const ctx = gsap.context(() => {
       ScrollTrigger.batch(".pcgo-session-history__row", {

@@ -16,7 +16,7 @@ import { LoadingState } from "../components/LoadingState.jsx";
 import { Eyebrow } from "../../components/ui/Eyebrow.jsx";
 import { colors, typeScale } from "../theme.js";
 import { useEffect, useRef } from "react";
-import { initMotion } from "../../lib/motion/gsapSetup.js";
+import { gsap } from "../../lib/motion/gsapSetup.js";
 import { prefersReducedMotion } from "../../lib/motion/reducedMotion.js";
 
 // eyebrowStyle removed — replaced by the shared <Eyebrow> component.
@@ -64,7 +64,6 @@ export function Home({
 
   useEffect(() => {
     if (prefersReducedMotion()) return;
-    const { gsap } = initMotion();
 
     const ctx = gsap.context(() => {
       gsap.from(".pcgo-dashboard-stat-tile", {
