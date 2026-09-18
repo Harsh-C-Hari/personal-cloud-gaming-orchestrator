@@ -47,6 +47,12 @@ const GSAP_STUB = {
   killTweensOf: noop,
   getById: () => null,
   matchMedia: () => ({ add: noop, revert: noop }),
+  context: (func) => {
+    if (typeof func === 'function') {
+      try { func(); } catch(e) {}
+    }
+    return { revert: noop };
+  },
 };
 
 const ST_STUB = {
