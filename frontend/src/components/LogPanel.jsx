@@ -69,9 +69,10 @@ export function LogPanel() {
   const isAdmin = role === "admin";
   const hasActiveFilters = level !== "ALL" || sessionFilter !== "ALL" || Boolean(search.trim());
 
-  async function loadLogs() {
+  async function loadLogs({ isPoll = false, isFilterChange = false } = {}) {
     try {
-      setLoading(true);
+      if (isFilterChange) setHasLoaded(false);
+      if (!isPoll) setLoading(true);
       const data = await getLogs(
         level === "ALL" ? null : level,
         sessionFilter === "ALL" ? null : sessionFilter,
@@ -113,11 +114,11 @@ export function LogPanel() {
     }
   }
 
-  useEffect(() => { loadLogs(); loadSessions(); }, [level, sessionFilter, search]);
+  useEffect(() => { loadLogs({ isFilterChange: true }); loadSessions(); }, [level, sessionFilter, search]);
 
   useEffect(() => {
     if (!autoRefresh) return undefined;
-    const interval = setInterval(() => { loadLogs(); loadSessions(); }, 5000);
+    const interval = setInterval(() => { loadLogs({ isPoll: true }); loadSessions(); }, 5000);
     return () => clearInterval(interval);
   }, [autoRefresh, level, sessionFilter, search]);
 
@@ -287,7 +288,7 @@ export function LogPanel() {
       </PillButton>
       <PillButton
         ariaLabel={loading ? "Refreshing logs" : "Refresh logs"}
-        onClick={loadLogs}
+        onClick={() => loadLogs()}
         disabled={loading}
         icon={
           <RefreshCw
@@ -384,7 +385,7 @@ export function LogPanel() {
         <StatTile icon={<XCircle size={13} strokeWidth={2} />} label="WINDOW ERRORS" value={errorCount} tone={colors.danger} />
       </div>
 
-      {loading && hasLoaded && <div className="pcgo-logs__refresh-note" role="status">Refreshing the filtered log window… existing evidence remains visible.</div>}
+
       {logError && <div className="pcgo-logs__error" role="alert"><XCircle size={12} strokeWidth={2} /><span>{logError}</span></div>}
 
       <div style={logWrapper}>
