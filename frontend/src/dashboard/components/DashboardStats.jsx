@@ -90,7 +90,7 @@ export function DashboardStats({ stats }) {
               transition: "background 150ms ease",
             }}
             onMouseEnter={(e) => (e.currentTarget.style.background = surface.l4)}
-            onMouseLeave={(e) => (e.currentTarget.style.background = surface.l3)}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "")}
           >
             {/* Top accent line — flat, no gradient */}
             <div
