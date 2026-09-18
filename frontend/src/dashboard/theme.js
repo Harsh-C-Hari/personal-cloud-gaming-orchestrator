@@ -21,21 +21,9 @@ export const colors = {
   borderSubtle: "var(--color-border-subtle)",
   borderStrong: "var(--color-border-strong)",
   borderInk: "var(--color-border-ink)",
-  // Per DESIGN.md §5.1's fixed semantic meaning table:
-  //   accentLilac = orchestration/automation (decorative accent only)
-  //   accentPink  = decorative accent only (NEVER a status)
-  //   accentBlue  = network / info (Tailscale dependency, info banners)
-  //   accentGreen = positive / live (active session, success states)
-  //   accentYellow = caution (warning states)
-  // The accent colors above are still caller-pickable from the API
-  // perspective (the `Chip` primitive's `tone` prop still accepts all
-  // ten tones), but per §6.4 the documented intent is to migrate
-  // caller call sites to fixed semantic usage over time. COMPONENT_SPECS
-  // §3.3 flags this as an open gap between intent and current API.
-  accentLilac: "#B8A7FF",
-  accentLilacDim: "rgba(184,167,255,0.13)",
-  accentPink: "#F3A5D0",
-  accentPinkDim: "rgba(243,165,208,0.13)",
+  // Per DESIGN.md §5.1: accent colors with real call sites retained.
+  // accentLilac and accentPink removed (no call site ever passed
+  // tone="lilac" or tone="pink" — confirmed by grep; safe to delete).
   accentBlue: "#8CC4E8",
   accentBlueDim: "rgba(140,196,232,0.13)",
   accentGreen: "#7BD7A7",

@@ -166,8 +166,7 @@ export function Card({ children, hoverable = false, style, ...rest }) {
 
 const CHIP_TONES = {
   neutral: { color: colors.inkDim, bg: "rgba(241,240,236,0.08)" },
-  lilac: { color: colors.accentLilac, bg: colors.accentLilacDim },
-  pink: { color: colors.accentPink, bg: colors.accentPinkDim },
+  // lilac and pink removed — no call site ever passed those tones (verified).
   blue: { color: colors.accentBlue, bg: colors.accentBlueDim },
   green: { color: colors.accentGreen, bg: colors.accentGreenDim },
   yellow: { color: colors.accentYellow, bg: colors.accentYellowDim },
