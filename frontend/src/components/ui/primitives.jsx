@@ -1,6 +1,8 @@
-import { forwardRef, useState } from "react";
+import { forwardRef, useRef, useState } from "react";
 import { Inbox } from "lucide-react";
 import { colors, fonts, radius, shadow, motion } from "../../dashboard/theme.js";
+import { initMotion } from "../../lib/motion/gsapSetup.js";
+import { prefersReducedMotion } from "../../lib/motion/reducedMotion.js";
 
 // Per DESIGN.md §6.1: the hard offset-shadow is reserved for the
 // SINGLE primary action per view (primary + dangerFilled variants).
@@ -26,14 +28,38 @@ export const Button = forwardRef(function Button(
 ) {
   const base = BUTTON_VARIANTS[variant] ?? BUTTON_VARIANTS.primary;
   const hoverBg = BUTTON_HOVER_BG[variant];
-  // Allow the consumer to override the resting shadow via style
-  // (e.g. a "flat" override for a button embedded inside a card that
-  // already has a press shadow). `restingShadow` lives on the variant
-  // config so it round-trips through the same `resting*` capture
-  // pattern as `restingBackground`/`restingFilter` below.
+  // Allow the consumer to override the resting shadow via style.
   const restingShadow = style?.boxShadow ?? base.restingShadow;
   const restingBackground = style?.background ?? base.background;
   const restingFilter = style?.filter ?? "none";
+
+  // Magnetic hover — only for primary and dangerFilled variants.
+  // The GSAP tween moves the *inner span* (not the button), so it doesn’t
+  // conflict with the translateY(1px) press effect on the outer element.
+  const innerRef = useRef(null);
+  const isMagnetic = variant === "primary" || variant === "dangerFilled";
+
+  function handleMagneticMove(e) {
+    if (!isMagnetic || disabled || prefersReducedMotion()) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) / (rect.width / 2);  // -1 to 1
+    const dy = (e.clientY - cy) / (rect.height / 2); // -1 to 1
+    const MAX = 6; // maximum pixel offset
+    initMotion().then(({ gsap }) => {
+      if (innerRef.current) {
+        gsap.to(innerRef.current, { x: dx * MAX, y: dy * MAX, duration: 0.2, ease: "power2.out" });
+      }
+    });
+  }
+
+  function handleMagneticLeave() {
+    if (!isMagnetic || !innerRef.current) return;
+    initMotion().then(({ gsap }) => {
+      gsap.to(innerRef.current, { x: 0, y: 0, duration: 0.3, ease: "power2.out" });
+    });
+  }
 
   return (
     <button
@@ -46,11 +72,13 @@ export const Button = forwardRef(function Button(
         if (variant === "primary" || variant === "dangerFilled") e.currentTarget.style.filter = "brightness(1.08)";
         else if (hoverBg) e.currentTarget.style.background = hoverBg;
       }}
+      onMouseMove={handleMagneticMove}
       onMouseLeave={(e) => {
         if (disabled) return;
         e.currentTarget.style.filter = restingFilter;
         e.currentTarget.style.background = restingBackground;
         e.currentTarget.style.boxShadow = restingShadow;
+        handleMagneticLeave();
       }}
       onMouseDown={(e) => {
         if (disabled) return;
@@ -121,7 +149,9 @@ export const Button = forwardRef(function Button(
       }}
       {...rest}
     >
-      {children}
+      {/* Inner span carries the magnetic x/y offset — separate from the
+          outer button's translateY(1px) press effect so they don't conflict. */}
+      <span ref={innerRef} style={{ display: "contents" }}>{children}</span>
     </button>
   );
 });
