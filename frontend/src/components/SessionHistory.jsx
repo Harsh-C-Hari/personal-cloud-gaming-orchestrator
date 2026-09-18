@@ -113,7 +113,7 @@ export function SessionHistory({ refreshKey = 0 }) {
 
     const ctx = gsap.context(() => {
       ScrollTrigger.batch(".pcgo-session-history__row", {
-        scroller: scrollContainer || undefined,
+        scroller: scrollContainer?.current || undefined,
         interval: 0.1, // time window (in seconds) to put elements into a batch
         batchMax: 15,   // max elements per batch
         onEnter: (batch) => {

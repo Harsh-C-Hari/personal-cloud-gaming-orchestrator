@@ -265,7 +265,7 @@ export function SessionAnalytics({ refreshKey = 0 }) {
 
     const ctx = gsap.context(() => {
       ScrollTrigger.batch(".pcgo-analytics-breakdown__list > div", {
-        scroller: scrollContainer || undefined,
+        scroller: scrollContainer?.current || undefined,
         interval: 0.1,
         batchMax: 15,
         onEnter: (batch) => {
