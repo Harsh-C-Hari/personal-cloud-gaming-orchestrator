@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { User, Lock, LogIn, ShieldCheck, Info, TriangleAlert, ArrowUpRight, Activity } from "lucide-react";
 import { login, setToken, bootstrapRequired, bootstrapAdmin } from "../api/client";
 import { useToast } from "../components/ui/Toast.jsx";
 import { Button } from "../components/ui/primitives.jsx";
 import { BrandMark } from "../components/ui/BrandMark.jsx";
 import { colors, fonts, motion, radius, shadow } from "../dashboard/theme.js";
+import { createScopedLenis } from "../lib/motion/lenisSetup.js";
 
 // P6-T07 motion audit: both properties on this transition were an exact
 // "160ms ease" match to motion.base (verified against theme.js's real,
@@ -21,6 +22,7 @@ function FieldLabel({ icon, children }) {
 
 export default function Login() {
   const toast = useToast();
+  const mainRef = useRef(null);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -55,8 +57,16 @@ export default function Login() {
     finally { setSubmitting(false); }
   }
 
+  // Lenis smooth scroll for the Login page's own <main> scroll area.
+  // Created on mount and destroyed on unmount (Login fully unmounts on auth).
+  useEffect(() => {
+    let lenis = null;
+    createScopedLenis(mainRef.current).then((instance) => { lenis = instance; });
+    return () => { lenis?.destroy(); };
+  }, []);
+
   return (
-    <main style={{ minHeight: "100dvh", display: "grid", gridTemplateColumns: "minmax(0, 1.2fr) minmax(360px, 0.8fr)", background: colors.bg, color: colors.ink, overflowY: "auto" }}>
+    <main ref={mainRef} style={{ minHeight: "100dvh", display: "grid", gridTemplateColumns: "minmax(0, 1.2fr) minmax(360px, 0.8fr)", background: colors.bg, color: colors.ink, overflowY: "auto" }}>
       <section style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "clamp(28px, 6vw, 84px)", borderRight: `1px solid ${colors.border}`, minHeight: "100%" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}><BrandMark scale="lg" /><span style={{ font: `700 16px/1 ${fonts.display}`, letterSpacing: ".06em" }}>CLOUD GAMING <span style={{ color: colors.brand }}>ORCHESTRATOR</span></span></div>
         <div style={{ maxWidth: 610, padding: "72px 0" }}>

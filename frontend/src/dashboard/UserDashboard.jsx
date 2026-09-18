@@ -19,6 +19,7 @@ import { useRoute } from "./hooks/useRoute.js";
 import { DashboardLayout } from "./layout/DashboardLayout.jsx";
 import { logout } from "./utils/logout.js";
 import { adaptUserHostStatus, buildUserAlerts } from "./utils/adaptUserHostStatus.js";
+import { ScrollTrigger } from "../lib/motion/gsapSetup.js";
 
 import { Home } from "./pages/Home.jsx";
 import { AnalyticsPage } from "./pages/AnalyticsPage.jsx";
@@ -67,6 +68,9 @@ export function UserDashboard({ username }) {
 
   useEffect(() => {
     setVisitedRoutes((prev) => (prev.has(route) ? prev : new Set(prev).add(route)));
+    // Same ScrollTrigger.refresh() pattern as AdminDashboard — remeasure
+    // after the newly-active page's display:none is lifted.
+    window.requestAnimationFrame(() => ScrollTrigger.refresh());
   }, [route]);
 
   const pages = {

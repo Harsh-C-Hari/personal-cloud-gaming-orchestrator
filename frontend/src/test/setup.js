@@ -22,3 +22,25 @@ Object.defineProperty(window, "location", {
   value: { ...window.location, reload: vi.fn(), href: window.location.href },
   writable: true,
 });
+
+// Vitest automatically sets import.meta.env.MODE to "test", which our
+// lib/motion/isTestEnv.js reads to skip all GSAP/Lenis initialization.
+// The stubs below are belt-and-suspenders: if any motion guard is bypassed,
+// GSAP's ScrollTrigger (which uses ResizeObserver and IntersectionObserver
+// internally) would fail in jsdom without these stubs.
+if (typeof window.ResizeObserver === "undefined") {
+  window.ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+
+if (typeof window.IntersectionObserver === "undefined") {
+  window.IntersectionObserver = class IntersectionObserver {
+    constructor(cb) { this._cb = cb; }
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
