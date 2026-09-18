@@ -12,27 +12,17 @@ import { colors, fonts, radius, typeScale } from "../theme.js";
 export function ActiveAlerts({ alerts }) {
   if (!alerts || alerts.length === 0) return null;
 
+  const isWarning = alerts.some((a) => a.toLowerCase().includes("warning"));
+  const tint = isWarning ? colors.warning : colors.danger;
+
   return (
     <section
       className="pcgo-home-alert-strip"
       style={{
         padding: "14px 16px",
-        // Per §3.16: alert strip is a left-edge accent signal, the binary
-        // `radius.none` (0px) rectangle (the left danger edge is the visual
-        // identity, not a rounded chip). Inline value is effectively dead
-        // — .pcgo-home-alert-strip CSS rule wins with
-        // `border-radius: 0 !important` — but kept consistent with the new
-        // binary radius system so the inline value doesn't mislead future
-        // readers. Was `radius.sm` (8px).
         borderRadius: `${radius.none}px`,
-        // Not a colors.bg*/surface token — this is a danger-tinted
-        // literal, not a neutral elevation step, so it's outside D-009's
-        // surface.l0-l4 mapping. Also fully overridden by the
-        // .pcgo-home-alert-strip CSS rule (background: transparent
-        // !important, border: 0 !important / border-left instead) —
-        // pre-existing, unrelated to this task, left as-is.
-        background: "rgba(255,107,107,0.10)",
-        border: `1px solid rgba(255,107,107,0.3)`,
+        background: isWarning ? colors.accentYellowDim : colors.dangerDim,
+        border: `1.5px solid ${isWarning ? colors.warning : colors.danger}`,
       }}
     >
       <div
@@ -41,7 +31,7 @@ export function ActiveAlerts({ alerts }) {
           alignItems: "center",
           gap: "7px",
           marginBottom: "10px",
-          color: colors.danger,
+          color: tint,
           // Judgment call: this label reads like a typeScale.meta eyebrow
           // (uppercase, letter-spaced, bold) but is set in fonts.body
           // (sans-serif) at 11px, not meta's mono/10px/700 combination —
@@ -72,7 +62,7 @@ export function ActiveAlerts({ alerts }) {
               ...typeScale.bodySmall,
             }}
           >
-            <TriangleAlert size={11} strokeWidth={2} style={{ flexShrink: 0, color: colors.danger }} />
+            <TriangleAlert size={11} strokeWidth={2} style={{ flexShrink: 0, color: tint }} />
             {alert}
           </div>
         ))}

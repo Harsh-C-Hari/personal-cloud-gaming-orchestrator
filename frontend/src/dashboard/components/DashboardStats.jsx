@@ -89,8 +89,6 @@ export function DashboardStats({ stats }) {
               // pill=180ms cubic-bezier) — left as a literal, not converted.
               transition: "background 150ms ease",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = surface.l4)}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "")}
           >
             {/* Top accent line — flat, no gradient */}
             <div
