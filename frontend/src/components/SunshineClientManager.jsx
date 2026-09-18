@@ -619,7 +619,13 @@ const blurBorder = (e) => {
 const outerWrap = {
     border: `1px solid ${colors.border}`,
     borderRadius: `${radius.lg}px`,
-    background: surface.l3,
+    /* TCB-P4.2 followup: surface.l3 → surface.l1 to match
+       `.pcgo-host-diagnostics-card` (the inset tier introduced by
+       the Host Monitor section-card alignment). The Sunshine Client
+       Manager outer wrap is the page-level framed section card; the
+       inner client cards / list rows keep their own surface.l3 tier
+       so they continue to "rise above" the now-recessed parent. */
+    background: surface.l1,
     overflow: "hidden",
 };
 
@@ -638,7 +644,10 @@ const headerBar = {
 const headerIconBadge = {
     width: "30px",
     height: "30px",
-    borderRadius: `${radius.sm}px`,
+    // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+    // to `radius.tight` (4px) — 30x30 header icon badge, the 4px
+    // "tight" step is the correct chip-scale.
+    borderRadius: `${radius.tight}px`,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -668,7 +677,10 @@ const headerSubtitle = {
 const iconGhostButton = {
     width: "30px",
     height: "30px",
-    borderRadius: `${radius.sm}px`,
+    // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+    // to `radius.tight` (4px) — 30x30 icon ghost button, the 4px
+    // "tight" step is the correct chip-scale.
+    borderRadius: `${radius.tight}px`,
     background: "transparent",
     border: `1.5px solid ${colors.border}`,
     color: colors.brand,
@@ -685,7 +697,7 @@ const iconGhostButton = {
 
 const cardSection = {
     padding: "16px",
-    borderRadius: `${radius.md}px`,
+    borderRadius: `${radius.lg}px`,
     border: `1px solid ${colors.border}`,
     background: surface.l1,
 };
@@ -739,7 +751,10 @@ const sectionLabel = {
 const sectionIconBadge = {
     width: "24px",
     height: "24px",
-    borderRadius: `${radius.sm}px`,
+    // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+    // to `radius.tight` (4px) — 24x24 section icon badge, the 4px
+    // "tight" step is the correct chip-scale.
+    borderRadius: `${radius.tight}px`,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -773,7 +788,10 @@ const statusPill = {
     fontFamily: fonts.mono,
     letterSpacing: "0.04em",
     padding: "5px 10px",
-    borderRadius: `${radius.sm}px`,
+    // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+    // to `radius.tight` (4px) — small status pill (5px 10px padding),
+    // the 4px "tight" step is the correct chip-scale.
+    borderRadius: `${radius.tight}px`,
     border: "1px solid",
     background: surface.l1,
 };
@@ -788,7 +806,10 @@ const closeStreamButton = {
     border: `1.5px solid ${colors.danger}`,
     background: "transparent",
     color: colors.danger,
-    borderRadius: `${radius.sm}px`,
+    // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+    // to `radius.tight` (4px) — full-width close-stream button,
+    // the 4px "tight" step is the button-scale.
+    borderRadius: `${radius.tight}px`,
     fontFamily: fonts.mono,
     fontSize: "10.5px",
     letterSpacing: "0.08em",
@@ -817,13 +838,16 @@ const clientLoadingCard = {
     padding: "12px",
     background: surface.l3,
     border: `1px solid ${colors.borderSubtle}`,
-    borderRadius: `${radius.md}px`,
+    borderRadius: `${radius.lg}px`,
 };
 
 const loadingAvatar = {
     width: "30px",
     height: "30px",
-    borderRadius: `${radius.sm}px`,
+    // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+    // to `radius.tight` (4px) — 30x30 loading skeleton avatar, the
+    // 4px "tight" step is the correct chip-scale.
+    borderRadius: `${radius.tight}px`,
     background: surface.l1,
     border: `1px solid ${colors.borderSubtle}`,
     flexShrink: 0,
@@ -870,7 +894,7 @@ const emptyBox = {
     gap: "8px",
     padding: "40px 24px",
     border: `1.5px dashed ${colors.border}`,
-    borderRadius: `${radius.md}px`,
+    borderRadius: `${radius.lg}px`,
     textAlign: "center",
 };
 
@@ -886,7 +910,7 @@ const clientCard = {
     padding: "14px",
     background: surface.l3,
     border: `1.5px solid ${colors.border}`,
-    borderRadius: `${radius.md}px`,
+    borderRadius: `${radius.lg}px`,
     overflow: "hidden",
 };
 
@@ -902,7 +926,10 @@ const cardHeaderRow = {
 const avatarBadge = {
     width: "30px",
     height: "30px",
-    borderRadius: `${radius.sm}px`,
+    // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+    // to `radius.tight` (4px) — 30x30 client avatar badge, the 4px
+    // "tight" step is the correct chip-scale.
+    borderRadius: `${radius.tight}px`,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -934,7 +961,10 @@ const cardDeleteButton = {
     width: "26px",
     height: "26px",
     flexShrink: 0,
-    borderRadius: `${radius.sm}px`,
+    // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+    // to `radius.tight` (4px) — 26x26 card delete button, the 4px
+    // "tight" step is the correct chip-scale.
+    borderRadius: `${radius.tight}px`,
     background: "transparent",
     border: `1.5px solid ${colors.danger}66`,
     color: colors.danger,
@@ -974,7 +1004,7 @@ const inputStyle = {
     padding: "10px 12px",
     background: surface.l1,
     border: `1.5px solid ${colors.border}`,
-    borderRadius: `${radius.md}px`,
+    borderRadius: `${radius.lg}px`,
     color: colors.ink,
     fontSize: "13px",
     fontFamily: "inherit",
@@ -994,7 +1024,10 @@ const saveButton = {
     padding: "12px",
     background: colors.ink,
     border: "1.5px solid transparent",
-    borderRadius: `${radius.sm}px`,
+    // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+    // to `radius.tight` (4px) — full-width primary action button
+    // (PAIR CLIENT), the 4px "tight" step is the button-scale.
+    borderRadius: `${radius.tight}px`,
     color: colors.bg,
     fontSize: "11.5px",
     fontFamily: fonts.mono,
@@ -1011,7 +1044,7 @@ const validationBad = {
     alignItems: "center",
     gap: "8px",
     padding: "10px 12px",
-    borderRadius: `${radius.md}px`,
+    borderRadius: `${radius.lg}px`,
     color: colors.danger,
     border: `1.5px solid ${colors.danger}`,
     background: "rgba(255,107,107,0.08)",

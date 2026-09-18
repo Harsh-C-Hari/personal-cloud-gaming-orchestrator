@@ -18,7 +18,7 @@ const inputStyle = {
     padding: "10px 12px",
     background: colors.bgInset,
     border: `1.5px solid ${colors.border}`,
-    borderRadius: `${radius.md}px`,
+    borderRadius: `${radius.lg}px`,
     color: colors.ink,
     fontSize: "13px",
     fontFamily: "inherit",

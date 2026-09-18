@@ -471,7 +471,10 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
     // `.pcgo-launch-console__section input`/`select`, only border-color.
     background: surface.l1,
     border: `1px solid ${colors.border}`,
-    borderRadius: `${radius.sm}px`,
+    // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+    // to `radius.tight` (4px) — form <input>/<select> field, the 4px
+    // "tight" step is the form-field-scale.
+    borderRadius: `${radius.tight}px`,
     color: colors.ink,
     // Documented small elevation, not a silent alias: prior literal was
     // 13px/default-weight; typeScale.body is 13.5px/500/1.5/body — a
@@ -490,7 +493,7 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
 
   const cardSection = {
     padding: "18px",
-    borderRadius: `${radius.md}px`,
+    borderRadius: `${radius.lg}px`,
     border: `1px solid ${colors.borderSubtle}`,
     // D-009 literal alias: colors.bgCard -> surface.l3 (same value,
     // zero visual change by default rule). DISCOVERY, flagged rather
@@ -597,12 +600,15 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
       style={{
         border: `1.5px solid ${colors.border}`,
         borderRadius: `${radius.lg}px`,
-        // D-009 literal alias: colors.bgCard -> surface.l3, same value.
-        // feature-page.css's `.pcgo-launch-console` rule also forces
-        // this exact same background (`var(--color-bg-card)
-        // !important`), so this alias is confirmed zero-visual-change
-        // either way.
-        background: surface.l3,
+        /* TCB-P4.2 followup: surface.l3 → surface.l1 to match
+           `.pcgo-host-diagnostics-card` (the inset tier introduced by
+           the Host Monitor section-card alignment). The launch
+           console panel is a page-level framed section card sitting
+           on the page surface; the matching `.pcgo-launch-console`
+           CSS rule was updated in the same pass so this inline value
+           and the cascade are both on l1 — they remain a confirmed
+           match. */
+        background: surface.l1,
         overflow: "hidden",
       }}
     >
@@ -626,7 +632,10 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
           style={{
             width: "30px",
             height: "30px",
-            borderRadius: `${radius.sm}px`,
+            // TCB-P3 followup: value-preserving rename from `radius.sm`
+            // (4px) to `radius.tight` (4px) — 30x30 icon badge, the
+            // 4px "tight" step is the correct chip-scale.
+            borderRadius: `${radius.tight}px`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -703,7 +712,14 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
                 alignItems: "center",
                 gap: "8px",
                 padding: "10px 12px",
-                borderRadius: `${radius.sm}px`,
+                // TCB-P3 followup: value-preserving rename from `radius.sm`
+                // (4px) to `radius.tight` (4px) — small "no configured
+                // games" warning callout (10px 12px padding), the 4px
+                // "tight" step matches the small callout scale (proportional
+                // to its compact text content, vs. the 16px `lg` reserved
+                // for the larger errorBox / success-message callouts in
+                // this file).
+                borderRadius: `${radius.tight}px`,
                 background: colors.accentYellowDim,
                 border: `1.5px solid ${colors.warning}`,
                 color: colors.warning,
@@ -772,7 +788,12 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
               border: `1.5px solid ${colors.borderStrong}`,
               background: "transparent",
               color: colors.inkDim,
-              borderRadius: `${radius.sm}px`,
+              // TCB-P3 followup: value-preserving rename from `radius.sm`
+              // (4px) to `radius.tight` (4px) — full-width "BROWSE GAME
+              // LIBRARY" / "HIDE GAME LIBRARY" toggle button (width:
+              // 100%, padding 7px), the 4px "tight" step is the
+              // button-scale.
+              borderRadius: `${radius.tight}px`,
               padding: "7px",
               // Adopted typeScale.meta (10px/700/uppercase/mono — a
               // clean fit within rounding of the prior 9.5px/700/
@@ -982,7 +1003,12 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
                 gap: "8px",
                 padding: "12px",
                 border: `1.5px dashed ${colors.border}`,
-                borderRadius: `${radius.sm}px`,
+                // TCB-P3 followup: value-preserving rename from `radius.sm`
+                // (4px) to `radius.tight` (4px) — dashed "Select a game
+                // to load your saves" empty-state hint (12px padding,
+                // 1.5px dashed border, mono caption), the 4px "tight"
+                // step matches its small callout scale.
+                borderRadius: `${radius.tight}px`,
                 color: colors.inkFaint,
                 fontSize: "10.5px",
                 fontFamily: fonts.mono,
@@ -1011,7 +1037,12 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
               padding: "11px 14px",
               background: colors.accentGreenDim,
               border: `1.5px solid ${colors.success}`,
-              borderRadius: `${radius.sm}px`,
+              // TCB-P3 followup: value change from `radius.sm` (4px) to
+              // `radius.lg` (16px) — green "Launched: <id>" success
+              // alert callout (11px 14px padding), the 16px "lg" step
+              // is the alert-callout scale (matches HostStatusPanel
+              // issueBox / recoveryBox).
+              borderRadius: `${radius.lg}px`,
               color: colors.success,
               fontSize: "11px",
               fontFamily: fonts.mono,
@@ -1044,7 +1075,12 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
             <div
               style={{
                 padding: "11px 14px",
-                borderRadius: `${radius.sm}px`,
+                // TCB-P3 followup: value change from `radius.sm` (4px)
+                // to `radius.lg` (16px) — yellow "Sunshine/Tailscale not
+                // running" multi-line warning alert callout (11px 14px
+                // padding), the 16px "lg" step is the alert-callout scale
+                // (matches HostStatusPanel issueBox / recoveryBox).
+                borderRadius: `${radius.lg}px`,
                 background: colors.accentYellowDim,
                 border: `1.5px solid ${colors.warning}`,
                 display: "flex",

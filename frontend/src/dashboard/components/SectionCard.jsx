@@ -20,11 +20,11 @@ export function SectionCard({ title, count, onRefresh, children, bare = false })
                  kept at 600 (meta's default is 700) and lineHeight kept at 1
                  (meta's default is 1.3) to preserve the tight numeric-badge
                  look; letterSpacing/uppercase from meta are no-ops on digits. */
-              <span className="pcgo-section-card__count" style={{ color: colors.inkFaint, ...typeScale.meta, fontWeight: 600, lineHeight: 1, padding: "4px 7px", border: `1px solid ${colors.borderSubtle}`, borderRadius: radius.sm, flexShrink: 0 }}>{count}</span>
+              <span className="pcgo-section-card__count" style={{ color: colors.inkFaint, ...typeScale.meta, fontWeight: 600, lineHeight: 1, padding: "4px 7px", border: `1px solid ${colors.borderSubtle}`, borderRadius: `${radius.tight}px`, flexShrink: 0 }}>{count}</span>
             )}
           </div>
           {onRefresh && (
-            <button type="button" onClick={onRefresh} style={{ display: "inline-flex", alignItems: "center", gap: "6px", minHeight: "32px", flexShrink: 0, background: surface.l2, border: `1px solid ${colors.border}`, borderRadius: radius.sm, color: colors.inkFaint, ...typeScale.meta, letterSpacing: "0.08em", padding: "5px 10px", cursor: "pointer", transition: `color ${motion.base}, border-color ${motion.base}, background ${motion.base}` }} onMouseEnter={(e) => { e.currentTarget.style.color = colors.ink; e.currentTarget.style.borderColor = colors.borderStrong; e.currentTarget.style.background = surface.l4; }} onMouseLeave={(e) => { e.currentTarget.style.color = colors.inkFaint; e.currentTarget.style.borderColor = colors.border; e.currentTarget.style.background = surface.l2; }}>
+            <button type="button" onClick={onRefresh} style={{ display: "inline-flex", alignItems: "center", gap: "6px", minHeight: "32px", flexShrink: 0, background: surface.l2, border: `1px solid ${colors.border}`, borderRadius: `${radius.tight}px`, color: colors.inkFaint, ...typeScale.meta, letterSpacing: "0.08em", padding: "5px 10px", cursor: "pointer", transition: `color ${motion.hover}, border-color ${motion.hover}, background ${motion.hover}` }} onMouseEnter={(e) => { e.currentTarget.style.color = colors.ink; e.currentTarget.style.borderColor = colors.borderStrong; e.currentTarget.style.background = surface.l4; }} onMouseLeave={(e) => { e.currentTarget.style.color = colors.inkFaint; e.currentTarget.style.borderColor = colors.border; e.currentTarget.style.background = surface.l2; }}>
               <RefreshCw size={11} strokeWidth={2} /> Refresh
             </button>
           )}

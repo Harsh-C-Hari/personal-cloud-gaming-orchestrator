@@ -104,7 +104,11 @@ function StatTile({ icon, label, value, tone = colors.brand }) {
           flexShrink: 0,
           width: "30px",
           height: "30px",
-          borderRadius: `${radius.sm}px`,
+          // Per §6.4: 30px icon badge is small chrome, the sanctioned
+          // `radius.tight` (4px) exception. Was `radius.sm` (also 4,
+          // value-preserving rename to the binary system's small-
+          // chrome key).
+          borderRadius: `${radius.tight}px`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -374,7 +378,13 @@ const box = {
   padding: "20px",
   border: `1px solid ${colors.border}`,
   borderRadius: `${radius.lg}px`,
-  background: surface.l3,
+  /* TCB-P4.2 followup: surface.l3 → surface.l1 to match
+     `.pcgo-host-diagnostics-card` (the inset tier introduced by the
+     Host Monitor section-card alignment). SessionAnalytics' `box`
+     is the page-level framed section card, so it now sits on the
+     inset tier like every other page-level section card in this
+     pass. */
+  background: surface.l1,
 };
 
 const title = {
@@ -388,7 +398,10 @@ const title = {
 const headerIcon = {
   width: "28px",
   height: "28px",
-  borderRadius: `${radius.sm}px`,
+  // Per §6.4: 28px icon badge is small chrome, the sanctioned
+  // `radius.tight` (4px) exception. Was `radius.sm` (also 4, value-
+  // preserving rename).
+  borderRadius: `${radius.tight}px`,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -401,7 +414,10 @@ const scopePill = {
   flexShrink: 0,
   padding: "4px 8px",
   border: `1px solid ${colors.borderSubtle}`,
-  borderRadius: `${radius.sm}px`,
+  // Per §6.4: scope pill is a chip, the sanctioned `radius.tight`
+  // (4px) exception. Was `radius.sm` (also 4, value-preserving
+  // rename).
+  borderRadius: `${radius.tight}px`,
   color: colors.inkFaint,
   fontSize: "8px",
   fontFamily: fonts.mono,
@@ -416,7 +432,10 @@ const refreshButton = {
   border: `1px solid ${colors.border}`,
   background: surface.l2,
   color: colors.inkDim,
-  borderRadius: `${radius.sm}px`,
+  // Per §6.4: refresh button is small chrome, the sanctioned
+  // `radius.tight` (4px) exception. Was `radius.sm` (also 4, value-
+  // preserving rename).
+  borderRadius: `${radius.tight}px`,
   padding: "5px 12px",
   fontSize: "9px",
   fontFamily: fonts.mono,
@@ -433,7 +452,14 @@ const errorBox = {
   alignItems: "flex-start",
   gap: "8px",
   padding: "10px 12px",
-  borderRadius: `${radius.md}px`,
+  // TCB-P3 followup: softened from `radius.lg` (0px) to `radius.lg`
+  // (16px) — the error box is a container surface, and the 16px
+  // curve matches every other container in the app (Card primitive,
+  // SessionSidebar rail, GameManager game card, etc.). Note: the
+  // 1.5px danger stroke is the danger signal, the radius is a
+  // separate axis — softening the corner does not weaken the
+  // danger callout (the danger color is unchanged).
+  borderRadius: `${radius.lg}px`,
   border: `1.5px solid ${colors.danger}`,
   background: "rgba(240,127,131,0.08)",
   color: colors.danger,
@@ -445,7 +471,12 @@ const errorBox = {
 const statTile = {
   minWidth: 0,
   padding: "12px",
-  borderRadius: `${radius.md}px`,
+  // TCB-P3 followup: softened from `radius.lg` (0px) to `radius.lg`
+  // (16px) — the stat tile is a container surface (one of 8 tiles
+  // in the metrics row), and matching the 16px curve gives the
+  // tile the same "soft framed chip" character as the parent
+  // SessionAnalytics box and every other container in the app.
+  borderRadius: `${radius.lg}px`,
   background: surface.l1,
   border: `1px solid ${colors.borderSubtle}`,
   display: "flex",
@@ -465,7 +496,7 @@ const statLabel = {
 const listCard = {
   minWidth: 0,
   padding: "15px",
-  borderRadius: `${radius.md}px`,
+  borderRadius: `${radius.lg}px`,
   background: surface.l1,
   border: `1px solid ${colors.borderSubtle}`,
 };
@@ -486,7 +517,14 @@ const listHeading = {
 const emptyBreakdown = {
   padding: "14px 10px",
   border: `1px dashed ${colors.borderSubtle}`,
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: softened from `radius.sm` (4px) to `radius.lg`
+  // (16px) — the empty-breakdown is the "no data yet" dashed
+  // placeholder inside `listCard`, and a 16px curve on both the
+  // inner empty-state and the outer listCard reads as a single
+  // framed empty card (matches the GameManager `emptyState` /
+  // `card` 16px nesting). The dashed border + inkFaint copy is
+  // the empty signal, the radius is a separate axis.
+  borderRadius: `${radius.lg}px`,
   color: colors.inkFaint,
   fontSize: "10px",
   fontFamily: fonts.mono,
@@ -501,7 +539,13 @@ const listRow = {
   rowGap: "5px",
   gap: "10px",
   padding: "9px 10px",
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — same 4px curve, the `sm` alias now
+  // collapses into `tight` after TCB-P3 reintroduced `lg` as the
+  // soft-container scale. `listRow` is a small chrome row inside
+  // `listCard`, the 4px "tight" step is the right value here (not
+  // `lg`, which would visually compete with the parent 16px card).
+  borderRadius: `${radius.tight}px`,
   background: surface.l2,
   border: `1px solid ${colors.borderSubtle}`,
 };
@@ -510,7 +554,13 @@ const rankBadge = {
   flexShrink: 0,
   width: "18px",
   height: "18px",
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — a small numeric chip (the "#1 / #2 / #3"
+  // rank pills shown in the breakdown list), the 4px "tight" step
+  // is the correct scale; `lg` (16px) would make the pill wider
+  // than its content justifies, breaking the chip-scale / card-scale
+  // separation that defines the binary system.
+  borderRadius: `${radius.tight}px`,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",

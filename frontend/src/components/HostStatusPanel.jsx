@@ -547,7 +547,24 @@ function ProgressStat({ label, percent, suffix = "%", max = 100 }) {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
         <span style={{ fontSize: "10px", color: colors.inkFaint, fontFamily: fonts.mono }}>{label}</span>
-        <span style={{ fontSize: "10.5px", color: tone, fontFamily: fonts.mono, fontWeight: 700 }}>
+        {/* TCB-P4.2 (Host Monitor): 10.5px → 14px for the value — same
+            content category as `typeScale.metric` (mono, 700,
+            tabular-nums, semantic tone) but at a smaller literal that
+            fits the 5-row vertical meter stack. The full
+            `clamp(22,3vw,34)` `typeScale.metric` step would over-size
+            here; same density-aware judgment call DashboardStats made
+            for its 18px literal (see DashboardStats.jsx comment at
+            line 103). */}
+        <span
+          style={{
+            fontSize: "14px",
+            color: tone,
+            fontFamily: fonts.mono,
+            fontWeight: 700,
+            fontVariantNumeric: "tabular-nums",
+            lineHeight: 1.1,
+          }}
+        >
           {hasValue ? `${percent}${suffix}` : "N/A"}
         </span>
       </div>
@@ -600,7 +617,12 @@ const headerRow = {
 const headerIcon = {
   width: "26px",
   height: "26px",
-  borderRadius: `${radius.sm}px`,
+  // Per §6.4: icon badge is a `<span>`-scale accent chip, the
+  // sanctioned `radius.tight` (4px) exception. Was `radius.sm`
+  // (also 4, value-preserving rename after TCB-P3 reintroduced
+  // `lg` as the soft-container scale; `sm` now collapses into
+  // `tight`).
+  borderRadius: `${radius.tight}px`,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -660,7 +682,16 @@ const loadingValue = {
 
 const sectionCard = {
   padding: "16px",
-  borderRadius: `${radius.md}px`,
+  // TCB-P3 followup: softened from `radius.lg` (0px, sharp square)
+  // to `radius.lg` (16px) — the section card is a container
+  // surface wrapping each top-level section on the Host Monitor
+  // (Service status, Network, Sunshine clients, etc.). 16px is
+  // the same soft-container curve as the Card primitive, the
+  // SessionSidebar rail, the StartSessionForm container, and the
+  // other TCB-P3-migrated surfaces — without this, the section
+  // cards sat as sharp 0px rectangles, the only non-soft
+  // container on the page.
+  borderRadius: `${radius.lg}px`,
   border: `1px solid ${colors.borderSubtle}`,
   background: surface.l2,
 };
@@ -698,7 +729,11 @@ const actionButton = {
   background: surface.l2,
   color: colors.ink,
   border: `1px solid ${colors.borderStrong}`,
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — small chrome button, the 4px "tight"
+  // step is the right scale here (not `lg`, which would visually
+  // compete with the parent section card's 16px curve).
+  borderRadius: `${radius.tight}px`,
   padding: "7px 12px",
   fontSize: "10px",
   fontFamily: fonts.mono,
@@ -727,7 +762,13 @@ const reasonText = {
 const issueBox = {
   marginTop: "10px",
   padding: "10px 12px",
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: softened from `radius.sm` (4px) to `radius.lg`
+  // (16px) — the issue box is a small framed alert callout; the
+  // 16px curve matches the pattern established by `errorBox` in
+  // SessionAnalytics.jsx and the other TCB-P3-migrated alert
+  // surfaces. The `colors.warning` 1.5px stroke is the alert
+  // signal, the radius is a separate axis.
+  borderRadius: `${radius.lg}px`,
   background: colors.accentYellowDim,
   border: `1px solid ${colors.warning}`,
   fontSize: "10px",
@@ -741,7 +782,12 @@ const recoveryBox = {
   padding: "10px 12px",
   border: `1px solid ${colors.danger}`,
   background: "rgba(255,107,107,0.08)",
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: softened from `radius.sm` (4px) to `radius.lg`
+  // (16px) — recovery box is a small framed alert callout, same
+  // soft-callout pattern as the issue box above and `errorBox` in
+  // SessionAnalytics. The `colors.danger` 1.5px stroke is the
+  // signal, the radius is a separate axis.
+  borderRadius: `${radius.lg}px`,
 };
 
 const enableButton = {

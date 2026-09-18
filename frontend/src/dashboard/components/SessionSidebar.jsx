@@ -17,8 +17,20 @@ export function SessionSidebar({ activeCount, totalCount, connected, events }) {
     <div
       className="pcgo-operational-rail"
       style={{
+        // TCB-P3 followup: softened from `radius.none` (0px) back to
+        // `radius.lg` (16px) — the "Live system pulse" rail is a
+        // container surface, not a small chrome chip, and the user-
+        // visible 16px curve matches the StartSessionForm container
+        // edge + the Card primitive + the Home NavigationCard row
+        // (see theme.js `radius.lg` and primitives.jsx Card).
         borderRadius: `${radius.lg}px`,
-        background: surface.l3,
+        /* TCB-P4.2 followup: surface.l3 → surface.l1 to match
+           `.pcgo-host-diagnostics-card` (the inset tier introduced by
+           the Host Monitor section-card alignment). The Live system
+           pulse rail (this container) is a page-level framed section
+           card sitting on the page surface; the inner event-log feed
+           stays on its own tier. */
+        background: surface.l1,
         border: `1px solid ${colors.border}`,
         overflow: "hidden",
       }}
@@ -61,7 +73,10 @@ export function SessionSidebar({ activeCount, totalCount, connected, events }) {
               style={{
                 width: "26px",
                 height: "26px",
-                borderRadius: `${radius.sm}px`,
+                // Per §6.4: icon badge is a `<span>`-scale accent chip, the
+                // sanctioned `radius.tight` (4px) exception to the binary
+                // system. Was `radius.sm` (8px).
+                borderRadius: `${radius.tight}px`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -118,7 +133,17 @@ export function SessionSidebar({ activeCount, totalCount, connected, events }) {
             minHeight: "140px",
             maxHeight: "min(260px, 40dvh)",
             padding: "12px",
-            borderRadius: `${radius.md}px`,
+            // TCB-P3 followup: softened from `radius.none` (0px) to
+            // `radius.lg` (16px) to match the parent rail's 16px
+            // curve — the inset nests inside the rail, so the
+            // matching radius reads as a single framed log surface
+            // (the inset is set to `background: surface.l1` to match
+            // its parent rail — TCB-P4.2 followup moved the rail from
+            // surface.l3 to surface.l1 to match `.pcgo-host-
+            // diagnostics-card`; the inset now sits at the same tier
+            // as its parent but the inset's dotted border + smaller
+            // padding keeps it visually separate).
+            borderRadius: `${radius.lg}px`,
             background: surface.l1,
             border: `1px solid ${colors.borderSubtle}`,
             overflow: "hidden",

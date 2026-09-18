@@ -129,7 +129,10 @@ const countPill = {
     flexShrink: 0,
     padding: "3px 8px",
     border: `1px solid ${colors.borderSubtle}`,
-    borderRadius: `${radius.sm}px`,
+    // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+    // to `radius.tight` (4px) — small count pill (3px 8px padding),
+    // the 4px "tight" step is the correct chip-scale.
+    borderRadius: `${radius.tight}px`,
     color: colors.inkFaint,
     fontSize: "9px",
     fontWeight: 700,
@@ -172,7 +175,7 @@ const loadingRow = {
     minHeight: "52px",
     padding: "10px 12px",
     border: `1px solid ${colors.borderSubtle}`,
-    borderRadius: `${radius.md}px`,
+    borderRadius: `${radius.lg}px`,
     background: surface.l1,
 };
 
@@ -207,7 +210,10 @@ const loadingLineShort = {
 const loadingTag = {
     width: "54px",
     height: "16px",
-    borderRadius: `${radius.sm}px`,
+    // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+    // to `radius.tight` (4px) — 54x16 loading skeleton tag, the
+    // 4px "tight" step is the correct chip-scale.
+    borderRadius: `${radius.tight}px`,
     background: surface.l3,
     border: `1px solid ${colors.borderSubtle}`,
     flexShrink: 0,
@@ -220,7 +226,7 @@ const emptyBox = {
     gap: "7px",
     padding: "30px 20px",
     border: `1px dashed ${colors.borderSubtle}`,
-    borderRadius: `${radius.md}px`,
+    borderRadius: `${radius.lg}px`,
     color: colors.inkFaint,
     fontSize: "11px",
     lineHeight: 1.5,
@@ -268,7 +274,14 @@ export function SunshineStreamHistory({
                 padding: "16px",
                 border: `1px solid ${colors.border}`,
                 borderRadius: `${radius.lg}px`,
-                background: surface.l3,
+                /* TCB-P4.2 followup: surface.l3 → surface.l1 to match
+                   `.pcgo-host-diagnostics-card` (the inset tier
+                   introduced by the Host Monitor section-card
+                   alignment). Stream History section card is a page-
+                   level framed panel sitting on the page surface;
+                   inner article cards stay on surface.l1 for tile
+                   contrast inside the now-recessed parent. */
+                background: surface.l1,
             }}
         >
             {/* ── Header ─────────────────────────────────────────────── */}
@@ -277,7 +290,11 @@ export function SunshineStreamHistory({
                     style={{
                         width: "28px",
                         height: "28px",
-                        borderRadius: `${radius.sm}px`,
+                        // TCB-P3 followup: value-preserving rename from
+                        // `radius.sm` (4px) to `radius.tight` (4px) —
+                        // 28x28 header icon badge, the 4px "tight" step
+                        // is the correct chip-scale.
+                        borderRadius: `${radius.tight}px`,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -319,7 +336,7 @@ export function SunshineStreamHistory({
                                 <article
                                     key={`${stream.started_at || "stream"}-${index}`}
                                     style={{
-                                        borderRadius: `${radius.md}px`,
+                                        borderRadius: `${radius.lg}px`,
                                         background: surface.l1,
                                         border: `1px solid ${colors.borderSubtle}`,
                                         borderLeft: `2px solid ${colors.brand}`,
@@ -404,7 +421,12 @@ export function SunshineStreamHistory({
                                         style={{
                                             flexShrink: 0,
                                             padding: "6px 12px",
-                                            borderRadius: `${radius.sm}px`,
+                                            // TCB-P3 followup: value-preserving rename
+                                            // from `radius.sm` (4px) to `radius.tight`
+                                            // (4px) — small brand-color status pill
+                                            // (LIVE NOW / STREAMING NOW), the 4px
+                                            // "tight" step is the correct chip-scale.
+                                            borderRadius: `${radius.tight}px`,
                                             background: colors.brandDim,
                                             border: `1.5px solid color-mix(in srgb, ${colors.brand} 35%, transparent)`,
                                             color: colors.brand,
@@ -452,7 +474,7 @@ export function SunshineStreamHistory({
                                             border: `1px solid ${colors.border}`,
                                             background: surface.l1,
                                             color: colors.inkDim,
-                                            borderRadius: `${radius.md}px`,
+                                            borderRadius: `${radius.lg}px`,
                                             padding: "8px 10px",
                                             fontSize: "10px",
                                             fontFamily: fonts.mono,

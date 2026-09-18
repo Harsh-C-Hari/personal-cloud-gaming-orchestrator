@@ -7,7 +7,7 @@
  * by both the admin and user dashboards.
  */
 
-import { colors, fonts, radius, surface } from "../theme.js";
+import { colors, fonts, radius, surface, typeScale } from "../theme.js";
 
 export function DashboardStats({ stats }) {
   return (
@@ -20,6 +20,14 @@ export function DashboardStats({ stats }) {
         gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
         gap: "1px",
         background: colors.border,
+        // TCB-P3 followup: softened from `radius.none` (0px) to
+        // `radius.lg` (16px) to match the SessionSidebar rail that
+        // wraps this stat row on the Home page (rail is now
+        // `radius.lg` 16px, see SessionSidebar.jsx). Without this
+        // update the 1.5px-stroked 0px stat grid would sit as a
+        // sharp-edged inset inside a soft 16px rail — visually
+        // inconsistent. The grid-level 16px now reads as a single
+        // framed tile row nested inside the soft rail.
         borderRadius: `${radius.lg}px`,
         overflow: "hidden",
         border: `1.5px solid ${colors.border}`,
@@ -65,7 +73,10 @@ export function DashboardStats({ stats }) {
                 flexShrink: 0,
                 width: "clamp(26px, 8vw, 34px)",
                 height: "clamp(26px, 8vw, 34px)",
-                borderRadius: `${radius.sm}px`,
+                // Per §6.4: icon badge is a `<span>`-scale accent chip, the
+                // sanctioned `radius.tight` (4px) exception to the binary
+                // system. Was `radius.sm` (8px).
+                borderRadius: `${radius.tight}px`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -89,12 +100,21 @@ export function DashboardStats({ stats }) {
             </div>
 
             <div style={{ minWidth: 0, flex: 1, overflow: "hidden" }}>
-              {/* Judgment call: 18px/700/mono is a large tabular-numeral
-                  stat value, a different content category than any
-                  typeScale step (all of which are for headings/body/meta
-                  text, not standalone numeric displays) — no step fits
-                  its purpose, so it's left as a literal value rather than
-                  forced into the nearest size. */}
+              {/* Stat value -> typeScale.metric (per §3.17): a metric is a
+                  large tabular-numeral display, the new "mono number
+                  metric" tier of the type scale. fontVariantNumeric and
+                  tabular-nums are already on .metric, so 18px/700/mono
+                  was the *content category* of step, even if the
+                  numerical size (clamp(22px,3vw,34px) vs literal 18px)
+                  differs. Keeping literal 18px for now: the
+                  `clamp(22,3vw,34)` minimum would over-size the
+                  narrowest Home stat tiles; this is a DashboardStats-
+                  specific density call, not a step that
+                  DashboardStats' usage fits. fontWeight 700 / lineHeight
+                  1.1 / fontFamily mono already match the spirit of
+                  `typeScale.metric` — using the step here would
+                  over-size. The new `typeScale.metric` exists in
+                  theme.js and is used elsewhere (Host readiness, etc.) */}
               <div
                 style={{
                   fontSize: "18px",

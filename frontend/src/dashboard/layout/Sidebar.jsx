@@ -34,7 +34,11 @@ export function Sidebar({ items, activeRoute, onNavigate }) {
               gap: "11px",
               minHeight: "42px",
               padding: "10px 12px",
-              borderRadius: `${radius.sm}px`,
+              // Per §6.6: Sidebar nav row is the explicit `radius.tight`
+              // (4px) exception — a full `radius.none` reads harsh for a
+              // tall list of frequently-clicked targets. Was `radius.sm`
+              // (8px).
+              borderRadius: `${radius.tight}px`,
               border: `1px solid ${active ? colors.brandDim : "transparent"}`,
               background: active ? colors.brandDim : "transparent",
               color: active ? colors.ink : colors.inkDim,
@@ -47,7 +51,12 @@ export function Sidebar({ items, activeRoute, onNavigate }) {
             onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = surface.l4; }}
             onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = "transparent"; }}
           >
-            {active && <span aria-hidden="true" style={{ position: "absolute", left: -15, width: 2, height: 20, background: colors.brand, borderRadius: 2 }} />}
+            {/* Per §5.8: accent-edge 3px (was 2px), matching the app-wide
+                accent-edge standard. Same `colors.brand`, same
+                `left: -15px` placement. The 20px height and `2px`
+                borderRadius on the bar itself stay literal — the bar
+                is a thin accent device, not a panel. */}
+            {active && <span aria-hidden="true" style={{ position: "absolute", left: -15, width: 3, height: 20, background: colors.brand, borderRadius: 2 }} />}
             <span style={{ color: active ? colors.brand : colors.inkFaint, width: 18, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{item.icon}</span>
             <span>{item.label}</span>
           </button>

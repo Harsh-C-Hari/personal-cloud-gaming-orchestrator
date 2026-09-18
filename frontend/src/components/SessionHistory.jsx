@@ -294,7 +294,7 @@ export function SessionHistory({ refreshKey = 0 }) {
                 key={item.session_id}
                 className="pcgo-session-history__record"
                 style={{
-                  borderRadius: `${radius.md}px`,
+                  borderRadius: `${radius.lg}px`,
                   background: surface.l1,
                   border: `1px solid ${colors.border}`,
                   borderLeft: `2px solid ${badge.color}`,
@@ -473,7 +473,12 @@ const box = {
   padding: "20px",
   border: `1px solid ${colors.border}`,
   borderRadius: `${radius.lg}px`,
-  background: surface.l3,
+  /* TCB-P4.2 followup: surface.l3 → surface.l1 to match
+     `.pcgo-host-diagnostics-card` (the inset tier introduced by the
+     Host Monitor section-card alignment). SessionHistory's `box` is
+     the page-level framed section card, so it now sits on the inset
+     tier like every other page-level section card in this pass. */
+  background: surface.l1,
 };
 
 const title = {
@@ -487,7 +492,10 @@ const title = {
 const headerIcon = {
   width: "28px",
   height: "28px",
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — 28x28 header icon badge, the 4px
+  // "tight" step is the correct chip-scale.
+  borderRadius: `${radius.tight}px`,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -502,7 +510,10 @@ const countPill = {
   fontFamily: fonts.mono,
   fontWeight: 700,
   border: `1px solid ${colors.borderSubtle}`,
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — small chrome count pill, the 4px
+  // "tight" step is the correct chip-scale.
+  borderRadius: `${radius.tight}px`,
   padding: "4px 8px",
   letterSpacing: "0.06em",
 };
@@ -514,7 +525,10 @@ const refreshButton = {
   border: `1px solid ${colors.border}`,
   background: surface.l2,
   color: colors.inkDim,
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — small chrome refresh button, the 4px
+  // "tight" step is the correct chip-scale.
+  borderRadius: `${radius.tight}px`,
   padding: "5px 12px",
   fontSize: "9px",
   fontFamily: fonts.mono,
@@ -532,7 +546,7 @@ const statTile = {
   gap: "10px",
   minWidth: 0,
   padding: "11px 12px",
-  borderRadius: `${radius.md}px`,
+  borderRadius: `${radius.lg}px`,
   background: surface.l1,
   border: `1px solid ${colors.borderSubtle}`,
 };
@@ -541,7 +555,10 @@ const statIcon = {
   flexShrink: 0,
   width: "28px",
   height: "28px",
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — 28x28 stat-tile icon badge, the 4px
+  // "tight" step is the correct chip-scale.
+  borderRadius: `${radius.tight}px`,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -573,7 +590,7 @@ const errorBox = {
   alignItems: "flex-start",
   gap: "8px",
   padding: "10px 12px",
-  borderRadius: `${radius.md}px`,
+  borderRadius: `${radius.lg}px`,
   border: `1.5px solid ${colors.danger}`,
   background: "rgba(255,107,107,0.08)",
   color: colors.danger,
@@ -589,7 +606,7 @@ const emptyBox = {
   gap: "8px",
   padding: "30px 20px",
   border: `1.5px dashed ${colors.borderSubtle}`,
-  borderRadius: `${radius.md}px`,
+  borderRadius: `${radius.lg}px`,
   color: colors.inkFaint,
   fontSize: "11px",
   fontFamily: fonts.mono,
@@ -604,7 +621,10 @@ const detailsButton = {
   border: `1px solid ${colors.border}`,
   background: surface.l2,
   color: colors.inkDim,
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — small chrome details button, the 4px
+  // "tight" step is the correct chip-scale.
+  borderRadius: `${radius.tight}px`,
   padding: "4px 10px",
   fontSize: "9px",
   fontFamily: fonts.mono,

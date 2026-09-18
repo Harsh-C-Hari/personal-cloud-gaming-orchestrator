@@ -457,10 +457,25 @@ export function LogPanel() {
  * All of the above keep their exact pre-existing literal values;
  * nothing here changes visually.
  */
-const sectionStyle = { padding: "16px", border: `1px solid ${colors.border}`, borderRadius: `${radius.lg}px`, background: surface.l3 };
+const sectionStyle = { padding: "16px", border: `1px solid ${colors.border}`, borderRadius: `${radius.lg}px`, /* TCB-P4.2 followup: surface.l3 → surface.l1 to match `.pcgo-host-diagnostics-card` (the inset tier introduced by the Host Monitor section-card alignment). The log panel section card is a page-level framed panel sitting on the page surface, so it now sits on the inset tier like every other page-level section card in this pass. */ background: surface.l1 };
 const headerRow = { display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap", marginBottom: "12px" };
 const headerLeft = { display: "flex", alignItems: "center", gap: "9px", minWidth: 0 };
-const iconBadge = { width: "28px", height: "28px", borderRadius: `${radius.sm}px`, display: "flex", alignItems: "center", justifyContent: "center", background: colors.brandDim, border: `1.5px solid color-mix(in srgb, ${colors.brand} 30%, transparent)`, color: colors.brand, flexShrink: 0 };
+// Per §6.4: icon badge is a `<span>`-scale accent chip, the
+// sanctioned `radius.tight` (4px) exception. Was `radius.sm` (also 4,
+// value-preserving rename after TCB-P3 reintroduced `lg` as the
+// soft-container scale; `sm` now collapses into `tight`).
+const iconBadge = {
+  width: "28px",
+  height: "28px",
+  borderRadius: `${radius.tight}px`,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: colors.brandDim,
+  border: `1.5px solid color-mix(in srgb, ${colors.brand} 30%, transparent)`,
+  color: colors.brand,
+  flexShrink: 0,
+};
 const titleStyle = { margin: 0, fontSize: "13px", letterSpacing: "0.12em", color: colors.ink, fontFamily: fonts.mono };
 const countBadge = { fontSize: "9px", color: colors.inkFaint, fontFamily: fonts.mono, border: `1.5px solid ${colors.borderSubtle}`, borderRadius: "10px", padding: "3px 8px", whiteSpace: "nowrap" };
 const actionsRow = { display: "flex", gap: "8px", flexWrap: "wrap" };
@@ -469,22 +484,37 @@ const actionsRow = { display: "flex", gap: "8px", flexWrap: "wrap" };
 // doesn't exactly match any `motion` step (fast: 100ms, base: 160ms,
 // cardIn: 220ms, pill: 180ms cubic-bezier). Left as the original literal;
 // no conversion.
-const pillButton = { display: "inline-flex", alignItems: "center", gap: "6px", border: `1px solid ${colors.border}`, background: surface.l2, color: colors.inkDim, borderRadius: `${radius.sm}px`, padding: "6px 11px", fontSize: "9.5px", fontFamily: fonts.mono, letterSpacing: "0.08em", cursor: "pointer", transition: "background 150ms ease, color 150ms ease, border-color 150ms ease" };
+// P6-T09 motion audit: `pillButton`'s `transition:` below shares one
+// 150ms/`ease` duration+easing across all three properties, but 150ms
+// doesn't exactly match any `motion` step (fast: 100ms, base: 160ms,
+// cardIn: 220ms, pill: 180ms cubic-bezier). Left as the original literal;
+// no conversion.
+// TCB-P3 followup: value-preserving rename from `radius.sm` (4px) to
+// `radius.tight` (4px) — small chrome pill button, the 4px "tight"
+// step is the right scale here (not `lg`, which would visually
+// compete with the parent `sectionStyle`'s 16px curve).
+const pillButton = { display: "inline-flex", alignItems: "center", gap: "6px", border: `1px solid ${colors.border}`, background: surface.l2, color: colors.inkDim, borderRadius: `${radius.tight}px`, padding: "6px 11px", fontSize: "9.5px", fontFamily: fonts.mono, letterSpacing: "0.08em", cursor: "pointer", transition: "background 150ms ease, color 150ms ease, border-color 150ms ease" };
 const activePillButton = (tone) => ({ ...pillButton, color: tone, borderColor: tone, background: `${tone}24` });
 const filtersRow = { display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "12px" };
-const selectStyle = { background: surface.l1, border: `1px solid ${colors.borderSubtle}`, color: colors.ink, padding: "9px 10px", borderRadius: `${radius.sm}px`, fontSize: "11.5px", fontFamily: "inherit" };
+// TCB-P3 followup: value-preserving rename from `radius.sm` (4px) to
+// `radius.tight` (4px) — small chrome form input, the 4px "tight"
+// step is the right scale here.
+const selectStyle = { background: surface.l1, border: `1px solid ${colors.borderSubtle}`, color: colors.ink, padding: "9px 10px", borderRadius: `${radius.tight}px`, fontSize: "11.5px", fontFamily: "inherit" };
 const searchWrap = { position: "relative", flex: 1, minWidth: "180px", display: "flex", alignItems: "center" };
 const searchIcon = { position: "absolute", left: "11px", color: colors.inkFaint, pointerEvents: "none" };
 const searchInputStyle = { ...selectStyle, width: "100%", padding: "8px 10px 8px 30px", boxSizing: "border-box" };
-const dropdownMenu = { position: "absolute", top: "calc(100% + 6px)", right: 0, display: "flex", flexDirection: "column", gap: "6px", padding: "8px", background: surface.l3, border: `1px solid ${colors.border}`, borderRadius: `${radius.md}px`, boxShadow: shadow.overlay, zIndex: 20, minWidth: "180px", overflow: "hidden" };
+const dropdownMenu = { position: "absolute", top: "calc(100% + 6px)", right: 0, display: "flex", flexDirection: "column", gap: "6px", padding: "8px", background: surface.l3, border: `1px solid ${colors.border}`, borderRadius: `${radius.lg}px`, boxShadow: shadow.overlay, zIndex: 20, minWidth: "180px", overflow: "hidden" };
 const menuButton = { ...pillButton, width: "100%", justifyContent: "flex-start", background: "transparent", border: `1.5px solid ${colors.borderSubtle}` };
 const statsRow = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "8px", marginBottom: "12px" };
-const statTile = { padding: "10px 12px", borderRadius: `${radius.md}px`, background: surface.l1, border: `1px solid ${colors.borderSubtle}`, display: "flex", alignItems: "center", gap: "10px" };
-const statIconWrap = (tone) => ({ flexShrink: 0, width: "30px", height: "30px", borderRadius: `${radius.sm}px`, display: "flex", alignItems: "center", justifyContent: "center", background: `color-mix(in srgb, ${tone} 14%, transparent)`, border: `1px solid color-mix(in srgb, ${tone} 40%, transparent)`, color: tone, fontSize: "13px" });
+const statTile = { padding: "10px 12px", borderRadius: `${radius.lg}px`, background: surface.l1, border: `1px solid ${colors.borderSubtle}`, display: "flex", alignItems: "center", gap: "10px" };
+// TCB-P3 followup: value-preserving rename from `radius.sm` (4px) to
+// `radius.tight` (4px) — small stat-tile icon badge (30x30, tonal),
+// the 4px "tight" step is the right scale.
+const statIconWrap = (tone) => ({ flexShrink: 0, width: "30px", height: "30px", borderRadius: `${radius.tight}px`, display: "flex", alignItems: "center", justifyContent: "center", background: `color-mix(in srgb, ${tone} 14%, transparent)`, border: `1px solid color-mix(in srgb, ${tone} 40%, transparent)`, color: tone, fontSize: "13px" });
 const statValue = { fontSize: "16px", fontWeight: 700, fontFamily: fonts.mono, lineHeight: 1.1, whiteSpace: "nowrap" };
 const statLabel = { fontSize: "8.5px", color: colors.inkFaint, letterSpacing: "0.08em", fontFamily: fonts.mono, marginTop: "3px", textTransform: "uppercase" };
 const logWrapper = { position: "relative" };
-const logContainer = { position: "relative", background: surface.l1, border: `1px solid ${colors.borderSubtle}`, borderRadius: `${radius.md}px`, padding: "10px", minHeight: "200px", maxHeight: "min(600px, 65dvh)", overflowY: "auto", overflowX: "hidden" };
+const logContainer = { position: "relative", background: surface.l1, border: `1px solid ${colors.borderSubtle}`, borderRadius: `${radius.lg}px`, padding: "10px", minHeight: "200px", maxHeight: "min(600px, 65dvh)", overflowY: "auto", overflowX: "hidden" };
 const logStyle = { display: "grid", gridTemplateColumns: "92px minmax(0, 1fr)", alignItems: "start", gap: "10px", fontFamily: fonts.mono, fontSize: "11px", color: colors.inkDim, whiteSpace: "pre-wrap", overflowWrap: "anywhere", wordBreak: "break-word", width: "100%", boxSizing: "border-box", marginBottom: "5px", borderBottom: `1px solid ${colors.borderSubtle}`, borderLeft: `2px solid ${colors.inkDim}`, padding: "7px 7px 7px 9px" };
 const emptyStyle = { display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", color: colors.inkFaint, textAlign: "center", padding: "40px 20px", fontFamily: fonts.mono, fontSize: "11px", letterSpacing: "0.02em" };
 // P6-T09 motion audit: `scrollButton`'s `transition:` below uses the

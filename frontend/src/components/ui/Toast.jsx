@@ -89,7 +89,12 @@ export function ToastProvider({ children }) {
                 alignItems: "flex-start",
                 gap: "9px",
                 padding: "11px 12px",
-                borderRadius: `${radius.md}px`,
+                // Per §6.3: toast is a transient floating card, but the
+                // 3px colored `borderLeft` already establishes a left-edge
+                // accent signal — the binary `radius.none` (0px) rectangle
+                // reads as a structural sub-panel (tied to its color, not
+                // a rounded chip). Was `radius.lg` (12px).
+                borderRadius: `${radius.none}px`,
                 background: colors.bgCard,
                 border: `1.5px solid ${colors.border}`,
                 borderLeft: `3px solid ${tone.color}`,

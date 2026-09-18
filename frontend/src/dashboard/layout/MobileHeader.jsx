@@ -31,12 +31,12 @@ export function MobileHeader({ open, items, activeRoute, onNavigate, closeButton
           <div style={{ color: colors.ink, ...typeScale.subheading, fontWeight: 650 }}>Navigation</div>
           <div style={{ color: colors.inkFaint, ...typeScale.meta, fontWeight: 500, letterSpacing: "0", textTransform: "none", marginTop: 4 }}>{items.length} destinations</div>
         </div>
-        <button ref={closeButtonRef} type="button" tabIndex={open ? 0 : -1} onClick={onClose} aria-label="Close navigation menu" style={{ width: 40, height: 40, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: radius.sm, border: `1px solid ${colors.border}`, background: "transparent", color: colors.inkDim, cursor: "pointer" }}><X size={17} /></button>
+        <button ref={closeButtonRef} type="button" tabIndex={open ? 0 : -1} onClick={onClose} aria-label="Close navigation menu" style={{ width: 40, height: 40, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: `${radius.tight}px`, border: `1px solid ${colors.border}`, background: "transparent", color: colors.inkDim, cursor: "pointer" }}><X size={17} /></button>
       </div>
       <div style={{ padding: "12px 10px", display: "grid", gap: 4, overflowY: "auto" }}>
         {items.map((item) => {
           const active = item.route === activeRoute;
-          return <button key={item.route} type="button" tabIndex={open ? 0 : -1} onClick={() => { onNavigate(item.route); onClose(); }} aria-current={active ? "page" : undefined} style={{ display: "flex", alignItems: "center", gap: 12, minHeight: 46, padding: "11px 12px", borderRadius: radius.sm, border: `1px solid ${active ? colors.brandDim : "transparent"}`, background: active ? colors.brandDim : "transparent", color: active ? colors.ink : colors.inkDim, ...typeScale.body, fontWeight: active ? 650 : 500, cursor: "pointer", textAlign: "left" }}>
+          return <button key={item.route} type="button" tabIndex={open ? 0 : -1} onClick={() => { onNavigate(item.route); onClose(); }} aria-current={active ? "page" : undefined} style={{ display: "flex", alignItems: "center", gap: 12, minHeight: 46, padding: "11px 12px", borderRadius: `${radius.tight}px`, border: `1px solid ${active ? colors.brandDim : "transparent"}`, background: active ? colors.brandDim : "transparent", color: active ? colors.ink : colors.inkDim, ...typeScale.body, fontWeight: active ? 650 : 500, cursor: "pointer", textAlign: "left" }}>
             <span style={{ color: active ? colors.brand : colors.inkFaint, width: 19, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{item.icon}</span>
             <span>{item.label}</span>
           </button>;

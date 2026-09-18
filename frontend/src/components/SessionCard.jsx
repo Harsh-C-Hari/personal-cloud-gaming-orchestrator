@@ -247,7 +247,17 @@ export function SessionCard({ session, onRefresh }) {
           alignItems:     "flex-end",
           padding:        "12px 14px",
           background:     surface.l1,
-          borderRadius:   `${radius.md}px`,
+          // TCB-P3 followup: softened from `radius.lg` (0px, sharp
+          // square) to `radius.lg` (16px) — the countdown block is
+          // a container surface inset inside the SessionCard Card
+          // (the parent Card is already `radius.lg` post-TCB-P3).
+          // The 16px curve on the inset + 16px curve on the parent
+          // reads as a single framed, soft container — without this
+          // the inset sat as a sharp 0px rectangle inside a soft
+          // 16px frame, visually inconsistent. The 1.5px
+          // `colors.border` stroke is the inset's surface signal,
+          // the radius is a separate axis.
+          borderRadius:   `${radius.lg}px`,
           border:         `1.5px solid ${colors.border}`,
         }}
       >

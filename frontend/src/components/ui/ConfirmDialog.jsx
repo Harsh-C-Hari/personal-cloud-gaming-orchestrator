@@ -204,9 +204,24 @@ export function ConfirmDialogProvider({ children }) {
               maxHeight: "min(85vh, 85dvh)",
               overflowY: "auto",
               background: colors.bgCard,
-              border: `1.5px solid ${colors.border}`,
-              borderRadius: `${radius.lg}px`,
+              // Per §6.3: dialog panel is a structural module surface
+              // (the binary `radius.none` rectangle), with a heavier
+              // `borderInk` to mark it as a discrete attention boundary
+              // on a backdrop-scrim canvas. The 1.5px ink-tier stroke is
+              // also the brand "frame" line — the dialog is the single
+              // most heavy-bordered surface in the app, intentionally,
+              // because it's the one place where we want maximum edge
+              // legibility against the rgba(0,0,0,0.6) backdrop. Was
+              // `border: 1.5px solid ${colors.border}` + `radius.lg` (16px).
+              border: `1.5px solid ${colors.borderInk}`,
+              borderRadius: `${radius.none}px`,
               padding: "20px",
+              // Per the shadow family: `shadow.overlay` (kept blur) is
+              // reserved for true modal overlays — `shadow.lift` (3px
+              // 3px) is for soft-floating card depth, `shadow.press`
+              // (2px 2px) is for inverted/pressed state. A modal
+              // dialog floating over a backdrop scrim is the canonical
+              // "true overlay" use case, so `shadow.overlay` stays.
               boxShadow: shadow.overlay,
               // motion-audit (P6-T04): keyframe-based entrance `animation:`.
               // 180ms duration coincidentally matches motion.pill's 180ms,
@@ -225,7 +240,10 @@ export function ConfirmDialogProvider({ children }) {
                   flexShrink: 0,
                   width: "34px",
                   height: "34px",
-                  borderRadius: `${radius.sm}px`,
+                  // Per §6.4: icon badge is a `<span>`-scale accent chip,
+                  // the sanctioned `radius.tight` (4px) exception. Was
+                  // `radius.sm` (8px).
+                  borderRadius: `${radius.tight}px`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -275,6 +293,14 @@ export function ConfirmDialogProvider({ children }) {
                   flex: 1,
                   padding: "9px",
                   minHeight: "44px",
+                  // Per §6.4: dialog footer CTAs are the sanctioned
+                  // `radius.full` (999px) pill exception — the primary
+                  // action affordance on a destructive-confirm surface
+                  // should NOT be visually demoted to a `radius.tight`
+                  // (4px) rectangle. The pill shape is the loudest,
+                  // highest-tension button geometry in the system, and
+                  // the dialog footer is the one place where the user
+                  // needs to feel the action weight. Left as `radius.full`.
                   borderRadius: `${radius.full}px`,
                   border: `1.5px solid ${colors.borderInk}`,
                   background: "transparent",
@@ -298,6 +324,10 @@ export function ConfirmDialogProvider({ children }) {
                   flex: 1,
                   padding: "9px",
                   minHeight: "44px",
+                  // Per §6.4: see Cancel button above — `radius.full`
+                  // (999px) is the sanctioned pill CTA geometry for the
+                  // dialog footer, intentional visual weight on the
+                  // primary action. Not converted to `radius.tight`.
                   borderRadius: `${radius.full}px`,
                   border: `1.5px solid transparent`,
                   background: dialog.danger ? colors.danger : colors.ink,

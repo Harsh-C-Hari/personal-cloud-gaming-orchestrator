@@ -11,7 +11,7 @@
  *   "stopped"    — stop_session() called, NO WS broadcast (poll only)
  */
 
-import { colors, radius } from "../dashboard/theme.js";
+import { colors, radius, motion } from "../dashboard/theme.js";
 
 /** @type {Record<string, { label: string, color: string, wash: string, pulse: boolean }>} */
 const STATUS_CONFIG = {
@@ -51,6 +51,13 @@ export function StatusBadge({ status }) {
         letterSpacing: "0.13em",
         flexShrink:    0,
         userSelect:    "none",
+        // Per §3.7 / §8: state-transition swap. The `motion.transition`
+        // overshoot is intentionally reserved for tone flips (badge
+        // color changing), not hover (which would be motion.hover).
+        // A status change re-renders the entire span with the new
+        // config's color/wash/border, and the transition makes the
+        // swap read as a deliberate state change rather than a flicker.
+        transition:    `color ${motion.transition}, background ${motion.transition}, border-color ${motion.transition}`,
       }}
     >
       {/* Dot indicator */}

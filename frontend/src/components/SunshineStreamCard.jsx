@@ -65,7 +65,15 @@ function Badge({ tone = "neutral", children }) {
                 color,
                 background: `${color}24`,
                 border: `1.5px solid ${color}66`,
-                borderRadius: "10px",
+                // TCB-P3 followup: value-preserving rename from literal
+                // `"10px"` to `radius.full` (999px). Small 2px 8px
+                // padded status pill (the "live / idle / streaming"
+                // indicator Badge) — converting to `full` matches the
+                // badge convention used by the streaming-duration
+                // pill in SunshineStreamHistory.jsx and other chip
+                // surfaces in HostStatusPanel. The 2:1+ aspect of the
+                // 9.5px text line makes `full` a pill, not a circle.
+                borderRadius: 999,
                 padding: "2px 8px",
             }}
         >

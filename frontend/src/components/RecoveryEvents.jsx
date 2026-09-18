@@ -155,7 +155,7 @@ export function RecoveryEvents({
                   <article
                     style={{
                       padding: "11px 12px",
-                      borderRadius: `${radius.md}px`,
+                      borderRadius: `${radius.lg}px`,
                       background: index === 0 ? surface.l4 : surface.l1,
                       border: `1px solid ${index === 0 ? colors.border : colors.borderSubtle}`,
                       borderLeft: `2px solid ${color}`,
@@ -184,7 +184,24 @@ export function RecoveryEvents({
                         </div>
                       </div>
                     </div>
-                    <div style={{ flexShrink: 0, padding: "3px 8px", borderRadius: `${radius.sm}px`, background: `${color}22`, border: `1.5px solid ${color}4d`, color, fontSize: "9px", fontWeight: 700, letterSpacing: "0.08em", fontFamily: fonts.mono, textTransform: "uppercase", whiteSpace: "nowrap" }}>
+                    <div style={{
+                      flexShrink: 0,
+                      padding: "3px 8px",
+                      // TCB-P3 followup: value-preserving rename from
+                      // `radius.sm` (4px) to `radius.tight` (4px) —
+                      // small chrome event-type pill, the 4px "tight"
+                      // step is the correct chip-scale.
+                      borderRadius: `${radius.tight}px`,
+                      background: `${color}22`,
+                      border: `1.5px solid ${color}4d`,
+                      color,
+                      fontSize: "9px",
+                      fontWeight: 700,
+                      letterSpacing: "0.08em",
+                      fontFamily: fonts.mono,
+                      textTransform: "uppercase",
+                      whiteSpace: "nowrap",
+                    }}>
                       {eventName}
                     </div>
                   </article>
@@ -228,7 +245,12 @@ const box = {
   padding: "20px",
   border: `1px solid ${colors.border}`,
   borderRadius: `${radius.lg}px`,
-  background: surface.l3,
+  /* TCB-P4.2 followup: surface.l3 → surface.l1 to match
+     `.pcgo-host-diagnostics-card` (the inset tier introduced by the
+     Host Monitor section-card alignment). RecoveryEvents' `box` is
+     the page-level framed section card, so it now sits on the inset
+     tier like every other page-level section card in this pass. */
+  background: surface.l1,
 };
 
 const panelDescription = {
@@ -273,7 +295,7 @@ const loadingRow = {
   minHeight: "52px",
   padding: "10px 12px",
   border: `1px solid ${colors.borderSubtle}`,
-  borderRadius: `${radius.md}px`,
+  borderRadius: `${radius.lg}px`,
   background: surface.l1,
 };
 
@@ -308,7 +330,10 @@ const loadingLineShort = {
 const loadingTag = {
   width: "54px",
   height: "16px",
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — small chrome loading skeleton bar,
+  // the 4px "tight" step is the correct chip-scale.
+  borderRadius: `${radius.tight}px`,
   background: surface.l3,
   border: `1px solid ${colors.borderSubtle}`,
   flexShrink: 0,
@@ -337,7 +362,10 @@ const title = {
 const headerIcon = {
   width: "28px",
   height: "28px",
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — 28x28 header icon badge, the 4px
+  // "tight" step is the correct chip-scale.
+  borderRadius: `${radius.tight}px`,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -352,7 +380,10 @@ const countPill = {
   fontFamily: fonts.mono,
   fontWeight: 700,
   border: `1px solid ${colors.borderSubtle}`,
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — small chrome count pill, the 4px
+  // "tight" step is the correct chip-scale.
+  borderRadius: `${radius.tight}px`,
   padding: "1px 8px",
 };
 
@@ -364,7 +395,7 @@ const emptyBox = {
   padding: "30px 20px",
   textAlign: "center",
   border: `1.5px dashed ${colors.borderSubtle}`,
-  borderRadius: `${radius.md}px`,
+  borderRadius: `${radius.lg}px`,
   color: colors.inkFaint,
   fontSize: "11px",
   lineHeight: 1.5,
@@ -377,7 +408,10 @@ const showAllButton = {
   border: `1px solid ${colors.border}`,
   background: surface.l2,
   color: colors.inkDim,
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — small chrome show-all button, the 4px
+  // "tight" step is the correct chip-scale.
+  borderRadius: `${radius.tight}px`,
   padding: "8px",
   fontSize: "9px",
   fontFamily: fonts.mono,

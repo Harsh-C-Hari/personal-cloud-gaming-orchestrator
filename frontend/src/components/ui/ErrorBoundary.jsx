@@ -72,8 +72,13 @@ export class ErrorBoundary extends Component {
             width: "100%",
             maxWidth: "440px",
             background: colors.bgCard,
-            border: `1.5px solid ${colors.border}`,
-            borderRadius: `${radius.lg}px`,
+            // Per §3.10 ErrorBoundary contract: same binary-radius +
+            // heavier-border treatment as ConfirmDialog (the two full-
+            // takeover surfaces in the app). `borderInk` for maximum
+            // edge legibility, `radius.none` for the binary rectangle,
+            // `shadow.overlay` kept for blur (true-overlay category).
+            border: `1.5px solid ${colors.borderInk}`,
+            borderRadius: `${radius.none}px`,
             padding: "26px",
             boxShadow: shadow.overlay,
           }}
@@ -82,7 +87,10 @@ export class ErrorBoundary extends Component {
             style={{
               width: "44px",
               height: "44px",
-              borderRadius: `${radius.sm}px`,
+              // Per §6.4: icon badge is a `<span>`-scale accent chip, the
+              // sanctioned `radius.tight` (4px) exception. Was `radius.sm`
+              // (8px).
+              borderRadius: `${radius.tight}px`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -126,7 +134,11 @@ export class ErrorBoundary extends Component {
               style={{
                 marginTop: "14px",
                 padding: "10px 12px",
-                borderRadius: `${radius.sm}px`,
+                // Per §6.4: this is a small error-message chip (the raw
+                // error.message text), treated as a `<span>`-scale
+                // accent — `radius.tight` (4px) is the sanctioned
+                // exception. Was `radius.sm` (8px).
+                borderRadius: `${radius.tight}px`,
                 background: "rgba(255,107,107,0.08)",
                 border: "1.5px solid rgba(255,107,107,0.25)",
                 color: colors.danger,
@@ -149,6 +161,10 @@ export class ErrorBoundary extends Component {
                 justifyContent: "center",
                 gap: "7px",
                 padding: "10px",
+                // Per §6.4: dialog footer CTAs are the sanctioned
+                // `radius.full` (999px) pill exception (same decision
+                // as ConfirmDialog — primary action must not feel
+                // demoted). Not converted to `radius.tight`.
                 borderRadius: `${radius.full}px`,
                 border: `1.5px solid ${colors.borderInk}`,
                 background: "transparent",
@@ -173,6 +189,10 @@ export class ErrorBoundary extends Component {
                 justifyContent: "center",
                 gap: "7px",
                 padding: "10px",
+                // Per §6.4: see Try Again button — `radius.full` is the
+                // sanctioned pill CTA geometry for dialog footers, NOT
+                // a missed migration. The Reload Page is the loudest
+                // affordance in the error state (recovery action).
                 borderRadius: `${radius.full}px`,
                 border: "1.5px solid transparent",
                 background: colors.ink,
@@ -226,7 +246,11 @@ export class ErrorBoundary extends Component {
                   style={{
                     marginTop: "8px",
                     padding: "10px",
-                    borderRadius: `${radius.sm}px`,
+                    // Per §6.4: this is a small inset code-display panel
+                    // (the raw componentStack), the `<span>`-scale
+                    // accent exception — `radius.tight` (4px). Was
+                    // `radius.sm` (8px).
+                    borderRadius: `${radius.tight}px`,
                     background: colors.bgInset,
                     border: `1.5px solid ${colors.border}`,
                     color: colors.inkFaint,

@@ -17,7 +17,14 @@ export function ActiveAlerts({ alerts }) {
       className="pcgo-home-alert-strip"
       style={{
         padding: "14px 16px",
-        borderRadius: `${radius.sm}px`,
+        // Per §3.16: alert strip is a left-edge accent signal, the binary
+        // `radius.none` (0px) rectangle (the left danger edge is the visual
+        // identity, not a rounded chip). Inline value is effectively dead
+        // — .pcgo-home-alert-strip CSS rule wins with
+        // `border-radius: 0 !important` — but kept consistent with the new
+        // binary radius system so the inline value doesn't mislead future
+        // readers. Was `radius.sm` (8px).
+        borderRadius: `${radius.none}px`,
         // Not a colors.bg*/surface token — this is a danger-tinted
         // literal, not a neutral elevation step, so it's outside D-009's
         // surface.l0-l4 mapping. Also fully overridden by the

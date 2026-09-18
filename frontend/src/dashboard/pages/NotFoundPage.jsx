@@ -32,7 +32,7 @@ export function NotFoundPage({ path, onGoHome }) {
           style={{
             width: "56px",
             height: "56px",
-            borderRadius: `${radius.md}px`,
+            borderRadius: `${radius.lg}px`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -70,7 +70,11 @@ export function NotFoundPage({ path, onGoHome }) {
                 color: colors.inkFaint,
                 background: colors.bgInset,
                 border: `1.5px solid ${colors.borderSubtle}`,
-                borderRadius: `${radius.sm}px`,
+                // TCB-P3 followup: value-preserving rename from
+                // `radius.sm` (4px) to `radius.tight` (4px) — small
+                // inline `<code>` chip wrapping the path, the 4px
+                // "tight" step is the right scale.
+                borderRadius: `${radius.tight}px`,
                 padding: "1px 6px",
                 wordBreak: "break-word",
                 overflowWrap: "break-word",

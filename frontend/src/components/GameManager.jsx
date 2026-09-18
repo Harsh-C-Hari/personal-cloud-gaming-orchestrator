@@ -894,9 +894,13 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
 const outerWrap = {
   border: `1px solid ${colors.border}`,
   borderRadius: `${radius.lg}px`,
-  // D-009 literal alias: colors.bgCard -> surface.l3, same value, zero
-  // visual change.
-  background: surface.l3,
+  /* TCB-P4.2 followup: surface.l3 → surface.l1 to match
+     `.pcgo-host-diagnostics-card` (the inset tier introduced by the
+     Host Monitor section-card alignment). The GameManager outer
+     wrap is the page-level framed section card; the inner `card`
+     game cards stay on surface.l3 (with surface.l4 on hover) so
+     they continue to "rise above" the now-recessed parent. */
+  background: surface.l1,
   overflow: "hidden",
 };
 
@@ -917,7 +921,12 @@ const headerBar = {
 const headerIconBadge = {
   width: "30px",
   height: "30px",
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — 30x30 header icon badge, the 4px
+  // "tight" step is the correct chip-scale. `sm` alias now collapses
+  // into `tight` after TCB-P3 reintroduced `lg` as the soft-container
+  // scale.
+  borderRadius: `${radius.tight}px`,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -946,7 +955,10 @@ const headerSubtitle = {
 const iconAddButton = {
   width: "30px",
   height: "30px",
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — 30x30 add-button chip, the 4px
+  // "tight" step is the correct chip-scale.
+  borderRadius: `${radius.tight}px`,
   background: colors.accentGreenDim,
   border: `1.5px solid ${colors.success}`,
   color: colors.success,
@@ -965,7 +977,10 @@ const iconAddButton = {
 const iconGhostButton = {
   width: "30px",
   height: "30px",
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — 30x30 ghost icon button, the 4px
+  // "tight" step is the correct chip-scale.
+  borderRadius: `${radius.tight}px`,
   background: "transparent",
   border: `1.5px solid ${colors.border}`,
   color: colors.inkDim,
@@ -996,7 +1011,14 @@ const card = {
   // surface.l4/l3 directly (not via this static value), matching.
   background: surface.l3,
   border: `1px solid ${colors.border}`,
-  borderRadius: `${radius.md}px`,
+  // TCB-P3 followup: softened from `radius.lg` (0px in current
+  // theme.js alias map) to `radius.lg` (16px) to match the
+  // StartSessionForm container edge + the Card primitive + the
+  // SessionSidebar rail + the Home NavigationCard row. The game
+  // card is a container surface, not small chrome — the 16px curve
+  // gives it the same "soft framed tile" character as every other
+  // container in the app.
+  borderRadius: `${radius.lg}px`,
   color: colors.ink,
   cursor: "pointer",
   overflow: "hidden",
@@ -1040,10 +1062,13 @@ const cardDeleteButton = {
   // comfortable-target convention (StartSessionForm.jsx's Skip Timer
   // toggle wrapper, minHeight: "44px"). The Trash2 icon itself stays
   // size={12} at its usage site below — only this container grows.
-  width: "44px",
-  height: "44px",
+  width: "30px",
+  height: "30px",
   flexShrink: 0,
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — small chrome delete chip on the
+  // game card, the 4px "tight" step is the correct chip-scale.
+  borderRadius: `${radius.tight}px`,
   background: "transparent",
   border: `1.5px solid ${colors.danger}66`,
   color: colors.danger,
@@ -1104,7 +1129,12 @@ const formHeading = {
 
 const cardSection = {
   padding: "18px",
-  borderRadius: `${radius.md}px`,
+  // TCB-P3 followup: softened from `radius.lg` (0px) to `radius.lg`
+  // (16px) — `cardSection` is the inner section divider inside the
+  // game card, a container surface that nests inside the `card`
+  // shell. The matching 16px curve reads as a single framed
+  // surface with an internal divider, not a hard-edged nested box.
+  borderRadius: `${radius.lg}px`,
   border: `1px solid ${colors.borderSubtle}`,
   // D-009 literal alias: colors.bgElevated -> surface.l2, same value,
   // zero visual change. Not the same background level as
@@ -1122,7 +1152,10 @@ const inputStyle = {
   // visual change.
   background: surface.l1,
   border: `1.5px solid ${colors.border}`,
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — small chrome form input, the 4px
+  // "tight" step is the correct chip-scale.
+  borderRadius: `${radius.tight}px`,
   color: colors.ink,
   // Clean fit within rounding (prior literal was 13px/default-weight;
   // typeScale.body is 13.5px/500/1.5/body) — byte-identical to
@@ -1144,7 +1177,15 @@ const pathRow = {
 const pickerButton = {
   width: "40px",
   flexShrink: 0,
-  borderRadius: `${radius.md}px`,
+  // TCB-P3 followup: softened from `radius.lg` (0px, sharp square)
+  // to `radius.tight` (4px) — the 40px picker button (e.g. quantity
+  // stepper +/-) is small chrome at the `<span>`-scale, not a
+  // container, so it follows the §6.4 binary small-chrome
+  // exception rather than the 16px container curve. The 4px corner
+  // gives the same "soft framed chip" character as every other
+  // small interactive control in the app (icon badges, nav rows,
+  // chips).
+  borderRadius: `${radius.tight}px`,
   border: `1.5px solid ${colors.borderInk}`,
   background: "transparent",
   color: colors.ink,
@@ -1175,7 +1216,10 @@ const buttonBase = {
   flex: 1,
   minWidth: "120px",
   padding: "10px",
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — small chrome button, the 4px "tight"
+  // step is the correct chip-scale.
+  borderRadius: `${radius.tight}px`,
   fontFamily: fonts.mono,
   fontSize: "10.5px",
   fontWeight: 700,
@@ -1229,7 +1273,15 @@ const messageBoxBase = {
   alignItems: "center",
   gap: "8px",
   padding: "10px 12px",
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: softened from `radius.sm` (4px) to `radius.lg`
+  // (16px) — the message box is a small framed alert/status callout
+  // (success/danger/info variants, full-width, padded). 16px matches
+  // the soft-callout pattern established by `errorBox` in
+  // SessionAnalytics, `issueBox`/`recoveryBox` in HostStatusPanel,
+  // and the other TCB-P3-migrated alert surfaces. The 1.5px
+  // tonal stroke is the alert signal, the radius is a separate
+  // axis.
+  borderRadius: `${radius.lg}px`,
   fontSize: "11px",
   fontFamily: fonts.mono,
   width: "100%",
@@ -1257,6 +1309,11 @@ const emptyBox = {
   gap: "8px",
   padding: "48px 24px",
   border: `1.5px dashed ${colors.border}`,
-  borderRadius: `${radius.md}px`,
+  // TCB-P3 followup: softened from `radius.lg` (0px) to `radius.lg`
+  // (16px) — the empty-state drop zone is a container surface
+  // (matches the game card's 16px curve), and the dashed 1.5px
+  // stroke with a 16px corner reads as a "soft framed drop zone"
+  // rather than a hard-edged dashed box.
+  borderRadius: `${radius.lg}px`,
   textAlign: "center",
 };

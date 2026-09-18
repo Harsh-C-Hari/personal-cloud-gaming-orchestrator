@@ -68,7 +68,10 @@ function StatTile({ icon, label: labelText, value: valueNum, tone }) {
           flexShrink: 0,
           width: "32px",
           height: "32px",
-          borderRadius: `${radius.sm}px`,
+          // TCB-P3 followup: value-preserving rename from `radius.sm`
+          // (4px) to `radius.tight` (4px) — 32x32 stat-tile icon
+          // badge, the 4px "tight" step is the correct chip-scale.
+          borderRadius: `${radius.tight}px`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -268,7 +271,12 @@ const box = {
   padding: "20px",
   border: `1px solid ${colors.border}`,
   borderRadius: `${radius.lg}px`,
-  background: surface.l3,
+  /* TCB-P4.2 followup: surface.l3 → surface.l1 to match
+     `.pcgo-host-diagnostics-card` (the inset tier introduced by the
+     Host Monitor section-card alignment). RecoveryStats' `box` is
+     the page-level framed section card, so it now sits on the inset
+     tier like every other page-level section card in this pass. */
+  background: surface.l1,
 };
 
 const title = {
@@ -282,7 +290,10 @@ const title = {
 const headerIcon = {
   width: "28px",
   height: "28px",
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — 28x28 header icon badge, the 4px
+  // "tight" step is the correct chip-scale.
+  borderRadius: `${radius.tight}px`,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -293,14 +304,17 @@ const headerIcon = {
 
 const card = {
   padding: "12px",
-  borderRadius: `${radius.md}px`,
+  borderRadius: `${radius.lg}px`,
   background: surface.l1,
   border: `1px solid ${colors.border}`,
 };
 
 const subStatCard = {
   padding: "8px 10px",
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — small inset tile inside the 16px
+  // card parent, 4px is the right inset-vs-parent step.
+  borderRadius: `${radius.tight}px`,
   background: surface.l2,
   border: `1px solid ${colors.borderSubtle}`,
 };
@@ -317,7 +331,10 @@ const postureBadge = {
   flexShrink: 0,
   padding: "4px 8px",
   border: "1px solid",
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — small status badge (posture), the
+  // 4px "tight" step is the correct chip-scale.
+  borderRadius: `${radius.tight}px`,
   fontSize: "9px",
   fontWeight: 700,
   letterSpacing: "0.08em",
@@ -332,7 +349,7 @@ const summaryBand = {
   padding: "14px 16px",
   border: `1px solid ${colors.borderSubtle}`,
   borderLeft: `2px solid ${colors.brand}`,
-  borderRadius: `${radius.md}px`,
+  borderRadius: `${radius.lg}px`,
   background: surface.l1,
 };
 
@@ -356,7 +373,7 @@ const summaryMetric = {
 const channelCard = {
   padding: "12px",
   border: `1px solid ${colors.borderSubtle}`,
-  borderRadius: `${radius.md}px`,
+  borderRadius: `${radius.lg}px`,
   background: surface.l2,
 };
 
@@ -405,7 +422,7 @@ const loadingTile = {
   gap: "8px",
   padding: "12px",
   border: `1px solid ${colors.border}`,
-  borderRadius: `${radius.md}px`,
+  borderRadius: `${radius.lg}px`,
   background: surface.l1,
 };
 
@@ -471,7 +488,11 @@ const detailToggle = {
   border: `1px solid ${colors.border}`,
   background: surface.l2,
   color: colors.inkDim,
-  borderRadius: `${radius.sm}px`,
+  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
+  // to `radius.tight` (4px) — full-width show/hide-details button
+  // (the 4px "tight" step is the button/chip scale, not the 16px
+  // container scale).
+  borderRadius: `${radius.tight}px`,
   padding: "7px",
   fontSize: "9px",
   fontFamily: fonts.mono,
