@@ -113,63 +113,70 @@ export const surface = {
  * (Space Grotesk / Inter / JetBrains Mono) per D-008.
  */
 export const typeScale = {
+  // 2.3: Display — Login only
   hero: {
-    fontSize: "clamp(42px, 6vw, 82px)",
-    lineHeight: 0.98,
+    fontSize: "clamp(36px, 5vw, 64px)",
+    lineHeight: 1.05,
     fontWeight: 600,
-    letterSpacing: "-0.055em",
+    letterSpacing: "-0.02em",
     fontFamily: fonts.display,
   },
+  // Page titles, section headings (28px/600)
   heading: {
     fontSize: "28px",
     lineHeight: 1.15,
-    fontWeight: 650,
-    letterSpacing: "-0.03em",
-    fontFamily: fonts.display,
-  },
-  subheading: {
-    fontSize: "17px",
-    lineHeight: 1.4,
     fontWeight: 600,
-    letterSpacing: "-0.01em",
+    letterSpacing: "-0.02em",
     fontFamily: fonts.display,
   },
+  // Sub-section headings (20px)
+  subheading: {
+    fontSize: "20px",
+    lineHeight: 1.3,
+    fontWeight: 600,
+    letterSpacing: "0",
+    fontFamily: fonts.display,
+  },
+  // Body copy (14px/400/1.5 per 2.3 spec)
   body: {
-    fontSize: "13.5px",
+    fontSize: "14px",
     lineHeight: 1.5,
-    fontWeight: 500,
+    fontWeight: 400,
     letterSpacing: "0",
     fontFamily: fonts.body,
   },
+  // Small body / helper text (12px floor)
   bodySmall: {
     fontSize: "12px",
     lineHeight: 1.45,
+    fontWeight: 400,
+    letterSpacing: "0",
+    fontFamily: fonts.body,
+  },
+  // 2.3: label replaces meta — sentence case, 12px/500, faint color
+  // NO textTransform; NO uppercase
+  label: {
+    fontSize: "12px",
+    lineHeight: 1.3,
     fontWeight: 500,
     letterSpacing: "0",
     fontFamily: fonts.body,
   },
+  // meta kept as deprecated alias — same as label but without uppercase.
+  // Remove once all call sites migrated to typeScale.label.
   meta: {
-    fontSize: "10px",
+    fontSize: "12px",
     lineHeight: 1.3,
-    fontWeight: 700,
-    letterSpacing: "0.12em",
-    textTransform: "uppercase",
+    fontWeight: 500,
+    letterSpacing: "0",
     fontFamily: fonts.mono,
   },
-  // `metric` — the standalone-number step (DESIGN.md §5.2 / §6.11).
-  // Designed for the "big number that exists to be read at a glance"
-  // content category: Host Monitor's readiness stat, ProgressStat
-  // values (CPU/RAM/GPU%), SessionSidebar's active-session/total
-  // counts, Recovery's RECOVERIES/FAILURES summary, etc. Uses
-  // JetBrains Mono + tabular-nums so multi-digit values don't shift
-  // horizontally as they tick. Clamp range (22→34px) is intentionally
-  // responsive — narrow at small viewports, full at desktop. Host
-  // Monitor is the page to tune this against per §6.12.
+  // metric — large readout numbers (tabular, mono)
   metric: {
-    fontSize: "clamp(22px, 3vw, 34px)",
+    fontSize: "clamp(28px, 3vw, 40px)",
     lineHeight: 1.05,
-    fontWeight: 700,
-    letterSpacing: "-0.025em",
+    fontWeight: 600,
+    letterSpacing: "-0.02em",
     fontFamily: fonts.mono,
     fontVariantNumeric: "tabular-nums",
   },
@@ -194,112 +201,71 @@ export const spacing = {
   massive: 64,
 };
 
-// Binary radius system (DESIGN.md §5.3 / §6.3). The Tactical Console
-// Brutalism language collapses the prior 8/12/16 scale to a strict binary:
-// 0px on structural panels, 4px on sanctioned small chrome (chips, icon
-// wells, sidebar nav rows, back buttons), and 999px on round objects
-// (status pills, circular color swatches, etc.). There is intentionally
-// NO middle value — see DESIGN.md §11 anti-patterns.
-//
-// The legacy `sm`/`md`/`lg` keys remain as deprecated aliases (pointing
-// at the closest new equivalent) so this pass can migrate call sites
-// incrementally without breaking anything that hasn't been touched yet.
-// New code MUST use `radius.none`/`radius.tight`/`radius.full`, not the
-// legacy keys — those exist only to keep the rest of the codebase
-// rendering correctly during the migration window.
+// 2.6: Radius scale — 4/8/12/999.
+//   4   → badges, chips, inline code
+//   8   → buttons, inputs, selects, small panels
+//   12  → cards, dialogs, toasts
+//   999 → pills, dots, toggles
 export const radius = {
-  // Target values.
-  none: 0,
-  tight: 4,
-  full: 999,
-  // `lg` (16px) — reintroduced in TCB-P3 as the "soft framed card"
-  // scale. After TCB-P2 made every container a hard `radius.none`
-  // rectangle, the Card primitive + the StartSessionForm container
-  // read as too sharp at the page-level card scale (Tactical Console
-  // Brutalism's structural signal is carried by the 1px ink stroke +
-  // hard-offset shadow, not the 0px rectangle). Reintroducing 16px as
-  // a sanctioned 4th value gives every page-level "soft framed tile"
-  // a uniform curve without breaking the binary system on the small
-  // chrome (`tight` 4px) and the true round objects (`full` 999px).
-  // Consumers reach for `radius.lg` on container surfaces (cards,
-  // forms, modals); reach for `radius.tight` on chips/icon wells;
-  // reach for `radius.full` on pills/dots.
-  lg: 16,
-  // Deprecated legacy aliases. Remove once every call site has been
-  // migrated to the binary keys above (tracked in CURRENT_TASK.md).
-  sm: 4, // was 8, now collapses into `tight` — kept for one-pass safety
-  md: 0, // was 12, now collapses into `none` — kept for one-pass safety
+  // Canonical values
+  xs:   4,    // badges, chips
+  sm:   8,    // buttons, inputs
+  md:   12,   // cards, dialogs, toasts
+  full: 999,  // pills, dots, toggles
+  // Legacy aliases — kept so call sites don’t break during migration.
+  // Migrate call sites to xs/sm/md/full and remove these.
+  none:  0,   // ⚠️ deprecated — use 0 directly or xs
+  tight: 4,   // ⚠️ deprecated — use radius.xs
+  lg:    12,  // ⚠️ deprecated — use radius.md
 };
 
-// Hard-offset shadow family (DESIGN.md §5.5). Replaces the prior soft-
-// blur `overlay`/`small` pair with the brutalist "object sits on a
-// visible 2–3px offset" vocabulary: a 2px 2px offset for pressed-in
-// primary actions, a 3px 3px offset for lifted interactive cards, an
-// unchanged `overlay` reserved for things genuinely floating above
-// content (modals, toasts, full-screen recovery), and a `focusRing`
-// ring for keyboard focus. The hard offsets paint a 1-channel "ink"
-// border-color so they read on every theme, not just the default.
-//
-// Legacy `overlay`/`small` are kept (unchanged) as deprecated aliases
-// since `shadow.overlay` is still in use by the modals/toasts the new
-// system explicitly reserves it for, and per the migration plan the
-// `overlay` value stays in place. `shadow.small` is unused in the new
-// system — kept as a no-op alias so any stale reference still resolves.
+// 2.10: Elevation — two levels only: flat (cards/page) and overlay (dialogs, toasts, menus).
+// shadow.press, shadow.lift, shadow.small are deprecated (hard-offset/legacy).
+// Cards separate surfaces via border + surface step, not shadows.
 export const shadow = {
-  flat: "none",
-  press: "2px 2px 0 0 var(--color-border-ink)",
-  lift: "3px 3px 0 0 var(--color-border-strong)",
-  // KEEP — reserved for genuinely-floating overlays (modals, toasts,
-  // full-screen error recovery). See `overlay` legacy alias below.
+  flat:    "none",
   overlay: "0 18px 50px rgba(0,0,0,0.38)",
-  focusRing: "0 0 0 3px rgba(140,196,232,0.55)", // accentDim at 55% — visible on dark surfaces across all 6 themes
-  // Deprecated legacy alias — was "small floating element" shadow,
-  // unused under the binary system, kept as a no-op for one-pass safety.
-  small: "0 8px 24px rgba(0,0,0,0.45)",
+  // ⚠️ deprecated — do not use on new components
+  press:     "2px 2px 0 0 var(--color-border-ink)",
+  lift:      "3px 3px 0 0 var(--color-border-strong)",
+  small:     "0 8px 24px rgba(0,0,0,0.45)",
+  focusRing: "0 0 0 3px rgba(140,196,232,0.55)",
 };
 
+// 2.9: Motion tokens — fast/base/enter/exit with correct easings.
+// Entering: cubic-bezier(0.22, 1, 0.36, 1) (decelerate in).
+// Exiting:  ease-in (accelerate out).
+// Removed: overshoot cubic-bezier(0.34, 1.15, 0.64, 1).
 export const motion = {
-  // Existing values — kept literal/unchanged.
-  fast: "100ms ease",
-  base: "160ms ease",
-  cardIn: "220ms ease",
-  pill: "180ms cubic-bezier(0.4,0,0.2,1)",
-  // New alias tokens (DESIGN.md §5.6 / §8). The new tokens point at
-  // existing values rather than introducing new timing curves, so the
-  // migration is name-only — no behavioral change. New code should
-  // prefer these descriptive names over the raw `fast`/`base`/`cardIn`
-  // strings.
-  press: "100ms ease",       // alias of `fast` — button press/release
-  hover: "160ms ease",       // alias of `base` — hover state changes
-  entrance: "220ms ease",    // alias of `cardIn` — page/card mount fade-in
-  // State transition — controlled overshoot, reserved for badge/tone
-  // flips (DESIGN.md §8). New value, not a re-alias — named explicitly
-  // because no existing token models it.
-  transition: "220ms cubic-bezier(0.34, 1.15, 0.64, 1)",
+  fast:     "100ms ease",           // hover/press state changes
+  base:     "160ms ease",           // hover transitions
+  enter:    "220ms cubic-bezier(0.22, 1, 0.36, 1)",  // page/card mount
+  exit:     "150ms ease-in",        // unmount / dismiss
+  // Descriptive aliases
+  press:    "100ms ease",
+  hover:    "160ms ease",
+  entrance: "220ms cubic-bezier(0.22, 1, 0.36, 1)",
+  // Backwards-compat aliases — remove when all call sites updated
+  cardIn:   "220ms cubic-bezier(0.22, 1, 0.36, 1)",
+  pill:     "160ms cubic-bezier(0.4,0,0.2,1)",
+  // ⚠️ deprecated: overshoot curve removed per 2.9
+  transition: "220ms cubic-bezier(0.22, 1, 0.36, 1)",
 };
 
-// Default card geometry — `borderRadius` updated to `radius.lg` (16px,
-// the "soft framed card" scale reintroduced in TCB-P3) so every
-// `cardStyle` consumer inherits the same smooth card edge as the
-// StartSessionForm container + the Card primitive + the Home
-// NavigationCard row. Call sites that want a non-zero non-16 radius
-// (small chrome at 4px / `radius.tight`, or true round objects at
-// `radius.full`) must override inline.
+// Default card style — radius.md (12px) per 2.6 spec.
 export const cardStyle = {
   background: colors.bgCard,
   border: `1px solid ${colors.border}`,
-  borderRadius: `${radius.lg}px`,
+  borderRadius: `${radius.md}px`,
 };
 
-// Unchanged (kept literal, not refactored to spread typeScale.meta, to
-// guarantee zero behavioral change to this existing export) — but note
-// its values are exactly typeScale.meta above; new code should prefer
-// typeScale.meta directly.
+// ⚠️ deprecated — use typeScale.label for new components.
+// monoLabel kept for call-site compatibility. textTransform:uppercase
+// is removed from new usage (see 2.3 spec).
 export const monoLabel = {
-  fontSize: "10px",
+  fontSize: "12px",
   color: colors.inkFaint,
-  letterSpacing: "0.12em",
-  textTransform: "uppercase",
+  letterSpacing: "0",
   fontFamily: fonts.mono,
-  fontWeight: 700,
+  fontWeight: 500,
 };
