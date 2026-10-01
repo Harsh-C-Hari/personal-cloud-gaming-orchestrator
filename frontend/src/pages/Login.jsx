@@ -78,36 +78,40 @@ export default function Login() {
   useEffect(() => {
     if (prefersReducedMotion()) return;
     let tl = null;
+    // Set on cleanup so a stale (StrictMode first-pass) effect never builds a
+    // timeline after its own cleanup has already run.
+    let cancelled = false;
     // The custom cubic-bezier used throughout the spec for "landing" motion.
     const ease = "cubic-bezier(0.34, 1.15, 0.64, 1)";
     const dur = 0.6;
 
     initMotion().then(({ gsap }) => {
+      if (cancelled) return;
       tl = gsap.timeline();
 
       // Eyebrow
       if (heroEyebrowRef.current) {
-        tl.from(heroEyebrowRef.current, { opacity: 0, y: 14, duration: dur, ease }, 0);
+        tl.fromTo(heroEyebrowRef.current, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: dur, ease }, 0);
       }
       // Headline
       if (heroH1Ref.current) {
-        tl.from(heroH1Ref.current, { opacity: 0, y: 20, duration: dur, ease }, 0.07);
+        tl.fromTo(heroH1Ref.current, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: dur, ease }, 0.07);
       }
       // Body paragraph
       if (heroBodyRef.current) {
-        tl.from(heroBodyRef.current, { opacity: 0, y: 14, duration: dur, ease }, 0.14);
+        tl.fromTo(heroBodyRef.current, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: dur, ease }, 0.14);
       }
       // Feature pills
       if (heroPillsRef.current) {
-        tl.from(heroPillsRef.current, { opacity: 0, y: 10, duration: dur, ease }, 0.20);
+        tl.fromTo(heroPillsRef.current, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: dur, ease }, 0.20);
       }
       // Form card — slides in from right
       if (formPanelRef.current) {
-        tl.from(formPanelRef.current, { opacity: 0, x: 24, duration: dur, ease }, 0.10);
+        tl.fromTo(formPanelRef.current, { opacity: 0, x: 24 }, { opacity: 1, x: 0, duration: dur, ease }, 0.10);
       }
     });
 
-    return () => { tl?.kill(); };
+    return () => { cancelled = true; tl?.kill(); };
   }, []); // once on mount
 
   return (
