@@ -1050,17 +1050,9 @@ const cardMeta = {
 };
 
 const cardDeleteButton = {
-  // P7-T09 (CC-10): widened from 24px to 44px to clear WCAG 2.2 2.5.8 Target
-  // Size (Minimum) AA comfortably, matching this app's own established
-  // comfortable-target convention (StartSessionForm.jsx's Skip Timer
-  // toggle wrapper, minHeight: "44px"). The Trash2 icon itself stays
-  // size={12} at its usage site below — only this container grows.
   width: "30px",
   height: "30px",
   flexShrink: 0,
-  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
-  // to `radius.tight` (4px) — small chrome delete chip on the
-  // game card, the 4px "tight" step is the correct chip-scale.
   borderRadius: `${radius.tight}px`,
   background: "transparent",
   border: `1.5px solid ${colors.danger}66`,
@@ -1069,12 +1061,25 @@ const cardDeleteButton = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  // P6-T11 motion audit: real `transition:`, but 150ms does not exactly match any `motion`
-  // step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms cubic-bezier). Byte-identical
-  // string to `iconAddButton`/`iconGhostButton` above and `pickerButton` below in this file,
-  // but documented independently per this project's per-object convention. Left as the
-  // original literal; no conversion.
   transition: "background 150ms ease",
+};
+
+const cardEditButton = {
+  height: "30px",
+  padding: "0 10px",
+  flexShrink: 0,
+  borderRadius: `${radius.tight}px`,
+  background: "transparent",
+  border: `1.5px solid ${colors.border}`,
+  color: colors.inkDim,
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: "11px",
+  fontFamily: fonts.body,
+  fontWeight: 500,
+  transition: "background 150ms ease, color 150ms ease",
 };
 
 const backButton = {
