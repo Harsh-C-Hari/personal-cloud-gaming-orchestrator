@@ -46,7 +46,7 @@ export function StatusBadge({ status }) {
         border:        `1.5px solid ${cfg.color}4d`,
         color:         cfg.color,
         fontSize:      "9.5px",
-        fontFamily:    "'JetBrains Mono', monospace",
+        fontFamily:    "'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace",
         fontWeight:    700,
         letterSpacing: "0.13em",
         flexShrink:    0,

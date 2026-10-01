@@ -8,39 +8,34 @@ import { ErrorBoundary } from "./components/ui/ErrorBoundary.jsx";
 import { colors, fonts } from "./dashboard/theme.js";
 
 const GLOBAL_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
-  /* Single monochrome theme — OLED values (P7-T05 WCAG-audited).
-     All six prior theme blocks and the custom HSL-derive system have
-     been removed. Status colors (success/warning/danger/info) are the
-     only hue remaining in the application. */
+  /* Single monochrome theme — OLED values (WCAG-audited).
+     Status colors (success/warning/danger/info) are the only hue remaining. */
   :root {
     --color-brand:          #ffffff;
     --color-brand-dim:      rgba(255,255,255,0.12);
     --color-bg:             #000000;
-    --color-bg-elevated:    #080808;
-    --color-bg-card:        #0e0e0e;
-    --color-bg-card-hover:  #171717;
-    --color-bg-inset:       #050505;
+    --color-bg-elevated:    #101010;
+    --color-bg-card:        #161616;
+    --color-bg-card-hover:  #202020;
+    --color-bg-inset:       #0a0a0a;
     --color-ink:            #ffffff;
     --color-ink-dim:        #bdbdbd;
-    --color-ink-faint:      #7e7e7e;
-    /* P7-T05: inkGhost lightened #484848->#7b7b7b to clear WCAG AA
-       4.5:1 for real text (CC-3). Computed: 4.56:1 vs surface-l3
-       (was ~2.11:1). Same hue family (neutral gray), lightness only. */
-    --color-ink-ghost:      #7b7b7b;
+    /* 2.2: #949494 on #202020 (L4) = 5.37:1 (AA pass) */
+    --color-ink-faint:      #949494;
+    --color-ink-ghost:      #8a8a8a;
     --color-border:         rgba(255,255,255,0.13);
     --color-border-subtle:  rgba(255,255,255,0.07);
     --color-border-strong:  rgba(255,255,255,0.28);
     --color-border-ink:     #ffffff;
+    /* 2.2: control borders — inputs, selects, toggles ≥ 3.41:1 */
+    --color-border-control: rgba(255,255,255,0.40);
 
-    /* L0-L4 surface elevation scale — aliases of the background steps
-       above, ordered by lightness. See theme.js's surface export. */
+    /* L0-L4 surface elevation scale */
     --surface-l0: #000000;
-    --surface-l1: #050505;
-    --surface-l2: #080808;
-    --surface-l3: #0e0e0e;
-    --surface-l4: #171717;
+    --surface-l1: #0a0a0a;
+    --surface-l2: #101010;
+    --surface-l3: #161616;
+    --surface-l4: #202020;
   }
 
   *, *::before, *::after { box-sizing: border-box; }
@@ -53,7 +48,8 @@ const GLOBAL_CSS = `
     background: ${colors.bg};
     color: ${colors.ink};
     font-family: ${fonts.body};
-    font-weight: 500;
+    /* 2.4: 400 weight; 500 was a template default */
+    font-weight: 400;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     overflow: hidden;

@@ -1,4 +1,4 @@
-.pcgo-feature-page {
+﻿.pcgo-feature-page {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -21,9 +21,9 @@
 }
 
 .pcgo-feature-back {
-  /* Per §3.15: back button is a small chrome control, the sanctioned
+  /* Per Â§3.15: back button is a small chrome control, the sanctioned
      `radius.tight` (4px) exception to the binary system. Was 6px.
-     Note: literal `4px` is intentional — the project has no
+     Note: literal `4px` is intentional â€” the project has no
      `--radius-tight` CSS custom property defined anywhere; same
      for the rest of the 4-tier `radius.{none|tight|lg|full}` system
      (those are JS tokens in theme.js for inline-style spreads only,
@@ -35,16 +35,16 @@
 }
 
 .pcgo-section-card {
-  /* TCB-P4.2 followup: surface.l3 → surface.l1 to match
+  /* TCB-P4.2 followup: surface.l3 â†’ surface.l1 to match
      `.pcgo-host-diagnostics-card` (the l1 inset tier introduced by the
      Host Monitor section-card alignment). Page-level SectionCard is
      the same scale as those 5 host cards, so it now sits on the same
      recessed tier. */
   background: var(--surface-l1);
   border: 1px solid var(--color-border);
-  /* TCB-P3 followup: softened from 0 → 16px to match the
+  /* TCB-P3 followup: softened from 0 â†’ 16px to match the
      StartSessionForm container edge (see theme.js `radius.lg` and
-     primitives.jsx Card — the same 16px value is now the sanctioned
+     primitives.jsx Card â€” the same 16px value is now the sanctioned
      "soft framed card" scale). Literal because no `--radius-lg` CSS
      custom property is defined in App.jsx GLOBAL_CSS (see the
      `.pcgo-feature-back { border-radius: 4px }` precedent above). */
@@ -99,7 +99,7 @@
   padding: 14px 15px;
   background: var(--color-bg-inset);
   border: 1px solid var(--color-border-subtle);
-  /* TCB-P4 followup: 12px → 16px (`radius.lg`). Stat tile, soft-card
+  /* TCB-P4 followup: 12px â†’ 16px (`radius.lg`). Stat tile, soft-card
      scale matching the user-requested "smooth like StartSessionForm"
      container edge (same precedent as `.pcgo-section-card` line 43
      and the TCB-P3 container-softening sweep). */
@@ -120,9 +120,9 @@
   padding: 11px 12px;
   background: var(--color-bg-inset);
   border: 1px solid var(--color-border-subtle);
-  /* TCB-P4 followup: 9px → 4px (`radius.tight`). 11px 12px data row,
+  /* TCB-P4 followup: 9px â†’ 4px (`radius.tight`). 11px 12px data row,
      small-chrome scale (same precedent as `.pcgo-users__row` at 9px
-     → 4px in the Users block, and the .pcgo-session-history__event
+     â†’ 4px in the Users block, and the .pcgo-session-history__event
      7px 8px precedent just above). 9px was a value from before the
      4-tier radius system was established. */
   border-radius: 4px;
@@ -141,7 +141,7 @@
   padding: 18px;
   background: var(--color-bg-inset);
   border: 1px solid var(--color-border-subtle);
-  /* TCB-P4 followup: 12px → 16px (`radius.lg`). Form section,
+  /* TCB-P4 followup: 12px â†’ 16px (`radius.lg`). Form section,
      soft-card scale (same precedent as `.pcgo-section-card` line 43). */
   border-radius: 16px;
 }
@@ -160,13 +160,13 @@
 
 .pcgo-form-section__title {
   color: var(--color-ink);
-  font: 650 13px/1.2 'Space Grotesk', sans-serif;
+  font: 650 13px/1.2 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
   letter-spacing: -0.01em;
 }
 
 .pcgo-form-section__meta {
   color: var(--color-ink-faint);
-  font: 500 10px/1.2 'JetBrains Mono', monospace;
+  font: 500 10px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .07em;
   text-transform: uppercase;
 }
@@ -175,7 +175,7 @@
   padding: 40px 20px;
   background: var(--surface-l1);
   border: 1px dashed var(--color-border);
-  /* TCB-P4 followup: 12px → 16px (`radius.lg`). 40px 20px empty-state
+  /* TCB-P4 followup: 12px â†’ 16px (`radius.lg`). 40px 20px empty-state
      callout, soft-card scale (same precedent as `.pcgo-analytics__empty`
      line 777 and `.pcgo-settings__unavailable` line 3370). */
   border-radius: 16px;
@@ -187,7 +187,7 @@
   gap: 10px;
   padding: 12px 14px;
   border: 1px solid var(--color-border);
-  /* TCB-P4 followup: 10px → 16px (`radius.lg`). 12px 14px callout,
+  /* TCB-P4 followup: 10px â†’ 16px (`radius.lg`). 12px 14px callout,
      soft-card scale (same precedent as the StartSessionForm
      callout-block / Recovery summary / Home command-card series that
      established `radius.lg` as the sanctioned soft-framed-card
@@ -214,7 +214,7 @@
   .pcgo-page-toolbar__actions { width: 100%; }
 }
 
-/* pcgo-pulse → global `pulse` in base.css (1.2) */
+/* pcgo-pulse â†’ global `pulse` in base.css (1.2) */
 
 @media (prefers-reduced-motion: reduce) {
   .pcgo-game-manager-config-loading__dot {
@@ -231,8 +231,8 @@
   min-height: 72px;
   padding: 16px;
   border: 1px solid var(--color-border-subtle);
-  /* TCB-P4 followup: 0px (broken `var(--radius-md)` — undefined CSS
-     custom property) → 16px (`radius.lg`). 72px-tall soft container,
+  /* TCB-P4 followup: 0px (broken `var(--radius-md)` â€” undefined CSS
+     custom property) â†’ 16px (`radius.lg`). 72px-tall soft container,
      same scale as the StartSessionForm container edge per the
      TCB-P3 user feedback that established `radius.lg` as the
      sanctioned soft-framed-card scale. */
@@ -241,12 +241,12 @@
   /* D-009 literal alias: var(--color-bg-inset) -> var(--surface-l1),
      same custom property value, zero visual change. */
   background: var(--surface-l1);
-  font: 500 10.5px/1.4 'JetBrains Mono', monospace;
+  font: 500 10.5px/1.4 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 /* .pcgo-game-manager-config-loading__dot (below) and its
    prefers-reduced-motion override above were checked and have zero
-   color references — pure animation/sizing rules (width/height/
+   color references â€” pure animation/sizing rules (width/height/
    border-radius/background: var(--color-brand) which is a brand accent,
    not a bg/surface slot, plus the animation itself). Nothing to swap;
    left untouched per this task's scope. */
@@ -257,7 +257,7 @@
   border-radius: 50%;
   background: var(--color-brand);
   /* P6-T15 motion audit: named-keyframe `animation:` reference, not a `transition:`
-     property — `motion`'s four exports are transition-timing value strings, not
+     property â€” `motion`'s four exports are transition-timing value strings, not
      `@keyframes` names, so there's no valid conversion target regardless of
      duration. 1.6s also doesn't match any `motion` step's duration. Left as the
      original literal; no conversion. */
@@ -267,11 +267,11 @@
 
 /* Session History: an authoritative historical record, not a generic table. */
 /* ==========================================================================
-   Session History (P5-T04) — surface/typeScale token pass.
+   Session History (P5-T04) â€” surface/typeScale token pass.
 
    Background aliasing (D-009): the 5 var(--color-bg-*) references in this
    block were swapped for their byte-identical var(--surface-l*)
-   equivalents — same 1:1 verification prior P5 tasks did against App.jsx's
+   equivalents â€” same 1:1 verification prior P5 tasks did against App.jsx's
    6 theme blocks:
      - __window-note/__recovery-note background: --color-bg-inset -> l1
      - __record-meta background:                 --color-bg-card  -> l3
@@ -290,11 +290,11 @@
    the 10px/500 mono record-side, the 8px/700 mono meta labels at .08em/
    .1em, the 9px/500 mono meta values, the 8.5px event-strong at .05em)
    was checked against all 6 typeScale steps and does not land on any of
-   them at matching size+weight+family — the closest is the record-status/
+   them at matching size+weight+family â€” the closest is the record-status/
    meta-label pair against meta's 10px/700/mono, but both differ on the
    defining size and letter-spacing, not just a rounding difference. Left
    as literal values, the same "refine, don't flatten" judgment call
-   P5-T01/T02/T03 made for their own blocks — this page's dense records-
+   P5-T01/T02/T03 made for their own blocks â€” this page's dense records-
    list vocabulary is intentional per D-008 ("Session History = records"),
    not an oversight.
    ========================================================================== */
@@ -321,14 +321,14 @@
 .pcgo-session-history__eyebrow {
   margin-bottom: 4px;
   color: var(--color-ink-faint);
-  font: 700 8.5px/1 'JetBrains Mono', monospace;
+  font: 700 8.5px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .14em;
 }
 
 .pcgo-session-history__description {
   margin: 4px 0 0;
   color: var(--color-ink-faint);
-  font: 500 9.5px/1.45 'JetBrains Mono', monospace;
+  font: 500 9.5px/1.45 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-session-history__window-note,
@@ -338,16 +338,16 @@
   gap: 7px;
   padding: 9px 11px;
   border: 1px solid var(--color-border-subtle);
-  /* TCB-P4 followup: 0px (broken `var(--radius-sm)` — undefined CSS
-     custom property) → 4px (`radius.tight`). 9px 11px padding makes
+  /* TCB-P4 followup: 0px (broken `var(--radius-sm)` â€” undefined CSS
+     custom property) â†’ 4px (`radius.tight`). 9px 11px padding makes
      this small-chrome scale (notes), not soft-card scale. Same
-     classification as `errorBox`/`issueBox` precedent — small note
+     classification as `errorBox`/`issueBox` precedent â€” small note
      callouts go to `radius.tight`, large alert callouts (11px 14px+)
      to `radius.lg`. */
   border-radius: 4px;
   color: var(--color-ink-faint);
   background: var(--surface-l1);
-  font: 500 9.5px/1.45 'JetBrains Mono', monospace;
+  font: 500 9.5px/1.45 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   overflow-wrap: anywhere;
 }
 
@@ -388,7 +388,7 @@
 
 .pcgo-session-history__record-title {
   color: var(--color-ink);
-  font: 700 13px/1.25 'Space Grotesk', sans-serif;
+  font: 700 13px/1.25 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
 }
 
 .pcgo-session-history__record-title strong,
@@ -402,7 +402,7 @@
 
 .pcgo-session-history__record-status {
   margin-top: 7px;
-  font: 700 9px/1.2 'JetBrains Mono', monospace;
+  font: 700 9px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .07em;
 }
 
@@ -410,7 +410,7 @@
   max-width: 70ch;
   margin-top: 8px;
   color: var(--color-danger);
-  font: 500 9.5px/1.45 'JetBrains Mono', monospace;
+  font: 500 9.5px/1.45 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   overflow: hidden;
   text-overflow: ellipsis;
   overflow-wrap: anywhere;
@@ -421,7 +421,7 @@
   flex-direction: column;
   align-items: flex-end;
   color: var(--color-ink-dim);
-  font: 500 10px/1.3 'JetBrains Mono', monospace;
+  font: 500 10px/1.3 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-session-history__duration {
@@ -447,7 +447,7 @@
   display: block;
   margin-bottom: 4px;
   color: var(--color-ink-faint);
-  font: 700 8px/1.1 'JetBrains Mono', monospace;
+  font: 700 8px/1.1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .08em;
 }
 
@@ -456,7 +456,7 @@
 .pcgo-session-history__details-grid strong {
   display: block;
   color: var(--color-ink-dim);
-  font: 500 9px/1.35 'JetBrains Mono', monospace;
+  font: 500 9px/1.35 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-session-history__record-meta .is-good {
@@ -483,7 +483,7 @@
 
 .pcgo-session-history__events-label {
   color: var(--color-ink-faint);
-  font: 700 8px/1.1 'JetBrains Mono', monospace;
+  font: 700 8px/1.1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .1em;
 }
 
@@ -499,12 +499,12 @@
   gap: 8px;
   padding: 7px 8px;
   border: 1px solid var(--color-border-subtle);
-  /* TCB-P4 followup: 0px (broken `var(--radius-sm)`) → 4px
+  /* TCB-P4 followup: 0px (broken `var(--radius-sm)`) â†’ 4px
      (`radius.tight`). Dense 7px 8px event row, small-chrome scale. */
   border-radius: 4px;
   background: var(--surface-l1);
   color: var(--color-ink-dim);
-  font: 500 9px/1.4 'JetBrains Mono', monospace;
+  font: 500 9px/1.4 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-session-history__event strong {
@@ -526,7 +526,7 @@
 
 .pcgo-session-history__event-message {
   color: var(--color-ink-faint);
-  font: 500 9.5px/1.4 'JetBrains Mono', monospace;
+  font: 500 9.5px/1.4 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-session-history__event-message.is-error {
@@ -546,7 +546,7 @@
   min-height: 62px;
   padding: 13px;
   border: 1px solid var(--color-border);
-  /* TCB-P4 followup: 0px (broken `var(--radius-md)`) → 16px
+  /* TCB-P4 followup: 0px (broken `var(--radius-md)`) â†’ 16px
      (`radius.lg`). 62px-tall skeleton row, soft-card scale matching
      the user-requested "smooth like StartSessionForm" container edge
      (see theme.js `radius.lg` and the TCB-P3 container-softening
@@ -559,13 +559,13 @@
   display: block;
   align-self: center;
   height: 9px;
-  /* TCB-P4 followup: 0px (broken `var(--radius-full)`) → 999px
+  /* TCB-P4 followup: 0px (broken `var(--radius-full)`) â†’ 999px
      (`radius.full`). 9px-tall skeleton bar, intended to be a
      full-rounded pill per the existing loading-state vocabulary. */
   border-radius: 999px;
   background: var(--color-border-subtle);
   /* P6-T15 motion audit: named-keyframe `animation:` reference, not a `transition:`
-     property — `motion`'s four exports are transition-timing value strings, not
+     property â€” `motion`'s four exports are transition-timing value strings, not
      `@keyframes` names, so there's no valid conversion target regardless of
      duration. 1.6s also doesn't match any `motion` step's duration. Left as the
      original literal; no conversion. */
@@ -652,11 +652,11 @@
 
 /* Analytics: backend aggregates and ranked patterns, without invented charts. */
 /* ==========================================================================
-   Analytics (P5-T11, FINAL P5 PAGE) — surface/typeScale token pass.
+   Analytics (P5-T11, FINAL P5 PAGE) â€” surface/typeScale token pass.
 
    Background aliasing (D-009): both var(--color-bg-inset) references in
    this block were swapped for their byte-identical var(--surface-l1)
-   equivalent — same CSS custom property under a new name, zero visual
+   equivalent â€” same CSS custom property under a new name, zero visual
    change, confirmed 1:1 against App.jsx's 6 theme blocks, same as every
    prior P5 block:
      - `.pcgo-analytics__scope-note`/`.pcgo-analytics__refresh-note`
@@ -664,18 +664,18 @@
      - `.pcgo-analytics-loading__panel` background: var(--color-bg-inset)
        -> var(--surface-l1).
    No other var(--color-bg-*) references exist in this block (no L0/L2/
-   L3/L4 backgrounds live here — the card-level L3 background comes from
+   L3/L4 backgrounds live here â€” the card-level L3 background comes from
    SessionAnalytics.jsx's own `box` style, not this stylesheet).
 
    Typography intentionally left as literal `font:`/`font-size` values,
-   not routed through typeScale — same as every prior CSS-block audit,
+   not routed through typeScale â€” same as every prior CSS-block audit,
    there is no CSS custom-property equivalent of typeScale to route
    through. This block has 9 `font:`/`font-size` declarations, checked
    against typeScale's six steps. None land cleanly:
      - `.pcgo-analytics__eyebrow` and `.pcgo-analytics__pattern-heading
        span` (both 700 8.5px/1 mono, letter-spacing .14em) are the
        closest candidates against `typeScale.meta` (10px/700/mono/
-       .12em/uppercase) — weight and family match, but size, line-height,
+       .12em/uppercase) â€” weight and family match, but size, line-height,
        and letter-spacing all diverge, and neither sets an explicit
        `text-transform: uppercase`.
      - `.pcgo-analytics__description`, `.pcgo-analytics__scope-note`/
@@ -683,21 +683,21 @@
        `.pcgo-analytics-breakdown__metrics` (500 9px/1.35 mono) and
        `.pcgo-analytics__pattern-heading p` (500 9px/1.4 mono) are all
        closest to `typeScale.bodySmall` (12px/1.45/500/Inter) on weight
-       only — size and font family both diverge (mono vs. Inter).
+       only â€” size and font family both diverge (mono vs. Inter).
      - `.pcgo-analytics__empty` (500 10.5px/1.45 mono) and
        `.pcgo-analytics-breakdown__identity` (600 10.5px/1.35 Inter) are
        both closest to `typeScale.bodySmall`/`typeScale.subheading`
-       respectively but diverge on size, weight, and/or line-height —
+       respectively but diverge on size, weight, and/or line-height â€”
        still differing on a defining property, not just a rounding gap.
      - `.pcgo-analytics__empty strong` (bare `font-size: 11px`, no
        family/weight set) doesn't land on any of the six sizes.
    Net: zero genuine typeScale conversions in this CSS block. (The
-   companion JS file, SessionAnalytics.jsx, does have one — its
+   companion JS file, SessionAnalytics.jsx, does have one â€” its
    `listHeading` group is an exact value match to Host Monitor's
    `sectionHeading`/Game Manager's `FieldLabel` precedent; nothing in
    this CSS block lands that close to any step.)
 
-   This is the final `.pcgo-*` CSS block in P5's page order — accepting
+   This is the final `.pcgo-*` CSS block in P5's page order â€” accepting
    this task closes out Phase P5 entirely. Next per PLAN.md: P6 (Motion
    + Micro-interactions).
    ========================================================================== */
@@ -724,14 +724,14 @@
 .pcgo-analytics__eyebrow {
   margin-bottom: 4px;
   color: var(--color-ink-faint);
-  font: 700 8.5px/1 'JetBrains Mono', monospace;
+  font: 700 8.5px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .14em;
 }
 
 .pcgo-analytics__description {
   margin: 4px 0 0;
   color: var(--color-ink-faint);
-  font: 500 9.5px/1.45 'JetBrains Mono', monospace;
+  font: 500 9.5px/1.45 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-analytics__scope-note,
@@ -742,12 +742,12 @@
   margin-bottom: 12px;
   padding: 9px 11px;
   border: 1px solid var(--color-border-subtle);
-  /* TCB-P4 followup: 0px (broken `var(--radius-sm)`) → 4px
+  /* TCB-P4 followup: 0px (broken `var(--radius-sm)`) â†’ 4px
      (`radius.tight`). 9px 11px note callout, small-chrome scale. */
   border-radius: 4px;
   color: var(--color-ink-faint);
   background: var(--surface-l1);
-  font: 500 9.5px/1.45 'JetBrains Mono', monospace;
+  font: 500 9.5px/1.45 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   overflow-wrap: anywhere;
 }
 
@@ -782,14 +782,14 @@
 
 .pcgo-analytics__pattern-heading span {
   color: var(--color-ink-faint);
-  font: 700 8.5px/1 'JetBrains Mono', monospace;
+  font: 700 8.5px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .14em;
 }
 
 .pcgo-analytics__pattern-heading p {
   margin: 4px 0 0;
   color: var(--color-ink-faint);
-  font: 500 9px/1.4 'JetBrains Mono', monospace;
+  font: 500 9px/1.4 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-analytics__empty {
@@ -799,13 +799,13 @@
   gap: 8px;
   padding: 30px 20px;
   border: 1.5px dashed var(--color-border-subtle);
-  /* TCB-P4 followup: 0px (broken `var(--radius-md)`) → 16px
+  /* TCB-P4 followup: 0px (broken `var(--radius-md)`) â†’ 16px
      (`radius.lg`). 30px 20px empty-state callout, soft-card scale
      (same precedent as `.pcgo-empty-state` line 159 below and
      `.pcgo-settings__unavailable` line 3370). */
   border-radius: 16px;
   color: var(--color-ink-faint);
-  font: 500 10.5px/1.45 'JetBrains Mono', monospace;
+  font: 500 10.5px/1.45 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   text-align: center;
 }
 
@@ -825,7 +825,7 @@
   gap: 8px;
   min-width: 0;
   color: var(--color-ink);
-  font: 600 10.5px/1.35 'Inter', sans-serif;
+  font: 600 10.5px/1.35 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
 }
 
 .pcgo-analytics-breakdown__identity > span:last-child {
@@ -839,7 +839,7 @@
 .pcgo-analytics-breakdown__metrics {
   flex-shrink: 0;
   color: var(--color-ink-dim);
-  font: 500 9px/1.35 'JetBrains Mono', monospace;
+  font: 500 9px/1.35 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   white-space: nowrap;
 }
 
@@ -858,12 +858,12 @@
 .pcgo-analytics-loading__panel span {
   display: block;
   height: 10px;
-  /* TCB-P4 followup: 0px (broken `var(--radius-full)`) → 999px
+  /* TCB-P4 followup: 0px (broken `var(--radius-full)`) â†’ 999px
      (`radius.full`). 10px-tall skeleton bar. */
   border-radius: 999px;
   background: var(--color-border-subtle);
   /* P6-T15 motion audit: named-keyframe `animation:` reference, not a `transition:`
-     property — `motion`'s four exports are transition-timing value strings, not
+     property â€” `motion`'s four exports are transition-timing value strings, not
      `@keyframes` names, so there's no valid conversion target regardless of
      duration. 1.6s also doesn't match any `motion` step's duration. Left as the
      original literal; no conversion. */
@@ -886,7 +886,7 @@
   min-height: 120px;
   padding: 15px;
   border: 1px solid var(--color-border-subtle);
-  /* TCB-P4 followup: 0px (broken `var(--radius-md)`) → 16px
+  /* TCB-P4 followup: 0px (broken `var(--radius-md)`) â†’ 16px
      (`radius.lg`). 120px-tall loading panel, soft-card scale. */
   border-radius: 16px;
   background: var(--surface-l1);
@@ -964,7 +964,7 @@
 
 /* Logs: dense operational evidence with explicit severity and raw-line fidelity. */
 /* ==========================================================================
-   Logs (P5-T03) — surface/typeScale token pass.
+   Logs (P5-T03) â€” surface/typeScale token pass.
 
    Background aliasing (D-009): the single var(--color-bg-inset) reference
    in this block (the shared .pcgo-logs__scope-note/__refresh-note/__error
@@ -972,7 +972,7 @@
    equivalent. Zero visual change: same CSS custom property under a new
    name, same 1:1 verification P5-T01/T02 did against App.jsx's 6 theme
    blocks. No other var(--color-bg-*) references exist in this block (no
-   L0/L2/L3/L4 backgrounds live here — the card-level L3 background comes
+   L0/L2/L3/L4 backgrounds live here â€” the card-level L3 background comes
    from LogPanel.jsx's own `sectionStyle`, not this stylesheet).
 
    Typography: every font-size/weight/family combination in this block
@@ -980,11 +980,11 @@
    refresh-note/error text, the 8px/700 mono entry-meta badge at .08em,
    the bare 11px .pcgo-logs__empty strong, the 10.5px mobile entry-message
    override) was checked against all 6 typeScale steps and does not land
-   on any of them at matching size+weight+family — the closest is the
+   on any of them at matching size+weight+family â€” the closest is the
    eyebrow/entry-meta pair against meta's 10px/700/mono, but both differ
    on the defining size and (for the eyebrow) letter-spacing, not just a
    rounding difference. Left as literal values, the same "refine, don't
-   flatten" judgment call P5-T01/T02 made for their own blocks — this
+   flatten" judgment call P5-T01/T02 made for their own blocks â€” this
    page's tighter, denser mono scale is intentional per D-008's
    "operational evidence" character for Logs specifically, not a gap to
    close.
@@ -997,7 +997,7 @@
 .pcgo-logs__eyebrow {
   margin-bottom: 3px;
   color: var(--color-ink-faint);
-  font: 700 8px/1 'JetBrains Mono', monospace;
+  font: 700 8px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .14em;
 }
 
@@ -1010,12 +1010,12 @@
   margin-bottom: 10px;
   padding: 8px 10px;
   border: 1px solid var(--color-border-subtle);
-  /* TCB-P4 followup: 0px (broken `var(--radius-sm)`) → 4px
+  /* TCB-P4 followup: 0px (broken `var(--radius-sm)`) â†’ 4px
      (`radius.tight`). 8px 10px note callout, small-chrome scale. */
   border-radius: 4px;
   color: var(--color-ink-faint);
   background: var(--surface-l1);
-  font: 500 9px/1.4 'JetBrains Mono', monospace;
+  font: 500 9px/1.4 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   overflow-wrap: anywhere;
 }
 
@@ -1041,7 +1041,7 @@
   align-items: center;
   gap: 5px;
   padding-top: 1px;
-  font: 700 8px/1.25 'JetBrains Mono', monospace;
+  font: 700 8px/1.25 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .08em;
 }
 
@@ -1054,7 +1054,7 @@
 
 .pcgo-logs__entry-message mark {
   padding: 0 2px;
-  /* TCB-P4 followup: 3px → 4px (`radius.tight`). Tiny 0 2px highlight
+  /* TCB-P4 followup: 3px â†’ 4px (`radius.tight`). Tiny 0 2px highlight
      mark, small-chrome scale. The 3px was a sub-`tight` rounding
      pre-dating the 4-tier system; normalizing to `tight` keeps the
      "chip" feel consistent with other small marks. */
@@ -1087,12 +1087,12 @@
 .pcgo-logs__loading-row span {
   display: block;
   height: 8px;
-  /* TCB-P4 followup: 0px (broken `var(--radius-full)`) → 999px
+  /* TCB-P4 followup: 0px (broken `var(--radius-full)`) â†’ 999px
      (`radius.full`). 8px-tall skeleton bar. */
   border-radius: 999px;
   background: var(--color-border-subtle);
   /* P6-T15 motion audit: named-keyframe `animation:` reference, not a `transition:`
-     property — `motion`'s four exports are transition-timing value strings, not
+     property â€” `motion`'s four exports are transition-timing value strings, not
      `@keyframes` names, so there's no valid conversion target regardless of
      duration. 1.6s also doesn't match any `motion` step's duration. Left as the
      original literal; no conversion. */
@@ -1160,7 +1160,7 @@
    (.pcgo-sunshine-layout, .pcgo-sunshine-layout > *,
    .pcgo-sunshine-status-card, .pcgo-sunshine-client-loading-grid, and
    their two media-query blocks) have zero `var(--color-bg-*)` literal
-   references — grepped fresh before editing — so there is nothing to
+   references â€” grepped fresh before editing â€” so there is nothing to
    alias to `var(--surface-l*)` here, same finding as Recovery's
    P5-T05 block. The one custom-property reference in this scope,
    `.pcgo-sunshine-status-card`'s `var(--color-border-strong)`, is a
@@ -1173,9 +1173,9 @@
    `.pcgo-sunshine-stream-history article > div:first-child`,
    `.pcgo-sunshine-stream-history article > div:first-child >
    div:first-child`) have zero `var(--color-bg-*)` (or any color)
-   literal references — grepped fresh before editing, confirmed they
+   literal references â€” grepped fresh before editing, confirmed they
    are purely layout rules (`min-width`, `overflow-wrap`,
-   `word-break`) — so there is nothing to alias to `var(--surface-l*)`
+   `word-break`) â€” so there is nothing to alias to `var(--surface-l*)`
    here, same finding as Recovery's P5-T05 block and this file's own
    client-manager block above (P5-T06). No selector or value in this
    scope was changed. */
@@ -1242,10 +1242,10 @@
 /* Recovery operational console: statistics lead, recent activity stays adjacent,
    and the layout stacks before tablet density becomes cramped.
    P5-T05 audit (D-009): this block has zero `var(--color-bg-*)` literal
-   references to begin with (grepped fresh before editing) — nothing to
+   references to begin with (grepped fresh before editing) â€” nothing to
    alias to `var(--surface-l*)` here, unlike every prior P5 page's CSS
    block. Typography: none of the `font:` shorthands below cleanly match
-   a `typeScale` step at matching size+weight+family — `.pcgo-recovery-
+   a `typeScale` step at matching size+weight+family â€” `.pcgo-recovery-
    summary strong` (15px/650/1.2/display) is the closest, but misses
    `typeScale.subheading` (17px/600/1.4/-0.01em/display) on size, weight,
    and line-height; the remaining three (16px/700/mono, 10px/500/mono,
@@ -1267,15 +1267,15 @@
   display: block;
   margin-top: 4px;
   color: var(--color-ink);
-  /* TCB-P4.3: 15px ad hoc Space Grotesk → `typeScale.metric` (clamp(22,3vw,34)).
+  /* TCB-P4.3: 15px ad hoc Space Grotesk â†’ `typeScale.metric` (clamp(22,3vw,34)).
      TCB-P4.3-followup (size reduction, this session): 22/3vw/34 was the wrong
      tier for a *status headline* ("Recovery needs attention" / "Recovery is
-     stable") — that's a label, not a summarizing number. Resized to
+     stable") â€” that's a label, not a summarizing number. Resized to
      clamp(15,2vw,19) which sits between subheading and metric (closer to
      subheading), keeps the mono + tabular-nums to read as a system-state
      label rather than a body paragraph. Comment kept and appended (not
      rewritten) so the audit trail of why this style exists at all survives. */
-  font: 700 clamp(15px, 2vw, 19px)/1.05 'JetBrains Mono', monospace;
+  font: 700 clamp(15px, 2vw, 19px)/1.05 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: -.025em;
   font-variant-numeric: tabular-nums;
 }
@@ -1284,7 +1284,7 @@
   display: block;
   margin-top: 4px;
   color: var(--color-ink-dim);
-  font: 500 10px/1.45 'JetBrains Mono', monospace;
+  font: 500 10px/1.45 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-recovery-summary strong + span {
@@ -1294,12 +1294,12 @@
 .pcgo-recovery-summary > div:last-child strong {
   margin-top: 0;
   color: var(--color-ink);
-  font: 700 16px/1 'JetBrains Mono', monospace;
+  font: 700 16px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-recovery-summary > div:last-child span {
   color: var(--color-ink-faint);
-  font: 700 8px/1 'JetBrains Mono', monospace;
+  font: 700 8px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .08em;
 }
 
@@ -1407,18 +1407,18 @@
   margin-bottom: 16px;
 }
 
-/* P3-T01: aligned to typeScale.meta (10px/700/.12em/uppercase/mono) — was
+/* P3-T01: aligned to typeScale.meta (10px/700/.12em/uppercase/mono) â€” was
    9px/.15em, an ad hoc one-off next to the app's ~30+ other uses of the
    same uppercase-mono-label pattern at meta's values. */
 .pcgo-command-kicker {
   margin-bottom: 6px;
   color: var(--color-ink-faint);
-  font: 700 10px/1.3 'JetBrains Mono', monospace;
+  font: 700 10px/1.3 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .12em;
   text-transform: uppercase;
 }
 
-/* P3-T01: aligned to typeScale.subheading (17px/1.4/600/-0.01em) — was
+/* P3-T01: aligned to typeScale.subheading (17px/1.4/600/-0.01em) â€” was
    18px/650/-.025em, a bespoke size close to but not matching any scale
    step. This heading is a secondary, in-page section title (not the
    page's primary <h1>, which now lives in Home.jsx per the flagship
@@ -1427,13 +1427,13 @@
 .pcgo-command-heading h2 {
   margin: 0;
   color: var(--color-ink);
-  font: 600 17px/1.4 'Space Grotesk', sans-serif;
+  font: 600 17px/1.4 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
   letter-spacing: -.01em;
 }
 
 .pcgo-command-meta {
   color: var(--color-ink-faint);
-  font: 500 10px/1.2 'JetBrains Mono', monospace;
+  font: 500 10px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   white-space: nowrap;
 }
 
@@ -1466,7 +1466,7 @@
 }
 
 /* Close to typeScale.meta (10px/700/0.12em/mono/uppercase) but not an
-   exact fit — kept at its existing 9px/.14em literal values rather than
+   exact fit â€” kept at its existing 9px/.14em literal values rather than
    snapping to meta's 10px/.12em, since it's a slightly denser eyebrow used
    specifically atop the stat row and a 1px/0.02em shift there is a real
    (if small) visual change, not a value alias. Documented per
@@ -1474,14 +1474,14 @@
 .pcgo-operational-rail__eyebrow {
   margin-bottom: 10px;
   color: var(--color-ink-faint);
-  font: 700 9px/1.2 'JetBrains Mono', monospace;
+  font: 700 9px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .14em;
   text-transform: uppercase;
 }
 
 .pcgo-operational-rail__summary > div:last-child {
   border: 0 !important;
-  /* TCB-P4 followup: 10px → 4px (`radius.tight`). The summary's
+  /* TCB-P4 followup: 10px â†’ 4px (`radius.tight`). The summary's
      stat-row content sits flush against the rail's own 16px frame,
      so rounding the inner stat cells down to `radius.tight` keeps
      them reading as inline "chip" rows rather than as soft cards
@@ -1492,7 +1492,7 @@
 }
 
 .pcgo-operational-rail__summary > div:last-child > div {
-  /* TCB-P4 followup: 9px → 4px (`radius.tight`). Stat-row inner
+  /* TCB-P4 followup: 9px â†’ 4px (`radius.tight`). Stat-row inner
      chips, same reasoning as the parent rule above. */
   border-radius: 4px;
 }
@@ -1503,12 +1503,12 @@
 
 /* P4-T01 judgment call: this rule's `!important` is the value that
    actually renders (it wins over SessionSidebar.jsx's inline
-   `fontSize: "14px"` on the same element — that inline value is
+   `fontSize: "14px"` on the same element â€” that inline value is
    effectively dead). The real 13px/700-weight/Space-Grotesk "Live
    Activity" caption sits between typeScale.bodySmall (12px, body-weight
-   500 copy) and typeScale.subheading (17px, a full section title) — it's
+   500 copy) and typeScale.subheading (17px, a full section title) â€” it's
    a bold mini section-title used at a size the scale doesn't cover.
-   Snapping it to either step would be a real size change (±1-4px), not a
+   Snapping it to either step would be a real size change (Â±1-4px), not a
    value alias, so it's left as a literal value per CURRENT_TASK.md's
    judgment-call guidance rather than forced into the nearest step. */
 .pcgo-operational-rail__caption {
@@ -1525,10 +1525,10 @@
   min-width: 0;
   padding: 12px 13px;
   border: 1px solid var(--color-border-subtle);
-  /* TCB-P3 followup: softened from 10px → 16px to match the
+  /* TCB-P3 followup: softened from 10px â†’ 16px to match the
      StartSessionForm container edge (see primitives.jsx Card, the
      same 16px `radius.lg` value). Literal because no `--radius-lg`
-     CSS custom property is defined in App.jsx GLOBAL_CSS — the JS-side
+     CSS custom property is defined in App.jsx GLOBAL_CSS â€” the JS-side
      `radius.lg` token lives in theme.js and doesn't reach CSS. Same
      precedent as `.pcgo-feature-back { border-radius: 4px }` below. */
   border-radius: 16px;
@@ -1559,7 +1559,7 @@
   width: 28px;
   height: 28px;
   border: 1px solid var(--color-border);
-  /* TCB-P4 followup: 8px → 4px (`radius.tight`). 28x28 icon badge,
+  /* TCB-P4 followup: 8px â†’ 4px (`radius.tight`). 28x28 icon badge,
      small-chrome scale (same precedent as SunshineStreamHistory's
      28x28 satellite badge at line 290 of that file and Host Monitor's
      28x28 metric-badge group). */
@@ -1578,11 +1578,11 @@
 
 /* P4-T01 judgment call: neither `__label` (12px/650/Space Grotesk) nor
    `__description` (10px/500/Inter) below cleanly maps to a typeScale step.
-   `__label` reads as a compact list-item title, not a full card title —
+   `__label` reads as a compact list-item title, not a full card title â€”
    forcing it to typeScale.subheading (17px/600) would be a real size
    increase, not a value alias. `__description` is close to typeScale.meta
    in size (10px) but meta implies a bold (700) uppercase mono label, which
-   this isn't (500 weight, sans-serif, sentence case) — forcing that would
+   this isn't (500 weight, sans-serif, sentence case) â€” forcing that would
    change the font family and case, not just the size. Left as literal
    values rather than picking the nearest step and calling it a fit, per
    CURRENT_TASK.md's guidance (same category as P3-T01's
@@ -1590,7 +1590,7 @@
 .pcgo-command-card__label {
   overflow: hidden;
   color: var(--color-ink);
-  font: 650 12px/1.2 'Space Grotesk', sans-serif;
+  font: 650 12px/1.2 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1598,7 +1598,7 @@
 .pcgo-command-card__description {
   overflow: hidden;
   color: var(--color-ink-faint);
-  font: 500 10px/1.25 'Inter', sans-serif;
+  font: 500 10px/1.25 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1611,7 +1611,7 @@
 }
 
 .pcgo-command-card__arrow {
-  font: 500 16px/1 'Space Grotesk', sans-serif;
+  font: 500 16px/1 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
   /* P6-T15 motion audit: matches `motion.base` (160ms ease) in value, but no
      CSS-side `--motion-*` token exists yet to convert to (D-011). Left as the
      original literal; no conversion. */
@@ -1630,7 +1630,7 @@
 .pcgo-launch-console {
   border: 1px solid var(--color-border) !important;
   border-radius: 16px !important;
-  /* TCB-P4.2 followup: var(--color-bg-card) (l3) → var(--surface-l1)
+  /* TCB-P4.2 followup: var(--color-bg-card) (l3) â†’ var(--surface-l1)
      to match `.pcgo-host-diagnostics-card` (and every other page-level
      section card in this pass). The launch console is a page-level
      framed panel sitting on the page surface, so it should sit on the
@@ -1663,7 +1663,7 @@
 .pcgo-launch-console__section {
   padding: 15px 16px !important;
   border: 0 !important;
-  /* TCB-P3 followup: 10px → 16px (`radius.lg`). Soft-framed section
+  /* TCB-P3 followup: 10px â†’ 16px (`radius.lg`). Soft-framed section
      card, the 16px "soft-framed-card" step is the correct card-scale. */
   border-radius: 16px !important;
   background: var(--color-bg-inset) !important;
@@ -1725,7 +1725,7 @@
 .pcgo-launch-console__body > button:last-of-type {
   min-height: 46px;
   margin-top: 2px;
-  /* TCB-P3 followup: 9px → 4px (`radius.tight`). Launch CTA button
+  /* TCB-P3 followup: 9px â†’ 4px (`radius.tight`). Launch CTA button
      (46px min-height, letter-spaced), the 4px "tight" step matches
      `.pcgo-button`'s native borderRadius. */
   border-radius: 4px !important;
@@ -1778,7 +1778,7 @@
 .pcgo-event-stream__row {
   padding: 8px 9px !important;
   border-left-width: 1px !important;
-  /* TCB-P4 followup: 7px → 4px (`radius.tight`). Dense 8px 9px event
+  /* TCB-P4 followup: 7px â†’ 4px (`radius.tight`). Dense 8px 9px event
      row, small-chrome scale (same precedent as
      `.pcgo-data-row` 11px 12px and `.pcgo-session-history__event`
      7px 8px in this same file). */
@@ -1803,7 +1803,7 @@
   width: auto !important;
   min-width: 70px;
   padding: 3px 7px !important;
-  /* TCB-P4 followup: 6px → 4px (`radius.tight`). Tiny 3px 7px status
+  /* TCB-P4 followup: 6px â†’ 4px (`radius.tight`). Tiny 3px 7px status
      pill, small-chrome scale (same precedent as
      `.pcgo-event-stream__row` just above). */
   border-radius: 4px !important;
@@ -1816,11 +1816,11 @@
 
 /* Host Monitor readiness-command-center vocabulary. */
 /* ==========================================================================
-   Host Monitor (P5-T10) — surface/typeScale token pass.
+   Host Monitor (P5-T10) â€” surface/typeScale token pass.
 
    Background aliasing (D-009): all 4 var(--color-bg-*) references in this
    block were swapped for their byte-identical var(--surface-l*)
-   equivalents, preserving each rule's existing `!important` — same CSS
+   equivalents, preserving each rule's existing `!important` â€” same CSS
    custom properties under a new name, zero visual change, confirmed 1:1
    against App.jsx's 6 theme blocks, same as every prior P5 block:
      - `.pcgo-host-readiness-summary` background: var(--color-bg-card) ->
@@ -1836,7 +1836,7 @@
    already moved those 3 cards onto the inset tier to match
    .pcgo-host-diagnostics-card. The base `.pcgo-host-section-card`
    rule and the `.pcgo-host-readiness-summary` rule deliberately
-   remain on l3 (not changed here) — the per-card !important
+   remain on l3 (not changed here) â€” the per-card !important
    overrides win the cascade in practice, and the l3 base keeps
    the "recessed tier" visual language available for any future
    section card that opts into it. Documented per D-005's
@@ -1845,13 +1845,13 @@
        !important -> var(--surface-l1) !important.
 
    Typography intentionally left as literal `font:`/`font-size` values,
-   not routed through typeScale — same as every prior CSS-block audit,
+   not routed through typeScale â€” same as every prior CSS-block audit,
    there is no CSS custom-property equivalent of typeScale to route
    through. This block has 4 `font:` shorthand declarations, checked
    against typeScale's four sub-hero steps (10px meta/12px bodySmall/
    13.5px body/17px subheading). None land cleanly:
      - `.pcgo-host-readiness-summary__state` (700 10px/1 JetBrains Mono,
-       letter-spacing .12em) is the closest candidate — size, weight,
+       letter-spacing .12em) is the closest candidate â€” size, weight,
        family, and letter-spacing all match `typeScale.meta` (10px/700/
        mono/0.12em) exactly, but its line-height (1, for a single-line
        pill badge) diverges from meta's 1.3, and it has no explicit
@@ -1862,16 +1862,16 @@
      - `.pcgo-host-readiness-summary__eyebrow` (700 9px/1.2 JetBrains
        Mono, letter-spacing .15em, uppercase) matches `meta` on weight/
        family/uppercase but diverges on size (1px), line-height (0.1),
-       and letter-spacing (0.03em) — three divergences, not one.
+       and letter-spacing (0.03em) â€” three divergences, not one.
      - `.pcgo-host-readiness-summary strong` (650 22px/1.1 Space
        Grotesk, letter-spacing -.03em) matches `typeScale.heading`
        (650/-0.03em/display) exactly on weight, letter-spacing, and
-       family, but sits at 22px against heading's 28px — a deliberate
+       family, but sits at 22px against heading's 28px â€” a deliberate
        smaller-than-heading treatment for this inline stat, not a
        rounding difference.
      - `.pcgo-host-readiness-summary > div > span:last-child` (500 11px/
        1.45 JetBrains Mono) uses the mono family where `typeScale.body`
-       (13.5px/1.5/500/Inter) specifies the body sans family — a
+       (13.5px/1.5/500/Inter) specifies the body sans family â€” a
        structural mismatch, not a near miss.
    All 4 left as documented literals, matching the Settings/Sunshine/
    Recovery/Game Manager/User Management `.pcgo-*` comment-block
@@ -1915,7 +1915,7 @@
   padding: 20px 22px;
   border: 1px solid var(--color-border);
   border-left: 3px solid var(--color-brand);
-  /* TCB-P4.2 (Host Monitor): 14px → `radius.lg` (16px) — large
+  /* TCB-P4.2 (Host Monitor): 14px â†’ `radius.lg` (16px) â€” large
      structural panel, the soft framed card scale. Unifies with the
      StartSessionForm container + Card primitive + SectionCard family
      (theme.js's sanctioned 4th value). */
@@ -1937,42 +1937,42 @@
 
 .pcgo-host-readiness-summary__eyebrow {
   color: var(--color-ink-faint);
-  font: 700 9px/1.2 'JetBrains Mono', monospace;
+  font: 700 9px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .15em;
   text-transform: uppercase;
 }
 
 .pcgo-host-readiness-summary strong {
   color: var(--color-ink);
-  /* TCB-P4.2: 22px ad hoc Space Grotesk → `typeScale.metric` (clamp(22,3vw,34)).
-     PAGE_SPECS.md §4 EVOLVE rule. Inline literal here (not the typeScale
+  /* TCB-P4.2: 22px ad hoc Space Grotesk â†’ `typeScale.metric` (clamp(22,3vw,34)).
+     PAGE_SPECS.md Â§4 EVOLVE rule. Inline literal here (not the typeScale
      reference) because CSS can't import JSX-side typeScale; values were
      byte-equal to typeScale.metric at original sizing.
      TCB-P4.2-followup (size reduction, this session): 22/3vw/34 was the
      wrong tier for a *status headline* ("Ready to serve sessions" /
-     "Host cannot serve sessions") — same finding as the parallel fix
+     "Host cannot serve sessions") â€” same finding as the parallel fix
      in .pcgo-recovery-summary strong. Resized to clamp(15,2vw,19) for
      consistency, with the same reasoning (status label, not summarizing
      number; mono+tabular-nums preserved for system-state read). */
-  font: 700 clamp(15px, 2vw, 19px)/1.05 'JetBrains Mono', monospace;
+  font: 700 clamp(15px, 2vw, 19px)/1.05 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: -.025em;
   font-variant-numeric: tabular-nums;
 }
 
 .pcgo-host-readiness-summary > div > span:last-child {
   color: var(--color-ink-dim);
-  font: 500 11px/1.45 'JetBrains Mono', monospace;
+  font: 500 11px/1.45 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-host-readiness-summary__state {
   flex: 0 0 auto;
   padding: 7px 10px;
   border: 1px solid var(--color-border-strong);
-  /* TCB-P4.2: 8px → 4px (`radius.tight` small chrome). */
+  /* TCB-P4.2: 8px â†’ 4px (`radius.tight` small chrome). */
   border-radius: 4px;
   color: var(--color-brand);
   background: var(--color-brand-dim);
-  font: 700 10px/1 'JetBrains Mono', monospace;
+  font: 700 10px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .12em;
 }
 
@@ -1980,7 +1980,7 @@
   min-width: 0;
   padding: 17px !important;
   border: 1px solid var(--color-border-subtle) !important;
-  /* TCB-P4.2: 12px → 16px (`radius.lg` soft framed card). */
+  /* TCB-P4.2: 12px â†’ 16px (`radius.lg` soft framed card). */
   border-radius: 16px !important;
   background: var(--surface-l3) !important;
 }
@@ -1995,8 +1995,8 @@
   min-height: 210px;
 }
 
-/* TCB-P4.2: top borders (2px) → left borders (3px), unifying with
-   §5.8's app-wide accent-edge standard. PAGE_SPECS.md §4 EVOLVE rule. */
+/* TCB-P4.2: top borders (2px) â†’ left borders (3px), unifying with
+   Â§5.8's app-wide accent-edge standard. PAGE_SPECS.md Â§4 EVOLVE rule. */
 .pcgo-host-sunshine-card {
   border-left: 3px solid var(--color-success) !important;
   /* TCB-P4.2 followup: added `background: var(--surface-l1) !important`
@@ -2011,7 +2011,7 @@
   border-left: 3px solid var(--color-info) !important;
   /* TCB-P4.2 followup: added `background: var(--surface-l1) !important`
      to match `.pcgo-host-diagnostics-card`. Same reasoning as
-     `.pcgo-host-sunshine-card` above — without this override this
+     `.pcgo-host-sunshine-card` above â€” without this override this
      card inherited the l3 base and was the only section card still
      on the elevated tier. */
   background: var(--surface-l1) !important;
@@ -2049,14 +2049,14 @@
   margin-top: -6px;
   padding: 12px 14px;
   border: 1px solid rgba(255, 107, 107, .32);
-  /* TCB-P4.2: 10px alert callout → `radius.lg` (16px) soft frame. */
+  /* TCB-P4.2: 10px alert callout â†’ `radius.lg` (16px) soft frame. */
   border-radius: 16px;
   background: rgba(255, 107, 107, .06);
 }
 
 .pcgo-host-force-unlock button {
   min-height: 42px;
-  /* TCB-P4.2: 8px → 4px (`radius.tight` small chrome button). */
+  /* TCB-P4.2: 8px â†’ 4px (`radius.tight` small chrome button). */
   border-radius: 4px !important;
 }
 
@@ -2095,7 +2095,7 @@
 
 .pcgo-host-revalidate {
   min-height: 34px;
-  /* TCB-P4.2: 7px → 4px (`radius.tight` small chrome button). */
+  /* TCB-P4.2: 7px â†’ 4px (`radius.tight` small chrome button). */
   border-radius: 4px !important;
 }
 
@@ -2109,17 +2109,17 @@
 
 /* User Management: identity directory first, administrative actions second. */
 /* ==========================================================================
-   User Management (P5-T09) — surface/typeScale token pass.
+   User Management (P5-T09) â€” surface/typeScale token pass.
 
    Background aliasing (D-009): all 11 var(--color-bg-inset|-elevated|-card|
    -card-hover) references in this block were swapped for their byte-
    identical var(--surface-l1|l2|l3|l4) equivalents (no bare --color-bg/L0
-   usage existed here to begin with). Zero visual change — same CSS custom
+   usage existed here to begin with). Zero visual change â€” same CSS custom
    properties under a new name, confirmed 1:1 against App.jsx's 6 theme
    blocks, same as every prior P5 block.
 
    Typography intentionally left as literal `font:`/`font-size` values, not
-   routed through typeScale — there is no CSS custom-property equivalent of
+   routed through typeScale â€” there is no CSS custom-property equivalent of
    typeScale to route through (it's a JS-only export consumed via inline
    style spreads elsewhere; this file has none). This block uses ~11
    distinct font sizes (8px/9px/9.5px/10px/11px/12px/14px/15px/17px/18px,
@@ -2128,7 +2128,7 @@
    (10px meta/12px bodySmall/13.5px body/17px subheading). None land on a
    step cleanly:
      - The closest candidate is `.pcgo-users__field input/select` text
-       (500 12px/1.2 'Inter', sans-serif) — size, weight, and family all
+       (500 12px/1.2 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif) â€” size, weight, and family all
        match `bodySmall` (12px/500/Inter), but its line-height (1.2) is
        deliberately tighter than `bodySmall`'s 1.45 for compact form-field
        density, so the rule still differs on a defining property, not just
@@ -2136,7 +2136,7 @@
      - The 17px `.pcgo-users__heading h2` sits on `subheading`'s exact size
        (17px) but uses line-height 1.15 and letter-spacing -.025em against
        `subheading`'s 1.4/-0.01em, and has no explicit font-weight (UA
-       bold via the `<h2>` tag) against `subheading`'s explicit 600 — three
+       bold via the `<h2>` tag) against `subheading`'s explicit 600 â€” three
        defining properties diverge, not one.
      - The five ~10px uppercase JetBrains Mono labels
        (`.pcgo-users__eyebrow`/`__section-kicker`/`__columns`/`__field
@@ -2144,7 +2144,7 @@
        `meta` (10px/700/0.12em/uppercase/mono) but sit at 8px-9px, not
        10px, with their own bespoke letter-spacing (.08em-.14em) per rule.
    Forcing alignment on any of these would mean genuinely resizing/
-   reweighting rules across this page's own density-tuned hierarchy —
+   reweighting rules across this page's own density-tuned hierarchy â€”
    exactly the "flatten existing character" outcome D-005 warns against,
    not a token swap. Documented per EXACT SCOPE #2 rather than silently
    left unconsidered.
@@ -2167,7 +2167,7 @@
   gap: 16px;
   padding: 16px 18px;
   border: 1px solid var(--color-border);
-  /* TCB-P3 followup: 14px → 16px (`radius.lg`). 16/18-padded toolbar
+  /* TCB-P3 followup: 14px â†’ 16px (`radius.lg`). 16/18-padded toolbar
      card, the 16px "soft-framed-card" step is the correct card-scale
      (matches `.pcgo-users__directory` and the RecoveryStats/Sunshine
      header-bar convention). */
@@ -2188,7 +2188,7 @@
   height: 32px;
   flex-shrink: 0;
   border: 1px solid var(--color-brand);
-  /* TCB-P3 followup: 9px → 4px (`radius.tight`). 32x32 header icon
+  /* TCB-P3 followup: 9px â†’ 4px (`radius.tight`). 32x32 header icon
      badge, the 4px "tight" step is the correct chip-scale. */
   border-radius: 4px;
   color: var(--color-brand);
@@ -2198,7 +2198,7 @@
 .pcgo-users__eyebrow,
 .pcgo-users__section-kicker {
   color: var(--color-ink-faint);
-  font: 700 8px/1.1 'JetBrains Mono', monospace;
+  font: 700 8px/1.1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .14em;
   text-transform: uppercase;
 }
@@ -2207,7 +2207,7 @@
 .pcgo-users__section-header h3 {
   margin: 4px 0 0;
   color: var(--color-ink);
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
   letter-spacing: -.025em;
 }
 
@@ -2221,7 +2221,7 @@
 .pcgo-users__bulk-action p,
 .pcgo-users__form-note {
   color: var(--color-ink-faint);
-  font: 500 10px/1.45 'JetBrains Mono', monospace;
+  font: 500 10px/1.45 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-users__heading p {
@@ -2237,14 +2237,14 @@
   gap: 7px;
   min-height: 34px;
   border: 1px solid var(--color-border-strong);
-  /* TCB-P3 followup: 8px → 4px (`radius.tight`). Small 34px-tall
+  /* TCB-P3 followup: 8px â†’ 4px (`radius.tight`). Small 34px-tall
      Users action button (Refresh / Delete / Stale-note reissue),
      the 4px "tight" step is the correct button-scale (matches
      `.pcgo-button`'s default). */
   border-radius: 4px;
   color: var(--color-ink-dim);
   background: transparent;
-  font: 700 9px/1 'JetBrains Mono', monospace;
+  font: 700 9px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .08em;
   text-transform: uppercase;
   cursor: pointer;
@@ -2301,13 +2301,13 @@
 .pcgo-users__scope-note {
   padding: 9px 11px;
   border: 1px solid var(--color-border-subtle);
-  /* TCB-P3 followup: 9px → 4px (`radius.tight`). Small 9/11-padded
+  /* TCB-P3 followup: 9px â†’ 4px (`radius.tight`). Small 9/11-padded
      scope note callout, the 4px "tight" step is the correct
      chip-scale (matches `.pcgo-users__row` at 4px). */
   border-radius: 4px;
   color: var(--color-ink-faint);
   background: var(--surface-l1);
-  font: 500 9.5px/1.45 'JetBrains Mono', monospace;
+  font: 500 9.5px/1.45 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-users__scope-note svg {
@@ -2328,7 +2328,7 @@
   gap: 10px;
   padding: 11px 13px;
   border: 1px solid var(--color-border-subtle);
-  /* TCB-P3 followup: 10px → 4px (`radius.tight`). Small stats cell
+  /* TCB-P3 followup: 10px â†’ 4px (`radius.tight`). Small stats cell
      (11/13 padding, baseline-aligned label/value), the 4px "tight"
      step is the correct chip-scale (matches `.pcgo-stat-cell`). */
   border-radius: 4px;
@@ -2337,14 +2337,14 @@
 
 .pcgo-users__summary-cell span {
   color: var(--color-ink-faint);
-  font: 700 8px/1.2 'JetBrains Mono', monospace;
+  font: 700 8px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .09em;
   text-transform: uppercase;
 }
 
 .pcgo-users__summary-cell strong {
   color: var(--color-ink);
-  font: 700 18px/1 'JetBrains Mono', monospace;
+  font: 700 18px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-users__summary-cell--admin strong { color: var(--color-warning); }
@@ -2362,11 +2362,11 @@
   min-width: 0;
   padding: 17px;
   border: 1px solid var(--color-border);
-  /* TCB-P3 followup: 14px → 16px (`radius.lg`). 17px-padded soft-framed
+  /* TCB-P3 followup: 14px â†’ 16px (`radius.lg`). 17px-padded soft-framed
      card, the 16px "soft-framed-card" step is the correct card-scale
      (same as SessionCard / HostStatusPanel / LogPanel convention). */
   border-radius: 16px;
-  /* TCB-P4.2 followup: surface.l3 → surface.l1 to match
+  /* TCB-P4.2 followup: surface.l3 â†’ surface.l1 to match
      `.pcgo-host-diagnostics-card` (the inset tier introduced by the
      Host Monitor section-card alignment). Both users__directory and
      users__create are page-level section cards sitting on the page
@@ -2400,7 +2400,7 @@
   flex-shrink: 0;
   padding-top: 2px;
   color: var(--color-ink-faint);
-  font: 700 8px/1.2 'JetBrains Mono', monospace;
+  font: 700 8px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .08em;
   text-transform: uppercase;
 }
@@ -2416,7 +2416,7 @@
 .pcgo-users__columns {
   padding: 0 10px 7px;
   color: var(--color-ink-ghost);
-  font: 700 8px/1.2 'JetBrains Mono', monospace;
+  font: 700 8px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .1em;
   text-transform: uppercase;
 }
@@ -2433,7 +2433,7 @@
 .pcgo-users__row {
   padding: 10px;
   border: 1px solid var(--color-border-subtle);
-  /* TCB-P3 followup: 9px → 4px (`radius.tight`). Small interactive row
+  /* TCB-P3 followup: 9px â†’ 4px (`radius.tight`). Small interactive row
      (10px padding), the 4px "tight" step fits the dense-row scale
      consistent with `.pcgo-data-row`. */
   border-radius: 4px;
@@ -2463,14 +2463,14 @@
   height: 28px;
   flex-shrink: 0;
   border: 1px solid var(--color-border-strong);
-  /* TCB-P3 followup: 8px → 4px (`radius.tight`). 28x28 identity icon
+  /* TCB-P3 followup: 8px â†’ 4px (`radius.tight`). 28x28 identity icon
      badge, the 4px "tight" step is the correct chip-scale (matches
      the 28x28 header icon badges used across RecoveryStats /
      SunshineStreamHistory). */
   border-radius: 4px;
   color: var(--color-ink-dim);
   background: var(--surface-l2);
-  font: 700 11px/1 'Space Grotesk', sans-serif;
+  font: 700 11px/1 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
 }
 
 .pcgo-users__identity-copy {
@@ -2482,7 +2482,7 @@
 .pcgo-users__identity-copy strong {
   overflow: hidden;
   color: var(--color-ink);
-  font: 650 12px/1.2 'Space Grotesk', sans-serif;
+  font: 650 12px/1.2 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -2492,7 +2492,7 @@
   align-items: center;
   gap: 4px;
   color: var(--color-warning);
-  font: 500 8px/1.25 'JetBrains Mono', monospace;
+  font: 500 8px/1.25 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-users__cell {
@@ -2504,7 +2504,7 @@
   align-items: center;
   gap: 6px;
   color: var(--color-ink-faint);
-  font: 500 9px/1.3 'JetBrains Mono', monospace;
+  font: 500 9px/1.3 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   white-space: nowrap;
 }
 
@@ -2540,7 +2540,7 @@
   border-radius: 8px;
   color: var(--color-warning);
   background: var(--color-accent-yellow-dim);
-  font: 500 9px/1.4 'JetBrains Mono', monospace;
+  font: 500 9px/1.4 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-users__stale-note svg {
@@ -2568,7 +2568,7 @@
 
 .pcgo-users__bulk-title {
   color: var(--color-ink-dim);
-  font: 650 11px/1.2 'Space Grotesk', sans-serif;
+  font: 650 11px/1.2 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
 }
 
 .pcgo-users__bulk-action p {
@@ -2586,7 +2586,7 @@
   gap: 9px;
   padding: 34px 18px;
   border: 1px dashed var(--color-danger);
-  /* TCB-P3 followup: 10px → 16px (`radius.lg`). 34/18-padded
+  /* TCB-P3 followup: 10px â†’ 16px (`radius.lg`). 34/18-padded
      soft-framed error callout, the 16px "soft-framed-card" step is
      the correct callout-scale (matches `.pcgo-settings__unavailable`
      at 16px). */
@@ -2597,14 +2597,14 @@
 
 .pcgo-users__error strong {
   color: var(--color-ink);
-  font: 650 14px/1.2 'Space Grotesk', sans-serif;
+  font: 650 14px/1.2 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
 }
 
 .pcgo-users__error p {
   max-width: 42ch;
   margin: 0;
   color: var(--color-ink-faint);
-  font: 500 10px/1.5 'JetBrains Mono', monospace;
+  font: 500 10px/1.5 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   overflow-wrap: anywhere;
 }
 
@@ -2628,12 +2628,12 @@
 .pcgo-users__loading-row span {
   display: block;
   height: 8px;
-  /* TCB-P4 followup: 0px (broken `var(--radius-full)`) → 999px
+  /* TCB-P4 followup: 0px (broken `var(--radius-full)`) â†’ 999px
      (`radius.full`). 8px-tall skeleton bar. */
   border-radius: 999px;
   background: var(--color-border-subtle);
   /* P6-T15 motion audit: named-keyframe `animation:` reference, not a `transition:`
-     property — `motion`'s four exports are transition-timing value strings, not
+     property â€” `motion`'s four exports are transition-timing value strings, not
      `@keyframes` names, so there's no valid conversion target regardless of
      duration. 1.6s also doesn't match any `motion` step's duration. Left as the
      original literal; no conversion. */
@@ -2653,7 +2653,7 @@
 
 .pcgo-users__field label {
   color: var(--color-ink-dim);
-  font: 700 9px/1.2 'JetBrains Mono', monospace;
+  font: 700 9px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .1em;
   text-transform: uppercase;
 }
@@ -2669,7 +2669,7 @@
   outline: none;
   color: var(--color-ink);
   background: var(--surface-l1);
-  font: 500 12px/1.2 'Inter', sans-serif;
+  font: 500 12px/1.2 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
   /* P6-T15 motion audit: matches `motion.base` (160ms ease) in value, but no
      CSS-side `--motion-*` token exists yet to convert to (D-011). Left as the
      original literal; no conversion. */
@@ -2685,7 +2685,7 @@
 
 .pcgo-users__field-help {
   color: var(--color-ink-ghost);
-  font: 500 9px/1.35 'JetBrains Mono', monospace;
+  font: 500 9px/1.35 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-users__validation {
@@ -2698,7 +2698,7 @@
   border-radius: 8px;
   color: var(--color-danger);
   background: var(--color-danger-dim);
-  font: 500 10px/1.4 'JetBrains Mono', monospace;
+  font: 500 10px/1.4 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-users__validation svg {
@@ -2723,14 +2723,14 @@
 
 .pcgo-users__spin {
   /* P6-T15 motion audit: named-keyframe `animation:` reference, not a `transition:`
-     property — `motion`'s four exports are transition-timing value strings, not
+     property â€” `motion`'s four exports are transition-timing value strings, not
      `@keyframes` names, so there's no valid conversion target regardless of
      duration. .8s also doesn't match any `motion` step's duration. Left as the
      original literal; no conversion. */
   animation: spin .8s linear infinite;
 }
 
-/* pcgo-users-spin → global `spin` in base.css (1.2) */
+/* pcgo-users-spin â†’ global `spin` in base.css (1.2) */
 
 @media (max-width: 980px) {
   .pcgo-users__layout {
@@ -2766,7 +2766,7 @@
     margin-bottom: 5px;
     color: var(--color-ink-ghost);
     content: attr(data-label);
-    font: 700 8px/1.1 'JetBrains Mono', monospace;
+    font: 700 8px/1.1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
     letter-spacing: .09em;
     text-transform: uppercase;
   }
@@ -2837,11 +2837,11 @@
 
 /* Settings configuration workspace: real controls first, state and persistence explicit. */
 /* ==========================================================================
-   Settings (P5-T01) — surface/typeScale token pass.
+   Settings (P5-T01) â€” surface/typeScale token pass.
 
    Background aliasing (D-009): every var(--color-bg-inset|-elevated|-card|
    -card-hover|(bare)) in this block was swapped for its byte-identical
-   var(--surface-l1|l2|l3|l4|l0) equivalent. Zero visual change — these are
+   var(--surface-l1|l2|l3|l4|l0) equivalent. Zero visual change â€” these are
    the same CSS custom properties under a new name, confirmed 1:1 against
    App.jsx's 6 theme blocks.
 
@@ -2849,13 +2849,13 @@
    not routed through typeScale. This block uses ~13 distinct font sizes
    (7px/7.5px/8px/8.5px/9px/9.5px/10px/11px/11.5px/12px/13px/16px/18px,
    several with bespoke letter-spacing), none of which land exactly on a
-   typeScale step (12px/13.5px/17px/28px) at matching weight+family — the
+   typeScale step (12px/13.5px/17px/28px) at matching weight+family â€” the
    nearest candidates (e.g. this block's 18px h2 vs. subheading's 17px, or
    its 12px strong vs. bodySmall's 12px-at-500-weight where this is 650)
    differ on the defining size or weight property, not just letter-spacing/
    line-height the way SectionCard.jsx's zero-change overrides did. Forcing
    alignment here would mean genuinely resizing/reweighting ~15 rules
-   across Settings' own density-tuned hierarchy — exactly the "flatten
+   across Settings' own density-tuned hierarchy â€” exactly the "flatten
    existing character" outcome D-005 warns against, not a token swap.
    Documented per EXACT SCOPE #4 rather than silently left unconsidered.
    ========================================================================== */
@@ -2878,7 +2878,7 @@
 .pcgo-settings-overview__eyebrow,
 .pcgo-settings__eyebrow {
   color: var(--color-ink-faint);
-  font: 700 8px/1.2 'JetBrains Mono', monospace;
+  font: 700 8px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .14em;
   text-transform: uppercase;
 }
@@ -2886,7 +2886,7 @@
 .pcgo-settings-overview h2 {
   margin: 5px 0 0;
   color: var(--color-ink);
-  font: 650 18px/1.2 'Space Grotesk', sans-serif;
+  font: 650 18px/1.2 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
   letter-spacing: -.025em;
 }
 
@@ -2894,7 +2894,7 @@
   max-width: 760px;
   margin: 5px 0 0;
   color: var(--color-ink-faint);
-  font: 500 10px/1.5 'JetBrains Mono', monospace;
+  font: 500 10px/1.5 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-settings-link-list {
@@ -2910,7 +2910,7 @@
   width: 100%;
   padding: 10px 11px;
   border: 1px solid var(--color-border-subtle);
-  /* TCB-P3 followup: 9px → 4px (`radius.tight`). Small interactive
+  /* TCB-P3 followup: 9px â†’ 4px (`radius.tight`). Small interactive
      link row (10px 11px padding), the 4px "tight" step is the
      correct row-scale. */
   border-radius: 4px;
@@ -2965,12 +2965,12 @@
 
 .pcgo-settings-link-row__copy strong {
   color: var(--color-ink);
-  font: 650 12px/1.2 'Space Grotesk', sans-serif;
+  font: 650 12px/1.2 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
 }
 
 .pcgo-settings-link-row__copy span {
   color: var(--color-ink-faint);
-  font: 500 9px/1.35 'JetBrains Mono', monospace;
+  font: 500 9px/1.35 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   overflow-wrap: anywhere;
 }
 
@@ -2980,7 +2980,7 @@
   padding: 17px;
   border: 1px solid var(--color-border);
   border-radius: 15px;
-  /* TCB-P4.2 followup: surface.l3 → surface.l1 to match
+  /* TCB-P4.2 followup: surface.l3 â†’ surface.l1 to match
      `.pcgo-host-diagnostics-card` (the inset tier introduced by the
      Host Monitor section-card alignment). Settings workspace is the
      outer page-level framed panel, so it now sits on the inset tier
@@ -3000,14 +3000,14 @@
 .pcgo-settings-workspace__toolbar h2 {
   margin: 4px 0 0;
   color: var(--color-ink);
-  font: 650 16px/1.2 'Space Grotesk', sans-serif;
+  font: 650 16px/1.2 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
   letter-spacing: -.02em;
 }
 
 .pcgo-settings-workspace__toolbar p {
   margin: 4px 0 0;
   color: var(--color-ink-faint);
-  font: 500 9.5px/1.4 'JetBrains Mono', monospace;
+  font: 500 9.5px/1.4 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-settings__refresh {
@@ -3022,7 +3022,7 @@
   border-radius: 8px;
   color: var(--color-ink-dim);
   background: transparent;
-  font: 700 9px/1 'JetBrains Mono', monospace;
+  font: 700 9px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .08em;
   text-transform: uppercase;
   cursor: pointer;
@@ -3057,7 +3057,7 @@
   border: 1px solid var(--color-border-subtle);
   border-radius: 8px;
   background: var(--surface-l1);
-  font: 500 9px/1.35 'JetBrains Mono', monospace;
+  font: 500 9px/1.35 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-settings__state,
@@ -3089,7 +3089,7 @@
   align-items: flex-start;
   gap: 8px;
   overflow-wrap: anywhere;
-  font: 500 9px/1.45 'JetBrains Mono', monospace;
+  font: 500 9px/1.45 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-settings__stale-note {
@@ -3114,7 +3114,7 @@
   border-radius: 6px;
   color: var(--color-warning);
   background: transparent;
-  font: 700 8px/1 'JetBrains Mono', monospace;
+  font: 700 8px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   text-transform: uppercase;
   cursor: pointer;
 }
@@ -3129,7 +3129,7 @@
   min-width: 0;
   overflow: hidden;
   border: 1px solid var(--color-border-subtle);
-  /* TCB-P3 followup: 11px → 16px (`radius.lg`). Settings group card,
+  /* TCB-P3 followup: 11px â†’ 16px (`radius.lg`). Settings group card,
      the 16px "soft-framed-card" step is the correct group-scale. */
   border-radius: 16px;
   background: var(--surface-l1);
@@ -3165,7 +3165,7 @@
 .pcgo-settings-appearance__heading h3 {
   margin: 0;
   color: var(--color-ink);
-  font: 650 13px/1.2 'Space Grotesk', sans-serif;
+  font: 650 13px/1.2 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
   letter-spacing: -.01em;
 }
 
@@ -3173,7 +3173,7 @@
 .pcgo-settings-appearance__heading p {
   margin: 4px 0 0;
   color: var(--color-ink-faint);
-  font: 500 9px/1.4 'JetBrains Mono', monospace;
+  font: 500 9px/1.4 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   overflow-wrap: anywhere;
 }
 
@@ -3213,20 +3213,20 @@
 
 .pcgo-settings-row__label {
   color: var(--color-ink);
-  font: 650 11.5px/1.25 'Space Grotesk', sans-serif;
+  font: 650 11.5px/1.25 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
 }
 
 .pcgo-settings-row__copy p {
   margin: 4px 0 0;
   color: var(--color-ink-faint);
-  font: 500 8.5px/1.4 'JetBrains Mono', monospace;
+  font: 500 8.5px/1.4 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   overflow-wrap: anywhere;
 }
 
 .pcgo-settings-row__meta {
   margin-top: 5px;
   color: var(--color-ink-ghost);
-  font: 700 7.5px/1.2 'JetBrains Mono', monospace;
+  font: 700 7.5px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .08em;
 }
 
@@ -3250,7 +3250,7 @@
   outline: none;
   color: var(--color-ink);
   background: var(--surface-l3);
-  font: 500 11px/1.2 'Inter', sans-serif;
+  font: 500 11px/1.2 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
   /* P6-T15 motion audit: matches `motion.base` (160ms ease) in value, but no
      CSS-side `--motion-*` token exists yet to convert to (D-011). Left as the
      original literal; no conversion. */
@@ -3339,7 +3339,7 @@
   width: 30px;
   height: 18px;
   border: 1px solid var(--color-border-strong);
-  /* TCB-P4 followup: 0px (broken `var(--radius-full)`) → 999px
+  /* TCB-P4 followup: 0px (broken `var(--radius-full)`) â†’ 999px
      (`radius.full`). 18px-tall toggle track, full-rounded pill. */
   border-radius: 999px;
   background: var(--surface-l1);
@@ -3381,7 +3381,7 @@
 }
 
 .pcgo-settings-switch strong {
-  font: 700 8px/1 'JetBrains Mono', monospace;
+  font: 700 8px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .08em;
 }
 
@@ -3394,7 +3394,7 @@
   border-radius: 7px;
   color: var(--color-ink-faint);
   background: var(--surface-l2);
-  font: 700 9px/1.2 'JetBrains Mono', monospace;
+  font: 700 9px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   text-transform: uppercase;
 }
 
@@ -3419,7 +3419,7 @@
   gap: 6px;
   padding-bottom: 2px;
   color: var(--color-ink-faint);
-  font: 700 8px/1.1 'JetBrains Mono', monospace;
+  font: 700 8px/1.1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .1em;
 }
 
@@ -3446,14 +3446,14 @@
 
 .pcgo-settings-readonly-row span {
   color: var(--color-ink-faint);
-  font: 700 8px/1.2 'JetBrains Mono', monospace;
+  font: 700 8px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   text-transform: uppercase;
 }
 
 .pcgo-settings-readonly-row strong {
   overflow: hidden;
   color: var(--color-ink-dim);
-  font: 500 9px/1.3 'JetBrains Mono', monospace;
+  font: 500 9px/1.3 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -3470,7 +3470,7 @@
   border: 1px solid var(--color-danger);
   color: var(--color-danger);
   background: var(--color-danger-dim);
-  font: 500 9px/1.4 'JetBrains Mono', monospace;
+  font: 500 9px/1.4 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-settings__errors > div {
@@ -3496,14 +3496,14 @@
 }
 
 .pcgo-settings__restart-note strong {
-  font: 700 9px/1.2 'JetBrains Mono', monospace;
+  font: 700 9px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .08em;
   text-transform: uppercase;
 }
 
 .pcgo-settings__restart-note span {
   color: var(--color-ink-dim);
-  font: 500 9px/1.4 'JetBrains Mono', monospace;
+  font: 500 9px/1.4 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-settings__actions {
@@ -3524,19 +3524,19 @@
 .pcgo-settings__action-help {
   margin-left: auto;
   color: var(--color-ink-ghost);
-  font: 500 8.5px/1.2 'JetBrains Mono', monospace;
+  font: 500 8.5px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-settings__spin {
   /* P6-T15 motion audit: named-keyframe `animation:` reference, not a `transition:`
-     property — `motion`'s four exports are transition-timing value strings, not
+     property â€” `motion`'s four exports are transition-timing value strings, not
      `@keyframes` names, so there's no valid conversion target regardless of
      duration. .8s also doesn't match any `motion` step's duration. Left as the
      original literal; no conversion. */
   animation: spin .8s linear infinite;
 }
 
-/* pcgo-settings-spin → global `spin` in base.css (1.2) */
+/* pcgo-settings-spin â†’ global `spin` in base.css (1.2) */
 
 .pcgo-settings__unavailable {
   display: flex;
@@ -3545,7 +3545,7 @@
   gap: 8px;
   padding: 36px 18px;
   border: 1px dashed var(--color-danger);
-  /* TCB-P3 followup: 12px → 16px (`radius.lg`). 36/18-padded
+  /* TCB-P3 followup: 12px â†’ 16px (`radius.lg`). 36/18-padded
      soft-framed "service down" callout, the 16px "soft-framed-card"
      step is the correct callout-scale (matches RecoveryStats/
      SunshineStreamHistory empty-box visual language at 16px). */
@@ -3556,14 +3556,14 @@
 
 .pcgo-settings__unavailable strong {
   color: var(--color-ink);
-  font: 650 14px/1.2 'Space Grotesk', sans-serif;
+  font: 650 14px/1.2 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
 }
 
 .pcgo-settings__unavailable p {
   max-width: 48ch;
   margin: 0;
   color: var(--color-ink-faint);
-  font: 500 9px/1.45 'JetBrains Mono', monospace;
+  font: 500 9px/1.45 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   overflow-wrap: anywhere;
 }
 
@@ -3572,12 +3572,12 @@
   gap: 10px;
   padding: 17px;
   border: 1px solid var(--color-border);
-  /* TCB-P3 followup: 15px → 16px (`radius.lg`). 17px-padded loading
+  /* TCB-P3 followup: 15px â†’ 16px (`radius.lg`). 17px-padded loading
      card, the 16px "soft-framed-card" step is the correct card-scale
      (matches `.pcgo-settings-group` at 16px, exact-match to other
      `surface.l3` framed cards). */
   border-radius: 16px;
-  /* TCB-P4.2 followup: surface.l3 → surface.l1 to match
+  /* TCB-P4.2 followup: surface.l3 â†’ surface.l1 to match
      `.pcgo-host-diagnostics-card` (the inset tier introduced by the
      Host Monitor section-card alignment). The settings-loading card
      is the page-level skeleton shown while the real settings panel
@@ -3613,12 +3613,12 @@
 .pcgo-settings-loading i,
 .pcgo-settings-loading b {
   display: block;
-  /* TCB-P4 followup: 0px (broken `var(--radius-full)`) → 999px
+  /* TCB-P4 followup: 0px (broken `var(--radius-full)`) â†’ 999px
      (`radius.full`). Loading skeleton bars, full-rounded pills. */
   border-radius: 999px;
   background: var(--color-border-subtle);
   /* P6-T15 motion audit: named-keyframe `animation:` reference, not a `transition:`
-     property — `motion`'s four exports are transition-timing value strings, not
+     property â€” `motion`'s four exports are transition-timing value strings, not
      `@keyframes` names, so there's no valid conversion target regardless of
      duration. 1.6s also doesn't match any `motion` step's duration. Left as the
      original literal; no conversion. */
@@ -3655,14 +3655,14 @@
 
 .pcgo-settings-about span {
   color: var(--color-ink-faint);
-  font: 700 8px/1.2 'JetBrains Mono', monospace;
+  font: 700 8px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .1em;
   text-transform: uppercase;
 }
 
 .pcgo-settings-about strong {
   color: var(--color-ink-dim);
-  font: 500 10px/1.35 'JetBrains Mono', monospace;
+  font: 500 10px/1.35 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 @media (max-width: 900px) {
@@ -3754,11 +3754,11 @@
 
 /* Change Password: focused security workflow, not a secondary Settings dashboard. */
 /* ==========================================================================
-   Change Password (P5-T02) — surface/typeScale token pass.
+   Change Password (P5-T02) â€” surface/typeScale token pass.
 
    Background aliasing (D-009): all 3 var(--color-bg-inset|-card|-card-hover)
    references in this block were swapped for their byte-identical
-   var(--surface-l1|l3|l4) equivalents — card background, input background,
+   var(--surface-l1|l3|l4) equivalents â€” card background, input background,
    input focus background respectively. Zero visual change: same CSS custom
    properties under a new name, confirmed 1:1 against App.jsx's 6 theme
    blocks (per D-009, same verification P5-T01 did for Settings). No
@@ -3766,16 +3766,16 @@
    in this block.
 
    Typography: one rule already lands exactly on a typeScale step at
-   matching size+weight+family — `.pcgo-change-password-field input`'s
-   `500 12px 'Inter'` is identical to typeScale.bodySmall's 12px/500/Inter.
+   matching size+weight+family â€” `.pcgo-change-password-field input`'s
+   `500 12px 'IBM Plex Sans'` is identical to typeScale.bodySmall's 12px/500/Inter.
    Documented here rather than rewritten to a var(), since typeScale (unlike
    surface) is only exported as a JS object for inline-style spreads
-   (see SectionCard.jsx) — there's no CSS custom-property equivalent for a
+   (see SectionCard.jsx) â€” there's no CSS custom-property equivalent for a
    plain stylesheet to reference, so the literal value already IS the
    token's value. Its 1.2 line-height intentionally stays lower than
    bodySmall's 1.45: this is a fixed-height (min-height: 42px), single-line
    password input, not flowing body copy, so bodySmall's paragraph
-   line-height doesn't apply — the same "differs only on line-height/
+   line-height doesn't apply â€” the same "differs only on line-height/
    letter-spacing, not the defining size+weight+family" category as
    SectionCard.jsx's typeScale spreads with explicit per-property overrides.
 
@@ -3787,7 +3787,7 @@
    size+weight+family. Several are close in isolation (e.g. the eyebrow's
    8px/700/mono vs. meta's 10px/700/mono, or the `h2`'s 17px/650 vs.
    subheading's 17px/600) but each differs on the defining size or weight,
-   not just letter-spacing/line-height — forcing alignment would mean a
+   not just letter-spacing/line-height â€” forcing alignment would mean a
    real resize/reweight of this page's density-tuned hierarchy, not a value
    alias. Left as literal values and documented per EXACT SCOPE #2's
    "refine, don't flatten" instruction, the same judgment call Settings
@@ -3804,12 +3804,12 @@
 .pcgo-change-password-card {
   overflow: hidden;
   border: 1px solid var(--color-border);
-  /* TCB-P3 followup: 14px → 16px (`radius.lg`). Soft-framed card,
+  /* TCB-P3 followup: 14px â†’ 16px (`radius.lg`). Soft-framed card,
      the 16px "soft-framed-card" step is the correct card-scale
      (matches `.pcgo-users__directory` and `.pcgo-settings-loading`
      at 16px). */
   border-radius: 16px;
-  /* TCB-P4.2 followup: surface.l3 → surface.l1 to match
+  /* TCB-P4.2 followup: surface.l3 â†’ surface.l1 to match
      `.pcgo-host-diagnostics-card` (the inset tier introduced by the
      Host Monitor section-card alignment). Change-password is the
      outer page-level framed card, so it now sits on the inset tier
@@ -3839,14 +3839,14 @@
 
 .pcgo-change-password__eyebrow {
   color: var(--color-ink-faint);
-  font: 700 8px/1.2 'JetBrains Mono', monospace;
+  font: 700 8px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .14em;
 }
 
 .pcgo-change-password-card h2 {
   margin: 4px 0 0;
   color: var(--color-ink);
-  font: 650 17px/1.2 'Space Grotesk', sans-serif;
+  font: 650 17px/1.2 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
   letter-spacing: -.025em;
 }
 
@@ -3854,7 +3854,7 @@
   max-width: 54ch;
   margin: 5px 0 0;
   color: var(--color-ink-faint);
-  font: 500 9.5px/1.45 'JetBrains Mono', monospace;
+  font: 500 9.5px/1.45 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   overflow-wrap: anywhere;
 }
 
@@ -3867,7 +3867,7 @@
   border-left: 2px solid var(--color-brand);
   color: var(--color-ink-dim);
   background: var(--color-brand-dim);
-  font: 500 9px/1.4 'JetBrains Mono', monospace;
+  font: 500 9px/1.4 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   overflow-wrap: anywhere;
 }
 
@@ -3905,7 +3905,7 @@
   gap: 7px;
   min-width: 0;
   color: var(--color-ink);
-  font: 650 11.5px/1.2 'Space Grotesk', sans-serif;
+  font: 650 11.5px/1.2 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
 }
 
 .pcgo-change-password-field__label svg {
@@ -3916,7 +3916,7 @@
 .pcgo-change-password-field__required {
   flex-shrink: 0;
   color: var(--color-ink-ghost);
-  font: 700 7px/1.2 'JetBrains Mono', monospace;
+  font: 700 7px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .08em;
 }
 
@@ -3930,7 +3930,7 @@
   outline: none;
   color: var(--color-ink);
   background: var(--surface-l1);
-  font: 500 12px/1.2 'Inter', sans-serif;
+  font: 500 12px/1.2 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
   /* P6-T15 motion audit: matches `motion.base` (160ms ease) in value, but no
      CSS-side `--motion-*` token exists yet to convert to (D-011). Left as the
      original literal; no conversion. */
@@ -3958,7 +3958,7 @@
 .pcgo-change-password-field p {
   margin: 0;
   color: var(--color-ink-faint);
-  font: 500 8.5px/1.4 'JetBrains Mono', monospace;
+  font: 500 8.5px/1.4 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   overflow-wrap: anywhere;
 }
 
@@ -3969,7 +3969,7 @@
   align-items: flex-start;
   gap: 7px;
   overflow-wrap: anywhere;
-  font: 500 9px/1.45 'JetBrains Mono', monospace;
+  font: 500 9px/1.45 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 .pcgo-change-password-field__error {
@@ -4042,3 +4042,5 @@
     font-size: 8.5px;
   }
 }
+
+

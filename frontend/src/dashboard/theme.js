@@ -48,9 +48,11 @@ export const colors = {
 };
 
 export const fonts = {
-  display: "'Space Grotesk', sans-serif",
-  body: "'Inter', sans-serif",
-  mono: "'JetBrains Mono', monospace",
+  // 2.4: Self-hosted IBM Plex fonts (via @fontsource in main.jsx).
+  // display/body both use IBM Plex Sans; mono uses IBM Plex Mono.
+  display: "'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif",
+  body:    "'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif",
+  mono:    "'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace",
 };
 
 /**
