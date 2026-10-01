@@ -1,4 +1,4 @@
-/**
+﻿/**
  * styles/Login.css
  *
  * NOTE: pages/Login.jsx renders entirely with inline styles from
@@ -16,7 +16,7 @@
   padding-right: 2em;
   padding-bottom: 0.4em;
   background-color: #151517;
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
   /* P6-T14 motion audit: real `transition:`, but 150ms does not exactly match any `motion`
      step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms cubic-bezier). Left as the
      original literal; no conversion. */

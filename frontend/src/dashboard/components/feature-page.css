@@ -48,7 +48,7 @@
      "soft framed card" scale). Literal because no `--radius-lg` CSS
      custom property is defined in App.jsx GLOBAL_CSS (see the
      `.pcgo-feature-back { border-radius: 4px }` precedent above). */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
   padding: 22px;
   min-width: 0;
 }
@@ -103,7 +103,7 @@
      scale matching the user-requested "smooth like StartSessionForm"
      container edge (same precedent as `.pcgo-section-card` line 43
      and the TCB-P3 container-softening sweep). */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
 }
 
 .pcgo-data-list {
@@ -143,7 +143,7 @@
   border: 1px solid var(--color-border-subtle);
   /* TCB-P4 followup: 12px â†’ 16px (`radius.lg`). Form section,
      soft-card scale (same precedent as `.pcgo-section-card` line 43). */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
 }
 
 .pcgo-form-section + .pcgo-form-section {
@@ -160,15 +160,16 @@
 
 .pcgo-form-section__title {
   color: var(--color-ink);
-  font: 650 13px/1.2 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
-  letter-spacing: -0.01em;
+  /* 2.3/2.4: 13px/600 IBM Plex Sans sentence case */
+  font: 600 13px/1.3 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
+  letter-spacing: 0;
 }
 
 .pcgo-form-section__meta {
   color: var(--color-ink-faint);
-  font: 500 10px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
-  letter-spacing: .07em;
-  text-transform: uppercase;
+  /* 2.3: 12px/500, sentence case (no uppercase). */
+  font: 500 12px/1.3 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  letter-spacing: 0;
 }
 
 .pcgo-empty-state {
@@ -178,7 +179,7 @@
   /* TCB-P4 followup: 12px â†’ 16px (`radius.lg`). 40px 20px empty-state
      callout, soft-card scale (same precedent as `.pcgo-analytics__empty`
      line 777 and `.pcgo-settings__unavailable` line 3370). */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
 }
 
 .pcgo-page-note {
@@ -193,7 +194,7 @@
      established `radius.lg` as the sanctioned soft-framed-card
      value per the user's TCB-P3 "smooth like StartSessionForm"
      direction). */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
   color: var(--color-ink-dim);
   background: var(--color-brand-dim);
   font-size: 12px;
@@ -236,7 +237,7 @@
      same scale as the StartSessionForm container edge per the
      TCB-P3 user feedback that established `radius.lg` as the
      sanctioned soft-framed-card scale. */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
   color: var(--color-ink-dim);
   /* D-009 literal alias: var(--color-bg-inset) -> var(--surface-l1),
      same custom property value, zero visual change. */
@@ -551,7 +552,7 @@
      the user-requested "smooth like StartSessionForm" container edge
      (see theme.js `radius.lg` and the TCB-P3 container-softening
      sweep that established 16px as the sanctioned value). */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
   background: var(--surface-l1);
 }
 
@@ -803,7 +804,7 @@
      (`radius.lg`). 30px 20px empty-state callout, soft-card scale
      (same precedent as `.pcgo-empty-state` line 159 below and
      `.pcgo-settings__unavailable` line 3370). */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
   color: var(--color-ink-faint);
   font: 500 10.5px/1.45 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   text-align: center;
@@ -888,7 +889,7 @@
   border: 1px solid var(--color-border-subtle);
   /* TCB-P4 followup: 0px (broken `var(--radius-md)`) â†’ 16px
      (`radius.lg`). 120px-tall loading panel, soft-card scale. */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
   background: var(--surface-l1);
 }
 
@@ -1531,7 +1532,7 @@
      CSS custom property is defined in App.jsx GLOBAL_CSS â€” the JS-side
      `radius.lg` token lives in theme.js and doesn't reach CSS. Same
      precedent as `.pcgo-feature-back { border-radius: 4px }` below. */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
   background: var(--surface-l1);
   color: var(--color-ink);
   text-align: left;
@@ -1629,7 +1630,7 @@
 
 .pcgo-launch-console {
   border: 1px solid var(--color-border) !important;
-  border-radius: 16px !important;
+  border-radius: 12px !important; /* 2.6: radius.md */
   /* TCB-P4.2 followup: var(--color-bg-card) (l3) â†’ var(--surface-l1)
      to match `.pcgo-host-diagnostics-card` (and every other page-level
      section card in this pass). The launch console is a page-level
@@ -1665,7 +1666,7 @@
   border: 0 !important;
   /* TCB-P3 followup: 10px â†’ 16px (`radius.lg`). Soft-framed section
      card, the 16px "soft-framed-card" step is the correct card-scale. */
-  border-radius: 16px !important;
+  border-radius: 12px !important; /* 2.6: radius.md */
   background: var(--color-bg-inset) !important;
 }
 
@@ -1919,7 +1920,7 @@
      structural panel, the soft framed card scale. Unifies with the
      StartSessionForm container + Card primitive + SectionCard family
      (theme.js's sanctioned 4th value). */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
   background: var(--surface-l3);
 }
 
@@ -1981,7 +1982,7 @@
   padding: 17px !important;
   border: 1px solid var(--color-border-subtle) !important;
   /* TCB-P4.2: 12px â†’ 16px (`radius.lg` soft framed card). */
-  border-radius: 16px !important;
+  border-radius: 12px !important; /* 2.6: radius.md */
   background: var(--surface-l3) !important;
 }
 
@@ -2050,7 +2051,7 @@
   padding: 12px 14px;
   border: 1px solid rgba(255, 107, 107, .32);
   /* TCB-P4.2: 10px alert callout â†’ `radius.lg` (16px) soft frame. */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
   background: rgba(255, 107, 107, .06);
 }
 
@@ -2171,7 +2172,7 @@
      card, the 16px "soft-framed-card" step is the correct card-scale
      (matches `.pcgo-users__directory` and the RecoveryStats/Sunshine
      header-bar convention). */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
   background: var(--surface-l3);
 }
 
@@ -2365,7 +2366,7 @@
   /* TCB-P3 followup: 14px â†’ 16px (`radius.lg`). 17px-padded soft-framed
      card, the 16px "soft-framed-card" step is the correct card-scale
      (same as SessionCard / HostStatusPanel / LogPanel convention). */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
   /* TCB-P4.2 followup: surface.l3 â†’ surface.l1 to match
      `.pcgo-host-diagnostics-card` (the inset tier introduced by the
      Host Monitor section-card alignment). Both users__directory and
@@ -2590,7 +2591,7 @@
      soft-framed error callout, the 16px "soft-framed-card" step is
      the correct callout-scale (matches `.pcgo-settings__unavailable`
      at 16px). */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
   color: var(--color-danger);
   text-align: center;
 }
@@ -3131,7 +3132,7 @@
   border: 1px solid var(--color-border-subtle);
   /* TCB-P3 followup: 11px â†’ 16px (`radius.lg`). Settings group card,
      the 16px "soft-framed-card" step is the correct group-scale. */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
   background: var(--surface-l1);
 }
 
@@ -3549,7 +3550,7 @@
      soft-framed "service down" callout, the 16px "soft-framed-card"
      step is the correct callout-scale (matches RecoveryStats/
      SunshineStreamHistory empty-box visual language at 16px). */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
   color: var(--color-danger);
   text-align: center;
 }
@@ -3576,7 +3577,7 @@
      card, the 16px "soft-framed-card" step is the correct card-scale
      (matches `.pcgo-settings-group` at 16px, exact-match to other
      `surface.l3` framed cards). */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
   /* TCB-P4.2 followup: surface.l3 â†’ surface.l1 to match
      `.pcgo-host-diagnostics-card` (the inset tier introduced by the
      Host Monitor section-card alignment). The settings-loading card
@@ -3808,7 +3809,7 @@
      the 16px "soft-framed-card" step is the correct card-scale
      (matches `.pcgo-users__directory` and `.pcgo-settings-loading`
      at 16px). */
-  border-radius: 16px;
+  border-radius: 12px; /* 2.6: radius.md */
   /* TCB-P4.2 followup: surface.l3 â†’ surface.l1 to match
      `.pcgo-host-diagnostics-card` (the inset tier introduced by the
      Host Monitor section-card alignment). Change-password is the
