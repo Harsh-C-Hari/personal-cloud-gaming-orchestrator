@@ -34,13 +34,13 @@ export function SettingsPage({ onBack, onNavigate }) {
 
       <SectionCard title="Account access">
         <div className="pcgo-settings-link-list">
-          <LinkRow icon={<KeyRound size={14} />} label="Change password" description="Update the password for your signed-in account." onClick={() => onNavigate("change-password")} />
+          <LinkRow icon={<KeyRound size={14} aria-hidden="true" />} label="Change password" description="Update the password for your signed-in account." onClick={() => onNavigate("change-password")} />
         </div>
       </SectionCard>
 
       <SectionCard title="Operational evidence">
         <div className="pcgo-settings-link-list">
-          <LinkRow icon={<ScrollText size={14} />} label="Logs" description="Inspect session and host activity evidence." onClick={() => onNavigate("logs")} />
+          <LinkRow icon={<ScrollText size={14} aria-hidden="true" />} label="Logs" description="Inspect session and host activity evidence." onClick={() => onNavigate("logs")} />
         </div>
       </SectionCard>
 

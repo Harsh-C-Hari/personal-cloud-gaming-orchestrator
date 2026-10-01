@@ -81,7 +81,7 @@ export function ChangePasswordPage({ onBack }) {
       <div className="pcgo-change-password-shell">
         <section className="pcgo-change-password-card" aria-labelledby="change-password-title">
           <header className="pcgo-change-password-card__header">
-            <div className="pcgo-change-password-card__mark" aria-hidden="true"><ShieldCheck size={17} /></div>
+            <div className="pcgo-change-password-card__mark" aria-hidden="true"><ShieldCheck size={17} aria-hidden="true" /></div>
             <div>
               <div className="pcgo-change-password__eyebrow">ACCOUNT SECURITY</div>
               <h2 id="change-password-title">Set a new password</h2>
@@ -98,7 +98,7 @@ export function ChangePasswordPage({ onBack }) {
             <PasswordField
               id="current-password"
               label="Current password"
-              icon={<LockKeyhole size={13} />}
+              icon={<LockKeyhole size={13} aria-hidden="true" />}
               value={oldPassword}
               onChange={updateField(setOldPassword)}
               autoComplete="current-password"
@@ -111,7 +111,7 @@ export function ChangePasswordPage({ onBack }) {
             <PasswordField
               id="new-password"
               label="New password"
-              icon={<KeyRound size={13} />}
+              icon={<KeyRound size={13} aria-hidden="true" />}
               value={newPassword}
               onChange={updateField(setNewPassword)}
               autoComplete="new-password"
@@ -124,7 +124,7 @@ export function ChangePasswordPage({ onBack }) {
             <PasswordField
               id="confirm-new-password"
               label="Confirm new password"
-              icon={<ShieldCheck size={13} />}
+              icon={<ShieldCheck size={13} aria-hidden="true" />}
               value={confirmPassword}
               onChange={updateField(setConfirmPassword)}
               autoComplete="new-password"
@@ -149,7 +149,7 @@ export function ChangePasswordPage({ onBack }) {
             )}
 
             <Button type="submit" variant="primary" disabled={submitting} aria-busy={submitting} className="pcgo-change-password__submit">
-              <KeyRound size={14} />
+              <KeyRound size={14} aria-hidden="true" />
               {submitting ? "Updating password…" : "Change password"}
             </Button>
           </form>
@@ -183,7 +183,7 @@ function PasswordField({ id, label, icon, value, onChange, autoComplete, descrip
         required={required}
       />
       <p id={descriptionId}>{description}</p>
-      {fieldError && <div id={errorId} className="pcgo-change-password-field__error" role="alert"><TriangleAlert size={12} />{fieldError}</div>}
+      {fieldError && <div id={errorId} className="pcgo-change-password-field__error" role="alert"><TriangleAlert size={12} aria-hidden="true" />{fieldError}</div>}
     </div>
   );
 }

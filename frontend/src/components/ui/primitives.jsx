@@ -149,7 +149,7 @@ export const Button = forwardRef(function Button(
       style={style}
       {...rest}
     >
-      {loading ? <Spinner size={14} /> : null}
+      {loading ? <Spinner size={14} aria-hidden="true" /> : null}
       {children}
     </button>
   );

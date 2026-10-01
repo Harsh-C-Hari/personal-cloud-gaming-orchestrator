@@ -128,7 +128,7 @@ export default function Login() {
             {["Session control", "Host health", "Recovery aware"].map((item) => <span key={item} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 10px", border: `1px solid ${colors.border}`, borderRadius: radius.sm, color: colors.inkDim, font: `500 11px/1 ${fonts.mono}` }}><span style={{ width: 6, height: 6, borderRadius: "50%", background: colors.brand }} />{item}</span>)}
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, color: colors.inkGhost, font: `500 10px/1.3 ${fonts.mono}`, letterSpacing: ".04em" }}>PCGO / SINGLE-HOST ORCHESTRATION <ArrowUpRight size={13} /></div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, color: colors.inkGhost, font: `500 10px/1.3 ${fonts.mono}`, letterSpacing: ".04em" }}>PCGO / SINGLE-HOST ORCHESTRATION <ArrowUpRight size={13} aria-hidden="true" /></div>
       </section>
 
       <section ref={formPanelRef} style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "36px 24px", background: colors.bgElevated }}>
@@ -143,7 +143,7 @@ export default function Login() {
             <div><FieldLabel icon={<User size={12} aria-hidden="true" />} htmlFor="login-username">Username</FieldLabel><div style={{ position: "relative" }}><User size={15} aria-hidden="true" style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: colors.inkFaint, pointerEvents: "none" }} /><input id="login-username" aria-label="Username" type="text" placeholder="Enter your username" autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} className="pcgo-input" style={{ minHeight: 46, ...inputIconPad }} /></div></div>
             <div><FieldLabel icon={<Lock size={12} aria-hidden="true" />} htmlFor="login-password">Password</FieldLabel><div style={{ position: "relative" }}><Lock size={15} aria-hidden="true" style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: colors.inkFaint, pointerEvents: "none" }} /><input id="login-password" aria-label="Password" type="password" placeholder="Enter your password" autoComplete={bootstrapMode ? "new-password" : "current-password"} value={password} onChange={(event) => setPassword(event.target.value)} className="pcgo-input" style={{ minHeight: 46, ...inputIconPad }} /></div></div>
             {error && <div role="alert" style={{ display: "flex", alignItems: "flex-start", gap: 9, padding: "11px 12px", borderRadius: radius.sm, background: colors.dangerDim, border: `1px solid rgba(240,127,131,0.3)`, color: colors.danger, font: `400 12px/1.45 ${fonts.body}` }}><TriangleAlert size={14} style={{ marginTop: 1, flexShrink: 0 }} />{error}</div>}
-            <Button type="submit" variant="primary" disabled={submitting} style={{ width: "100%", minHeight: 46, marginTop: 3 }}>{bootstrapMode ? <ShieldCheck size={15} /> : <LogIn size={15} />}{submitting ? (bootstrapMode ? "Creating account…" : "Signing in…") : (bootstrapMode ? "Register Admin" : "Sign in")}</Button>
+            <Button type="submit" variant="primary" disabled={submitting} style={{ width: "100%", minHeight: 46, marginTop: 3 }}>{bootstrapMode ? <ShieldCheck size={15} aria-hidden="true" /> : <LogIn size={15} aria-hidden="true" />}{submitting ? (bootstrapMode ? "Creating account…" : "Signing in…") : (bootstrapMode ? "Register Admin" : "Sign in")}</Button>
           </div>
         </form>
       </section>

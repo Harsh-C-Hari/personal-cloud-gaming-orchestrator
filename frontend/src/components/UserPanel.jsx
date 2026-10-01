@@ -195,7 +195,7 @@ export function UserPanel() {
               <strong>Directory unavailable</strong>
               <p>{loadError}</p>
               <Button variant="secondary" onClick={loadUsers} disabled={loading}>
-                <RefreshCw size={13} /> Retry loading users
+                <RefreshCw size={13} aria-hidden="true" /> Retry loading users
               </Button>
             </div>
           ) : users.length === 0 ? (
@@ -226,7 +226,7 @@ export function UserPanel() {
                         <div className="pcgo-users__identity-copy">
                           <strong title={user.username}>{user.username}</strong>
                           {isProtectedAdmin && (
-                            <span className="pcgo-users__protected"><ShieldCheck size={10} /> Last admin protected</span>
+                            <span className="pcgo-users__protected"><ShieldCheck size={10} aria-hidden="true" /> Last admin protected</span>
                           )}
                         </div>
                       </div>
@@ -249,7 +249,7 @@ export function UserPanel() {
                           disabled={isProtectedAdmin || busy}
                           onClick={() => handleDelete(user.username)}
                         >
-                          {deletingId === user.username ? <Spinner size={12} /> : <Trash2 size={13} strokeWidth={1.8} />}
+                          {deletingId === user.username ? <Spinner size={12} aria-hidden="true" /> : <Trash2 size={13} strokeWidth={1.8} />}
                           <span>Remove</span>
                         </button>
                       </div>
@@ -333,7 +333,7 @@ export function UserPanel() {
             aria-busy={creating}
             style={{ width: "100%", marginTop: "16px" }}
           >
-            {creating ? <RefreshCw size={13} className="pcgo-users__spin" /> : <Check size={13} />}
+            {creating ? <RefreshCw size={13} className="pcgo-users__spin" /> : <Check size={13} aria-hidden="true" />}
             {creating ? "Creating user…" : "Create user"}
           </Button>
 

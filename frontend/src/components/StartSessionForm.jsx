@@ -892,9 +892,9 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
             </div>
           </div>
 
-          {/* Skip Timer toggle */}
+          {/* Skip Timer toggle — role="switch" per ARIA spec for on/off controls (3.4) */}
           <div
-            role="checkbox"
+            role="switch"
             aria-checked={form.skip_timer}
             tabIndex={0}
             onClick={() => set("skip_timer", !form.skip_timer)}
