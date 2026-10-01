@@ -252,7 +252,9 @@ export function ConfirmDialogProvider({ children }) {
                   color: dialog.danger ? colors.danger : colors.brand,
                 }}
               >
-                {dialog.danger ? <AlertTriangle size={16} strokeWidth={2} /> : <HelpCircle size={16} strokeWidth={2} />}
+                {dialog.danger
+                  ? <AlertTriangle size={16} strokeWidth={2} aria-hidden="true" />
+                  : <HelpCircle size={16} strokeWidth={2} aria-hidden="true" />}
               </div>
 
               <div style={{ minWidth: 0 }}>
@@ -289,30 +291,16 @@ export function ConfirmDialogProvider({ children }) {
               <button
                 ref={cancelButtonRef}
                 onClick={() => close(false)}
+                className="pcgo-btn pcgo-btn--ghost"
                 style={{
                   flex: 1,
                   padding: "9px",
                   minHeight: "44px",
-                  // Per §6.4: dialog footer CTAs are the sanctioned
-                  // `radius.full` (999px) pill exception — the primary
-                  // action affordance on a destructive-confirm surface
-                  // should NOT be visually demoted to a `radius.tight`
-                  // (4px) rectangle. The pill shape is the loudest,
-                  // highest-tension button geometry in the system, and
-                  // the dialog footer is the one place where the user
-                  // needs to feel the action weight. Left as `radius.full`.
                   borderRadius: `${radius.full}px`,
-                  border: `1.5px solid ${colors.borderInk}`,
-                  background: "transparent",
-                  color: colors.ink,
                   fontSize: "12px",
-                  fontFamily: fonts.body,
                   fontWeight: 600,
                   letterSpacing: "0.02em",
-                  cursor: "pointer",
                 }}
-                onMouseEnter={(event) => (event.currentTarget.style.background = "rgba(237,235,227,0.08)")}
-                onMouseLeave={(event) => (event.currentTarget.style.background = "transparent")}
               >
                 {dialog.cancelLabel}
               </button>
@@ -320,26 +308,16 @@ export function ConfirmDialogProvider({ children }) {
               <button
                 ref={confirmButtonRef}
                 onClick={() => close(true)}
+                className={`pcgo-btn ${dialog.danger ? "pcgo-btn--danger-solid" : "pcgo-btn--primary"}`}
                 style={{
                   flex: 1,
                   padding: "9px",
                   minHeight: "44px",
-                  // Per §6.4: see Cancel button above — `radius.full`
-                  // (999px) is the sanctioned pill CTA geometry for the
-                  // dialog footer, intentional visual weight on the
-                  // primary action. Not converted to `radius.tight`.
                   borderRadius: `${radius.full}px`,
-                  border: `1.5px solid transparent`,
-                  background: dialog.danger ? colors.danger : colors.ink,
-                  color: colors.bg,
                   fontSize: "12px",
-                  fontFamily: fonts.body,
                   fontWeight: 700,
                   letterSpacing: "0.02em",
-                  cursor: "pointer",
                 }}
-                onMouseEnter={(event) => (event.currentTarget.style.filter = "brightness(1.06)")}
-                onMouseLeave={(event) => (event.currentTarget.style.filter = "none")}
               >
                 {dialog.confirmLabel}
               </button>
