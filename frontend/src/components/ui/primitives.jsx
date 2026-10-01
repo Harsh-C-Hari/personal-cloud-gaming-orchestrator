@@ -1,12 +1,16 @@
 /**
  * components/ui/primitives.jsx
  *
- * Shared primitives: Button, Card, Chip, Spinner, EmptyState.
+ * Shared primitives: Button, IconButton, Card, Chip, EmptyState,
+ *                    StatCard, KeyValueRow, DataTable.
  *
  * 3.1: Button rebuilt — CSS-only states, no GSAP/magnetic, no JS style mutation.
  *      radius.sm (8px), 14px/500, loading prop, scale(0.97) press.
  * 3.6: Card updated — radius.md (12px), no translateY hover lift, no JS hover.
  * 2.3: Chip updated — 12px sentence case (was 10px uppercase).
+ * 3.7: StatCard — label-above-value tile, 28px tabular, no boxed icon well.
+ * 3.8: KeyValueRow — spec-sheet row with dotted fill, compact variant.
+ * 3.9: DataTable — real <table> with scope="col", overflow wrapper, tabular-nums.
  */
 
 import { forwardRef } from "react";
@@ -295,3 +299,214 @@ export function EmptyState({ icon: Icon = Inbox, message, subtext, actionLabel, 
     </div>
   );
 }
+
+/* ─── 3.7 StatCard ──────────────────────────────────────────────────────────
+ * Label (12px faint, sentence case) above value (28px tabular, sans).
+ * Optional unit suffix and sub-line. No boxed icon wells.
+ * Usage: <StatCard label="Sessions today" value={42} unit="sessions" />
+ * ────────────────────────────────────────────────────────────────────────── */
+export function StatCard({ label, value, unit, sub, style }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "4px", ...style }}>
+      <span
+        style={{
+          fontSize: "12px",
+          fontWeight: 500,
+          color: colors.inkFaint,
+          fontFamily: fonts.body,
+          lineHeight: 1.3,
+        }}
+      >
+        {label}
+      </span>
+      <div style={{ display: "flex", alignItems: "baseline", gap: "5px" }}>
+        <span
+          style={{
+            fontSize: "28px",
+            fontWeight: 600,
+            color: colors.ink,
+            fontFamily: fonts.body,
+            fontVariantNumeric: "tabular-nums",
+            lineHeight: 1,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          {value ?? "--"}
+        </span>
+        {unit && (
+          <span style={{ fontSize: "12px", fontWeight: 500, color: colors.inkFaint, fontFamily: fonts.body }}>
+            {unit}
+          </span>
+        )}
+      </div>
+      {sub && (
+        <span style={{ fontSize: "12px", fontWeight: 400, color: colors.inkFaint, fontFamily: fonts.body, lineHeight: 1.4 }}>
+          {sub}
+        </span>
+      )}
+    </div>
+  );
+}
+
+/* ─── 3.8 KeyValueRow ───────────────────────────────────────────────────────
+ * Spec-sheet row: label (mono, faint) — dotted fill — value (mono, ink).
+ * `compact` reduces font sizes for tight contexts (Host Monitor stat grids).
+ * Usage: <KeyValueRow label="Hostname" value="gaming-rig" />
+ * ────────────────────────────────────────────────────────────────────────── */
+export function KeyValueRow({ label, value, compact, action, style }) {
+  return (
+    <div
+      className="pcgo-kv-row"
+      style={{
+        display: "flex",
+        alignItems: "baseline",
+        gap: "8px",
+        minWidth: 0,
+        ...style,
+      }}
+    >
+      <span
+        style={{
+          fontSize: compact ? "10px" : "10.5px",
+          color: colors.inkFaint,
+          whiteSpace: "nowrap",
+          fontFamily: fonts.mono,
+          flexShrink: 0,
+        }}
+      >
+        {label}
+      </span>
+      <span
+        style={{
+          flex: 1,
+          borderBottom: `1px dotted ${colors.border}`,
+          marginBottom: "3px",
+        }}
+      />
+      <span
+        style={{
+          fontSize: compact ? "10.5px" : "11.5px",
+          fontWeight: 600,
+          color: colors.ink,
+          fontFamily: fonts.mono,
+          textAlign: "right",
+          maxWidth: "60%",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          fontVariantNumeric: "tabular-nums",
+        }}
+      >
+        {value ?? "--"}
+      </span>
+      {action && (
+        <span style={{ flexShrink: 0 }}>{action}</span>
+      )}
+    </div>
+  );
+}
+
+/* ─── 3.9 DataTable ─────────────────────────────────────────────────────────
+ * Real <table> with scope="col", right-aligned numerics, overflow scroll.
+ * Columns: [{ key, label, align?, render? }, ...]
+ * Usage: <DataTable columns={cols} rows={data} keyField="id" />
+ * ────────────────────────────────────────────────────────────────────────── */
+export const DataTable = forwardRef(function DataTable(
+  { columns, rows = [], keyField = "id", emptyMessage = "No data", "aria-label": ariaLabel, style },
+  ref
+) {
+  return (
+    <div
+      ref={ref}
+      tabIndex={0}
+      role="region"
+      aria-label={ariaLabel ?? "Data table"}
+      style={{
+        overflowX: "auto",
+        borderRadius: `${radius.md}px`,
+        border: `1px solid ${colors.borderSubtle}`,
+        ...style,
+      }}
+    >
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          fontFamily: fonts.body,
+          fontSize: "13px",
+        }}
+      >
+        <thead>
+          <tr>
+            {columns.map((col) => (
+              <th
+                key={col.key}
+                scope="col"
+                style={{
+                  padding: "10px 14px",
+                  textAlign: col.align === "right" ? "right" : "left",
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  color: colors.inkFaint,
+                  fontFamily: fonts.mono,
+                  borderBottom: `1px solid ${colors.borderSubtle}`,
+                  whiteSpace: "nowrap",
+                  background: colors.bgInset,
+                }}
+              >
+                {col.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.length === 0 ? (
+            <tr>
+              <td
+                colSpan={columns.length}
+                style={{
+                  padding: "32px 14px",
+                  textAlign: "center",
+                  color: colors.inkFaint,
+                  fontSize: "13px",
+                  fontFamily: fonts.body,
+                }}
+              >
+                {emptyMessage}
+              </td>
+            </tr>
+          ) : (
+            rows.map((row, i) => (
+              <tr
+                key={row[keyField] ?? i}
+                style={{
+                  borderBottom: i < rows.length - 1 ? `1px solid ${colors.borderSubtle}` : "none",
+                }}
+              >
+                {columns.map((col) => (
+                  <td
+                    key={col.key}
+                    style={{
+                      padding: "10px 14px",
+                      textAlign: col.align === "right" ? "right" : "left",
+                      color: colors.ink,
+                      fontVariantNumeric: col.align === "right" ? "tabular-nums" : undefined,
+                      verticalAlign: "middle",
+                      maxWidth: col.maxWidth ?? "240px",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {col.render ? col.render(row[col.key], row) : (row[col.key] ?? "--")}
+                  </td>
+                ))}
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+});
+
