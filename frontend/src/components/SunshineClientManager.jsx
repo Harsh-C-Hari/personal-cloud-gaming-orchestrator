@@ -56,7 +56,7 @@ import {
 } from "../api/client";
 import { useToast } from "./ui/Toast.jsx";
 import { useConfirm } from "./ui/ConfirmDialog.jsx";
-import { colors, fonts, radius, surface } from "../dashboard/theme.js";
+import { colors, fonts, radius, surface, typeScale } from "../dashboard/theme.js";
 
 /**
  * P5-T06 token-elevation audit (typeScale/surface, per D-008/D-009):

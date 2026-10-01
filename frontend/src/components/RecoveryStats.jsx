@@ -1,8 +1,8 @@
-ï»¿/**
+/**
  * components/RecoveryStats.jsx
  *
  * Same props (recoveryStats, showTailscaleRecoveryDetails/
- * showTailscaleFailureDetails + their setters) and same data fields â€”
+ * showTailscaleFailureDetails + their setters) and same data fields —
  * only the presentation was reworked to the "Chalkboard Neo-Brutalist"
  * system: flat tokens from theme.js instead of a local cyan-glow palette,
  * lucide-react icons instead of react-icons/fa, and the shared
@@ -12,7 +12,7 @@
  *
  * Backgrounds: all 9 `colors.bg*` references in this file (2x bgCard,
  * 3x bgInset, 3x bgElevated, plus a duplicate bgCard on the loading
- * skeleton) have been swapped for their `surface.l*` alias per D-009 â€”
+ * skeleton) have been swapped for their `surface.l*` alias per D-009 —
  * same CSS custom property, same value, zero visual change. `colors` is
  * still imported/used throughout for non-background tokens (ink/border/
  * brand/status colors) and is unaffected.
@@ -25,32 +25,32 @@
  * mismatch, per D-005/D-009 ("only convert what cleanly matches...
  * document and leave literal anything that doesn't"):
  * - `title` (15px/700/display): closest candidate to
- *   `typeScale.subheading` (17px/600/-0.01em/display) â€” font-family
- *   matches, but weight (700 vs 600) and size (15px vs 17px) don't â€”
+ *   `typeScale.subheading` (17px/600/-0.01em/display) — font-family
+ *   matches, but weight (700 vs 600) and size (15px vs 17px) don't —
  *   left literal. Identical object/finding to Session History's
  *   `title` (P5-T04) and shared verbatim with `RecoveryEvents.jsx`'s
  *   `title` for sibling consistency.
  * - `summaryEyebrow`, `channelHeading` (both 9px/700/0.12em/uppercase/
  *   mono): weight/letter-spacing/case/family all match
- *   `typeScale.meta` (10px/700/0.12em/uppercase/mono) â€” only the size
- *   (9px vs 10px) doesn't â€” left literal as the closest near-miss in
+ *   `typeScale.meta` (10px/700/0.12em/uppercase/mono) — only the size
+ *   (9px vs 10px) doesn't — left literal as the closest near-miss in
  *   the file.
  * - `sectionLabel` (9px/700/0.13em/uppercase/mono): same size gap plus
- *   a letter-spacing mismatch (0.13em vs 0.12em) â€” left literal.
+ *   a letter-spacing mismatch (0.13em vs 0.12em) — left literal.
  * - `postureBadge`, `detailToggle` (both 9px/700/0.08em/mono, no
- *   uppercase): size and letter-spacing both miss `typeScale.meta` â€”
+ *   uppercase): size and letter-spacing both miss `typeScale.meta` —
  *   left literal. `detailToggle` is shared verbatim with
  *   `RecoveryEvents.jsx`'s `showAllButton`.
  * - `panelDescription` (9.5px/400/mono, no letter-spacing/uppercase):
- *   no `typeScale` step sits here â€” left literal. Shared verbatim with
+ *   no `typeScale` step sits here — left literal. Shared verbatim with
  *   `RecoveryEvents.jsx`'s `panelDescription`.
  * - `loadingHeader` (10.5px/mono), `labelStyle` (8.5px/0.04em/
  *   uppercase/mono), `valueStyle` (19px/700/mono), `SubStat`'s two
  *   inline groups (15px/700/mono and 8.5px/0.08em/mono): none match a
- *   `typeScale` step at matching size+weight+family â€” left literal.
+ *   `typeScale` step at matching size+weight+family — left literal.
  * All of the above keep their exact pre-existing literal values;
  * nothing here changes visually. See `RecoveryEvents.jsx` for the
- * sibling component's matching audit â€” the two share several style
+ * sibling component's matching audit — the two share several style
  * objects verbatim (`title`, `headerIcon`, `panelDescription`, `box`)
  * and use the same near-miss reasoning throughout, keeping the two
  * internally consistent with each other per this task's design
@@ -58,7 +58,7 @@
  */
 
 import { ShieldAlert, Zap, Satellite, ChevronDown, AlertTriangle } from "lucide-react";
-import { colors, fonts, radius, surface } from "../dashboard/theme.js";
+import { colors, fonts, radius, surface, typeScale } from "../dashboard/theme.js";
 
 function StatTile({ icon, label: labelText, value: valueNum, tone }) {
   return (
@@ -69,7 +69,7 @@ function StatTile({ icon, label: labelText, value: valueNum, tone }) {
           width: "32px",
           height: "32px",
           // TCB-P3 followup: value-preserving rename from `radius.sm`
-          // (4px) to `radius.tight` (4px) â€” 32x32 stat-tile icon
+          // (4px) to `radius.tight` (4px) — 32x32 stat-tile icon
           // badge, the 4px "tight" step is the correct chip-scale.
           borderRadius: `${radius.tight}px`,
           display: "flex",
@@ -114,7 +114,7 @@ function DetailToggle({ open, onClick, label, controls }) {
         strokeWidth={2}
         // P6-T09 motion audit: 0.2s (200ms) plain `ease`-default does not
         // exactly match any `motion` step (fast=100ms, base=160ms,
-        // cardIn=220ms, pill=180ms cubic-bezier) â€” same non-match as
+        // cardIn=220ms, pill=180ms cubic-bezier) — same non-match as
         // ErrorBoundary.jsx's identical chevron pattern (P6-T04). Left as
         // a literal, not converted.
         style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
@@ -271,7 +271,7 @@ const box = {
   padding: "20px",
   border: `1px solid ${colors.border}`,
   borderRadius: `${radius.lg}px`,
-  /* TCB-P4.2 followup: surface.l3 â†’ surface.l1 to match
+  /* TCB-P4.2 followup: surface.l3 ? surface.l1 to match
      `.pcgo-host-diagnostics-card` (the inset tier introduced by the
      Host Monitor section-card alignment). RecoveryStats' `box` is
      the page-level framed section card, so it now sits on the inset
@@ -291,7 +291,7 @@ const headerIcon = {
   width: "28px",
   height: "28px",
   // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
-  // to `radius.tight` (4px) â€” 28x28 header icon badge, the 4px
+  // to `radius.tight` (4px) — 28x28 header icon badge, the 4px
   // "tight" step is the correct chip-scale.
   borderRadius: `${radius.tight}px`,
   display: "flex",
@@ -312,7 +312,7 @@ const card = {
 const subStatCard = {
   padding: "8px 10px",
   // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
-  // to `radius.tight` (4px) â€” small inset tile inside the 16px
+  // to `radius.tight` (4px) — small inset tile inside the 16px
   // card parent, 4px is the right inset-vs-parent step.
   borderRadius: `${radius.tight}px`,
   background: surface.l2,
@@ -332,7 +332,7 @@ const postureBadge = {
   padding: "4px 8px",
   border: "1px solid",
   // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
-  // to `radius.tight` (4px) â€” small status badge (posture), the
+  // to `radius.tight` (4px) — small status badge (posture), the
   // 4px "tight" step is the correct chip-scale.
   borderRadius: `${radius.tight}px`,
   fontSize: "9px",
@@ -485,7 +485,7 @@ const detailToggle = {
   background: surface.l2,
   color: colors.inkDim,
   // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
-  // to `radius.tight` (4px) â€” full-width show/hide-details button
+  // to `radius.tight` (4px) — full-width show/hide-details button
   // (the 4px "tight" step is the button/chip scale, not the 16px
   // container scale).
   borderRadius: `${radius.tight}px`,

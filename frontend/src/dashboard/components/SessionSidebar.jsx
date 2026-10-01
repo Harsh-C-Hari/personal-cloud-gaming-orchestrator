@@ -10,7 +10,7 @@
 import { Zap, Layers, Satellite, ListTree } from "lucide-react";
 import { EventLog } from "../../components/EventLog.jsx";
 import { DashboardStats } from "./DashboardStats.jsx";
-import { colors, fonts, radius, surface } from "../theme.js";
+import { colors, fonts, radius, surface, typeScale } from "../theme.js";
 
 export function SessionSidebar({ activeCount, totalCount, connected, events }) {
   return (
