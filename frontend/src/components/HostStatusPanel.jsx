@@ -1,4 +1,4 @@
-﻿/**
+/**
  * components/HostStatusPanel.jsx
  *
  * Same props, same handlers, same data — only the presentation layer was
@@ -71,7 +71,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { SunshineStreamCard } from "./SunshineStreamCard.jsx";
-import { Button } from "./ui/primitives.jsx";
+import { Button, KeyValueRow } from "./ui/primitives.jsx";
 import { colors, fonts, radius, surface, typeScale } from "../dashboard/theme.js";
 
 export function HostStatusPanel({
@@ -210,31 +210,31 @@ export function HostStatusPanel({
       {metrics && (
         <SectionCard className="pcgo-host-system-card" icon={<Server size={11} strokeWidth={2} />} title="System">
           <StatGrid>
-            <StatRow label="Host" value={metrics.hostname} />
-            <StatRow label="OS" value={metrics.os} />
-            <StatRow label="OS Version" value={metrics.os_version} />
-            <StatRow label="Device Type" value={metrics.machine_type} />
+            <KeyValueRow label="Host" value={metrics.hostname} />
+            <KeyValueRow label="OS" value={metrics.os} />
+            <KeyValueRow label="OS Version" value={metrics.os_version} />
+            <KeyValueRow label="Device Type" value={metrics.machine_type} />
           </StatGrid>
         </SectionCard>
       )}
 
       {/* Readiness / Session */}
       <SectionCard className="pcgo-host-readiness-card" icon={sessionHealth?.lock_exists ? <Lock size={11} strokeWidth={2} /> : <Unlock size={11} strokeWidth={2} />} title="Session & Recovery">
-        <StatRow
+        <KeyValueRow
           label="Session Lock"
           value={<Badge tone={sessionHealth?.lock_exists ? "warning" : "ok"}>{sessionHealth?.lock_exists ? "LOCKED" : "FREE"}</Badge>}
         />
 
         {sessionHealth?.lock_exists && (
           <div style={{ marginTop: "6px", paddingLeft: "10px", borderLeft: `2px solid ${colors.border}`, display: "flex", flexDirection: "column", gap: "5px" }}>
-            <StatRow label="Lock User" value={sessionHealth?.user_id} compact />
-            <StatRow label="Lock Game" value={sessionHealth?.game_id} compact />
-            <StatRow label="Lock Session" value={sessionHealth?.session_id} compact />
+            <KeyValueRow label="Lock User" value={sessionHealth?.user_id} compact />
+            <KeyValueRow label="Lock Game" value={sessionHealth?.game_id} compact />
+            <KeyValueRow label="Lock Session" value={sessionHealth?.session_id} compact />
           </div>
         )}
 
         <div style={{ marginTop: "10px", paddingTop: "10px", borderTop: `1.5px solid ${colors.border}` }}>
-          <StatRow label="Host Ready" value={<Badge tone={status.host_ready ? "ok" : "bad"}>{status.host_ready ? "YES" : "NO"}</Badge>} />
+          <KeyValueRow label="Host Ready" value={<Badge tone={status.host_ready ? "ok" : "bad"}>{status.host_ready ? "YES" : "NO"}</Badge>} />
           {status.host_ready_reason && <div style={reasonText}>{status.host_ready_reason}</div>}
         </div>
 
@@ -248,7 +248,7 @@ export function HostStatusPanel({
         )}
 
         <div style={{ marginTop: "12px" }}>
-          <StatRow
+          <KeyValueRow
             label="Maintenance"
             value={
               <Button
@@ -265,11 +265,11 @@ export function HostStatusPanel({
         </div>
 
         <StatGrid style={{ marginTop: "10px" }}>
-          <StatRow label="Startup Completed" value={<Badge tone={status.startup_completed ? "ok" : "bad"}>{status.startup_completed ? "YES" : "NO"}</Badge>} />
-          <StatRow label="Active Sessions" value={status.active_session_count} />
-          <StatRow label="Last Validation" value={status.last_validation ? new Date(status.last_validation * 1000).toLocaleString() : "Never"} />
-          {metrics && <StatRow label="Health" value={<Badge tone={healthTone}>{metrics.health.toUpperCase()}</Badge>} />}
-          {metrics && <StatRow label="Uptime" value={`${metrics.uptime_hours} h`} />}
+          <KeyValueRow label="Startup Completed" value={<Badge tone={status.startup_completed ? "ok" : "bad"}>{status.startup_completed ? "YES" : "NO"}</Badge>} />
+          <KeyValueRow label="Active Sessions" value={status.active_session_count} />
+          <KeyValueRow label="Last Validation" value={status.last_validation ? new Date(status.last_validation * 1000).toLocaleString() : "Never"} />
+          {metrics && <KeyValueRow label="Health" value={<Badge tone={healthTone}>{metrics.health.toUpperCase()}</Badge>} />}
+          {metrics && <KeyValueRow label="Uptime" value={`${metrics.uptime_hours} h`} />}
         </StatGrid>
 
         {status.startup_issues?.length > 0 && (
@@ -286,7 +286,7 @@ export function HostStatusPanel({
       {/* Sunshine */}
       <SectionCard className="pcgo-host-sunshine-card" icon={<Zap size={11} strokeWidth={2} />} title="Sunshine Dependency">
         <StatGrid>
-          <StatRow
+          <KeyValueRow
             label="Sunshine"
             value={
               <Badge tone={sunshineAction ? "warning" : status.sunshine_running ? "ok" : "bad"}>
@@ -294,7 +294,7 @@ export function HostStatusPanel({
               </Badge>
             }
           />
-          <StatRow
+          <KeyValueRow
             label="Sunshine API"
             value={
               <Badge tone={sunshineAction ? "warning" : status.sunshine_api_reachable ? "ok" : "bad"}>
@@ -302,9 +302,9 @@ export function HostStatusPanel({
               </Badge>
             }
           />
-          <StatRow label="Can Stop" value={<Badge tone={status.sunshine_can_stop ? "ok" : "bad"}>{status.sunshine_can_stop ? "YES" : "NO"}</Badge>} />
-          <StatRow label="Paired Clients" value={status.sunshine_client_count == null ? "N/A" : status.sunshine_client_count} />
-          <StatRow label="Apps" value={status.sunshine_apps_count ?? 0} />
+          <KeyValueRow label="Can Stop" value={<Badge tone={status.sunshine_can_stop ? "ok" : "bad"}>{status.sunshine_can_stop ? "YES" : "NO"}</Badge>} />
+          <KeyValueRow label="Paired Clients" value={status.sunshine_client_count == null ? "N/A" : status.sunshine_client_count} />
+          <KeyValueRow label="Apps" value={status.sunshine_apps_count ?? 0} />
         </StatGrid>
 
         <div style={buttonRow}>
@@ -347,27 +347,27 @@ export function HostStatusPanel({
       {/* Tailscale */}
       <SectionCard className="pcgo-host-tailscale-card" icon={<Satellite size={11} strokeWidth={2} />} title="Tailscale Dependency">
         <StatGrid>
-          <StatRow label="Tailscale" value={<Badge tone={status.tailscale_running ? "ok" : "bad"}>{status.tailscale_running ? "ON" : "OFF"}</Badge>} />
-          <StatRow label="Configured" value={<Badge tone={tailscaleStatus?.configured ? "ok" : "bad"}>{tailscaleStatus?.configured ? "Yes" : "No"}</Badge>} />
-          <StatRow label="Service Running" value={<Badge tone={tailscaleStatus?.service_running ? "ok" : "bad"}>{tailscaleStatus?.service_running ? "Yes" : "No"}</Badge>} />
-          <StatRow label="IPN Running" value={<Badge tone={tailscaleStatus?.ipn_running ? "ok" : "bad"}>{tailscaleStatus?.ipn_running ? "Yes" : "No"}</Badge>} />
-          <StatRow label="Backend Running" value={<Badge tone={tailscaleStatus?.backend_state ? "ok" : "bad"}>{tailscaleStatus?.backend_state ? "Yes" : "No"}</Badge>} />
-          <StatRow label="Authenticated" value={<Badge tone={tailscaleStatus?.user_authenticated ? "ok" : "bad"}>{tailscaleStatus?.user_authenticated ? "Yes" : "No"}</Badge>} />
-          <StatRow label="Recovery" value={<Badge tone={tailscaleStatus?.ipn_recovery_enabled ? "ok" : "bad"}>{tailscaleStatus?.ipn_recovery_enabled ? "Enabled" : "Disabled"}</Badge>} />
+          <KeyValueRow label="Tailscale" value={<Badge tone={status.tailscale_running ? "ok" : "bad"}>{status.tailscale_running ? "ON" : "OFF"}</Badge>} />
+          <KeyValueRow label="Configured" value={<Badge tone={tailscaleStatus?.configured ? "ok" : "bad"}>{tailscaleStatus?.configured ? "Yes" : "No"}</Badge>} />
+          <KeyValueRow label="Service Running" value={<Badge tone={tailscaleStatus?.service_running ? "ok" : "bad"}>{tailscaleStatus?.service_running ? "Yes" : "No"}</Badge>} />
+          <KeyValueRow label="IPN Running" value={<Badge tone={tailscaleStatus?.ipn_running ? "ok" : "bad"}>{tailscaleStatus?.ipn_running ? "Yes" : "No"}</Badge>} />
+          <KeyValueRow label="Backend Running" value={<Badge tone={tailscaleStatus?.backend_state ? "ok" : "bad"}>{tailscaleStatus?.backend_state ? "Yes" : "No"}</Badge>} />
+          <KeyValueRow label="Authenticated" value={<Badge tone={tailscaleStatus?.user_authenticated ? "ok" : "bad"}>{tailscaleStatus?.user_authenticated ? "Yes" : "No"}</Badge>} />
+          <KeyValueRow label="Recovery" value={<Badge tone={tailscaleStatus?.ipn_recovery_enabled ? "ok" : "bad"}>{tailscaleStatus?.ipn_recovery_enabled ? "Enabled" : "Disabled"}</Badge>} />
         </StatGrid>
       </SectionCard>
 
       {/* Hardware */}
       <SectionCard className="pcgo-host-diagnostics-card" icon={<Cpu size={11} strokeWidth={2} />} title="Diagnostics & Performance">
         <StatGrid>
-          <StatRow label="GPU" value={<Badge tone={status.gpu_available ? "ok" : "bad"}>{status.gpu_available ? "READY" : "NO"}</Badge>} />
-          {metrics && <StatRow label="CPU" value={metrics.cpu_name} />}
-          {metrics?.integrated_gpu && <StatRow label="Integrated GPU" value={metrics.integrated_gpu} />}
-          {metrics?.dedicated_gpu && <StatRow label="Dedicated GPU" value={metrics.dedicated_gpu} />}
-          {metrics && <StatRow label="GPU Class" value={metrics.gpu_class} />}
-          {metrics && <StatRow label="GPU Vendor" value={metrics.gpu_vendor} />}
-          {metrics && <StatRow label="Disk" value={metrics.disk_name} />}
-          {metrics && <StatRow label="CPU Cores" value={metrics.cpu_cores} />}
+          <KeyValueRow label="GPU" value={<Badge tone={status.gpu_available ? "ok" : "bad"}>{status.gpu_available ? "READY" : "NO"}</Badge>} />
+          {metrics && <KeyValueRow label="CPU" value={metrics.cpu_name} />}
+          {metrics?.integrated_gpu && <KeyValueRow label="Integrated GPU" value={metrics.integrated_gpu} />}
+          {metrics?.dedicated_gpu && <KeyValueRow label="Dedicated GPU" value={metrics.dedicated_gpu} />}
+          {metrics && <KeyValueRow label="GPU Class" value={metrics.gpu_class} />}
+          {metrics && <KeyValueRow label="GPU Vendor" value={metrics.gpu_vendor} />}
+          {metrics && <KeyValueRow label="Disk" value={metrics.disk_name} />}
+          {metrics && <KeyValueRow label="CPU Cores" value={metrics.cpu_cores} />}
         </StatGrid>
 
         {metrics && (
@@ -381,7 +381,7 @@ export function HostStatusPanel({
         )}
 
         <div style={{ marginTop: "10px" }}>
-          <StatRow label="Disk Free" value={`${status.disk_free_gb} GB`} />
+          <KeyValueRow label="Disk Free" value={`${status.disk_free_gb} GB`} />
         </div>
       </SectionCard>
     </div>
@@ -491,45 +491,12 @@ function SectionCard({ className = "", icon, title: heading, children }) {
   );
 }
 
+// 3.8: StatGrid stays as a panel-specific 2-col layout wrapper.
+// StatRow replaced by shared KeyValueRow from primitives.jsx.
 function StatGrid({ children, style }) {
   return (
     <div className="hsp-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 18px", ...style }}>
       {children}
-    </div>
-  );
-}
-
-function StatRow({ label, value, compact }) {
-  return (
-    <div className="hsp-row" style={{ display: "flex", alignItems: "baseline", gap: "8px", minWidth: 0 }}>
-      <span
-        className="hsp-row-label"
-        style={{
-          fontSize: compact ? "10px" : "10.5px",
-          color: colors.inkFaint,
-          whiteSpace: "nowrap",
-          fontFamily: fonts.mono,
-        }}
-      >
-        {label}
-      </span>
-      <span className="hsp-row-fill" style={{ flex: 1, borderBottom: `1px dotted ${colors.border}`, marginBottom: "3px" }} />
-      <span
-        className="hsp-row-value"
-        style={{
-          fontSize: compact ? "10.5px" : "11.5px",
-          fontWeight: 600,
-          color: colors.ink,
-          fontFamily: fonts.mono,
-          textAlign: "right",
-          maxWidth: "60%",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {value ?? "--"}
-      </span>
     </div>
   );
 }
