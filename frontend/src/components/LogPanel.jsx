@@ -17,8 +17,7 @@ import { getLogs, getLogSessions, getApiUrl, clearToken } from "../api/client";
 import { useToast } from "./ui/Toast.jsx";
 import { colors, fonts, radius, shadow, surface } from "../dashboard/theme.js";
 
-const focusBorder = (e) => { e.target.style.borderColor = colors.ink; };
-const blurBorder = (e) => { e.target.style.borderColor = colors.borderSubtle; };
+// 3.3: Focus/blur border change now handled by CSS .pcgo-input:focus in base.css.
 
 function getLogMeta(log) {
   if (log.includes("[ERROR]")) return { label: "ERROR", color: colors.danger, icon: <XCircle size={11} strokeWidth={2} />, key: "error" };
@@ -244,19 +243,19 @@ export function LogPanel() {
 
   const filterControls = (
     <>
-      <select aria-label="Filter logs by severity" value={level} onChange={(e) => setLevel(e.target.value)} style={selectStyle} onFocus={focusBorder} onBlur={blurBorder}>
+      <select aria-label="Filter logs by severity" value={level} onChange={(e) => setLevel(e.target.value)} className="pcgo-input" style={selectStyle}>
         <option value="ALL">ALL LEVELS</option>
         <option value="INFO">INFO</option>
         <option value="WARNING">WARNING</option>
         <option value="ERROR">ERROR</option>
       </select>
-      <select aria-label="Filter logs by session" value={sessionFilter} onChange={(e) => setSessionFilter(e.target.value)} style={selectStyle} onFocus={focusBorder} onBlur={blurBorder}>
+      <select aria-label="Filter logs by session" value={sessionFilter} onChange={(e) => setSessionFilter(e.target.value)} className="pcgo-input" style={selectStyle}>
         <option value="ALL">ALL SESSIONS</option>
         {sessions.map((session) => <option key={session} value={session}>{session}</option>)}
       </select>
       <div style={searchWrap}>
         <Search size={11} strokeWidth={2} style={searchIcon} />
-        <input aria-label="Search logs" placeholder="Search logs..." value={searchInput} onChange={(e) => setSearchInput(e.target.value)} style={searchInputStyle} onFocus={focusBorder} onBlur={blurBorder} />
+        <input aria-label="Search logs" placeholder="Search logs..." value={searchInput} onChange={(e) => setSearchInput(e.target.value)} className="pcgo-input" style={searchInputStyle} />
       </div>
     </>
   );

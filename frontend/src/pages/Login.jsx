@@ -12,13 +12,14 @@ import { prefersReducedMotion } from "../lib/motion/reducedMotion.js";
 // P6-T07 motion audit: both properties on this transition were an exact
 // "160ms ease" match to motion.base (verified against theme.js's real,
 // current value), so this is a genuine token-alias conversion — same
-// precedent as PageHeader.jsx's motion.base template-literal conversion
-// (P6-T03). Same duration/easing, zero visual change.
-const inputStyle = { width: "100%", minHeight: 46, padding: "11px 13px 11px 39px", background: colors.bgInset, border: `1px solid ${colors.border}`, borderRadius: radius.sm, color: colors.ink, fontSize: 13.5, fontFamily: fonts.body, boxSizing: "border-box", transition: `border-color ${motion.base}, background ${motion.base}` };
+// inputStyle replaced by .pcgo-input class in base.css (3.3).
+// Left-pad keeps room for the icon decoration.
+const inputIconPad = { paddingLeft: "39px" };
 
 function FieldLabel({ icon, children, htmlFor }) {
   const Tag = htmlFor ? "label" : "span";
-  return <Tag htmlFor={htmlFor} style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 10, fontWeight: 700, color: colors.inkFaint, letterSpacing: ".12em", textTransform: "uppercase", fontFamily: fonts.mono, marginBottom: 8 }}>{icon}{children}</Tag>;
+  // 3.3/2.3: 12px/500 IBM Plex Sans sentence case (was 10px mono uppercase)
+  return <Tag htmlFor={htmlFor} style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12, fontWeight: 500, color: colors.inkFaint, fontFamily: fonts.body, marginBottom: 8 }}>{icon}{children}</Tag>;
 }
 
 
@@ -139,8 +140,8 @@ export default function Login() {
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 17, padding: 28 }}>
             {bootstrapMode && <div style={{ display: "flex", alignItems: "flex-start", gap: 9, padding: "11px 12px", borderRadius: radius.sm, background: colors.accentBlueDim, border: `1px solid rgba(140,196,232,0.3)`, color: colors.inkDim, font: `400 12px/1.45 ${fonts.body}` }}><Info size={14} style={{ marginTop: 1, flexShrink: 0, color: colors.accentBlue }} /> No admin account detected. Create the first administrator.</div>}
-            <div><FieldLabel icon={<User size={12} />} htmlFor="login-username">Username</FieldLabel><div style={{ position: "relative" }}><User size={15} style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: colors.inkFaint, pointerEvents: "none" }} /><input id="login-username" aria-label="Username" type="text" placeholder="Enter your username" autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} style={inputStyle} onFocus={(event) => { event.target.style.borderColor = colors.brand; event.target.style.background = colors.bgCardHover; }} onBlur={(event) => { event.target.style.borderColor = colors.border; event.target.style.background = colors.bgInset; }} /></div></div>
-            <div><FieldLabel icon={<Lock size={12} />} htmlFor="login-password">Password</FieldLabel><div style={{ position: "relative" }}><Lock size={15} style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: colors.inkFaint, pointerEvents: "none" }} /><input id="login-password" aria-label="Password" type="password" placeholder="Enter your password" autoComplete={bootstrapMode ? "new-password" : "current-password"} value={password} onChange={(event) => setPassword(event.target.value)} style={inputStyle} onFocus={(event) => { event.target.style.borderColor = colors.brand; event.target.style.background = colors.bgCardHover; }} onBlur={(event) => { event.target.style.borderColor = colors.border; event.target.style.background = colors.bgInset; }} /></div></div>
+            <div><FieldLabel icon={<User size={12} aria-hidden="true" />} htmlFor="login-username">Username</FieldLabel><div style={{ position: "relative" }}><User size={15} aria-hidden="true" style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: colors.inkFaint, pointerEvents: "none" }} /><input id="login-username" aria-label="Username" type="text" placeholder="Enter your username" autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} className="pcgo-input" style={{ minHeight: 46, ...inputIconPad }} /></div></div>
+            <div><FieldLabel icon={<Lock size={12} aria-hidden="true" />} htmlFor="login-password">Password</FieldLabel><div style={{ position: "relative" }}><Lock size={15} aria-hidden="true" style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: colors.inkFaint, pointerEvents: "none" }} /><input id="login-password" aria-label="Password" type="password" placeholder="Enter your password" autoComplete={bootstrapMode ? "new-password" : "current-password"} value={password} onChange={(event) => setPassword(event.target.value)} className="pcgo-input" style={{ minHeight: 46, ...inputIconPad }} /></div></div>
             {error && <div role="alert" style={{ display: "flex", alignItems: "flex-start", gap: 9, padding: "11px 12px", borderRadius: radius.sm, background: colors.dangerDim, border: `1px solid rgba(240,127,131,0.3)`, color: colors.danger, font: `400 12px/1.45 ${fonts.body}` }}><TriangleAlert size={14} style={{ marginTop: 1, flexShrink: 0 }} />{error}</div>}
             <Button type="submit" variant="primary" disabled={submitting} style={{ width: "100%", minHeight: 46, marginTop: 3 }}>{bootstrapMode ? <ShieldCheck size={15} /> : <LogIn size={15} />}{submitting ? (bootstrapMode ? "Creating account…" : "Signing in…") : (bootstrapMode ? "Register Admin" : "Sign in")}</Button>
           </div>

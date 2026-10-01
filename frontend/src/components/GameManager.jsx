@@ -421,13 +421,7 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
     );
   }
 
-  const focusBorder = (e) => {
-    e.target.style.borderColor = colors.ink;
-  };
-  const blurBorder = (e) => {
-    e.target.style.borderColor = colors.border;
-  };
-
+  // 3.3: Focus/blur border change now handled by CSS .pcgo-input:focus in base.css.`n
   return (
     <div className="pcgo-game-manager-config-panel" style={outerWrap}>
       {/* ── Header ─────────────────────────────────────────────── */}
@@ -567,8 +561,6 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                       disabled={editingGame !== null}
                       aria-label="Game ID"
                       onChange={(e) => setField("id", e.target.value)}
-                      onFocus={focusBorder}
-                      onBlur={blurBorder}
                     />
                   </div>
 
@@ -576,13 +568,12 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                     <FieldLabel icon={<Gamepad2 size={10} strokeWidth={2} />} htmlFor="gm-game-name">Game Name</FieldLabel>
                     <input
                       id="gm-game-name"
+                      className="pcgo-input"
                       style={inputStyle}
                       placeholder="God of War Ragnarök"
                       value={gameForm.name}
                       aria-label="Game Name"
                       onChange={(e) => setField("name", e.target.value)}
-                      onFocus={focusBorder}
-                      onBlur={blurBorder}
                     />
                   </div>
 
@@ -590,13 +581,12 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                     <FieldLabel icon={<FileInput size={10} strokeWidth={2} />} htmlFor="gm-exe-name">Executable Name</FieldLabel>
                     <input
                       id="gm-exe-name"
+                      className="pcgo-input"
                       style={inputStyle}
                       placeholder="GoWR.exe"
                       value={gameForm.exe_name}
                       aria-label="Executable Name"
                       onChange={(e) => setField("exe_name", e.target.value)}
-                      onFocus={focusBorder}
-                      onBlur={blurBorder}
                     />
                   </div>
                 </div>
@@ -617,8 +607,6 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                         value={gameForm.exe_path}
                         aria-label="Executable Path"
                         onChange={(e) => setField("exe_path", e.target.value)}
-                        onFocus={focusBorder}
-                        onBlur={blurBorder}
                       />
                       <button
                         style={{
@@ -650,8 +638,6 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                         value={gameForm.save_path}
                         aria-label="Save Path"
                         onChange={(e) => setField("save_path", e.target.value)}
-                        onFocus={focusBorder}
-                        onBlur={blurBorder}
                       />
                       <button
                         style={{
@@ -677,13 +663,12 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                     <FieldLabel icon={<Cpu size={10} strokeWidth={2} />} htmlFor="gm-process-name">Process Name</FieldLabel>
                     <input
                       id="gm-process-name"
+                      className="pcgo-input"
                       style={inputStyle}
                       placeholder="Process Name"
                       value={gameForm.process_name}
                       aria-label="Process Name"
                       onChange={(e) => setField("process_name", e.target.value)}
-                      onFocus={focusBorder}
-                      onBlur={blurBorder}
                     />
                   </div>
                 </div>
@@ -698,12 +683,11 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                     <FieldLabel htmlFor="gm-match-mode">Match Mode</FieldLabel>
                     <select
                       id="gm-match-mode"
+                      className="pcgo-input"
                       style={inputStyle}
                       value={gameForm.save_filters.mode}
                       aria-label="Match Mode"
                       onChange={(e) => updateSaveFilters("mode", e.target.value)}
-                      onFocus={focusBorder}
-                      onBlur={blurBorder}
                     >
                       <option value="or">OR - Match any filter</option>
                       <option value="and">AND - Match all filters</option>
@@ -714,6 +698,7 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                     <FieldLabel htmlFor="gm-prefix-filters">Prefix Filters</FieldLabel>
                     <input
                       id="gm-prefix-filters"
+                      className="pcgo-input"
                       style={inputStyle}
                       placeholder="Prefix filters (comma separated)"
                       value={gameForm.save_filters.prefix.join(",")}
@@ -724,8 +709,6 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                           e.target.value.split(",").map((v) => v.trim()).filter(Boolean)
                         )
                       }
-                      onFocus={focusBorder}
-                      onBlur={blurBorder}
                     />
                   </div>
 
@@ -733,6 +716,7 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                     <FieldLabel htmlFor="gm-contains-filters">Contains Filters</FieldLabel>
                     <input
                       id="gm-contains-filters"
+                      className="pcgo-input"
                       style={inputStyle}
                       placeholder="Contains filters (comma separated)"
                       value={gameForm.save_filters.contains.join(",")}
@@ -743,8 +727,6 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                           e.target.value.split(",").map((v) => v.trim()).filter(Boolean)
                         )
                       }
-                      onFocus={focusBorder}
-                      onBlur={blurBorder}
                     />
                   </div>
 
@@ -752,6 +734,7 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                     <FieldLabel htmlFor="gm-suffix-filters">Suffix Filters</FieldLabel>
                     <input
                       id="gm-suffix-filters"
+                      className="pcgo-input"
                       style={inputStyle}
                       placeholder="Suffix filters (.sav,.dat)"
                       value={gameForm.save_filters.suffix.join(",")}
@@ -762,8 +745,6 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                           e.target.value.split(",").map((v) => v.trim()).filter(Boolean)
                         )
                       }
-                      onFocus={focusBorder}
-                      onBlur={blurBorder}
                     />
                   </div>
                 </div>

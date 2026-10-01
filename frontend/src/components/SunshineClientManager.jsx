@@ -1,4 +1,4 @@
-﻿/**
+/**
  * components/SunshineClientManager.jsx
  *
  * Admin-only Sunshine client/pairing management, built to the same
@@ -523,12 +523,11 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                         />
                         <input
                             id="scm-pin"
+                            className="pcgo-input"
                             style={{ ...inputStyle, paddingLeft: "34px" }}
                             placeholder="4-digit PIN shown on the client"
                             aria-label="PIN"
                             value={pin}
-                            onFocus={focusBorder}
-                            onBlur={blurBorder}
                             onChange={(e) => setPin(e.target.value)}
                             onKeyDown={(e) => {
                                 if (e.key === "Enter" && pin.trim() && !pairing) handlePair();
@@ -619,12 +618,7 @@ function FieldLabel({ children, htmlFor }) {
     );
 }
 
-const focusBorder = (e) => {
-    e.target.style.borderColor = colors.ink;
-};
-const blurBorder = (e) => {
-    e.target.style.borderColor = colors.border;
-};
+// 3.3: Focus/blur border change now handled by CSS .pcgo-input:focus in base.css.
 
 // ── Style primitives (matches UserPanel / GameManager / SettingsPanel) ─────
 
