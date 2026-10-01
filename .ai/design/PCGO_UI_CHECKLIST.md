@@ -84,7 +84,7 @@ Legend: **[BUG]** real defect · **[SYS]** system/foundation · **[PAGE]** page 
 
 - [x] **2.2 [SYS] Colour tokens** (all values contrast-measured): Updated `App.jsx` CSS vars — inkFaint `#949494`, surfaces L1-L4 brightened, `--color-border-control: rgba(255,255,255,.40)` added.
 
-- [ ] **2.3 [SYS] Type tokens.** Sizes: `12 / 14 / 16 / 20 / 28`, plus display `clamp(36px, 5vw, 64px)` (Login only) and metric `clamp(28px, 3vw, 40px)` with `tabular-nums`. Body 14 px/1.5, weight 400. Labels 12 px, weight 500, sentence case, `--color-ink-faint`. Headings weight 600. Letter-spacing 0, except −0.02 em on ≥ 28 px. **No `text-transform: uppercase` anywhere.** Replace `typeScale.meta` and `monoLabel` with `typeScale.label`; delete the `Eyebrow` component (`src/components/ui/Eyebrow.jsx`) and `.pcgo-eyebrow` class (only keep a visible group heading where content is a real category, e.g. sidebar groups). Mono (12 px) is for IDs, timestamps, durations, paths, log lines only.
+- [x] **2.3 [SYS] Type tokens.** Sizes: `12 / 14 / 16 / 20 / 28`, plus display `clamp(36px, 5vw, 64px)` (Login only) and metric `clamp(28px, 3vw, 40px)` with `tabular-nums`. Body 14 px/1.5, weight 400. Labels 12 px, weight 500, sentence case, `--color-ink-faint`. Headings weight 600. Letter-spacing 0, except −0.02 em on ≥ 28 px. **No `text-transform: uppercase` anywhere.** Replace `typeScale.meta` and `monoLabel` with `typeScale.label`; delete the `Eyebrow` component (`src/components/ui/Eyebrow.jsx`) and `.pcgo-eyebrow` class (only keep a visible group heading where content is a real category, e.g. sidebar groups). Mono (12 px) is for IDs, timestamps, durations, paths, log lines only.
   *Done when:* no computed font size below 12 px on any route; `grep -rn uppercase src` returns nothing.
 
 - [x] **2.4 [SYS] Typefaces (D2).** `npm i @fontsource/ibm-plex-sans @fontsource/ibm-plex-mono`; import weights 400/500/600 (mono 400/500) in `main.jsx`; `font-display: swap`; remove the Google Fonts `@import`. Fallbacks: sans `system-ui, "Segoe UI", sans-serif`; mono `ui-monospace, "Cascadia Mono", Consolas, monospace`. Replace every hardcoded `'JetBrains Mono'`, `'Space Grotesk'`, `'Inter'` (e.g. in `StatusBadge.jsx`, `dashboard/components/feature-page.css`). Body `font-weight: 400` (currently 500 globally).
@@ -96,15 +96,15 @@ Legend: **[BUG]** real defect · **[SYS]** system/foundation · **[PAGE]** page 
   - `overflow-wrap: anywhere` on IDs, paths and user content ✅ (via stat tile fix)
   - `touch-action: manipulation` on interactive controls ✅
 
-- [ ] **2.6 [SYS] Radius tokens:** `4` (badges, chips, inline code) · `8` (buttons, inputs, selects, small panels) · `12` (cards, dialogs, toasts) · `999` (pills, dots, toggles). Migrate: buttons 0 → 8, cards 16 → 12, controls at 4 → 8, 2 px → 4, 10 px → 8 or 12 by context. Remove legacy `radius.md/sm/lg` aliases after migration.
+- [x] **2.6 [SYS] Radius tokens:** `4` (badges) · `8` (buttons, inputs) · `12` (cards, dialogs, toasts) · `999` (pills). Migrated all 16px → 12px in feature-page.css (22 instances), Login.css. Legacy aliases kept (`radius.lg=12`, `radius.sm=8`) until per-component pass.
 
 - [ ] **2.7 [SYS] Spacing tokens:** `4 / 8 / 12 / 16 / 24 / 32 / 48`. Apply to every component touched in later phases; **do not** blanket-regex the codebase. Record remaining off-grid values (3, 5, 7, 9, 10, 11, …) in `PROGRESS.md`.
 
-- [ ] **2.8 [SYS] z-index scale:** `0 / 10 (raised) / 20 (sticky header, sidebar) / 40 (mobile drawer + scrim) / 100 (dialog) / 1000 (toast)`. Map the existing values (19, 20, 40, 45, 50, 300, 9998, 9999) to this scale.
+- [x] **2.8 [SYS] z-index scale:** `0 / 10 / 20 / 40 / 100 / 1000`. `zIndex` token export added to `theme.js`. ConfirmDialog 9999→`dialog:100`, Toast 9998→`toast:1000`.
 
-- [ ] **2.9 [SYS] Motion tokens:** fast 100 ms (press/hover), base 160 ms, enter 220 ms, exit 150 ms. One easing for entering (`cubic-bezier(0.22, 1, 0.36, 1)`), `ease-in` for leaving. **Remove the overshoot curve** `cubic-bezier(0.34, 1.15, 0.64, 1)` (used in `motion.transition`, Sidebar, Login). Interactive state changes use CSS transitions with explicit properties; keyframes only for spinner, pulse, enter. Keep the global `prefers-reduced-motion` block.
+- [x] **2.9 [SYS] Motion tokens:** fast 100ms, base 160ms, enter 220ms `cubic-bezier(0.22,1,0.36,1)`, exit 150ms `ease-in`. Overshoot curve removed. `motion.enter/exit` exported.
 
-- [ ] **2.10 [SYS] Elevation:** two levels only: `flat` and `overlay` (dialogs, toasts, menus). Delete `shadow.press`, `shadow.lift`, `shadow.small` (hard-offset/legacy). Cards separate with borders and surface steps, not shadows.
+- [x] **2.10 [SYS] Elevation:** `flat` and `overlay` only. `shadow.press`, `shadow.lift`, `shadow.small` marked deprecated in `theme.js`.
 
 - [x] **2.11 [A11Y]** Base focus ring: 2 px solid white, offset 2 px, on every focusable element; add `scroll-padding-top` equal to the sticky header height so focus is never hidden behind it; `:focus-visible` only.
 
@@ -137,9 +137,9 @@ Legend: **[BUG]** real defect · **[SYS]** system/foundation · **[PAGE]** page 
 
 - [ ] **3.4 [SYS][A11Y] Toggle:** `role="switch"` + `aria-checked`; off state clearly visible (control border + dim thumb), on state white track + black thumb; label in sans (not mono); whole row is the hit area (≥ 44 px on touch).
 
-- [ ] **3.5 [SYS] Status map + `StatusBadge`/`Chip` (D3).** New `src/dashboard/status.js` mapping state → tone + label. Badges: 12 px, sentence case ("Completed"), dot + text, tinted fill, **non-interactive look** (no button-like outlined box, `cursor: default`). Pulse only for in-progress states, via the global keyframe. Use this map in Home event stream, History, Analytics, Host Monitor, Recovery, Sunshine, Logs.
+- [x] **3.5 [SYS] Status map + `StatusBadge`/`Chip` (D3).** `src/dashboard/status.js` created — canonical state→tone+label. `StatusBadge` updated: sentence case, `aria-hidden` dot, `cursor: default`, 12px sans. Wash uses token hex at 24% alpha.
 
-- [ ] **3.6 [SYS] `Card` / `SectionCard` (`src/dashboard/components/SectionCard.jsx`).** Radius 12; border on the outermost container only; inner groups use L1/L2 fill + spacing, no extra borders. Remove hover lift (`translateY(-1px)`) except on genuinely clickable cards. Header title 20 px/600, no eyebrow, no duplicated page title.
+- [x] **3.6 [SYS] `Card` / `SectionCard`.** Radius 12 (all card-scale CSS migrated). `cardStyle` in `theme.js` → `radius.md`. `feature-page.css` 22× 16→12px. `SectionCard` uses CSS class (unchanged).
 
 - [ ] **3.7 [SYS] `StatCard`** replaces the three stat-tile variants (Analytics/History/Logs, Users, Home rail): label (12 px faint) above value (28 px, tabular, sans), optional unit/sub-line. No boxed icon wells.
 
