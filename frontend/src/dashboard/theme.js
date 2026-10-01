@@ -188,6 +188,16 @@ export const nav = {
   mobileHeaderHeight: 64,
 };
 
+// 2.8: z-index scale — 6 levels only.
+export const zIndex = {
+  base:    0,    // page content
+  raised:  10,   // tooltips, inline overlays
+  sticky:  20,   // sticky header, sidebar
+  drawer:  40,   // mobile nav drawer + scrim
+  dialog:  100,  // modals, confirm dialogs
+  toast:   1000, // toast notifications (above dialogs)
+};
+
 export const spacing = {
   xs: 4,
   sm: 8,

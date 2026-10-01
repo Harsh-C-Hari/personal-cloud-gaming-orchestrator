@@ -29,7 +29,7 @@ import {
   useState,
 } from "react";
 import { CheckCircle2, XCircle, AlertTriangle, Info, X } from "lucide-react";
-import { colors, fonts, radius, shadow } from "../../dashboard/theme.js";
+import { colors, fonts, radius, shadow, zIndex } from "../../dashboard/theme.js";
 
 const TONE = {
   success: { color: colors.success, icon: <CheckCircle2 size={15} strokeWidth={2} />, role: "status", duration: 4000 },
@@ -82,7 +82,7 @@ function Toast({ t, dismiss }) {
         alignItems: "flex-start",
         gap: "9px",
         padding: "11px 12px",
-        borderRadius: `${radius.none}px`,
+        borderRadius: `${radius.md}px`,
         background: colors.bgCard,
         border: `1.5px solid ${colors.border}`,
         borderLeft: `3px solid ${tone.color}`,
@@ -165,7 +165,7 @@ export function ToastProvider({ children }) {
           position: "fixed",
           top: "calc(16px + env(safe-area-inset-top, 0px))",
           right: "calc(16px + env(safe-area-inset-right, 0px))",
-          zIndex: 9998,
+          zIndex: zIndex.toast,
           display: "flex",
           flexDirection: "column",
           alignItems: "stretch",

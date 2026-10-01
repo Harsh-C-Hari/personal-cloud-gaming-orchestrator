@@ -16,7 +16,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useId, useRef, useState } from "react";
 import { AlertTriangle, HelpCircle } from "lucide-react";
-import { colors, fonts, radius, shadow } from "../../dashboard/theme.js";
+import { colors, fonts, radius, shadow, zIndex } from "../../dashboard/theme.js";
 
 const ConfirmContext = createContext(null);
 
@@ -177,7 +177,7 @@ export function ConfirmDialogProvider({ children }) {
           style={{
             position: "fixed",
             inset: 0,
-            zIndex: 9999,
+            zIndex: zIndex.dialog,
             background: "rgba(0,0,0,0.6)",
             display: "flex",
             alignItems: "center",
