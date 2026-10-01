@@ -95,6 +95,19 @@ if (typeof document !== "undefined" && !document.getElementById("pcgo-btn-styles
       .pcgo-btn--danger:not(:disabled):hover    { background: rgba(240,127,131,0.12); opacity: 1; }
       .pcgo-btn--danger-solid:not(:disabled):hover { background: #e87077; opacity: 1; }
     }
+
+    /* IconButton — square, centred icon */
+    .pcgo-icon-btn {
+      padding: 0;
+      border-radius: 8px;
+      position: relative;
+    }
+    /* sm IconButton: 32px visual, 40px hit area */
+    .pcgo-icon-btn--sm::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+    }
   `;
   document.head.appendChild(s);
 }
@@ -137,6 +150,54 @@ export const Button = forwardRef(function Button(
       {...rest}
     >
       {loading ? <Spinner size={14} /> : null}
+      {children}
+    </button>
+  );
+});
+
+/* ─── IconButton ─────────────────────────────────────────────────────────── */
+/**
+ * Square icon-only button. Always requires aria-label.
+ * Hit area is always ≥ 40px (visual may be 32px via ::after).
+ *
+ * @param {{
+ *   "aria-label": string,
+ *   variant?: "ghost"|"secondary"|"danger",
+ *   size?: "md"|"sm",
+ *   children: React.ReactNode,
+ *   disabled?: boolean,
+ *   style?: React.CSSProperties,
+ * }} props
+ */
+export const IconButton = forwardRef(function IconButton(
+  { "aria-label": label, variant = "ghost", size = "md", children, disabled = false, style, onClick, type = "button", ...rest },
+  ref,
+) {
+  if (process.env.NODE_ENV !== "production" && !label) {
+    console.warn("[IconButton] Missing aria-label. All icon-only buttons must have an accessible label.");
+  }
+  const dim = size === "sm" ? 32 : 40;
+  const v = variant === "dangerFilled" ? "danger-solid" : variant;
+  const cls = ["pcgo-btn", `pcgo-btn--${v}`, "pcgo-icon-btn", size === "sm" ? "pcgo-icon-btn--sm" : ""].filter(Boolean).join(" ");
+
+  return (
+    <button
+      ref={ref}
+      type={type}
+      aria-label={label}
+      disabled={disabled}
+      onClick={disabled ? undefined : onClick}
+      className={cls}
+      style={{
+        width:    dim,
+        height:   dim,
+        minHeight: dim,
+        padding:  0,
+        flexShrink: 0,
+        ...style,
+      }}
+      {...rest}
+    >
       {children}
     </button>
   );

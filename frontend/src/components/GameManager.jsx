@@ -1,4 +1,4 @@
-﻿/**
+/**
  * components/GameManager.jsx
  *
  * Same API calls / validation / business logic as before (addGame,
@@ -149,6 +149,7 @@ import {
 } from "../api/client.js";
 import { useToast } from "./ui/Toast.jsx";
 import { useConfirm } from "./ui/ConfirmDialog.jsx";
+import { IconButton, Button } from "./ui/primitives.jsx";
 import { colors, fonts, radius, surface, typeScale } from "../dashboard/theme.js";
 
 const DEFAULT_GAME = {
@@ -444,37 +445,25 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
         </div>
 
         <div style={{ display: "flex", gap: "8px" }}>
-          <button
-            title="Add game"
+          <IconButton
             aria-label="Add game"
-            style={iconAddButton}
+            variant="ghost"
+            size="sm"
             onClick={openAddForm}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(110,231,176,0.22)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = colors.accentGreenDim)}
+            style={{ color: colors.success, border: `1.5px solid ${colors.success}66`, background: colors.accentGreenDim }}
           >
-            <Plus size={13} strokeWidth={2} />
-          </button>
+            <Plus size={14} strokeWidth={2} aria-hidden="true" />
+          </IconButton>
 
-          <button
-            title="Reload games"
+          <IconButton
             aria-label="Reload games"
+            variant="ghost"
+            size="sm"
             disabled={reloading}
-            style={{ ...iconGhostButton, opacity: reloading ? 0.5 : 1 }}
             onClick={handleReloadGames}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(237,235,227,0.08)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
-            {/* P6-T11 motion audit: keyframe-based `animation:` (not `transition:`), same
-                non-convertible category as SessionAnalytics.jsx's `sa-spin 0.8s` (P6-T08),
-                LogPanel.jsx's `lp-spin 0.8s` (P6-T09), HostStatusPanel.jsx's `hsp-spin 0.8s`
-                and SessionHistory.jsx's `sh-spin 0.8s` (P6-T10). `motion`'s four steps are
-                transition-timing strings ("<duration> <easing>"), not @keyframes names, so
-                there is no equivalent to alias to here regardless of the 0.8s duration. This
-                is one of four independent `gm-spin` instances in this file (reload/delete/
-                validate/save); each is documented separately. Left as the original literal;
-                no conversion. */}
-            <RefreshCw size={13} strokeWidth={2} style={reloading ? { animation: "gm-spin 0.8s linear infinite" } : undefined} />
-          </button>
+            <RefreshCw size={14} strokeWidth={2} aria-hidden="true" style={reloading ? { animation: "cgo-spin 0.8s linear infinite" } : undefined} />
+          </IconButton>
         </div>
       </div>
 
@@ -507,34 +496,29 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                   <div style={cardHeader}>
                     <div style={cardTitle}>{game.name || gameId}</div>
                     <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
-                      <button
-                        title={`Edit ${game.name || gameId}`}
-                        aria-label={`Edit ${game.name || gameId}`}
-                        style={cardEditButton}
+                      <Button
+                        variant="secondary"
+                        size="sm"
                         onClick={() => openGameCard(gameId)}
-                        onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
-                        onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                       >
                         Edit
-                      </button>
-                      <button
-                        title={`Delete ${game.name || gameId}`}
+                      </Button>
+                      <IconButton
                         aria-label={`Delete ${game.name || gameId}`}
+                        variant="danger"
+                        size="sm"
                         disabled={deleting === gameId}
-                        style={{ ...cardDeleteButton, opacity: deleting === gameId ? 0.5 : 1 }}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDeleteGameId(gameId);
                         }}
-                        onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,107,107,0.15)")}
-                        onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                       >
                         {deleting === gameId ? (
-                          <RefreshCw size={11} strokeWidth={2} style={{ animation: "spin 0.8s linear infinite" }} />
+                          <RefreshCw size={12} strokeWidth={2} aria-hidden="true" style={{ animation: "cgo-spin 0.8s linear infinite" }} />
                         ) : (
-                          <Trash2 size={12} strokeWidth={2} />
+                          <Trash2 size={14} strokeWidth={2} aria-hidden="true" />
                         )}
-                      </button>
+                      </IconButton>
                     </div>
                   </div>
 
