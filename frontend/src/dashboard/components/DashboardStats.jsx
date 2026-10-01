@@ -159,9 +159,8 @@ export function DashboardStats({ stats }) {
                   color: colors.ink,
                   fontFamily: fonts.mono,
                   lineHeight: 1.1,
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
+                  // 1.8: never truncate a status value; let it wrap.
+                  overflowWrap: "anywhere",
                 }}
               />
 
@@ -181,9 +180,8 @@ export function DashboardStats({ stats }) {
                   marginTop: "2px",
                   textTransform: "uppercase",
                   fontFamily: fonts.body,
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
+                  // 1.8: labels wrap too, never ellipsis.
+                  overflowWrap: "anywhere",
                 }}
               >
                 {s.label}

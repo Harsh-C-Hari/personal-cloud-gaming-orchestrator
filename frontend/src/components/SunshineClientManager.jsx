@@ -363,12 +363,23 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                             // value strings, not `@keyframes` names, so there's no valid conversion
                             // target regardless of duration. 0.8s also doesn't match any `motion`
                             // step's duration. Left as the original literal; no conversion.
-                            <RefreshCw size={11} strokeWidth={2} style={{ animation: "scm-spin 0.8s linear infinite" }} />
+                            <RefreshCw size={11} strokeWidth={2} style={{ animation: "spin 0.8s linear infinite" }} />
                         ) : (
                             <Power size={11} strokeWidth={2} />
                         )}
                         {closingStream ? "CLOSING…" : "FORCE CLOSE STREAM"}
                     </button>
+                    {!isStreaming && !closingStream && (
+                      <span style={{
+                        fontSize: "10px",
+                        color: colors.inkFaint,
+                        fontFamily: fonts.mono,
+                        marginTop: "6px",
+                        display: "block",
+                      }}>
+                        No active stream
+                      </span>
+                    )}
                 </div>
 
                 {/* Paired clients */}

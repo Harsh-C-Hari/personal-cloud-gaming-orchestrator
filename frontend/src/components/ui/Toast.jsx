@@ -7,26 +7,126 @@
  *   const toast = useToast();
  *   toast.success("Game added successfully.");
  *   toast.error(err.message);
- *   toast.warning("Game ID required");
+ *   toast.warning("Heads up...");
  *   toast.info("Heads up...");
  *
  * Mounted once, high up the tree (see App.jsx) via <ToastProvider>.
+ *
+ * 1.7 accessibility rules (D6):
+ *   - error toasts → role="alert" (assertive); all others → role="status"
+ *   - timers pause while the toast is hovered or focused
+ *   - success/info auto-dismiss after 4 s; warnings after 5 s
+ *   - errors persist until the user closes them (duration: 0)
+ *   - close button always present; no focus stealing
  */
 
-import { createContext, useCallback, useContext, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { CheckCircle2, XCircle, AlertTriangle, Info, X } from "lucide-react";
 import { colors, fonts, radius, shadow } from "../../dashboard/theme.js";
 
 const TONE = {
-  success: { color: colors.success, icon: <CheckCircle2 size={15} strokeWidth={2} /> },
-  error: { color: colors.danger, icon: <XCircle size={15} strokeWidth={2} /> },
-  warning: { color: colors.warning, icon: <AlertTriangle size={15} strokeWidth={2} /> },
-  info: { color: colors.accentBlue, icon: <Info size={15} strokeWidth={2} /> },
+  success: { color: colors.success, icon: <CheckCircle2 size={15} strokeWidth={2} />, role: "status", duration: 4000 },
+  error:   { color: colors.danger,  icon: <XCircle size={15} strokeWidth={2} />,       role: "alert",  duration: 0     },
+  warning: { color: colors.warning, icon: <AlertTriangle size={15} strokeWidth={2} />, role: "status", duration: 5000 },
+  info:    { color: colors.accentBlue, icon: <Info size={15} strokeWidth={2} />,       role: "status", duration: 4000 },
 };
 
 const ToastContext = createContext(null);
 
 let toastIdCounter = 0;
+
+/** Individual toast — handles its own hover/focus pause. */
+function Toast({ t, dismiss }) {
+  const tone = TONE[t.tone] ?? TONE.info;
+  const timerRef = useRef(null);
+  const remaining = useRef(t.duration);
+  const startedAt = useRef(null);
+
+  const startTimer = useCallback(() => {
+    if (remaining.current <= 0) return; // persistent (errors)
+    startedAt.current = Date.now();
+    timerRef.current = setTimeout(() => dismiss(t.id), remaining.current);
+  }, [t.id, dismiss]);
+
+  const pauseTimer = useCallback(() => {
+    if (!timerRef.current) return;
+    clearTimeout(timerRef.current);
+    timerRef.current = null;
+    remaining.current -= Date.now() - (startedAt.current ?? Date.now());
+  }, []);
+
+  useEffect(() => {
+    startTimer();
+    return () => clearTimeout(timerRef.current);
+  }, [startTimer]);
+
+  return (
+    <div
+      role={tone.role}
+      aria-live={tone.role === "alert" ? "assertive" : "polite"}
+      aria-atomic="true"
+      onMouseEnter={pauseTimer}
+      onMouseLeave={startTimer}
+      onFocus={pauseTimer}
+      onBlur={startTimer}
+      style={{
+        pointerEvents: "auto",
+        display: "flex",
+        alignItems: "flex-start",
+        gap: "9px",
+        padding: "11px 12px",
+        borderRadius: `${radius.none}px`,
+        background: colors.bgCard,
+        border: `1.5px solid ${colors.border}`,
+        borderLeft: `3px solid ${tone.color}`,
+        boxShadow: shadow.overlay,
+        // Canonical toast-in keyframe defined in base.css (1.1).
+        animation: "card-in 0.18s ease forwards",
+      }}
+    >
+      <span style={{ color: tone.color, flexShrink: 0, marginTop: "1px" }}>{tone.icon}</span>
+      <span
+        style={{
+          flex: 1,
+          fontSize: "12.5px",
+          color: colors.ink,
+          fontFamily: fonts.body,
+          fontWeight: 500,
+          lineHeight: 1.5,
+          wordBreak: "break-word",
+        }}
+      >
+        {t.message}
+      </span>
+      <button
+        onClick={() => dismiss(t.id)}
+        aria-label="Dismiss notification"
+        style={{
+          flexShrink: 0,
+          background: "transparent",
+          border: "none",
+          color: colors.inkFaint,
+          cursor: "pointer",
+          width: "28px",
+          height: "28px",
+          margin: "-6px -6px -6px 0",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <X size={12} strokeWidth={2} />
+      </button>
+    </div>
+  );
+}
 
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
@@ -38,24 +138,20 @@ export function ToastProvider({ children }) {
   const push = useCallback(
     (tone, message, opts = {}) => {
       const id = ++toastIdCounter;
-      const duration = opts.duration ?? (tone === "error" ? 6000 : 4000);
+      const defaultDuration = (TONE[tone] ?? TONE.info).duration;
+      const duration = opts.duration ?? defaultDuration;
 
-      setToasts((prev) => [...prev, { id, tone, message }]);
-
-      if (duration > 0) {
-        setTimeout(() => dismiss(id), duration);
-      }
-
+      setToasts((prev) => [...prev, { id, tone, message, duration }]);
       return id;
     },
-    [dismiss]
+    []
   );
 
   const api = useRef({
     success: (message, opts) => push("success", message, opts),
-    error: (message, opts) => push("error", message, opts),
+    error:   (message, opts) => push("error",   message, opts),
     warning: (message, opts) => push("warning", message, opts),
-    info: (message, opts) => push("info", message, opts),
+    info:    (message, opts) => push("info",    message, opts),
     dismiss,
   }).current;
 
@@ -64,6 +160,7 @@ export function ToastProvider({ children }) {
       {children}
 
       <div
+        aria-label="Notifications"
         style={{
           position: "fixed",
           top: "calc(16px + env(safe-area-inset-top, 0px))",
@@ -77,84 +174,10 @@ export function ToastProvider({ children }) {
           pointerEvents: "none",
         }}
       >
-        {toasts.map((t) => {
-          const tone = TONE[t.tone] ?? TONE.info;
-          return (
-            <div
-              key={t.id}
-              role="status"
-              style={{
-                pointerEvents: "auto",
-                display: "flex",
-                alignItems: "flex-start",
-                gap: "9px",
-                padding: "11px 12px",
-                // Per §6.3: toast is a transient floating card, but the
-                // 3px colored `borderLeft` already establishes a left-edge
-                // accent signal — the binary `radius.none` (0px) rectangle
-                // reads as a structural sub-panel (tied to its color, not
-                // a rounded chip). Was `radius.lg` (12px).
-                borderRadius: `${radius.none}px`,
-                background: colors.bgCard,
-                border: `1.5px solid ${colors.border}`,
-                borderLeft: `3px solid ${tone.color}`,
-                boxShadow: shadow.overlay,
-                // motion-audit (P6-T04): keyframe-based entrance
-                // `animation:`. 180ms duration coincidentally matches
-                // motion.pill's 180ms, but motion.pill's easing is a
-                // distinct cubic-bezier(0.4,0,0.2,1) curve, not plain
-                // `ease` — a duration-only match is not a genuine exact
-                // match, and this is keyframe-based (name + forwards
-                // fill-mode) besides, same non-convertible category as
-                // primitives.jsx's Spinner (P6-T02). Left as a literal,
-                // not converted.
-                animation: "toast-in 0.18s ease forwards",
-              }}
-            >
-              <span style={{ color: tone.color, flexShrink: 0, marginTop: "1px" }}>{tone.icon}</span>
-              <span
-                style={{
-                  flex: 1,
-                  fontSize: "12.5px",
-                  color: colors.ink,
-                  fontFamily: fonts.body,
-                  fontWeight: 500,
-                  lineHeight: 1.5,
-                  wordBreak: "break-word",
-                }}
-              >
-                {t.message}
-              </span>
-              <button
-                onClick={() => dismiss(t.id)}
-                aria-label="Dismiss"
-                style={{
-                  flexShrink: 0,
-                  background: "transparent",
-                  border: "none",
-                  color: colors.inkFaint,
-                  cursor: "pointer",
-                  width: "28px",
-                  height: "28px",
-                  margin: "-6px -6px -6px 0",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <X size={12} strokeWidth={2} />
-              </button>
-            </div>
-          );
-        })}
+        {toasts.map((t) => (
+          <Toast key={t.id} t={t} dismiss={dismiss} />
+        ))}
       </div>
-
-      <style>{`
-        @keyframes toast-in {
-          from { opacity: 0; transform: translateX(12px); }
-          to   { opacity: 1; transform: translateX(0); }
-        }
-      `}</style>
     </ToastContext.Provider>
   );
 }
