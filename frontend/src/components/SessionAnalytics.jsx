@@ -70,6 +70,8 @@ import {
 } from "lucide-react";
 import { fetchSessionAnalytics } from "../api/client";
 import { colors, fonts, radius, surface, typeScale } from "../dashboard/theme.js";
+import { pluralize } from "../lib/pluralize.js";
+
 
 function formatPlayedTime(seconds) {
   if (seconds == null) return "--";
@@ -204,7 +206,7 @@ function StatList({ title: listTitle, items = [], labelKey, icon }) {
                   <span title={label}>{label}</span>
                 </div>
                 <span className="pcgo-analytics-breakdown__metrics">
-                  {item.sessions} sessions · {formatPlayedTime(item.played_seconds)} · avg {formatPlayedTime(item.average_played_seconds)}
+                  {pluralize(item.sessions, "session")} · {formatPlayedTime(item.played_seconds)} · avg {formatPlayedTime(item.average_played_seconds)}
                 </span>
               </div>
             );

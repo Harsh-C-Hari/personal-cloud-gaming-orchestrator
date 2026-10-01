@@ -78,7 +78,7 @@ export function ChangePasswordPage({ onBack }) {
     <div className="pcgo-feature-page pcgo-change-password-page">
       <PageHeader title="Change password" subtitle="Account security" onBack={onBack} />
 
-      <main className="pcgo-change-password-shell">
+      <div className="pcgo-change-password-shell">
         <section className="pcgo-change-password-card" aria-labelledby="change-password-title">
           <header className="pcgo-change-password-card__header">
             <div className="pcgo-change-password-card__mark" aria-hidden="true"><ShieldCheck size={17} /></div>
@@ -154,7 +154,7 @@ export function ChangePasswordPage({ onBack }) {
             </Button>
           </form>
         </section>
-      </main>
+      </div>
     </div>
   );
 }

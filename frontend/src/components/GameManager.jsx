@@ -374,26 +374,23 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
 
   // ── Shared style primitives (matches StartSessionForm / RecoveryStats) ──
 
-  function FieldLabel({ icon, children }) {
+  function FieldLabel({ icon, children, htmlFor }) {
+    const Tag = htmlFor ? "label" : "span";
     return (
-      <span
+      <Tag
+        htmlFor={htmlFor}
         style={{
           display: "flex",
           alignItems: "center",
           gap: "6px",
           color: colors.inkFaint,
-          // Clean fit within rounding (prior literal was 9.5px/700/
-          // 0.13em/uppercase/mono vs. typeScale.meta's 10px/700/0.12em/
-          // uppercase/mono) — byte-identical to StartSessionForm.jsx's
-          // own FieldLabel before its P4 elevation, so adopted directly
-          // rather than left literal, matching that precedent exactly.
           ...typeScale.meta,
           marginBottom: "8px",
         }}
       >
         {icon}
         {children}
-      </span>
+      </Tag>
     );
   }
 
@@ -505,55 +502,40 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
               {entries.map(([gameId, game]) => (
                 <div
                   key={gameId}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Edit launch target ${game.name || gameId}`}
-                  onClick={() => openGameCard(gameId)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      openGameCard(gameId);
-                    }
-                  }}
                   style={card}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = colors.borderStrong;
-                    e.currentTarget.style.background = surface.l4;
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = colors.border;
-                    e.currentTarget.style.background = surface.l3;
-                    e.currentTarget.style.transform = "translateY(0)";
-                  }}
                 >
                   <div style={cardHeader}>
                     <div style={cardTitle}>{game.name || gameId}</div>
-                    <button
-                      title={`Delete ${game.name || gameId}`}
-                      aria-label={`Delete ${game.name || gameId}`}
-                      disabled={deleting === gameId}
-                      style={{ ...cardDeleteButton, opacity: deleting === gameId ? 0.5 : 1 }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteGameId(gameId);
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,107,107,0.15)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                    >
-                      {deleting === gameId ? (
-                        /* P6-T11 motion audit: keyframe-based `animation:` (not `transition:`),
-                           same non-convertible category as the "Reload games" spinner above in
-                           this file and SessionAnalytics.jsx's `sa-spin 0.8s` (P6-T08) /
-                           LogPanel.jsx's `lp-spin 0.8s` (P6-T09) / HostStatusPanel.jsx's
-                           `hsp-spin 0.8s` / SessionHistory.jsx's `sh-spin 0.8s` (P6-T10). No
-                           `motion` step is a @keyframes name, so no conversion applies here
-                           either. Left as the original literal; no conversion. */
-                        <RefreshCw size={11} strokeWidth={2} style={{ animation: "gm-spin 0.8s linear infinite" }} />
-                      ) : (
-                        <Trash2 size={12} strokeWidth={2} />
-                      )}
-                    </button>
+                    <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+                      <button
+                        title={`Edit ${game.name || gameId}`}
+                        aria-label={`Edit ${game.name || gameId}`}
+                        style={cardEditButton}
+                        onClick={() => openGameCard(gameId)}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        title={`Delete ${game.name || gameId}`}
+                        aria-label={`Delete ${game.name || gameId}`}
+                        disabled={deleting === gameId}
+                        style={{ ...cardDeleteButton, opacity: deleting === gameId ? 0.5 : 1 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteGameId(gameId);
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,107,107,0.15)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                      >
+                        {deleting === gameId ? (
+                          <RefreshCw size={11} strokeWidth={2} style={{ animation: "spin 0.8s linear infinite" }} />
+                        ) : (
+                          <Trash2 size={12} strokeWidth={2} />
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   <div style={cardMeta}>
@@ -566,6 +548,7 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                     <Cpu size={10} strokeWidth={2} style={{ opacity: 0.7 }} /> PROCESS: {game.process_name || "unknown"}
                   </div>
                 </div>
+
               ))}
             </div>
           ))}
@@ -591,8 +574,9 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   <div>
-                    <FieldLabel icon={<Hash size={10} strokeWidth={2} />}>Game ID</FieldLabel>
+                    <FieldLabel icon={<Hash size={10} strokeWidth={2} />} htmlFor="gm-game-id">Game ID</FieldLabel>
                     <input
+                      id="gm-game-id"
                       style={{ ...inputStyle, opacity: editingGame ? 0.6 : 1 }}
                       placeholder="e.g. god_of_war_ragnarok"
                       value={gameForm.id}
@@ -605,8 +589,9 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                   </div>
 
                   <div>
-                    <FieldLabel icon={<Gamepad2 size={10} strokeWidth={2} />}>Game Name</FieldLabel>
+                    <FieldLabel icon={<Gamepad2 size={10} strokeWidth={2} />} htmlFor="gm-game-name">Game Name</FieldLabel>
                     <input
+                      id="gm-game-name"
                       style={inputStyle}
                       placeholder="God of War Ragnarök"
                       value={gameForm.name}
@@ -618,8 +603,9 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                   </div>
 
                   <div>
-                    <FieldLabel icon={<FileInput size={10} strokeWidth={2} />}>Executable Name</FieldLabel>
+                    <FieldLabel icon={<FileInput size={10} strokeWidth={2} />} htmlFor="gm-exe-name">Executable Name</FieldLabel>
                     <input
+                      id="gm-exe-name"
                       style={inputStyle}
                       placeholder="GoWR.exe"
                       value={gameForm.exe_name}
@@ -638,9 +624,10 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   <div>
-                    <FieldLabel icon={<FileInput size={10} strokeWidth={2} />}>Executable Path</FieldLabel>
+                    <FieldLabel icon={<FileInput size={10} strokeWidth={2} />} htmlFor="gm-exe-path">Executable Path</FieldLabel>
                     <div style={pathRow}>
                       <input
+                        id="gm-exe-path"
                         style={{ ...inputStyle, flex: 1, minWidth: 0 }}
                         placeholder="Executable Path"
                         value={gameForm.exe_path}
@@ -670,9 +657,10 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                   </div>
 
                   <div>
-                    <FieldLabel icon={<FolderOpen size={10} strokeWidth={2} />}>Save Path</FieldLabel>
+                    <FieldLabel icon={<FolderOpen size={10} strokeWidth={2} />} htmlFor="gm-save-path">Save Path</FieldLabel>
                     <div style={pathRow}>
                       <input
+                        id="gm-save-path"
                         style={{ ...inputStyle, flex: 1, minWidth: 0 }}
                         placeholder="Save Path"
                         value={gameForm.save_path}
@@ -702,8 +690,9 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                   </div>
 
                   <div>
-                    <FieldLabel icon={<Cpu size={10} strokeWidth={2} />}>Process Name</FieldLabel>
+                    <FieldLabel icon={<Cpu size={10} strokeWidth={2} />} htmlFor="gm-process-name">Process Name</FieldLabel>
                     <input
+                      id="gm-process-name"
                       style={inputStyle}
                       placeholder="Process Name"
                       value={gameForm.process_name}
@@ -722,8 +711,9 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   <div>
-                    <FieldLabel>Match Mode</FieldLabel>
+                    <FieldLabel htmlFor="gm-match-mode">Match Mode</FieldLabel>
                     <select
+                      id="gm-match-mode"
                       style={inputStyle}
                       value={gameForm.save_filters.mode}
                       aria-label="Match Mode"
@@ -737,8 +727,9 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                   </div>
 
                   <div>
-                    <FieldLabel>Prefix Filters</FieldLabel>
+                    <FieldLabel htmlFor="gm-prefix-filters">Prefix Filters</FieldLabel>
                     <input
+                      id="gm-prefix-filters"
                       style={inputStyle}
                       placeholder="Prefix filters (comma separated)"
                       value={gameForm.save_filters.prefix.join(",")}
@@ -755,8 +746,9 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                   </div>
 
                   <div>
-                    <FieldLabel>Contains Filters</FieldLabel>
+                    <FieldLabel htmlFor="gm-contains-filters">Contains Filters</FieldLabel>
                     <input
+                      id="gm-contains-filters"
                       style={inputStyle}
                       placeholder="Contains filters (comma separated)"
                       value={gameForm.save_filters.contains.join(",")}
@@ -773,8 +765,9 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                   </div>
 
                   <div>
-                    <FieldLabel>Suffix Filters</FieldLabel>
+                    <FieldLabel htmlFor="gm-suffix-filters">Suffix Filters</FieldLabel>
                     <input
+                      id="gm-suffix-filters"
                       style={inputStyle}
                       placeholder="Suffix filters (.sav,.dat)"
                       value={gameForm.save_filters.suffix.join(",")}

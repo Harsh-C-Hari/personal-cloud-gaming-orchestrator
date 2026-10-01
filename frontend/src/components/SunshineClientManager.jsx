@@ -496,7 +496,7 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                         </div>
                     </div>
 
-                    <FieldLabel>PIN</FieldLabel>
+                    <FieldLabel htmlFor="scm-pin">PIN</FieldLabel>
                     <div style={{ position: "relative" }}>
                         <Key
                             size={11}
@@ -511,6 +511,7 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                             }}
                         />
                         <input
+                            id="scm-pin"
                             style={{ ...inputStyle, paddingLeft: "34px" }}
                             placeholder="4-digit PIN shown on the client"
                             aria-label="PIN"
@@ -587,9 +588,10 @@ function ClientListLoadingState() {
     );
 }
 
-function FieldLabel({ children }) {
+function FieldLabel({ children, htmlFor }) {
     return (
         <label
+            htmlFor={htmlFor}
             style={{
                 display: "block",
                 fontSize: "9.5px",

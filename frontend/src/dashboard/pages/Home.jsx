@@ -84,7 +84,7 @@ export function Home({
       <ActiveAlerts alerts={activeAlerts} />
 
       <div className="pcgo-home-hero">
-        <main className="pcgo-home-primary">
+        <section className="pcgo-home-primary" aria-label="Session launch">
           <div className="pcgo-home-intro">
             <Eyebrow
               icon={<span className="pcgo-home-signal" aria-hidden="true" />}
@@ -108,7 +108,7 @@ export function Home({
           ) : (
             <StartSessionForm games={games} onLaunched={refresh} activeSessions={sessions} hostStatus={hostStatus} />
           )}
-        </main>
+        </section>
 
         <aside className="pcgo-home-rail" aria-label="Operational activity">
           <SessionSidebar
