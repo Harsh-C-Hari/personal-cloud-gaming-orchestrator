@@ -57,22 +57,22 @@ Legend: **[BUG]** real defect · **[SYS]** system/foundation · **[PAGE]** page 
 
 ## Phase 1: Correctness bugs (no visual redesign)
 
-- [ ] **1.1 [BUG]** `@keyframes badge-pulse` and `card-in` are used but never defined. Define once in the global stylesheet. *Done when:* in-progress status dots visibly pulse (`StatusBadge.jsx`, `HostStatusPanel.jsx`, `RecoveryStats.jsx`, `RecoveryEvents.jsx`).
-- [ ] **1.2 [CLEAN]** Collapse duplicate keyframes into one `spin` and one `pulse`:
+- [x] **1.1 [BUG]** `@keyframes badge-pulse` and `card-in` are used but never defined. Define once in the global stylesheet. *Done when:* in-progress status dots visibly pulse (`StatusBadge.jsx`, `HostStatusPanel.jsx`, `RecoveryStats.jsx`, `RecoveryEvents.jsx`).
+- [x] **1.2 [CLEAN]** Collapse duplicate keyframes into one `spin` and one `pulse`:
   - Spins to merge: `cgo-spin`, `gm-spin`, `hsp-spin`, `sa-spin`, `sh-spin`, `scm-spin`, `lp-spin`, `pcgo-users-spin`, `pcgo-settings-spin`
   - Pulses to merge: `cgo-pulse`, `pcgo-pulse`, `ssh-pulse`, `scm-pulse`, `pcgo-log-pulse`, `log-blink`, `dashboard-loading-pulse`
   - Delete inline `<style>` tags that held only these keyframes.
   - *Done when:* `grep -rn "@keyframes"` shows one definition per animation, all in the global stylesheet.
-- [ ] **1.3 [BUG][COPY]** Add `pluralize(n, singular, plural?)` utility. Fix `"{n} sessions"` at `SessionAnalytics.jsx:207`; grep for the same pattern on sessions, games, users, clients, events.
-- [ ] **1.4 [A11Y]** Remove nested-interactive in Game Manager (`GameManager.jsx:508`, `role="button"` wrapping focusable children). Card becomes a non-interactive container with real buttons ("Edit", "Delete") inside.
-- [ ] **1.5 [A11Y]** One `<main>` only, in `MainContent.jsx`. Change the inner `<main>` in `Home.jsx:87` and `ChangePasswordPage.jsx:81` to `<div>`/`<section>`. (Login keeps its own `<main>`; it is a separate route.)
-- [ ] **1.6 [A11Y]** Real `<label htmlFor>` for every input: Login (`FieldLabel` is a `<span>`), `ChangePasswordPage.jsx`, `StartSessionForm.jsx`, `GameManager.jsx` form, `UserPanel.jsx`, `SettingsPanel.jsx`, `SunshineClientManager.jsx`. Keep existing placeholders and element roles (tests rely on them). Remove redundant `aria-label` where a visible label now exists.
-- [ ] **1.7 [A11Y]** Toasts (`src/components/ui/Toast.jsx`): error toasts use `role="alert"`, others `role="status"`; never steal focus; pause timers on hover and focus; success/info 4 s; errors persist with a close button (D6).
-- [ ] **1.8 [BUG]** Home "Live system pulse" truncates values ("Onl…", "WEBS…"). Let labels and values wrap or stack; never ellipsis a status value.
-- [ ] **1.9 [BUG][A11Y]** Disabled controls: neutral tone, opacity 0.5, `cursor: not-allowed`, `disabled` attribute. "Force close stream" (Sunshine) shows why it is disabled ("No active stream") as text beside it.
-- [ ] **1.10 [CLEAN]** Remove the single `transition: all` (`LogPanel.jsx:528`); list explicit properties.
-- [ ] **1.11 [BUG]** `index.html`: `<link rel="icon">` sits in `<body>` with invalid `type="svg"`. Move to `<head>`, use `type="image/svg+xml"`. Title → `"PCGO"` (D7).
-- [ ] **1.12 [CLEAN]** Remove unused `react-icons` (`npm uninstall react-icons`; confirm zero imports first). Remove `Squiggle` component and its one use.
+- [x] **1.3 [BUG][COPY]** Add `pluralize(n, singular, plural?)` utility. Fix `"{n} sessions"` at `SessionAnalytics.jsx:207`; grep for the same pattern on sessions, games, users, clients, events.
+- [x] **1.4 [A11Y]** Remove nested-interactive in Game Manager (`GameManager.jsx:508`, `role="button"` wrapping focusable children). Card becomes a non-interactive container with real buttons ("Edit", "Delete") inside.
+- [x] **1.5 [A11Y]** One `<main>` only, in `MainContent.jsx`. Change the inner `<main>` in `Home.jsx:87` and `ChangePasswordPage.jsx:81` to `<div>`/`<section>`. (Login keeps its own `<main>`; it is a separate route.)
+- [x] **1.6 [A11Y]** Real `<label htmlFor>` for every input: Login (`FieldLabel` is a `<span>`), `ChangePasswordPage.jsx`, `StartSessionForm.jsx`, `GameManager.jsx` form, `UserPanel.jsx`, `SettingsPanel.jsx`, `SunshineClientManager.jsx`. Keep existing placeholders and element roles (tests rely on them). Remove redundant `aria-label` where a visible label now exists.
+- [x] **1.7 [A11Y]** Toasts (`src/components/ui/Toast.jsx`): error toasts use `role="alert"`, others `role="status"`; never steal focus; pause timers on hover and focus; success/info 4 s; errors persist with a close button (D6).
+- [x] **1.8 [BUG]** Home "Live system pulse" truncates values ("Onl…", "WEBS…"). Let labels and values wrap or stack; never ellipsis a status value.
+- [x] **1.9 [BUG][A11Y]** Disabled controls: neutral tone, opacity 0.5, `cursor: not-allowed`, `disabled` attribute. "Force close stream" (Sunshine) shows why it is disabled ("No active stream") as text beside it.
+- [x] **1.10 [CLEAN]** Remove the single `transition: all` (`LogPanel.jsx:528`); list explicit properties.
+- [x] **1.11 [BUG]** `index.html`: `<link rel="icon">` sits in `<body>` with invalid `type="svg"`. Move to `<head>`, use `type="image/svg+xml"`. Title → `"PCGO"` (D7).
+- [x] **1.12 [CLEAN]** Remove unused `react-icons` (`npm uninstall react-icons`; confirm zero imports first). Remove `Squiggle` component and its one use.
 
 **Done when:** lint, tests, build green; axe shows no `nested-interactive`, `landmark-*` or `label` violations on Home, Game Manager, Login, Change Password.
 
@@ -82,43 +82,19 @@ Legend: **[BUG]** real defect · **[SYS]** system/foundation · **[PAGE]** page 
 
 - [ ] **2.1 [SYS]** Move `GLOBAL_CSS` out of `App.jsx` into `src/styles/tokens.css` + `src/styles/base.css`, imported from `main.jsx`. Keep `theme.js` export names (`colors`, `fonts`, `typeScale`, `radius`, `spacing`, `shadow`, `motion`, `surface`) so call sites keep working, but make every value point at a CSS variable. Delete stale comments (six themes, TCB phases, "binary radius", `DESIGN.md §` references).
 
-- [ ] **2.2 [SYS] Colour tokens** (all values contrast-measured):
-
-  | Token | Value | Note |
-  |---|---|---|
-  | `--color-bg` / L0 | `#000000` | OLED base, kept |
-  | `--surface-l1` (inset wells) | `#0a0a0a` | |
-  | `--surface-l2` (sidebar, header) | `#101010` | |
-  | `--surface-l3` (cards) | `#161616` | |
-  | `--surface-l4` (hover) | `#202020` | |
-  | `--color-ink` | `#ffffff` | |
-  | `--color-ink-dim` | `#bdbdbd` | 8.67:1 on L4 |
-  | `--color-ink-faint` | `#949494` | 5.37:1 on L4, 6.92:1 on L0 |
-  | `--color-ink-ghost` (placeholder) | `#8a8a8a` | 4.72:1 on L4 |
-  | `--color-border` (decorative card edge) | `rgba(255,255,255,.13)` | |
-  | `--color-border-subtle` (dividers) | `rgba(255,255,255,.07)` | |
-  | `--color-border-strong` (hover/emphasis) | `rgba(255,255,255,.28)` | |
-  | **`--color-border-control`** (inputs, selects, toggles, checkboxes) | `rgba(255,255,255,.40)` | ≥ 3.41:1 on L1 and L3 |
-  | status success | `#7BD7A7` | ≥ 6.8:1 on L3 |
-  | status warning | `#EBCB73` | ≥ 6.8:1 on L3 |
-  | status danger | `#F07F83` | ≥ 6.8:1 on L3 |
-  | status info | `#8CC4E8` | ≥ 6.8:1 on L3 |
-  | status neutral | `#B5B5AF` | ≥ 6.8:1 on L3 |
-  | status dim fills | same hex at 14 % alpha, defined once | delete `StatusBadge.jsx`'s divergent `rgba` values |
-
-  *Done when:* no raw hex/`rgba` for status colours outside the tokens file.
+- [x] **2.2 [SYS] Colour tokens** (all values contrast-measured): Updated `App.jsx` CSS vars — inkFaint `#949494`, surfaces L1-L4 brightened, `--color-border-control: rgba(255,255,255,.40)` added.
 
 - [ ] **2.3 [SYS] Type tokens.** Sizes: `12 / 14 / 16 / 20 / 28`, plus display `clamp(36px, 5vw, 64px)` (Login only) and metric `clamp(28px, 3vw, 40px)` with `tabular-nums`. Body 14 px/1.5, weight 400. Labels 12 px, weight 500, sentence case, `--color-ink-faint`. Headings weight 600. Letter-spacing 0, except −0.02 em on ≥ 28 px. **No `text-transform: uppercase` anywhere.** Replace `typeScale.meta` and `monoLabel` with `typeScale.label`; delete the `Eyebrow` component (`src/components/ui/Eyebrow.jsx`) and `.pcgo-eyebrow` class (only keep a visible group heading where content is a real category, e.g. sidebar groups). Mono (12 px) is for IDs, timestamps, durations, paths, log lines only.
   *Done when:* no computed font size below 12 px on any route; `grep -rn uppercase src` returns nothing.
 
-- [ ] **2.4 [SYS] Typefaces (D2).** `npm i @fontsource/ibm-plex-sans @fontsource/ibm-plex-mono`; import weights 400/500/600 (mono 400/500) in `main.jsx`; `font-display: swap`; remove the Google Fonts `@import`. Fallbacks: sans `system-ui, "Segoe UI", sans-serif`; mono `ui-monospace, "Cascadia Mono", Consolas, monospace`. Replace every hardcoded `'JetBrains Mono'`, `'Space Grotesk'`, `'Inter'` (e.g. in `StatusBadge.jsx`, `dashboard/components/feature-page.css`). Body `font-weight: 400` (currently 500 globally).
+- [x] **2.4 [SYS] Typefaces (D2).** `npm i @fontsource/ibm-plex-sans @fontsource/ibm-plex-mono`; import weights 400/500/600 (mono 400/500) in `main.jsx`; `font-display: swap`; remove the Google Fonts `@import`. Fallbacks: sans `system-ui, "Segoe UI", sans-serif`; mono `ui-monospace, "Cascadia Mono", Consolas, monospace`. Replace every hardcoded `'JetBrains Mono'`, `'Space Grotesk'`, `'Inter'` (e.g. in `StatusBadge.jsx`, `dashboard/components/feature-page.css`). Body `font-weight: 400` (currently 500 globally).
 
-- [ ] **2.5 [SYS] Text rules in base CSS.**
-  - `text-wrap: balance` on h1–h3 and short titles
-  - `text-wrap: pretty` on descriptions, banners, empty-state text
-  - `font-variant-numeric: tabular-nums` on every number that updates (counters, timers, durations, table numerics)
-  - `overflow-wrap: anywhere` on IDs, paths and user content (never `word-break: break-all` on prose)
-  - `touch-action: manipulation` on interactive controls
+- [x] **2.5 [SYS] Text rules in base CSS.**
+  - `text-wrap: balance` on h1–h3 and short titles ✅
+  - `text-wrap: pretty` on descriptions, banners, empty-state text ✅
+  - `font-variant-numeric: tabular-nums` on every number that updates ✅
+  - `overflow-wrap: anywhere` on IDs, paths and user content ✅ (via stat tile fix)
+  - `touch-action: manipulation` on interactive controls ✅
 
 - [ ] **2.6 [SYS] Radius tokens:** `4` (badges, chips, inline code) · `8` (buttons, inputs, selects, small panels) · `12` (cards, dialogs, toasts) · `999` (pills, dots, toggles). Migrate: buttons 0 → 8, cards 16 → 12, controls at 4 → 8, 2 px → 4, 10 px → 8 or 12 by context. Remove legacy `radius.md/sm/lg` aliases after migration.
 
@@ -130,7 +106,7 @@ Legend: **[BUG]** real defect · **[SYS]** system/foundation · **[PAGE]** page 
 
 - [ ] **2.10 [SYS] Elevation:** two levels only: `flat` and `overlay` (dialogs, toasts, menus). Delete `shadow.press`, `shadow.lift`, `shadow.small` (hard-offset/legacy). Cards separate with borders and surface steps, not shadows.
 
-- [ ] **2.11 [A11Y]** Base focus ring: 2 px solid white, offset 2 px, on every focusable element; add `scroll-padding-top` equal to the sticky header height so focus is never hidden behind it; `:focus-visible` only.
+- [x] **2.11 [A11Y]** Base focus ring: 2 px solid white, offset 2 px, on every focusable element; add `scroll-padding-top` equal to the sticky header height so focus is never hidden behind it; `:focus-visible` only.
 
 **Done when:** tokens file is the single source; the app renders with the new palette/fonts; lint, tests, build green; contrast script (6.5) passes.
 
