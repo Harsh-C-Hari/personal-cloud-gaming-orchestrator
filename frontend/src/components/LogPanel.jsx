@@ -122,29 +122,9 @@ export function LogPanel() {
     return () => clearInterval(interval);
   }, [autoRefresh, level, sessionFilter, search]);
 
-  useEffect(() => {
-    const style = document.createElement("style");
-    // P6-T09 motion audit: `.scroll-btn`'s `animation: scrollBounce 2s
-    // infinite;` below is keyframe-based (not `transition:`), same non-
-    // convertible category as every other `animation:` audited in this
-    // project so far. `motion`'s four steps are transition timing strings
-    // ("<duration> <easing>"), not @keyframes names, so there is no
-    // equivalent to alias to here regardless of the 2s duration. This is
-    // a raw CSS-string template literal (not a JS inline-style object),
-    // but the same `${...}` interpolation used for `colors.borderInk`
-    // just below would work identically for a `motion` value if a genuine
-    // match existed — it doesn't, so this is left as the original
-    // literal; no conversion.
-    style.innerHTML = `
-      @keyframes lp-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      @keyframes pcgo-log-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
-      @keyframes scrollBounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(5px); } }
-      .scroll-btn { animation: scrollBounce 2s infinite; }
-      .scroll-btn:hover { transform: translateX(-50%) scale(1.08); border: 1.5px solid ${colors.borderInk}; }
-    `;
-    document.head.appendChild(style);
-    return () => document.head.removeChild(style);
-  }, []);
+  // Phase 5.2: scrollBounce keyframe and .scroll-btn rule deleted with GSAP/Lenis removal.
+  // lp-spin → global `spin`; pcgo-log-pulse → global `pulse` (both in src/styles/base.css).
+
 
   useEffect(() => {
     const timer = setTimeout(() => setSearch(searchInput), 400);

@@ -505,7 +505,7 @@ export function SunshineStreamHistory({
                 </div>
             )}
 
-            <style>{`@keyframes ssh-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }`}</style>
+            {/* ssh-pulse → global `pulse` in base.css (1.2) */}
         </section>
     );
 }

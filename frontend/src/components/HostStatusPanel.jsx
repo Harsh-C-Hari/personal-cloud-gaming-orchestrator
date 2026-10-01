@@ -807,7 +807,7 @@ const disableButton = {
 };
 
 const globalKeyframes = `
-  @keyframes hsp-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  /* hsp-spin → global `spin` in base.css (1.2) */
 
   /* Mobile: the two-column stat grids (System, Startup, Sunshine, Tailscale,
      Hardware) don't leave enough room per column for longer values like

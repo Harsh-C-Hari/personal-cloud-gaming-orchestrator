@@ -275,12 +275,7 @@ export function EventLog({ events, connected }) {
         )}
       </div>
 
-      <style>{`
-        @keyframes log-blink {
-          0%, 100% { opacity: 1; }
-          50%       { opacity: 0.3; }
-        }
-      `}</style>
+      {/* log-blink → global `pulse` in base.css (1.2) */}
     </div>
   );
 }

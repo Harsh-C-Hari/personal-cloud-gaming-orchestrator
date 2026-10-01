@@ -446,7 +446,7 @@ export function SessionHistory({ refreshKey = 0 }) {
           near the top of this component's render output (see that comment for the full
           non-convertible reasoning — this is a keyframe name, not a `motion` transition-timing
           string, so there is nothing to alias here regardless of source/render shape). */}
-      <style>{`@keyframes sh-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      {/* sh-spin → global `spin` in base.css (1.2) */}
     </section>
   );
 }

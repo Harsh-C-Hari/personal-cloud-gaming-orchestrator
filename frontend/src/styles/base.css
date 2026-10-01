@@ -1,0 +1,114 @@
+/**
+ * src/styles/base.css
+ *
+ * Global stylesheet — imported once from main.jsx.
+ * Single source for:
+ *   • Canonical @keyframes (spin, pulse, badge-pulse, card-in)
+ *   • Reset and base element rules
+ *   • Utility classes (.pcgo-*)
+ *   • Accessibility (focus ring, reduced-motion)
+ *
+ * Phase 1 (1.1 + 1.2): defines badge-pulse and card-in (previously missing),
+ * and provides the canonical spin/pulse that component-level duplicates
+ * will be migrated to reference in Phase 2/3.
+ */
+
+/* ─── Canonical @keyframes ─────────────────────────────────────────────────── */
+
+/**
+ * spin — used by all loading spinners.
+ * Replaces: cgo-spin, gm-spin, hsp-spin, lp-spin, sa-spin,
+ *           scm-spin, sh-spin, pcgo-users-spin, pcgo-settings-spin
+ */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/**
+ * pulse — used by in-progress status indicators.
+ * Replaces: cgo-pulse, pcgo-pulse, pcgo-log-pulse, ssh-pulse,
+ *           scm-pulse, log-blink, dashboard-loading-pulse
+ */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.38; }
+}
+
+/**
+ * badge-pulse — used by StatusBadge, HostStatusPanel,
+ * RecoveryStats, RecoveryEvents for in-progress states.
+ * Previously used but never defined (bug 1.1).
+ */
+@keyframes badge-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.42; }
+}
+
+/**
+ * card-in — used by EventLog, SessionCard, StartSessionForm
+ * for the first row entrance.
+ * Previously used but never defined (bug 1.1).
+ */
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Reset ────────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ─── Accessibility ─────────────────────────────────────────────────────────── */
+
+/* Focus ring: 2px solid white, 2px offset, :focus-visible only (2.11) */
+:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* Remove the legacy outline rule — unified here */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* Reduced-motion: disable all animations and transitions */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:       0.01ms !important;
+    animation-iteration-count: 1    !important;
+    transition-duration:      0.01ms !important;
+    scroll-behavior:          auto  !important;
+  }
+}
+
+/* ─── Utility classes ───────────────────────────────────────────────────────── */
+
+/* Page-enter: opacity-only fade, no slide (5.3) */
+.pcgo-page-enter {
+  animation: card-in 220ms ease both;
+}
+
+/* Status dot used in badges */
+.pcgo-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+/* Mono text for machine data (IDs, timestamps, durations, paths, log lines) */
+.pcgo-mono {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+
+/* Muted text */
+.pcgo-muted {
+  color: var(--color-ink-faint, #949494);
+}

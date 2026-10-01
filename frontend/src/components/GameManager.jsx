@@ -882,7 +882,7 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
         )}
       </div>
 
-      <style>{`@keyframes gm-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      {/* gm-spin → global `spin` in base.css (1.2) */}
     </div>
   );
 }

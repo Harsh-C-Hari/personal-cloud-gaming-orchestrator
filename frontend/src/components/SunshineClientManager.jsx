@@ -549,7 +549,7 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
 
             </div>
 
-            <style>{`@keyframes scm-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } } @keyframes scm-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }`}</style>
+            {/* scm-spin/scm-pulse → global `spin`/`pulse` in base.css (1.2) */}
 
         </div>
     );

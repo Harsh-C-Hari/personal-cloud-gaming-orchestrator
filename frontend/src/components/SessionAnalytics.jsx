@@ -433,7 +433,7 @@ export function SessionAnalytics({ refreshKey = 0 }) {
         </>
       )}
 
-      <style>{`@keyframes sa-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      {/* sa-spin → global `spin` in base.css (1.2) */}
     </section>
   );
 }

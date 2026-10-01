@@ -239,10 +239,6 @@ export function Chip({ children, tone = "neutral", icon, style, ...rest }) {
   );
 }
 
-export function Squiggle({ width = 120, style }) {
-  return <div aria-hidden="true" style={{ width, height: 1, background: colors.border, ...style }} />;
-}
-
 export function Spinner({ size = 20, style }) {
   return (
     <span

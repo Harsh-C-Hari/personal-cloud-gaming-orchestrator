@@ -214,10 +214,7 @@
   .pcgo-page-toolbar__actions { width: 100%; }
 }
 
-@keyframes pcgo-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: .35; }
-}
+/* pcgo-pulse → global `pulse` in base.css (1.2) */
 
 @media (prefers-reduced-motion: reduce) {
   .pcgo-game-manager-config-loading__dot {
@@ -264,7 +261,7 @@
      `@keyframes` names, so there's no valid conversion target regardless of
      duration. 1.6s also doesn't match any `motion` step's duration. Left as the
      original literal; no conversion. */
-  animation: pcgo-pulse 1.6s ease-in-out infinite;
+  animation: pulse 1.6s ease-in-out infinite;
 }
 
 
@@ -572,7 +569,7 @@
      `@keyframes` names, so there's no valid conversion target regardless of
      duration. 1.6s also doesn't match any `motion` step's duration. Left as the
      original literal; no conversion. */
-  animation: pcgo-pulse 1.6s ease-in-out infinite;
+  animation: pulse 1.6s ease-in-out infinite;
 }
 
 .pcgo-session-history-loading__game {
@@ -870,7 +867,7 @@
      `@keyframes` names, so there's no valid conversion target regardless of
      duration. 1.6s also doesn't match any `motion` step's duration. Left as the
      original literal; no conversion. */
-  animation: pcgo-pulse 1.6s ease-in-out infinite;
+  animation: pulse 1.6s ease-in-out infinite;
 }
 
 .pcgo-analytics-loading__metrics span {
@@ -1099,7 +1096,7 @@
      `@keyframes` names, so there's no valid conversion target regardless of
      duration. 1.6s also doesn't match any `motion` step's duration. Left as the
      original literal; no conversion. */
-  animation: pcgo-pulse 1.6s ease-in-out infinite;
+  animation: pulse 1.6s ease-in-out infinite;
 }
 
 .pcgo-logs__loading-severity {
@@ -2640,7 +2637,7 @@
      `@keyframes` names, so there's no valid conversion target regardless of
      duration. 1.6s also doesn't match any `motion` step's duration. Left as the
      original literal; no conversion. */
-  animation: pcgo-pulse 1.6s ease-in-out infinite;
+  animation: pulse 1.6s ease-in-out infinite;
 }
 
 .pcgo-users__loading-identity { width: 70%; }
@@ -2730,13 +2727,10 @@
      `@keyframes` names, so there's no valid conversion target regardless of
      duration. .8s also doesn't match any `motion` step's duration. Left as the
      original literal; no conversion. */
-  animation: pcgo-users-spin .8s linear infinite;
+  animation: spin .8s linear infinite;
 }
 
-@keyframes pcgo-users-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
+/* pcgo-users-spin → global `spin` in base.css (1.2) */
 
 @media (max-width: 980px) {
   .pcgo-users__layout {
@@ -3539,13 +3533,10 @@
      `@keyframes` names, so there's no valid conversion target regardless of
      duration. .8s also doesn't match any `motion` step's duration. Left as the
      original literal; no conversion. */
-  animation: pcgo-settings-spin .8s linear infinite;
+  animation: spin .8s linear infinite;
 }
 
-@keyframes pcgo-settings-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
+/* pcgo-settings-spin → global `spin` in base.css (1.2) */
 
 .pcgo-settings__unavailable {
   display: flex;
@@ -3631,7 +3622,7 @@
      `@keyframes` names, so there's no valid conversion target regardless of
      duration. 1.6s also doesn't match any `motion` step's duration. Left as the
      original literal; no conversion. */
-  animation: pcgo-pulse 1.6s ease-in-out infinite;
+  animation: pulse 1.6s ease-in-out infinite;
 }
 
 .pcgo-settings-appearance {

@@ -60,10 +60,7 @@ const GLOBAL_CSS = `
   }
 
   button, input, select, textarea { font: inherit; }
-  button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid ${colors.brand};
-    outline-offset: 2px;
-  }
+
   input::placeholder, textarea::placeholder { color: ${colors.inkGhost}; }
   select option { background: ${colors.bgInset}; color: ${colors.ink}; }
   input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { opacity: 0.35; }
@@ -74,11 +71,8 @@ const GLOBAL_CSS = `
   *::-webkit-scrollbar-thumb { background: ${colors.border}; border-radius: 6px; }
   *::-webkit-scrollbar-thumb:hover { background: ${colors.borderStrong}; }
 
-  @keyframes cgo-fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes cgo-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .42; } }
-  @keyframes cgo-spin { to { transform: rotate(360deg); } }
-
-  .pcgo-page-enter { animation: cgo-fade-up 220ms ease both; }
+  /* .pcgo-page-enter uses card-in defined in base.css */
+  .pcgo-page-enter { animation: card-in 220ms ease both; }
   .pcgo-eyebrow { color: ${colors.inkFaint}; font: 600 10px/1.2 ${fonts.mono}; letter-spacing: .14em; text-transform: uppercase; }
   .pcgo-mono { font-family: ${fonts.mono}; }
   .pcgo-muted { color: ${colors.inkFaint}; }
