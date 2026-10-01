@@ -1,4 +1,4 @@
-/**
+﻿/**
  * dashboard/components/ActiveAlerts.jsx
  *
  * Extracted from the old pages/Dashboard.jsx monolith. Same markup/data
@@ -41,7 +41,6 @@ export function ActiveAlerts({ alerts }) {
           fontSize: "11px",
           fontWeight: 700,
           letterSpacing: "0.1em",
-          textTransform: "uppercase",
           fontFamily: fonts.body,
         }}
       >

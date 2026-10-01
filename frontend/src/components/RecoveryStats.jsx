@@ -1,4 +1,4 @@
-/**
+﻿/**
  * components/RecoveryStats.jsx
  *
  * Same props (recoveryStats, showTailscaleRecoveryDetails/
@@ -359,7 +359,6 @@ const summaryEyebrow = {
   fontSize: "9px",
   fontWeight: 700,
   letterSpacing: "0.12em",
-  textTransform: "uppercase",
   fontFamily: fonts.mono,
 };
 
@@ -386,7 +385,6 @@ const channelHeading = {
   fontSize: "9px",
   fontWeight: 700,
   letterSpacing: "0.12em",
-  textTransform: "uppercase",
   fontFamily: fonts.mono,
 };
 
@@ -449,7 +447,6 @@ const labelStyle = {
   whiteSpace: "nowrap",
   fontFamily: fonts.mono,
   marginTop: "2px",
-  textTransform: "uppercase",
 };
 
 const valueStyle = {
@@ -466,7 +463,6 @@ const sectionLabel = {
   fontSize: "9px",
   color: colors.inkFaint,
   letterSpacing: "0.13em",
-  textTransform: "uppercase",
   fontFamily: fonts.mono,
   fontWeight: 700,
 };

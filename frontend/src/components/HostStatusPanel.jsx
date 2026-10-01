@@ -1,4 +1,4 @@
-/**
+﻿/**
  * components/HostStatusPanel.jsx
  *
  * Same props, same handlers, same data — only the presentation layer was
@@ -638,7 +638,6 @@ const updatingDot = {
   fontSize: "9px",
   color: colors.brand,
   fontFamily: fonts.mono,
-  textTransform: "uppercase",
   fontWeight: 700,
   whiteSpace: "nowrap",
 };
@@ -652,7 +651,6 @@ const loadingStateLabel = {
   fontFamily: fonts.mono,
   fontWeight: 700,
   letterSpacing: "0.05em",
-  textTransform: "uppercase",
   whiteSpace: "nowrap",
 };
 

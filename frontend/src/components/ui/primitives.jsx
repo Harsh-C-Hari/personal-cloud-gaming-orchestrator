@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useState } from "react";
+﻿import { forwardRef, useRef, useState } from "react";
 import { Inbox } from "lucide-react";
 import { colors, fonts, radius, shadow, motion } from "../../dashboard/theme.js";
 import { initMotion } from "../../lib/motion/gsapSetup.js";
@@ -225,7 +225,6 @@ export function Chip({ children, tone = "neutral", icon, style, ...rest }) {
         fontSize: "10px",
         fontWeight: 700,
         letterSpacing: "0.09em",
-        textTransform: "uppercase",
         userSelect: "none",
         whiteSpace: "nowrap",
         flexShrink: 0,

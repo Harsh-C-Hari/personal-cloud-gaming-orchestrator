@@ -1,4 +1,4 @@
-/**
+﻿/**
  * components/RecoveryEvents.jsx
  *
  * Same props (recoveryEvents, recoveryEventsLoading, showAllRecoveryEvents
@@ -199,7 +199,6 @@ export function RecoveryEvents({
                       fontWeight: 700,
                       letterSpacing: "0.08em",
                       fontFamily: fonts.mono,
-                      textTransform: "uppercase",
                       whiteSpace: "nowrap",
                     }}>
                       {eventName}

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * components/GameManager.jsx
  *
  * Same API calls / validation / business logic as before (addGame,
@@ -1103,7 +1103,6 @@ const backButton = {
   fontFamily: fonts.mono,
   fontWeight: 700,
   letterSpacing: "0.08em",
-  textTransform: "uppercase",
   cursor: "pointer",
   padding: 0,
   marginBottom: "10px",

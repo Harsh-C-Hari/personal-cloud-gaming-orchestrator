@@ -1,4 +1,4 @@
-/**
+﻿/**
  * dashboard/components/DashboardStats.jsx
  *
  * Row of stat tiles (Active / Total / WS on Home). Each tile: icon badge +
@@ -178,7 +178,6 @@ export function DashboardStats({ stats }) {
                   color: colors.inkFaint,
                   letterSpacing: "0.12em",
                   marginTop: "2px",
-                  textTransform: "uppercase",
                   fontFamily: fonts.body,
                   // 1.8: labels wrap too, never ellipsis.
                   overflowWrap: "anywhere",

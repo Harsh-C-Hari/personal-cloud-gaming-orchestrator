@@ -1,4 +1,4 @@
-/**
+﻿/**
  * components/ui/Eyebrow.jsx
  *
  * The mono uppercase tracked-out label pattern — used in Login's hero section

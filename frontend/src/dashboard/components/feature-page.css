@@ -1416,7 +1416,6 @@
   color: var(--color-ink-faint);
   font: 700 10px/1.3 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .12em;
-  text-transform: uppercase;
 }
 
 /* P3-T01: aligned to typeScale.subheading (17px/1.4/600/-0.01em) â€” was
@@ -1477,7 +1476,6 @@
   color: var(--color-ink-faint);
   font: 700 9px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .14em;
-  text-transform: uppercase;
 }
 
 .pcgo-operational-rail__summary > div:last-child {
@@ -1940,7 +1938,6 @@
   color: var(--color-ink-faint);
   font: 700 9px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .15em;
-  text-transform: uppercase;
 }
 
 .pcgo-host-readiness-summary strong {
@@ -2201,7 +2198,6 @@
   color: var(--color-ink-faint);
   font: 700 8px/1.1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .14em;
-  text-transform: uppercase;
 }
 
 .pcgo-users__heading h2,
@@ -2247,7 +2243,6 @@
   background: transparent;
   font: 700 9px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .08em;
-  text-transform: uppercase;
   cursor: pointer;
   /* P6-T15 motion audit: the 160ms ease group(s) match `motion.base` and the 100ms
      ease group matches `motion.fast` in value, but no CSS-side `--motion-*` token
@@ -2340,7 +2335,6 @@
   color: var(--color-ink-faint);
   font: 700 8px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .09em;
-  text-transform: uppercase;
 }
 
 .pcgo-users__summary-cell strong {
@@ -2403,7 +2397,6 @@
   color: var(--color-ink-faint);
   font: 700 8px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .08em;
-  text-transform: uppercase;
 }
 
 .pcgo-users__columns,
@@ -2419,7 +2412,6 @@
   color: var(--color-ink-ghost);
   font: 700 8px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .1em;
-  text-transform: uppercase;
 }
 
 .pcgo-users__columns span:last-child {
@@ -2656,7 +2648,6 @@
   color: var(--color-ink-dim);
   font: 700 9px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .1em;
-  text-transform: uppercase;
 }
 
 .pcgo-users__field input,
@@ -2769,8 +2760,7 @@
     content: attr(data-label);
     font: 700 8px/1.1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
     letter-spacing: .09em;
-    text-transform: uppercase;
-  }
+    }
 
   .pcgo-users__action {
     grid-column: 1 / -1;
@@ -2881,7 +2871,6 @@
   color: var(--color-ink-faint);
   font: 700 8px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .14em;
-  text-transform: uppercase;
 }
 
 .pcgo-settings-overview h2 {
@@ -3025,7 +3014,6 @@
   background: transparent;
   font: 700 9px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .08em;
-  text-transform: uppercase;
   cursor: pointer;
   /* P6-T15 motion audit: the 160ms ease group(s) match `motion.base` and the 100ms
      ease group matches `motion.fast` in value, but no CSS-side `--motion-*` token
@@ -3116,7 +3104,6 @@
   color: var(--color-warning);
   background: transparent;
   font: 700 8px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
-  text-transform: uppercase;
   cursor: pointer;
 }
 
@@ -3396,7 +3383,6 @@
   color: var(--color-ink-faint);
   background: var(--surface-l2);
   font: 700 9px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
-  text-transform: uppercase;
 }
 
 .pcgo-settings__info-note {
@@ -3448,7 +3434,6 @@
 .pcgo-settings-readonly-row span {
   color: var(--color-ink-faint);
   font: 700 8px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
-  text-transform: uppercase;
 }
 
 .pcgo-settings-readonly-row strong {
@@ -3499,7 +3484,6 @@
 .pcgo-settings__restart-note strong {
   font: 700 9px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .08em;
-  text-transform: uppercase;
 }
 
 .pcgo-settings__restart-note span {
@@ -3658,7 +3642,6 @@
   color: var(--color-ink-faint);
   font: 700 8px/1.2 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .1em;
-  text-transform: uppercase;
 }
 
 .pcgo-settings-about strong {

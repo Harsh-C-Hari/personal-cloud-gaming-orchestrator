@@ -120,7 +120,7 @@ export default function Login() {
       <section style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "clamp(28px, 6vw, 84px)", borderRight: `1px solid ${colors.border}`, minHeight: "100%" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}><BrandMark scale="lg" /><span style={{ font: `700 16px/1 ${fonts.display}`, letterSpacing: ".06em" }}>CLOUD GAMING <span style={{ color: colors.brand }}>ORCHESTRATOR</span></span></div>
         <div style={{ maxWidth: 610, padding: "72px 0" }}>
-          <div ref={heroEyebrowRef} style={{ display: "inline-flex", alignItems: "center", gap: 8, color: colors.brand, font: `600 10px/1 ${fonts.mono}`, letterSpacing: ".14em", textTransform: "uppercase", marginBottom: 24 }}><Activity size={14} /> Personal gaming infrastructure</div>
+          <div ref={heroEyebrowRef} style={{ display: "inline-flex", alignItems: "center", gap: 8, color: colors.brand, font: `500 12px/1 ${fonts.mono}`, letterSpacing: "0", marginBottom: 24 }}><Activity size={14} aria-hidden="true" /> Personal gaming infrastructure</div>
           <h1 ref={heroH1Ref} style={{ margin: 0, maxWidth: 580, font: `600 clamp(42px, 6vw, 82px)/.98 ${fonts.display}`, letterSpacing: "-.055em", color: colors.ink }}>Your games.<br /><span style={{ color: colors.brand }}>Your control plane.</span></h1>
           <p ref={heroBodyRef} style={{ margin: "28px 0 0", maxWidth: 500, color: colors.inkDim, font: `400 clamp(15px, 1.7vw, 19px)/1.55 ${fonts.body}` }}>Orchestrate sessions, protect saves, monitor the host, and keep streaming infrastructure ready from one calm operational console.</p>
           <div ref={heroPillsRef} style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 34 }}>
@@ -133,7 +133,7 @@ export default function Login() {
       <section ref={formPanelRef} style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "36px 24px", background: colors.bgElevated }}>
         <form onSubmit={handleSubmit} style={{ width: "100%", maxWidth: 420, border: `1px solid ${colors.border}`, borderRadius: radius.lg, background: colors.bgCard, overflow: "hidden", boxShadow: shadow.overlay }}>
           <div style={{ padding: "28px 28px 24px", borderBottom: `1px solid ${colors.border}` }}>
-            <div style={{ color: colors.inkFaint, font: `600 10px/1 ${fonts.mono}`, letterSpacing: ".14em", textTransform: "uppercase", marginBottom: 15 }}>{bootstrapMode ? "First-run setup" : "Secure access"}</div>
+            <div style={{ color: colors.inkFaint, font: `500 12px/1 ${fonts.mono}`, letterSpacing: "0", marginBottom: 15 }}>{bootstrapMode ? "First-run setup" : "Secure access"}</div>
             <h2 style={{ margin: 0, font: `600 29px/1.08 ${fonts.display}`, letterSpacing: "-.03em" }}>{bootstrapMode ? "Create your admin" : "Welcome back"}</h2>
             <p style={{ margin: "10px 0 0", color: colors.inkFaint, font: `400 13px/1.55 ${fonts.body}` }}>{bootstrapMode ? "Create the first administrator for this host." : "Sign in to manage your gaming infrastructure."}</p>
           </div>

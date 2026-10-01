@@ -1,4 +1,4 @@
-/**
+﻿/**
  * components/EventLog.jsx
  *
  * Renders the WebSocket event history.
@@ -116,7 +116,6 @@ export function EventLog({ events, connected }) {
               fontSize: "10px",
               color: colors.inkFaint,
               letterSpacing: "0.12em",
-              textTransform: "uppercase",
               fontFamily: fonts.mono,
               fontWeight: 700,
             }}
@@ -245,7 +244,6 @@ export function EventLog({ events, connected }) {
                     fontSize: "8.5px",
                     fontWeight: 700,
                     letterSpacing: "0.06em",
-                    textTransform: "uppercase",
                     color: style.color,
                     background: `${style.color}24`,
                     borderRadius: "10px",

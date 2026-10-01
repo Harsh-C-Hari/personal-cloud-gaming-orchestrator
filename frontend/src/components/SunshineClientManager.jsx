@@ -1,4 +1,4 @@
-/**
+﻿/**
  * components/SunshineClientManager.jsx
  *
  * Admin-only Sunshine client/pairing management, built to the same
@@ -608,7 +608,6 @@ function FieldLabel({ children, htmlFor }) {
                 fontSize: "9.5px",
                 color: colors.inkFaint,
                 letterSpacing: "0.13em",
-                textTransform: "uppercase",
                 fontFamily: fonts.mono,
                 fontWeight: 700,
                 marginBottom: "7px",
@@ -756,7 +755,6 @@ const sectionLabel = {
     fontSize: "9.5px",
     color: colors.inkFaint,
     letterSpacing: "0.15em",
-    textTransform: "uppercase",
     fontFamily: fonts.mono,
     fontWeight: 700,
 };

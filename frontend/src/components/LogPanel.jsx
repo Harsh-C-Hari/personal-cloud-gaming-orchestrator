@@ -493,7 +493,7 @@ const statTile = { padding: "10px 12px", borderRadius: `${radius.lg}px`, backgro
 // the 4px "tight" step is the right scale.
 const statIconWrap = (tone) => ({ flexShrink: 0, width: "30px", height: "30px", borderRadius: `${radius.tight}px`, display: "flex", alignItems: "center", justifyContent: "center", background: `color-mix(in srgb, ${tone} 14%, transparent)`, border: `1px solid color-mix(in srgb, ${tone} 40%, transparent)`, color: tone, fontSize: "13px" });
 const statValue = { fontSize: "16px", fontWeight: 700, fontFamily: fonts.mono, lineHeight: 1.1, whiteSpace: "nowrap" };
-const statLabel = { fontSize: "8.5px", color: colors.inkFaint, letterSpacing: "0.08em", fontFamily: fonts.mono, marginTop: "3px", textTransform: "uppercase" };
+const statLabel = { fontSize: "12px", color: colors.inkFaint, letterSpacing: "0", fontFamily: fonts.mono, marginTop: "3px" };
 const logWrapper = { position: "relative" };
 const logContainer = { position: "relative", background: surface.l1, border: `1px solid ${colors.borderSubtle}`, borderRadius: `${radius.lg}px`, padding: "10px", minHeight: "200px", maxHeight: "min(600px, 65dvh)", overflowY: "auto", overflowX: "hidden" };
 const logStyle = { display: "grid", gridTemplateColumns: "92px minmax(0, 1fr)", alignItems: "start", gap: "10px", fontFamily: fonts.mono, fontSize: "11px", color: colors.inkDim, whiteSpace: "pre-wrap", overflowWrap: "anywhere", wordBreak: "break-word", width: "100%", boxSizing: "border-box", marginBottom: "5px", borderBottom: `1px solid ${colors.borderSubtle}`, borderLeft: `2px solid ${colors.inkDim}`, padding: "7px 7px 7px 9px" };

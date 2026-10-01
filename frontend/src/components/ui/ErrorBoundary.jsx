@@ -1,4 +1,4 @@
-/**
+﻿/**
  * components/ui/ErrorBoundary.jsx
  *
  * If any component in the wrapped subtree throws during render (bad API
@@ -224,7 +224,6 @@ export class ErrorBoundary extends Component {
                   fontFamily: fonts.body,
                   fontWeight: 700,
                   letterSpacing: "0.08em",
-                  textTransform: "uppercase",
                   cursor: "pointer",
                   padding: 0,
                 }}

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * components/SaveBrowser.jsx
  *
  * Same props (type, name, saves, loading, error, deleting, onTypeChange,
@@ -48,7 +48,6 @@ function FieldLabel({ icon, children }) {
                 fontSize: "9.5px",
                 color: colors.inkFaint,
                 letterSpacing: "0.13em",
-                textTransform: "uppercase",
                 fontFamily: fonts.mono,
                 fontWeight: 700,
                 marginBottom: "8px",

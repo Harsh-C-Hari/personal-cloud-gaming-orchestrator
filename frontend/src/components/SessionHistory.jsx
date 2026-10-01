@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useContext } from "react";
+﻿import { useEffect, useRef, useState, useContext } from "react";
 import { gsap, ScrollTrigger } from "../lib/motion/gsapSetup.js";
 import { prefersReducedMotion } from "../lib/motion/reducedMotion.js";
 import { ScrollContainerContext } from "../lib/motion/scrollContainerContext.jsx";
@@ -608,7 +608,6 @@ const statLabel = {
   letterSpacing: "0.08em",
   fontFamily: fonts.mono,
   marginTop: "3px",
-  textTransform: "uppercase",
 };
 
 const errorBox = {

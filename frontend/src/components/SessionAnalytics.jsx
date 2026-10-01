@@ -1,4 +1,4 @@
-/**
+﻿/**
  * components/SessionAnalytics.jsx
  *
  * P5-T11 token-elevation audit (typeScale/surface, per D-008/D-009).
@@ -556,7 +556,6 @@ const statLabel = {
   letterSpacing: "0.08em",
   fontFamily: fonts.mono,
   marginTop: "3px",
-  textTransform: "uppercase",
 };
 
 const listCard = {

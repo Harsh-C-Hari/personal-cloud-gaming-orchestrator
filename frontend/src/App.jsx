@@ -69,7 +69,7 @@ const GLOBAL_CSS = `
 
   /* .pcgo-page-enter uses card-in defined in base.css */
   .pcgo-page-enter { animation: card-in 220ms ease both; }
-  .pcgo-eyebrow { color: ${colors.inkFaint}; font: 600 10px/1.2 ${fonts.mono}; letter-spacing: .14em; text-transform: uppercase; }
+  .pcgo-eyebrow { color: ${colors.inkFaint}; font: 500 12px/1.2 ${fonts.mono}; letter-spacing: 0; }
   .pcgo-mono { font-family: ${fonts.mono}; }
   .pcgo-muted { color: ${colors.inkFaint}; }
   .pcgo-status-dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; }

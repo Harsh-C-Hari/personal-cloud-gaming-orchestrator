@@ -1,4 +1,4 @@
-/**
+﻿/**
  * components/SunshineStreamCard.jsx
  *
  * Same props (streamStatus) and same formatStreamDuration/conditional
@@ -198,7 +198,6 @@ export function SunshineStreamCard({ streamStatus }) {
                         fontSize: "9px",
                         color: colors.inkFaint,
                         letterSpacing: "0.13em",
-                        textTransform: "uppercase",
                         fontFamily: fonts.mono,
                     }}
                 >

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * components/SunshineStreamHistory.jsx
  *
  * Same props (streams, loading), same formatDuration() helper, and same
@@ -434,7 +434,6 @@ export function SunshineStreamHistory({
                                             fontWeight: 700,
                                             letterSpacing: "0.08em",
                                             fontFamily: fonts.mono,
-                                            textTransform: "uppercase",
                                             textAlign: "center",
                                             minWidth: "90px",
                                         }}
