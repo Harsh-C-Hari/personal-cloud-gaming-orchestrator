@@ -62,20 +62,16 @@
 
 /* ─── Accessibility ─────────────────────────────────────────────────────────── */
 
-/* Focus ring: 2px solid white, 2px offset, :focus-visible only (2.11) */
+/* 2.11: Focus ring — 2px solid white, 2px offset, :focus-visible only.
+   Covers all focusable elements in one rule. */
 :focus-visible {
   outline: 2px solid #ffffff;
   outline-offset: 2px;
 }
 
-/* Remove the legacy outline rule — unified here */
-button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-[tabindex]:focus-visible {
-  outline: 2px solid #ffffff;
-  outline-offset: 2px;
+/* 2.11: Keep focused elements visible below sticky header */
+:focus-visible {
+  scroll-margin-top: 60px; /* matches DashboardHeader height */
 }
 
 /* Reduced-motion: disable all animations and transitions */
@@ -88,9 +84,30 @@ textarea:focus-visible,
   }
 }
 
+/* ─── Text rules (2.5) ──────────────────────────────────────────────────────── */
+
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+p, .pcgo-description, .pcgo-banner, .pcgo-empty-text {
+  text-wrap: pretty;
+}
+
+/* 2.5: Tabular numerics for counters, timers, durations */
+.pcgo-tabular-nums,
+[data-tabular-nums] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 2.5: Touch targets — manipulation prevents 300ms tap delay */
+button, a, [role="button"], input, select, textarea {
+  touch-action: manipulation;
+}
+
 /* ─── Utility classes ───────────────────────────────────────────────────────── */
 
-/* Page-enter: opacity-only fade, no slide (5.3) */
+/* Page-enter: opacity+slight-rise entrance */
 .pcgo-page-enter {
   animation: card-in 220ms ease both;
 }
@@ -105,7 +122,7 @@ textarea:focus-visible,
 
 /* Mono text for machine data (IDs, timestamps, durations, paths, log lines) */
 .pcgo-mono {
-  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-family: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
 /* Muted text */
