@@ -1,4 +1,4 @@
-﻿.pcgo-feature-page {
+.pcgo-feature-page {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -1365,7 +1365,10 @@
 
 .pcgo-home-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.8fr);
+  /* Rail min shrunk 300→260px: no persistent sidebar so there are ~220px
+     more available at every viewport width. The narrower min means the
+     two-column layout holds longer before stacking. */
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.75fr);
   align-items: start;
   gap: 24px;
 }
@@ -1444,11 +1447,15 @@
 }
 
 @media (max-width: 1180px) {
-  .pcgo-home-hero { grid-template-columns: minmax(0, 1.25fr) minmax(280px, .9fr); }
+  /* Was minmax(280px, .9fr) — still slightly wider rail on mid-range widths */
+  .pcgo-home-hero { grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.85fr); }
   .pcgo-command-index { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 720px) {
+  /* Stack to single column. Was 900px — raised to 720px because the
+     removed sidebar gives ~220px back, so the 2-col hero holds well
+     down to 720px content width. */
   .pcgo-home-hero { grid-template-columns: 1fr; }
   .pcgo-home-rail { order: 2; }
   .pcgo-command-index { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1514,6 +1521,8 @@
   font-size: 13px !important;
   letter-spacing: -.01em;
 }
+
+
 
 .pcgo-command-card {
   position: relative;

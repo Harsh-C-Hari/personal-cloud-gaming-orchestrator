@@ -38,6 +38,7 @@ export function SessionSidebar({ activeCount, totalCount, connected, events }) {
       <div className="pcgo-operational-rail__summary">
         <div className="pcgo-operational-rail__eyebrow">Live system pulse</div>
         <DashboardStats
+          compact
           stats={[
           { label: "Active", val: activeCount, color: colors.success, icon: <Zap size={15} strokeWidth={2} /> },
           { label: "Total", val: totalCount, color: colors.brand, icon: <Layers size={15} strokeWidth={2} /> },
@@ -131,7 +132,7 @@ export function SessionSidebar({ activeCount, totalCount, connected, events }) {
             display: "flex",
             flexDirection: "column",
             minHeight: "140px",
-            maxHeight: "min(260px, 40dvh)",
+            maxHeight: "min(380px, 50dvh)",
             padding: "12px",
             // TCB-P3 followup: softened from `radius.none` (0px) to
             // `radius.lg` (16px) to match the parent rail's 16px
