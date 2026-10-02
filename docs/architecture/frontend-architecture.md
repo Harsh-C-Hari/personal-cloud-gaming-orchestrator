@@ -111,3 +111,22 @@ Used for:
 * Fast updates
 * Operational monitoring
 * Administrative control
+
+---
+
+# Design System & Aesthetics
+
+The frontend utilizes a custom design language referred to as **Tactical Console Brutalism**, optimized for high-density, professional monitoring environments.
+
+## Visual Foundations
+
+* **OLED Black Surfaces:** The application relies on a dark-first hierarchy. Standard UI elements eschew traditional greys in favor of true blacks or near-blacks (L0-L4 surfaces) to minimize eye strain and enhance contrast for active elements.
+* **Liquid Glass Refraction:** Key UI components, particularly page headers (e.g., `.pcgo-feature-header`), use a combination of low-opacity backgrounds (e.g., `rgba(0, 0, 0, 0.15)`) and `backdrop-filter: blur(3px)` to create a subtle frosted glass effect. This ensures content readability without completely obscuring the structural background.
+
+## Stacking Context & Background Architecture
+
+The dashboard background features a pure CSS radial-gradient "dot matrix" pattern. To ensure browser compatibility with `backdrop-filter` effects (which can fail when backgrounds are applied directly to the `<body>` or `<html>` root), the architectural stacking context is strictly managed:
+
+1. **Root Background:** The `body` element maintains a solid base color (`var(--color-bg)`).
+2. **Dot Matrix Layer:** A dedicated, fixed `div` (`.pcgo-dot-matrix`) is injected immediately inside the app root. It renders the dot pattern and uses `pointer-events: none` to remain inert.
+3. **Application Shell:** The main UI wrapper (`.pcgo-shell-root`) is rendered *after* the dot matrix in the DOM and uses `position: relative`. Because it lacks an opaque background of its own, it naturally overlays the dot matrix, allowing its children (like the Liquid Glass headers) to successfully sample and blur the dots behind them.
