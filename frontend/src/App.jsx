@@ -45,7 +45,9 @@ const GLOBAL_CSS = `
     min-width: 320px;
     min-height: 100vh;
     min-height: 100dvh;
-    background: ${colors.bg};
+    background-color: ${colors.bg};
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
     color: ${colors.ink};
     font-family: ${fonts.body};
     /* 2.4: 400 weight; 500 was a template default */

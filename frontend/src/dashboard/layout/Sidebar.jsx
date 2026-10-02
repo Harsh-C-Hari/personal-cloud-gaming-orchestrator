@@ -54,7 +54,7 @@ export function Sidebar({ items, activeRoute, onNavigate }) {
         overflowY: "auto",
         padding: "18px 14px 20px",
         gap: "4px",
-        background: surface.l2,
+        /* background: surface.l2, (removed for transparent background) */
       }}
     >
       {/* Floating active indicator — GSAP-animated, single element */}

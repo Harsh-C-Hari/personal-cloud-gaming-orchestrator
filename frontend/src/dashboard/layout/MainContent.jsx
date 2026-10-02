@@ -28,7 +28,7 @@ export function MainContent({ children }) {
         overflowX: "hidden",
         WebkitOverflowScrolling: "touch",
         padding: `calc(${nav.headerHeight}px + ${spacing.xl}px) clamp(12px, 4vw, ${spacing.xxl}px) calc(${spacing.massive}px + env(safe-area-inset-bottom, 0px))`,
-        background: colors.bg,
+        /* background: colors.bg, (removed to show dot matrix) */
       }}
     >
       <div style={{ maxWidth: "1400px", margin: "0 auto", minWidth: 0 }}>{children}</div>
