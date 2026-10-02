@@ -46,8 +46,6 @@ const GLOBAL_CSS = `
     min-height: 100vh;
     min-height: 100dvh;
     background-color: ${colors.bg};
-    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1.5px, transparent 1.5px);
-    background-size: 24px 24px;
     color: ${colors.ink};
     font-family: ${fonts.body};
     /* 2.4: 400 weight; 500 was a template default */
@@ -55,6 +53,14 @@ const GLOBAL_CSS = `
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     overflow: hidden;
+  }
+
+  .pcgo-dot-matrix {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+    background-size: 16px 16px;
   }
 
   button, input, select, textarea { font: inherit; }
@@ -95,6 +101,7 @@ export default function App() {
     <ToastProvider>
       <ConfirmDialogProvider>
         <style>{GLOBAL_CSS}</style>
+        <div className="pcgo-dot-matrix" aria-hidden="true" />
         <ErrorBoundary>
           {loggedIn ? <Dashboard /> : <Login />}
         </ErrorBoundary>

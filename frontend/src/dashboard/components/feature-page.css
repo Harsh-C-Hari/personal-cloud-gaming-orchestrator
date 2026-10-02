@@ -8,8 +8,21 @@
 
 .pcgo-feature-header {
   margin-bottom: 0 !important;
-  padding: 4px 0 18px;
+  /* 
+     Padding adjusted to look good when sticky. 
+     Uses negative margins to pull the blur slightly outside the text bounds for a premium feel.
+  */
+  padding: 16px 20px 18px;
+  margin-left: -20px;
+  margin-right: -20px;
   border-bottom: 1px solid var(--color-border-subtle);
+
+  /* Liquid Glass Refraction per design-taste-frontend */
+  /* Reduced opacity to 0.15 and blur to 3px so dots are almost completely clear */
+  background: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .pcgo-feature-header h1 {
@@ -48,7 +61,8 @@
      "soft framed card" scale). Literal because no `--radius-lg` CSS
      custom property is defined in App.jsx GLOBAL_CSS (see the
      `.pcgo-feature-back { border-radius: 4px }` precedent above). */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
   padding: 22px;
   min-width: 0;
 }
@@ -103,7 +117,8 @@
      scale matching the user-requested "smooth like StartSessionForm"
      container edge (same precedent as `.pcgo-section-card` line 43
      and the TCB-P3 container-softening sweep). */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
 }
 
 .pcgo-data-list {
@@ -143,10 +158,11 @@
   border: 1px solid var(--color-border-subtle);
   /* TCB-P4 followup: 12px â†’ 16px (`radius.lg`). Form section,
      soft-card scale (same precedent as `.pcgo-section-card` line 43). */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
 }
 
-.pcgo-form-section + .pcgo-form-section {
+.pcgo-form-section+.pcgo-form-section {
   margin-top: 12px;
 }
 
@@ -179,7 +195,8 @@
   /* TCB-P4 followup: 12px â†’ 16px (`radius.lg`). 40px 20px empty-state
      callout, soft-card scale (same precedent as `.pcgo-analytics__empty`
      line 777 and `.pcgo-settings__unavailable` line 3370). */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
 }
 
 .pcgo-page-note {
@@ -194,7 +211,8 @@
      established `radius.lg` as the sanctioned soft-framed-card
      value per the user's TCB-P3 "smooth like StartSessionForm"
      direction). */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
   color: var(--color-ink-dim);
   background: var(--color-brand-dim);
   font-size: 12px;
@@ -202,17 +220,41 @@
 }
 
 @media (max-width: 700px) {
-  .pcgo-feature-page { gap: 16px; }
-  .pcgo-feature-header { padding-bottom: 14px; }
-  .pcgo-section-card { padding: 16px; }
-  .pcgo-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .pcgo-data-row { align-items: flex-start; flex-direction: column; gap: 5px; }
+  .pcgo-feature-page {
+    gap: 16px;
+  }
+
+  .pcgo-feature-header {
+    padding-bottom: 14px;
+  }
+
+  .pcgo-section-card {
+    padding: 16px;
+  }
+
+  .pcgo-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pcgo-data-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
 }
 
 @media (max-width: 480px) {
-  .pcgo-stat-grid { grid-template-columns: 1fr; }
-  .pcgo-form-section { padding: 14px; }
-  .pcgo-page-toolbar__actions { width: 100%; }
+  .pcgo-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pcgo-form-section {
+    padding: 14px;
+  }
+
+  .pcgo-page-toolbar__actions {
+    width: 100%;
+  }
 }
 
 /* pcgo-pulse â†’ global `pulse` in base.css (1.2) */
@@ -237,7 +279,8 @@
      same scale as the StartSessionForm container edge per the
      TCB-P3 user feedback that established `radius.lg` as the
      sanctioned soft-framed-card scale. */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
   color: var(--color-ink-dim);
   /* D-009 literal alias: var(--color-bg-inset) -> var(--surface-l1),
      same custom property value, zero visual change. */
@@ -438,8 +481,8 @@
   background: var(--surface-l3);
 }
 
-.pcgo-session-history__record-meta > div,
-.pcgo-session-history__details-grid > div {
+.pcgo-session-history__record-meta>div,
+.pcgo-session-history__details-grid>div {
   min-width: 0;
 }
 
@@ -552,7 +595,8 @@
      the user-requested "smooth like StartSessionForm" container edge
      (see theme.js `radius.lg` and the TCB-P3 container-softening
      sweep that established 16px as the sanctioned value). */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
   background: var(--surface-l1);
 }
 
@@ -610,7 +654,7 @@
     flex-direction: column;
   }
 
-  .pcgo-session-history__header > button {
+  .pcgo-session-history__header>button {
     align-self: stretch;
     justify-content: center;
   }
@@ -804,7 +848,8 @@
      (`radius.lg`). 30px 20px empty-state callout, soft-card scale
      (same precedent as `.pcgo-empty-state` line 159 below and
      `.pcgo-settings__unavailable` line 3370). */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
   color: var(--color-ink-faint);
   font: 500 10.5px/1.45 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   text-align: center;
@@ -829,7 +874,7 @@
   font: 600 10.5px/1.35 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
 }
 
-.pcgo-analytics-breakdown__identity > span:last-child {
+.pcgo-analytics-breakdown__identity>span:last-child {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -889,7 +934,8 @@
   border: 1px solid var(--color-border-subtle);
   /* TCB-P4 followup: 0px (broken `var(--radius-md)`) â†’ 16px
      (`radius.lg`). 120px-tall loading panel, soft-card scale. */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
   background: var(--surface-l1);
 }
 
@@ -903,6 +949,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .pcgo-analytics-loading__metrics span,
   .pcgo-analytics-loading__panel span {
     animation: none;
@@ -914,7 +961,7 @@
     grid-template-columns: 1fr 1fr;
   }
 
-  .pcgo-analytics__breakdowns > :last-child {
+  .pcgo-analytics__breakdowns> :last-child {
     grid-column: 1 / -1;
   }
 }
@@ -929,7 +976,7 @@
     grid-template-columns: 1fr;
   }
 
-  .pcgo-analytics__breakdowns > :last-child {
+  .pcgo-analytics__breakdowns> :last-child {
     grid-column: auto;
   }
 }
@@ -939,7 +986,7 @@
     flex-direction: column;
   }
 
-  .pcgo-analytics__header > button {
+  .pcgo-analytics__header>button {
     align-self: stretch;
     justify-content: center;
   }
@@ -1029,7 +1076,7 @@
 .pcgo-logs__error {
   color: var(--color-danger);
   border-color: var(--color-danger);
-  background: rgba(240,127,131,.08);
+  background: rgba(240, 127, 131, .08);
 }
 
 .pcgo-logs__filters select,
@@ -1136,7 +1183,7 @@
 
   .pcgo-logs__filters select,
   .pcgo-logs__filters input,
-  .pcgo-logs__filters > div {
+  .pcgo-logs__filters>div {
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
@@ -1187,7 +1234,7 @@
   align-items: start;
 }
 
-.pcgo-sunshine-layout > * {
+.pcgo-sunshine-layout>* {
   min-width: 0;
 }
 
@@ -1201,7 +1248,7 @@
   gap: 10px;
 }
 
-.pcgo-sunshine-stream-history > div:last-of-type {
+.pcgo-sunshine-stream-history>div:last-of-type {
   min-width: 0;
 }
 
@@ -1209,12 +1256,12 @@
   min-width: 0;
 }
 
-.pcgo-sunshine-stream-history article > div:first-child {
+.pcgo-sunshine-stream-history article>div:first-child {
   min-width: 0;
   overflow-wrap: anywhere;
 }
 
-.pcgo-sunshine-stream-history article > div:first-child > div:first-child {
+.pcgo-sunshine-stream-history article>div:first-child>div:first-child {
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -1260,7 +1307,7 @@
   align-items: start;
 }
 
-.pcgo-recovery-layout > * {
+.pcgo-recovery-layout>* {
   min-width: 0;
 }
 
@@ -1281,24 +1328,24 @@
   font-variant-numeric: tabular-nums;
 }
 
-.pcgo-recovery-summary > div:first-child > span:last-child {
+.pcgo-recovery-summary>div:first-child>span:last-child {
   display: block;
   margin-top: 4px;
   color: var(--color-ink-dim);
   font: 500 10px/1.45 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
-.pcgo-recovery-summary strong + span {
+.pcgo-recovery-summary strong+span {
   display: block;
 }
 
-.pcgo-recovery-summary > div:last-child strong {
+.pcgo-recovery-summary>div:last-child strong {
   margin-top: 0;
   color: var(--color-ink);
   font: 700 16px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
-.pcgo-recovery-summary > div:last-child span {
+.pcgo-recovery-summary>div:last-child span {
   color: var(--color-ink-faint);
   font: 700 8px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   letter-spacing: .08em;
@@ -1315,11 +1362,11 @@
   min-width: 0;
 }
 
-.pcgo-recovery-stat-tile > div:last-child {
+.pcgo-recovery-stat-tile>div:last-child {
   min-width: 0;
 }
 
-.pcgo-recovery-stat-tile > div:last-child > div:last-child {
+.pcgo-recovery-stat-tile>div:last-child>div:last-child {
   overflow-wrap: anywhere;
 }
 
@@ -1347,7 +1394,7 @@
     flex-direction: column;
   }
 
-  .pcgo-recovery-summary > div:last-child {
+  .pcgo-recovery-summary>div:last-child {
     width: 100%;
     justify-content: space-between;
   }
@@ -1447,25 +1494,53 @@
 }
 
 @media (max-width: 1180px) {
+
   /* Was minmax(280px, .9fr) — still slightly wider rail on mid-range widths */
-  .pcgo-home-hero { grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.85fr); }
-  .pcgo-command-index { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pcgo-home-hero {
+    grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.85fr);
+  }
+
+  .pcgo-command-index {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 720px) {
+
   /* Stack to single column. Was 900px — raised to 720px because the
      removed sidebar gives ~220px back, so the 2-col hero holds well
      down to 720px content width. */
-  .pcgo-home-hero { grid-template-columns: 1fr; }
-  .pcgo-home-rail { order: 2; }
-  .pcgo-command-index { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pcgo-home-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .pcgo-home-rail {
+    order: 2;
+  }
+
+  .pcgo-command-index {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 520px) {
-  .pcgo-home-page { gap: 20px; }
-  .pcgo-home-intro { margin-bottom: 18px; }
-  .pcgo-command-heading { align-items: flex-start; flex-direction: column; gap: 6px; }
-  .pcgo-command-index { grid-template-columns: 1fr; }
+  .pcgo-home-page {
+    gap: 20px;
+  }
+
+  .pcgo-home-intro {
+    margin-bottom: 18px;
+  }
+
+  .pcgo-command-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .pcgo-command-index {
+    grid-template-columns: 1fr;
+  }
 }
 
 .pcgo-operational-rail__summary {
@@ -1485,7 +1560,7 @@
   letter-spacing: .14em;
 }
 
-.pcgo-operational-rail__summary > div:last-child {
+.pcgo-operational-rail__summary>div:last-child {
   border: 0 !important;
   /* TCB-P4 followup: 10px â†’ 4px (`radius.tight`). The summary's
      stat-row content sits flush against the rail's own 16px frame,
@@ -1497,7 +1572,7 @@
   background: transparent !important;
 }
 
-.pcgo-operational-rail__summary > div:last-child > div {
+.pcgo-operational-rail__summary>div:last-child>div {
   /* TCB-P4 followup: 9px â†’ 4px (`radius.tight`). Stat-row inner
      chips, same reasoning as the parent rule above. */
   border-radius: 4px;
@@ -1539,7 +1614,8 @@
      CSS custom property is defined in App.jsx GLOBAL_CSS â€” the JS-side
      `radius.lg` token lives in theme.js and doesn't reach CSS. Same
      precedent as `.pcgo-feature-back { border-radius: 4px }` below. */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
   background: var(--surface-l1);
   color: var(--color-ink);
   text-align: left;
@@ -1632,12 +1708,15 @@
 }
 
 @media (max-width: 520px) {
-  .pcgo-command-card { padding: 11px 12px; }
+  .pcgo-command-card {
+    padding: 11px 12px;
+  }
 }
 
 .pcgo-launch-console {
   border: 1px solid var(--color-border) !important;
-  border-radius: 12px !important; /* 2.6: radius.md */
+  border-radius: 12px !important;
+  /* 2.6: radius.md */
   /* TCB-P4.2 followup: var(--color-bg-card) (l3) â†’ var(--surface-l1)
      to match `.pcgo-host-diagnostics-card` (and every other page-level
      section card in this pass). The launch console is a page-level
@@ -1653,12 +1732,12 @@
   background: var(--color-bg-elevated) !important;
 }
 
-.pcgo-launch-console__header > div:last-child > div:first-child {
+.pcgo-launch-console__header>div:last-child>div:first-child {
   font-size: 17px !important;
   letter-spacing: -.025em;
 }
 
-.pcgo-launch-console__header > div:last-child > div:last-child {
+.pcgo-launch-console__header>div:last-child>div:last-child {
   margin-top: 4px !important;
   font-size: 10px !important;
 }
@@ -1673,7 +1752,8 @@
   border: 0 !important;
   /* TCB-P3 followup: 10px â†’ 16px (`radius.lg`). Soft-framed section
      card, the 16px "soft-framed-card" step is the correct card-scale. */
-  border-radius: 12px !important; /* 2.6: radius.md */
+  border-radius: 12px !important;
+  /* 2.6: radius.md */
   background: var(--color-bg-inset) !important;
 }
 
@@ -1690,17 +1770,17 @@
   gap: 12px 18px;
 }
 
-.pcgo-launch-console__section--timer > div:first-child {
+.pcgo-launch-console__section--timer>div:first-child {
   grid-column: 1 / -1;
   margin-bottom: -3px !important;
 }
 
-.pcgo-launch-console__section--timer > .pcgo-2col {
+.pcgo-launch-console__section--timer>.pcgo-2col {
   grid-column: 1 / -1;
   width: 100%;
 }
 
-.pcgo-launch-console__section--timer > [role="checkbox"] {
+.pcgo-launch-console__section--timer>[role="checkbox"] {
   grid-column: 1 / -1;
   margin-top: 0 !important;
   padding-top: 10px !important;
@@ -1712,8 +1792,8 @@
   padding-bottom: 13px !important;
 }
 
-.pcgo-launch-console__section > span,
-.pcgo-launch-console__section > div > span {
+.pcgo-launch-console__section>span,
+.pcgo-launch-console__section>div>span {
   letter-spacing: .1em;
 }
 
@@ -1729,8 +1809,8 @@
   box-shadow: 0 0 0 3px var(--color-brand-dim);
 }
 
-.pcgo-launch-console__body > .pcgo-button,
-.pcgo-launch-console__body > button:last-of-type {
+.pcgo-launch-console__body>.pcgo-button,
+.pcgo-launch-console__body>button:last-of-type {
   min-height: 46px;
   margin-top: 2px;
   /* TCB-P3 followup: 9px â†’ 4px (`radius.tight`). Launch CTA button
@@ -1741,9 +1821,17 @@
 }
 
 @media (max-width: 700px) {
-  .pcgo-launch-console__section--timer { display: block; }
-  .pcgo-launch-console__section--timer > .pcgo-2col { margin-top: 10px; }
-  .pcgo-launch-console__section--timer > [role="checkbox"] { margin-top: 12px !important; }
+  .pcgo-launch-console__section--timer {
+    display: block;
+  }
+
+  .pcgo-launch-console__section--timer>.pcgo-2col {
+    margin-top: 10px;
+  }
+
+  .pcgo-launch-console__section--timer>[role="checkbox"] {
+    margin-top: 12px !important;
+  }
 }
 
 
@@ -1756,7 +1844,7 @@
   padding: 0 1px 3px;
 }
 
-.pcgo-event-stream__header > span:last-child {
+.pcgo-event-stream__header>span:last-child {
   border: 0 !important;
   padding: 0 !important;
   color: var(--color-ink-ghost) !important;
@@ -1797,8 +1885,13 @@
 }
 
 @media (max-width: 520px) {
-  .pcgo-event-stream__row { gap: 7px !important; }
-  .pcgo-event-stream__status { min-width: 62px; }
+  .pcgo-event-stream__row {
+    gap: 7px !important;
+  }
+
+  .pcgo-event-stream__status {
+    min-width: 62px;
+  }
 }
 
 /* Host Monitor readiness-command-center vocabulary. */
@@ -1906,16 +1999,28 @@
      structural panel, the soft framed card scale. Unifies with the
      StartSessionForm container + Card primitive + SectionCard family
      (theme.js's sanctioned 4th value). */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
   background: var(--surface-l3);
 }
 
-.pcgo-host-readiness-summary--ok { border-left-color: var(--color-success); }
-.pcgo-host-readiness-summary--warning { border-left-color: var(--color-warning); }
-.pcgo-host-readiness-summary--bad { border-left-color: var(--color-danger); }
-.pcgo-host-readiness-summary--info { border-left-color: var(--color-info); }
+.pcgo-host-readiness-summary--ok {
+  border-left-color: var(--color-success);
+}
 
-.pcgo-host-readiness-summary > div {
+.pcgo-host-readiness-summary--warning {
+  border-left-color: var(--color-warning);
+}
+
+.pcgo-host-readiness-summary--bad {
+  border-left-color: var(--color-danger);
+}
+
+.pcgo-host-readiness-summary--info {
+  border-left-color: var(--color-info);
+}
+
+.pcgo-host-readiness-summary>div {
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -1945,7 +2050,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-.pcgo-host-readiness-summary > div > span:last-child {
+.pcgo-host-readiness-summary>div>span:last-child {
   color: var(--color-ink-dim);
   font: 500 11px/1.45 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
@@ -1967,11 +2072,12 @@
   padding: 17px !important;
   border: 1px solid var(--color-border-subtle) !important;
   /* TCB-P4.2: 12px â†’ 16px (`radius.lg` soft framed card). */
-  border-radius: 12px !important; /* 2.6: radius.md */
+  border-radius: 12px !important;
+  /* 2.6: radius.md */
   background: var(--surface-l3) !important;
 }
 
-.pcgo-host-section-card > div:first-child {
+.pcgo-host-section-card>div:first-child {
   margin-bottom: 14px;
   color: var(--color-ink-dim) !important;
 }
@@ -2027,7 +2133,7 @@
   margin-top: -4px;
 }
 
-.pcgo-host-session-health > div {
+.pcgo-host-session-health>div {
   border-top: 1px solid var(--color-border-subtle);
 }
 
@@ -2036,7 +2142,8 @@
   padding: 12px 14px;
   border: 1px solid rgba(255, 107, 107, .32);
   /* TCB-P4.2: 10px alert callout â†’ `radius.lg` (16px) soft frame. */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
   background: rgba(255, 107, 107, .06);
 }
 
@@ -2051,24 +2158,38 @@
 }
 
 @media (max-width: 780px) {
-  .pcgo-host-status-panel { grid-template-columns: 1fr; }
+  .pcgo-host-status-panel {
+    grid-template-columns: 1fr;
+  }
+
   .pcgo-host-status-panel__header,
   .pcgo-host-readiness-summary,
   .pcgo-host-system-card,
   .pcgo-host-readiness-card,
   .pcgo-host-diagnostics-card,
   .pcgo-host-sunshine-card,
-  .pcgo-host-tailscale-card { grid-column: 1; }
-  .pcgo-host-readiness-summary { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .pcgo-host-tailscale-card {
+    grid-column: 1;
+  }
+
+  .pcgo-host-readiness-summary {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
 }
 
 /* The rail is intentionally aligned to the launch surface, not the eyebrow above it. */
 @media (min-width: 901px) {
-  .pcgo-home-rail { padding-top: 24px; }
+  .pcgo-home-rail {
+    padding-top: 24px;
+  }
 }
 
 @media (max-width: 900px) {
-  .pcgo-home-rail { padding-top: 0; }
+  .pcgo-home-rail {
+    padding-top: 0;
+  }
 }
 
 .pcgo-host-readiness-summary__actions {
@@ -2157,7 +2278,8 @@
      card, the 16px "soft-framed-card" step is the correct card-scale
      (matches `.pcgo-users__directory` and the RecoveryStats/Sunshine
      header-bar convention). */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
   background: var(--surface-l3);
 }
 
@@ -2330,8 +2452,13 @@
   font: 700 18px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
-.pcgo-users__summary-cell--admin strong { color: var(--color-warning); }
-.pcgo-users__summary-cell--user strong { color: var(--color-info); }
+.pcgo-users__summary-cell--admin strong {
+  color: var(--color-warning);
+}
+
+.pcgo-users__summary-cell--user strong {
+  color: var(--color-info);
+}
 
 .pcgo-users__layout {
   display: grid;
@@ -2348,7 +2475,8 @@
   /* TCB-P3 followup: 14px â†’ 16px (`radius.lg`). 17px-padded soft-framed
      card, the 16px "soft-framed-card" step is the correct card-scale
      (same as SessionCard / HostStatusPanel / LogPanel convention). */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
   /* TCB-P4.2 followup: surface.l3 â†’ surface.l1 to match
      `.pcgo-host-diagnostics-card` (the inset tier introduced by the
      Host Monitor section-card alignment). Both users__directory and
@@ -2375,7 +2503,7 @@
   line-height: 1.2;
 }
 
-.pcgo-users__section-header > svg {
+.pcgo-users__section-header>svg {
   color: var(--color-brand);
 }
 
@@ -2502,7 +2630,7 @@
 .pcgo-users__delete {
   min-height: 28px;
   padding: 6px 8px;
-  border-color: rgba(240,127,131,.35);
+  border-color: rgba(240, 127, 131, .35);
   color: var(--color-danger);
   font-size: 8px;
 }
@@ -2556,7 +2684,7 @@
   margin: 4px 0 0;
 }
 
-.pcgo-users__bulk-action > button {
+.pcgo-users__bulk-action>button {
   flex-shrink: 0;
 }
 
@@ -2571,7 +2699,8 @@
      soft-framed error callout, the 16px "soft-framed-card" step is
      the correct callout-scale (matches `.pcgo-settings__unavailable`
      at 16px). */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
   color: var(--color-danger);
   text-align: center;
 }
@@ -2621,10 +2750,21 @@
   animation: pulse 1.6s ease-in-out infinite;
 }
 
-.pcgo-users__loading-identity { width: 70%; }
-.pcgo-users__loading-role { width: 58%; }
-.pcgo-users__loading-date { width: 82%; }
-.pcgo-users__loading-action { width: 100%; }
+.pcgo-users__loading-identity {
+  width: 70%;
+}
+
+.pcgo-users__loading-role {
+  width: 58%;
+}
+
+.pcgo-users__loading-date {
+  width: 82%;
+}
+
+.pcgo-users__loading-action {
+  width: 100%;
+}
 
 .pcgo-users__field {
   display: grid;
@@ -2748,7 +2888,7 @@
     content: attr(data-label);
     font: 700 8px/1.1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
     letter-spacing: .09em;
-    }
+  }
 
   .pcgo-users__action {
     grid-column: 1 / -1;
@@ -2793,7 +2933,7 @@
     flex-direction: column;
   }
 
-  .pcgo-users__bulk-action > button {
+  .pcgo-users__bulk-action>button {
     width: 100%;
   }
 
@@ -2808,6 +2948,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .pcgo-users__loading-row span,
   .pcgo-users__spin {
     animation: none;
@@ -3046,8 +3187,13 @@
   letter-spacing: .08em;
 }
 
-.pcgo-settings__state.is-saved { color: var(--color-success); }
-.pcgo-settings__state.is-dirty { color: var(--color-brand); }
+.pcgo-settings__state.is-saved {
+  color: var(--color-success);
+}
+
+.pcgo-settings__state.is-dirty {
+  color: var(--color-brand);
+}
 
 .pcgo-settings__state-help {
   color: var(--color-ink-faint);
@@ -3079,7 +3225,7 @@
 
 .pcgo-settings__stale-note svg,
 .pcgo-settings__info-note svg,
-.pcgo-settings__restart-note > svg {
+.pcgo-settings__restart-note>svg {
   flex-shrink: 0;
   margin-top: 1px;
 }
@@ -3107,7 +3253,8 @@
   border: 1px solid var(--color-border-subtle);
   /* TCB-P3 followup: 11px â†’ 16px (`radius.lg`). Settings group card,
      the 16px "soft-framed-card" step is the correct group-scale. */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
   background: var(--surface-l1);
 }
 
@@ -3167,8 +3314,8 @@
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
-.pcgo-settings-group__body > .pcgo-settings-row:last-child,
-.pcgo-settings__split-row > .pcgo-settings-row:last-child {
+.pcgo-settings-group__body>.pcgo-settings-row:last-child,
+.pcgo-settings__split-row>.pcgo-settings-row:last-child {
   border-bottom: 0;
 }
 
@@ -3178,7 +3325,7 @@
   gap: 0 14px;
 }
 
-.pcgo-settings__split-row > .pcgo-settings-row {
+.pcgo-settings__split-row>.pcgo-settings-row {
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
 }
@@ -3214,7 +3361,7 @@
   min-width: 0;
 }
 
-.pcgo-settings-row__control > input,
+.pcgo-settings-row__control>input,
 .pcgo-settings-row__control select,
 .pcgo-settings-path-control input {
   width: 100%;
@@ -3233,7 +3380,7 @@
   transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
 }
 
-.pcgo-settings-row__control > input:focus,
+.pcgo-settings-row__control>input:focus,
 .pcgo-settings-row__control select:focus,
 .pcgo-settings-path-control input:focus {
   border-color: var(--color-brand);
@@ -3251,7 +3398,7 @@
   cursor: pointer;
 }
 
-.pcgo-settings-select-control > svg {
+.pcgo-settings-select-control>svg {
   position: absolute;
   top: 50%;
   right: 10px;
@@ -3310,7 +3457,7 @@
   transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
 }
 
-.pcgo-settings-switch > span {
+.pcgo-settings-switch>span {
   position: relative;
   width: 30px;
   height: 18px;
@@ -3325,7 +3472,7 @@
   transition: background 160ms ease, border-color 160ms ease;
 }
 
-.pcgo-settings-switch > span::after {
+.pcgo-settings-switch>span::after {
   position: absolute;
   top: 2px;
   left: 2px;
@@ -3346,12 +3493,12 @@
   background: var(--color-brand-dim);
 }
 
-.pcgo-settings-switch.is-on > span {
+.pcgo-settings-switch.is-on>span {
   border-color: var(--color-brand);
   background: var(--color-brand-dim);
 }
 
-.pcgo-settings-switch.is-on > span::after {
+.pcgo-settings-switch.is-on>span::after {
   transform: translateX(12px);
   background: var(--color-brand);
 }
@@ -3447,7 +3594,7 @@
   font: 500 9px/1.4 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 }
 
-.pcgo-settings__errors > div {
+.pcgo-settings__errors>div {
   display: flex;
   align-items: flex-start;
   gap: 7px;
@@ -3464,7 +3611,7 @@
   background: var(--color-accent-yellow-dim);
 }
 
-.pcgo-settings__restart-note > div {
+.pcgo-settings__restart-note>div {
   display: grid;
   gap: 3px;
 }
@@ -3486,11 +3633,11 @@
   padding-top: 4px;
 }
 
-.pcgo-settings__actions > button {
+.pcgo-settings__actions>button {
   min-width: 145px;
 }
 
-.pcgo-settings__actions > button:disabled {
+.pcgo-settings__actions>button:disabled {
   cursor: not-allowed;
 }
 
@@ -3522,7 +3669,8 @@
      soft-framed "service down" callout, the 16px "soft-framed-card"
      step is the correct callout-scale (matches RecoveryStats/
      SunshineStreamHistory empty-box visual language at 16px). */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
   color: var(--color-danger);
   text-align: center;
 }
@@ -3549,7 +3697,8 @@
      card, the 16px "soft-framed-card" step is the correct card-scale
      (matches `.pcgo-settings-group` at 16px, exact-match to other
      `surface.l3` framed cards). */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
   /* TCB-P4.2 followup: surface.l3 â†’ surface.l1 to match
      `.pcgo-host-diagnostics-card` (the inset tier introduced by the
      Host Monitor section-card alignment). The settings-loading card
@@ -3575,12 +3724,32 @@
   min-height: 44px;
 }
 
-.pcgo-settings-loading__toolbar span { width: 40%; }
-.pcgo-settings-loading__toolbar i { width: 100%; }
-.pcgo-settings-loading__group { min-height: 150px; }
-.pcgo-settings-loading__group span { width: 24%; height: 9px; }
-.pcgo-settings-loading__group i { width: 48%; height: 7px; }
-.pcgo-settings-loading__group b { width: 86%; height: 9px; }
+.pcgo-settings-loading__toolbar span {
+  width: 40%;
+}
+
+.pcgo-settings-loading__toolbar i {
+  width: 100%;
+}
+
+.pcgo-settings-loading__group {
+  min-height: 150px;
+}
+
+.pcgo-settings-loading__group span {
+  width: 24%;
+  height: 9px;
+}
+
+.pcgo-settings-loading__group i {
+  width: 48%;
+  height: 7px;
+}
+
+.pcgo-settings-loading__group b {
+  width: 86%;
+  height: 9px;
+}
 
 .pcgo-settings-loading span,
 .pcgo-settings-loading i,
@@ -3621,7 +3790,7 @@
   gap: 12px;
 }
 
-.pcgo-settings-about > div {
+.pcgo-settings-about>div {
   display: grid;
   gap: 4px;
 }
@@ -3662,7 +3831,7 @@
   }
 
   .pcgo-settings-row,
-  .pcgo-settings__split-row > .pcgo-settings-row {
+  .pcgo-settings__split-row>.pcgo-settings-row {
     grid-template-columns: 1fr;
     gap: 9px;
     align-items: start;
@@ -3686,7 +3855,7 @@
     flex-wrap: wrap;
   }
 
-  .pcgo-settings__actions > button {
+  .pcgo-settings__actions>button {
     flex: 1 1 180px;
     min-width: 0;
   }
@@ -3716,6 +3885,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .pcgo-settings-loading span,
   .pcgo-settings-loading i,
   .pcgo-settings-loading b,
@@ -3780,7 +3950,8 @@
      the 16px "soft-framed-card" step is the correct card-scale
      (matches `.pcgo-users__directory` and `.pcgo-settings-loading`
      at 16px). */
-  border-radius: 12px; /* 2.6: radius.md */
+  border-radius: 12px;
+  /* 2.6: radius.md */
   /* TCB-P4.2 followup: surface.l3 â†’ surface.l1 to match
      `.pcgo-host-diagnostics-card` (the inset tier introduced by the
      Host Monitor section-card alignment). Change-password is the
@@ -4014,5 +4185,3 @@
     font-size: 8.5px;
   }
 }
-
-
