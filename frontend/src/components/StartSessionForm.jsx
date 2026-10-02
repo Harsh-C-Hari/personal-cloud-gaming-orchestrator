@@ -45,8 +45,8 @@ import {
 import { deleteSave, fetchSaves, startSession, validateGame } from "../api/client.js";
 import { SaveBrowser } from "./SaveBrowser.jsx";
 import { GameLibrary } from "./GameLibrary.jsx";
-import { useConfirm } from "./ui/ConfirmDialog.jsx";
-import { useToast } from "./ui/Toast.jsx";
+import { useConfirm } from "../hooks/useConfirm.js";
+import { useToast } from "../hooks/useToast.js";
 import { Button } from "./ui/primitives.jsx";
 import { colors, fonts, radius, surface, typeScale } from "../dashboard/theme.js";
 

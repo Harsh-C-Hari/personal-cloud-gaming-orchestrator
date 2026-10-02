@@ -18,7 +18,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { getConfig, selectFile, updateConfig } from "../api/client";
-import { useToast } from "./ui/Toast.jsx";
+import { useToast } from "../hooks/useToast.js";
 import { Button, Spinner } from "./ui/primitives.jsx";
 
 export function SettingsPanel() {

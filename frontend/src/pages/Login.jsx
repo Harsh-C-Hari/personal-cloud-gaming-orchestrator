@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { User, Lock, LogIn, ShieldCheck, Info, TriangleAlert, ArrowUpRight, Activity } from "lucide-react";
 import { login, setToken, bootstrapRequired, bootstrapAdmin } from "../api/client";
-import { useToast } from "../components/ui/Toast.jsx";
+import { useToast } from "../hooks/useToast.js";
 import { Button } from "../components/ui/primitives.jsx";
 import { BrandMark } from "../components/ui/BrandMark.jsx";
 import { colors, fonts, motion, radius, shadow } from "../dashboard/theme.js";

@@ -14,11 +14,10 @@
  * Mounted once, high up the tree (see App.jsx) via <ConfirmDialogProvider>.
  */
 
-import { createContext, useCallback, useContext, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { AlertTriangle, HelpCircle } from "lucide-react";
 import { colors, fonts, radius, shadow, zIndex } from "../../dashboard/theme.js";
-
-const ConfirmContext = createContext(null);
+import { ConfirmContext } from "../../hooks/useConfirm.js";
 
 function getFocusableElements(container) {
   if (!container) return [];
@@ -335,12 +334,4 @@ export function ConfirmDialogProvider({ children }) {
       `}</style>
     </ConfirmContext.Provider>
   );
-}
-
-export function useConfirm() {
-  const ctx = useContext(ConfirmContext);
-  if (!ctx) {
-    throw new Error("useConfirm() must be used within a <ConfirmDialogProvider>");
-  }
-  return ctx;
 }

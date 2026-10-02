@@ -20,9 +20,7 @@
  *   - close button always present; no focus stealing
  */
 
-import {
-  createContext,
-  useCallback,
+import { useCallback,
   useContext,
   useEffect,
   useRef,
@@ -30,6 +28,7 @@ import {
 } from "react";
 import { CheckCircle2, XCircle, AlertTriangle, Info, X } from "lucide-react";
 import { colors, fonts, radius, shadow, zIndex } from "../../dashboard/theme.js";
+import { ToastContext } from "../../hooks/useToast.js";
 
 const TONE = {
   success: { color: colors.success, icon: <CheckCircle2 size={15} strokeWidth={2} />, role: "status", duration: 4000 },
@@ -38,7 +37,6 @@ const TONE = {
   info:    { color: colors.accentBlue, icon: <Info size={15} strokeWidth={2} />,       role: "status", duration: 4000 },
 };
 
-const ToastContext = createContext(null);
 
 let toastIdCounter = 0;
 
@@ -180,12 +178,4 @@ export function ToastProvider({ children }) {
       </div>
     </ToastContext.Provider>
   );
-}
-
-export function useToast() {
-  const ctx = useContext(ToastContext);
-  if (!ctx) {
-    throw new Error("useToast() must be used within a <ToastProvider>");
-  }
-  return ctx;
 }

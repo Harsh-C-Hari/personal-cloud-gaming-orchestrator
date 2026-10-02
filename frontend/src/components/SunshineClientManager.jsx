@@ -54,8 +54,8 @@ import {
     unpairAllSunshineClients,
     closeSunshineStream,
 } from "../api/client";
-import { useToast } from "./ui/Toast.jsx";
-import { useConfirm } from "./ui/ConfirmDialog.jsx";
+import { useToast } from "../hooks/useToast.js";
+import { useConfirm } from "../hooks/useConfirm.js";
 import { colors, fonts, radius, surface, typeScale } from "../dashboard/theme.js";
 
 /**

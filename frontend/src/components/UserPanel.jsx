@@ -12,8 +12,8 @@ import {
 } from "lucide-react";
 
 import { fetchUsers, createUser, deleteUser, deleteAllUsers } from "../api/client";
-import { useToast } from "./ui/Toast.jsx";
-import { useConfirm } from "./ui/ConfirmDialog.jsx";
+import { useToast } from "../hooks/useToast.js";
+import { useConfirm } from "../hooks/useConfirm.js";
 import { Button, Chip, EmptyState, Spinner } from "./ui/primitives.jsx";
 
 export function UserPanel() {

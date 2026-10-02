@@ -3,7 +3,7 @@ import { CheckCircle2, KeyRound, LockKeyhole, ShieldCheck, TriangleAlert } from 
 import { changePassword } from "../../api/client.js";
 import { PageHeader } from "../components/PageHeader.jsx";
 import { Button } from "../../components/ui/primitives.jsx";
-import { useToast } from "../../components/ui/Toast.jsx";
+import { useToast } from "../../hooks/useToast.js";
 
 export function ChangePasswordPage({ onBack }) {
   const toast = useToast();

@@ -14,7 +14,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { getLogs, getLogSessions, getApiUrl, clearToken } from "../api/client";
-import { useToast } from "./ui/Toast.jsx";
+import { useToast } from "../hooks/useToast.js";
 import { colors, fonts, radius, shadow, surface, typeScale } from "../dashboard/theme.js";
 
 // 3.3: Focus/blur border change now handled by CSS .pcgo-input:focus in base.css.

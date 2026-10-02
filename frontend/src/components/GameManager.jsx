@@ -147,8 +147,8 @@ import {
   selectFile,
   selectFolder,
 } from "../api/client.js";
-import { useToast } from "./ui/Toast.jsx";
-import { useConfirm } from "./ui/ConfirmDialog.jsx";
+import { useToast } from "../hooks/useToast.js";
+import { useConfirm } from "../hooks/useConfirm.js";
 import { IconButton, Button } from "./ui/primitives.jsx";
 import { colors, fonts, radius, surface, typeScale } from "../dashboard/theme.js";
 

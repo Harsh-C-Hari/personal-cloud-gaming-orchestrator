@@ -177,7 +177,7 @@ export const IconButton = forwardRef(function IconButton(
   { "aria-label": label, variant = "ghost", size = "md", children, disabled = false, style, onClick, type = "button", ...rest },
   ref,
 ) {
-  if (process.env.NODE_ENV !== "production" && !label) {
+  if (import.meta.env.DEV && !label) {
     console.warn("[IconButton] Missing aria-label. All icon-only buttons must have an accessible label.");
   }
   const dim = size === "sm" ? 32 : 40;

@@ -28,8 +28,8 @@ import { useSessionShell } from "./useSessionShell.js";
 import { useRoute } from "./hooks/useRoute.js";
 import { DashboardLayout } from "./layout/DashboardLayout.jsx";
 import { logout } from "./utils/logout.js";
-import { useToast } from "../components/ui/Toast.jsx";
-import { useConfirm } from "../components/ui/ConfirmDialog.jsx";
+import { useToast } from "../hooks/useToast.js";
+import { useConfirm } from "../hooks/useConfirm.js";
 
 import { Home } from "./pages/Home.jsx";
 import { HostMonitorPage } from "./pages/HostMonitorPage.jsx";
