@@ -989,19 +989,18 @@ const card = {
 
 const cardHeader = {
   display: "flex",
-  alignItems: "flex-start",
-  justifyContent: "space-between",
-  flexWrap: "wrap",
-  rowGap: "6px",
-  gap: "8px",
+  flexDirection: "column",
+  // 5px keeps the buttons visually close to the title — tight enough
+  // that they read as a unit, not as two separate rows.
+  gap: "5px",
 };
 
 const cardTitle = {
   fontSize: "15px",
   fontWeight: 700,
-  marginBottom: "10px",
   color: colors.ink,
   fontFamily: fonts.display,
+  // marginBottom removed — parent cardHeader column gap handles spacing.
 };
 
 const cardMeta = {
