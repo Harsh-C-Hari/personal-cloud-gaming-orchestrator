@@ -2,7 +2,7 @@
  * components/SunshineStreamHistory.jsx
  *
  * Same props (streams, loading), same formatDuration() helper, and same
- * "show all / show less" behavior as before — only the presentation was
+ * "show all / show less" behavior as before ï¿½ only the presentation was
  * reworked to match the visual language already used by RecoveryStats /
  * SessionHistory / SessionAnalytics:
  *   - Icon-badged section header.
@@ -13,27 +13,27 @@
  * P5-T07 token pass (D-008/D-009):
  *
  * Backgrounds: all 8 `colors.bg*` references in this file (5x bgCard,
- * 3x bgInset) have been swapped for their `surface.l*` alias per D-009 —
+ * 3x bgInset) have been swapped for their `surface.l*` alias per D-009 ï¿½
  * same CSS custom property, same value, zero visual change. `colors` is
  * still imported/used throughout for non-background tokens (ink/border/
  * brand/status colors) and is unaffected.
  *
  * Typography: checked every inline `fontSize`/`font:`/`fontFamily`/
- * `fontWeight` group below against `typeScale` — none cleanly matched
+ * `fontWeight` group below against `typeScale` ï¿½ none cleanly matched
  * at matching size+weight+family+letter-spacing, same outcome as
  * Recovery (P5-T05) and Sunshine Client Manager (P5-T06). All left as
  * documented literals:
  * - the section `<h2>` (15px/700/display): closest candidate to
- *   `typeScale.subheading` (17px/600/-0.01em/display) — family
+ *   `typeScale.subheading` (17px/600/-0.01em/display) ï¿½ family
  *   matches, weight (700 vs 600) and size (15px vs 17px) don't. Same
  *   values as `title` in RecoveryStats.jsx/RecoveryEvents.jsx/
  *   SessionHistory.jsx (see "shared visual language" note below).
  * - `countPill` (9px/700/0.06em/mono): closest to `typeScale.meta`
- *   (10px/700/0.12em/uppercase/mono) — weight/family match, size and
+ *   (10px/700/0.12em/uppercase/mono) ï¿½ weight/family match, size and
  *   letter-spacing don't, no `textTransform` set (the "STREAMS" text
  *   is a literal uppercase string, not transformed).
  * - the duration-pill container (9px/700/0.08em/mono/uppercase):
- *   weight/family/`textTransform` match `typeScale.meta` — size (9px
+ *   weight/family/`textTransform` match `typeScale.meta` ï¿½ size (9px
  *   vs 10px) and letter-spacing (0.08em vs 0.12em) don't. Closest
  *   near-miss in the file.
  * - the show-all/show-less button (10px/mono/0.08em, no explicit
@@ -41,13 +41,13 @@
  *   `typeScale.meta`, but weight (400 vs 700), letter-spacing (0.08em
  *   vs 0.12em), and `textTransform` don't.
  * - `panelDescription` (9.5px/inkFaint/mono, no letter-spacing): no
- *   `typeScale` step sits here — left literal. Byte-identical values
+ *   `typeScale` step sits here ï¿½ left literal. Byte-identical values
  *   to `panelDescription` in RecoveryStats.jsx/RecoveryEvents.jsx.
  * - `loadingHeader` (10.5px/mono), `emptyBox` (11px/1.5/mono), the
  *   app-name row (12.5px/700, no explicit font family), the
  *   started-at row (11px, no explicit weight/family), and the
  *   resolution row (9.5px/mono): none match a `typeScale` step at
- *   matching size+weight+family — left literal.
+ *   matching size+weight+family ï¿½ left literal.
  *
  * Shared-visual-language claim (this file's own header comment above,
  * verified rather than assumed per this task's instructions): checked
@@ -55,11 +55,11 @@
  * SessionAnalytics.jsx directly, not just the comment text.
  * - `panelDescription` is byte-identical (marginTop/color/fontSize/
  *   lineHeight/fontFamily) to RecoveryStats.jsx's and
- *   RecoveryEvents.jsx's `panelDescription` — a real, literal match.
+ *   RecoveryEvents.jsx's `panelDescription` ï¿½ a real, literal match.
  * - The section `<h2>`'s inline style (margin 0 / 15px / 700 / ink /
  *   display) is byte-identical in value to the extracted `title`
  *   const shared by RecoveryStats.jsx/RecoveryEvents.jsx/
- *   SessionHistory.jsx/SessionAnalytics.jsx — this file just keeps it
+ *   SessionHistory.jsx/SessionAnalytics.jsx ï¿½ this file just keeps it
  *   inline rather than pulling it into a named const, since it's used
  *   once.
  * - The header icon badge is close but NOT byte-identical: this file's
@@ -68,18 +68,18 @@
  *   SessionHistory.jsx/SessionAnalytics.jsx all use a solid
  *   `1.5px solid ${colors.brand}` border with no color-mix. Everything
  *   else (28px/28px, radius.sm, flex-center, brandDim background)
- *   matches. Left as-is — this task is a token-only pass, not a
+ *   matches. Left as-is ï¿½ this task is a token-only pass, not a
  *   cross-file cosmetic reconciliation, and the difference predates
  *   this task.
  * - The outer section container (padding 16px / colors.bgCard?
  *   surface.l3 / radius.lg / colors.border) is NOT the same as the
- *   `box` const shared by the other three files (padding 20px) — a
+ *   `box` const shared by the other three files (padding 20px) ï¿½ a
  *   real, pre-existing difference, not introduced here.
  * - **Discrepancy found, not assumed:** this task's own prompt lists
  *   SessionAnalytics.jsx as "already elevated" alongside
  *   RecoveryStats.jsx/SessionHistory.jsx. A fresh check found this is
- *   false — SessionAnalytics.jsx still has 5 real `colors.bg*`
- *   references (`bgCard`, `bgElevated`×2, `bgInset`×2) and imports no
+ *   false ï¿½ SessionAnalytics.jsx still has 5 real `colors.bg*`
+ *   references (`bgCard`, `bgElevated`ï¿½2, `bgInset`ï¿½2) and imports no
  *   `surface` token at all. It has not been through a P5 token pass;
  *   per PLAN.md's page order, Analytics is the *last* page still
  *   queued, not an already-done reference. Its `title`/`headerIcon`/
@@ -130,7 +130,7 @@ const countPill = {
     padding: "3px 8px",
     border: `1px solid ${colors.borderSubtle}`,
     // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
-    // to `radius.tight` (4px) — small count pill (3px 8px padding),
+    // to `radius.tight` (4px) ï¿½ small count pill (3px 8px padding),
     // the 4px "tight" step is the correct chip-scale.
     borderRadius: `${radius.tight}px`,
     color: colors.inkFaint,
@@ -158,7 +158,7 @@ const loadingDot = {
     // P6-T08 motion audit: this string is character-for-character identical
     // to StatusBadge.jsx's already-documented `badge-pulse 1.6s` (and the
     // same non-convertible category as LoadingState.jsx's pulse and
-    // RecoveryEvents.jsx's `badge-pulse 1.6s`) — an @keyframes name, not a
+    // RecoveryEvents.jsx's `badge-pulse 1.6s`) ï¿½ an @keyframes name, not a
     // transition timing string, so there's no motion token to alias to
     // regardless of the 1.6s duration. The recurrence across files is
     // expected, not a sign of a prior audit error; this file still gets its
@@ -211,7 +211,7 @@ const loadingTag = {
     width: "54px",
     height: "16px",
     // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
-    // to `radius.tight` (4px) — 54x16 loading skeleton tag, the
+    // to `radius.tight` (4px) ï¿½ 54x16 loading skeleton tag, the
     // 4px "tight" step is the correct chip-scale.
     borderRadius: `${radius.tight}px`,
     background: surface.l3,
@@ -291,7 +291,7 @@ export function SunshineStreamHistory({
                         width: "28px",
                         height: "28px",
                         // TCB-P3 followup: value-preserving rename from
-                        // `radius.sm` (4px) to `radius.tight` (4px) —
+                        // `radius.sm` (4px) to `radius.tight` (4px) ï¿½
                         // 28x28 header icon badge, the 4px "tight" step
                         // is the correct chip-scale.
                         borderRadius: `${radius.tight}px`,
@@ -406,9 +406,9 @@ export function SunshineStreamHistory({
                                                     ? `${stream.width}x${stream.height}`
                                                     : "--"
                                             }
-                                            {" · "}
+                                            {" ï¿½ "}
                                             {stream.fps || "--"} FPS
-                                            {" · "}
+                                            {" ï¿½ "}
                                             {
                                                 stream.hdr
                                                     ? "HDR"
@@ -423,7 +423,7 @@ export function SunshineStreamHistory({
                                             padding: "6px 12px",
                                             // TCB-P3 followup: value-preserving rename
                                             // from `radius.sm` (4px) to `radius.tight`
-                                            // (4px) — small brand-color status pill
+                                            // (4px) ï¿½ small brand-color status pill
                                             // (LIVE NOW / STREAMING NOW), the 4px
                                             // "tight" step is the correct chip-scale.
                                             borderRadius: `${radius.tight}px`,

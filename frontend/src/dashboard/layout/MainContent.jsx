@@ -14,31 +14,14 @@
  */
 import { useEffect, useRef } from "react";
 import { colors, spacing } from "../theme.js";
-import { ScrollContainerContext } from "../../lib/motion/scrollContainerContext.jsx";
-import { createScopedLenis } from "../../lib/motion/lenisSetup.js";
-import { initMotion } from "../../lib/motion/gsapSetup.js";
 
 export function MainContent({ children }) {
   const mainRef = useRef(null);
 
-  useEffect(() => {
-    let lenis = null;
-
-    (async () => {
-      await initMotion();
-      lenis = await createScopedLenis(mainRef.current);
-    })();
-
-    return () => {
-      lenis?.destroy();
-    };
-  }, []); // empty deps — run once on mount, destroy on unmount
-
   return (
-    <ScrollContainerContext.Provider value={mainRef}>
-      <main
-        ref={mainRef}
-        style={{
+    <main
+      ref={mainRef}
+      style={{
           flex: 1,
           minWidth: 0,
           overflowY: "auto",
@@ -49,7 +32,6 @@ export function MainContent({ children }) {
         }}
       >
         <div style={{ maxWidth: "1180px", margin: "0 auto", minWidth: 0 }}>{children}</div>
-      </main>
-    </ScrollContainerContext.Provider>
+    </main>
   );
 }

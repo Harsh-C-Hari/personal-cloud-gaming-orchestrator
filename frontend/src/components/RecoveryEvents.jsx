@@ -2,7 +2,7 @@
  * components/RecoveryEvents.jsx
  *
  * Same props (recoveryEvents, recoveryEventsLoading, showAllRecoveryEvents
- * + its setter) and same slice-to-3/show-all logic — only the presentation
+ * + its setter) and same slice-to-3/show-all logic ï¿½ only the presentation
  * was reworked to the "Chalkboard Neo-Brutalist" system: flat tokens from
  * theme.js instead of a local cyan-glow palette, lucide-react icons instead
  * of react-icons/fa, and flat pill styling (no `color+opacity-hex` glow
@@ -13,38 +13,38 @@
  * Backgrounds: all 8 `colors.bg*` references in this file (bgCard x5
  * counting the loading skeleton, bgInset x2, one bgCardHover/bgInset
  * pair on the newest-event highlight) have been swapped for their
- * `surface.l*` alias per D-009 — same CSS custom property, same value,
+ * `surface.l*` alias per D-009 ï¿½ same CSS custom property, same value,
  * zero visual change. `colors` is still imported/used throughout for
  * non-background tokens (ink/border/brand/status colors) and is
  * unaffected.
  *
  * Typography: same dense "operational readout" character as its
- * sibling `RecoveryStats.jsx` — bespoke sizes (9px-11px) tuned for a
+ * sibling `RecoveryStats.jsx` ï¿½ bespoke sizes (9px-11px) tuned for a
  * compact event list, not the editorial `typeScale` steps. Checked
  * every inline font group below against `typeScale` and left all of
  * them as documented literals, per D-005/D-009:
  * - `title` (15px/700/display): closest candidate to
- *   `typeScale.subheading` (17px/600/-0.01em/display) — font-family
- *   matches, weight (700 vs 600) and size (15px vs 17px) don't — left
+ *   `typeScale.subheading` (17px/600/-0.01em/display) ï¿½ font-family
+ *   matches, weight (700 vs 600) and size (15px vs 17px) don't ï¿½ left
  *   literal. Shared verbatim with `RecoveryStats.jsx`'s `title`.
- * - `countPill` (10px/700/mono, no letter-spacing/uppercase — its text
+ * - `countPill` (10px/700/mono, no letter-spacing/uppercase ï¿½ its text
  *   content, e.g. "3 EVENTS", is a static pre-uppercased string):
  *   size+weight+family all match `typeScale.meta` (10px/700/0.12em/
  *   uppercase/mono), but the missing letter-spacing/`textTransform`
- *   don't — left literal, same category of near-miss as Session
+ *   don't ï¿½ left literal, same category of near-miss as Session
  *   History's `showAllButton` (P5-T04).
  * - the event-badge inline group (9px/700/0.08em/uppercase/mono, line
  *   ~146) and `showAllButton` (9px/700/0.08em/mono): both miss
- *   `typeScale.meta` on size and letter-spacing — left literal.
+ *   `typeScale.meta` on size and letter-spacing ï¿½ left literal.
  *   `showAllButton` is shared verbatim with `RecoveryStats.jsx`'s
  *   `detailToggle`.
  * - `panelDescription` (9.5px/400/mono): shared verbatim with
- *   `RecoveryStats.jsx`'s `panelDescription` — no matching step, left
+ *   `RecoveryStats.jsx`'s `panelDescription` ï¿½ no matching step, left
  *   literal.
  * - `loadingHeader` (10.5px/mono), `emptyBox` (11px/mono), the
  *   event-service/event-name/meta-line/timestamp inline groups (11px,
  *   10.5px, and 9px/mono respectively): none match a `typeScale` step
- *   at matching size+weight+family — left literal.
+ *   at matching size+weight+family ï¿½ left literal.
  * All of the above keep their exact pre-existing literal values;
  * nothing here changes visually. See `RecoveryStats.jsx` for the
  * sibling component's matching audit and the shared-object list.
@@ -188,7 +188,7 @@ export function RecoveryEvents({
                       flexShrink: 0,
                       padding: "3px 8px",
                       // TCB-P3 followup: value-preserving rename from
-                      // `radius.sm` (4px) to `radius.tight` (4px) —
+                      // `radius.sm` (4px) to `radius.tight` (4px) ï¿½
                       // small chrome event-type pill, the 4px "tight"
                       // step is the correct chip-scale.
                       borderRadius: `${radius.tight}px`,
@@ -277,7 +277,7 @@ const loadingDot = {
   background: colors.brand,
   // P6-T07 motion audit: this string is character-for-character identical
   // to StatusBadge.jsx's already-documented `badge-pulse 1.6s` (and the
-  // same non-convertible category as LoadingState.jsx's pulse) — an
+  // same non-convertible category as LoadingState.jsx's pulse) ï¿½ an
   // @keyframes name, not a transition timing string, so there's no
   // motion token to alias to regardless of the 1.6s duration. The
   // recurrence across files is expected, not a sign of a prior audit
@@ -330,7 +330,7 @@ const loadingTag = {
   width: "54px",
   height: "16px",
   // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
-  // to `radius.tight` (4px) — small chrome loading skeleton bar,
+  // to `radius.tight` (4px) ï¿½ small chrome loading skeleton bar,
   // the 4px "tight" step is the correct chip-scale.
   borderRadius: `${radius.tight}px`,
   background: surface.l3,
@@ -362,7 +362,7 @@ const headerIcon = {
   width: "28px",
   height: "28px",
   // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
-  // to `radius.tight` (4px) — 28x28 header icon badge, the 4px
+  // to `radius.tight` (4px) ï¿½ 28x28 header icon badge, the 4px
   // "tight" step is the correct chip-scale.
   borderRadius: `${radius.tight}px`,
   display: "flex",
@@ -380,7 +380,7 @@ const countPill = {
   fontWeight: 700,
   border: `1px solid ${colors.borderSubtle}`,
   // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
-  // to `radius.tight` (4px) — small chrome count pill, the 4px
+  // to `radius.tight` (4px) ï¿½ small chrome count pill, the 4px
   // "tight" step is the correct chip-scale.
   borderRadius: `${radius.tight}px`,
   padding: "1px 8px",
@@ -408,7 +408,7 @@ const showAllButton = {
   background: surface.l2,
   color: colors.inkDim,
   // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
-  // to `radius.tight` (4px) — small chrome show-all button, the 4px
+  // to `radius.tight` (4px) ï¿½ small chrome show-all button, the 4px
   // "tight" step is the correct chip-scale.
   borderRadius: `${radius.tight}px`,
   padding: "8px",
