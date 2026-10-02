@@ -1746,28 +1746,7 @@
   .pcgo-launch-console__section--timer > [role="checkbox"] { margin-top: 12px !important; }
 }
 
-.pcgo-home-alert-strip {
-  position: relative;
-  padding-left: 18px !important;
-  background: transparent !important;
-  border: 0 !important;
-  border-left: 2px solid var(--color-danger) !important;
-  border-radius: 0 !important;
-}
 
-.pcgo-home-alert-strip::before {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 120px;
-  background: var(--color-danger-dim);
-  content: "";
-  opacity: .65;
-  pointer-events: none;
-}
-
-.pcgo-home-alert-strip > * {
-  position: relative;
-}
 
 .pcgo-event-stream {
   gap: 8px !important;

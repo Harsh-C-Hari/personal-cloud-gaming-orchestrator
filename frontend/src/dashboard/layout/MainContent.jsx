@@ -13,7 +13,7 @@
  *    during a session — this is correctness hygiene for test/HMR).
  */
 import { useEffect, useRef } from "react";
-import { colors, spacing } from "../theme.js";
+import { colors, spacing, nav } from "../theme.js";
 
 export function MainContent({ children }) {
   const mainRef = useRef(null);
@@ -27,7 +27,7 @@ export function MainContent({ children }) {
           overflowY: "auto",
           overflowX: "hidden",
           WebkitOverflowScrolling: "touch",
-          padding: `${spacing.xl}px clamp(12px, 4vw, ${spacing.xxl}px) calc(${spacing.massive}px + env(safe-area-inset-bottom, 0px))`,
+          padding: `calc(${nav.headerHeight}px + ${spacing.xl}px) clamp(12px, 4vw, ${spacing.xxl}px) calc(${spacing.massive}px + env(safe-area-inset-bottom, 0px))`,
           background: colors.bg,
         }}
       >

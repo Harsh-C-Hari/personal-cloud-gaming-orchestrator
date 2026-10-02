@@ -61,7 +61,7 @@ function HamburgerIcon({ open }) {
 export function DashboardHeader({ connected, lastUpdated, username, role, onLogout, onToggleMobileMenu, mobileMenuButtonRef, onLogoClick, menuOpen }) {
   const subtitle = role === "admin" ? "HOST OPERATIONS" : "PLAYER CONSOLE";
   return (
-    <header className="pcgo-header" style={{ height: `${nav.headerHeight}px`, minHeight: `${nav.headerHeight}px`, borderBottom: `1px solid ${colors.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "0 20px 0 18px", flexShrink: 0, background: surface.l2, zIndex: 50 }}>
+    <header className="pcgo-header" style={{ position: "absolute", top: 0, left: 0, right: 0, height: `${nav.headerHeight}px`, minHeight: `${nav.headerHeight}px`, borderBottom: `1px solid ${colors.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "0 20px 0 18px", flexShrink: 0, background: "rgba(0, 0, 0, 0.65)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", zIndex: 50 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: 1 }}>
         {onToggleMobileMenu && (
           <button
@@ -72,7 +72,7 @@ export function DashboardHeader({ connected, lastUpdated, username, role, onLogo
             aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
             aria-expanded={menuOpen}
             style={{
-              background: menuOpen ? surface.l4 : surface.l3,
+              background: "transparent",
               border: `1px solid ${menuOpen ? colors.borderStrong : colors.border}`,
               borderRadius: `${radius.tight}px`,
               color: menuOpen ? colors.ink : colors.inkDim,
@@ -88,10 +88,12 @@ export function DashboardHeader({ connected, lastUpdated, username, role, onLogo
             onMouseEnter={(e) => {
               e.currentTarget.style.background = surface.l4;
               e.currentTarget.style.color = colors.ink;
+              e.currentTarget.style.borderColor = colors.borderStrong;
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = menuOpen ? surface.l4 : surface.l3;
+              e.currentTarget.style.background = "transparent";
               e.currentTarget.style.color = menuOpen ? colors.ink : colors.inkDim;
+              e.currentTarget.style.borderColor = menuOpen ? colors.borderStrong : colors.border;
             }}
           >
             <HamburgerIcon open={menuOpen} />
