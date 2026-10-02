@@ -14,13 +14,13 @@ const GLOBAL_CSS = `
     --color-brand:          #ffffff;
     --color-brand-dim:      rgba(255,255,255,0.12);
     --color-bg:             #000000;
-    --color-bg-elevated:    #101010;
-    --color-bg-card:        #161616;
-    --color-bg-card-hover:  #202020;
-    --color-bg-inset:       #0a0a0a;
+    --color-bg-elevated:    #050505;
+    --color-bg-card:        #080808;
+    --color-bg-card-hover:  #0e0e0e;
+    --color-bg-inset:       #030303;
     --color-ink:            #ffffff;
     --color-ink-dim:        #bdbdbd;
-    /* 2.2: #949494 on #202020 (L4) = 5.37:1 (AA pass) */
+    /* 2.2: #949494 on #080808 (L3) = 6.2:1 (AA pass) */
     --color-ink-faint:      #949494;
     --color-ink-ghost:      #8a8a8a;
     --color-border:         rgba(255,255,255,0.13);
@@ -32,10 +32,10 @@ const GLOBAL_CSS = `
 
     /* L0-L4 surface elevation scale */
     --surface-l0: #000000;
-    --surface-l1: #0a0a0a;
-    --surface-l2: #101010;
-    --surface-l3: #161616;
-    --surface-l4: #202020;
+    --surface-l1: #030303;
+    --surface-l2: #050505;
+    --surface-l3: #080808;
+    --surface-l4: #0e0e0e;
   }
 
   *, *::before, *::after { box-sizing: border-box; }
