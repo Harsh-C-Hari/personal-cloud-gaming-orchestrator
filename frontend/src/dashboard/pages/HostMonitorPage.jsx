@@ -28,7 +28,7 @@ import { HostStatusPanel } from "../../components/HostStatusPanel.jsx";
 import { PageHeader } from "../components/PageHeader.jsx";
 import { SectionCard } from "../components/SectionCard.jsx";
 import { Button } from "../../components/ui/primitives.jsx";
-import { colors, fonts } from "../theme.js";
+import { colors, fonts, typeScale } from "../theme.js";
 
 export function HostMonitorPage({
   hostStatus,

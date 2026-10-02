@@ -28,9 +28,8 @@ import { useSessionShell } from "./useSessionShell.js";
 import { useRoute } from "./hooks/useRoute.js";
 import { DashboardLayout } from "./layout/DashboardLayout.jsx";
 import { logout } from "./utils/logout.js";
-import { ScrollTrigger } from "../lib/motion/gsapSetup.js";
-import { useToast } from "../components/ui/Toast.jsx";
-import { useConfirm } from "../components/ui/ConfirmDialog.jsx";
+import { useToast } from "../hooks/useToast.js";
+import { useConfirm } from "../hooks/useConfirm.js";
 
 import { Home } from "./pages/Home.jsx";
 import { HostMonitorPage } from "./pages/HostMonitorPage.jsx";
@@ -213,11 +212,6 @@ export function AdminDashboard({ username }) {
 
   useEffect(() => {
     setVisitedRoutes((prev) => (prev.has(route) ? prev : new Set(prev).add(route)));
-    // After the newly-active page's display:none is lifted, ScrollTrigger
-    // needs to remeasure — elements hidden via display:none have offsetHeight
-    // of zero, so any triggers measured while hidden will be wrong. A rAF
-    // delay gives the browser one paint cycle to apply the style change.
-    window.requestAnimationFrame(() => ScrollTrigger.refresh());
   }, [route]);
 
   const pages = {

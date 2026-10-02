@@ -54,9 +54,9 @@ import {
     unpairAllSunshineClients,
     closeSunshineStream,
 } from "../api/client";
-import { useToast } from "./ui/Toast.jsx";
-import { useConfirm } from "./ui/ConfirmDialog.jsx";
-import { colors, fonts, radius, surface } from "../dashboard/theme.js";
+import { useToast } from "../hooks/useToast.js";
+import { useConfirm } from "../hooks/useConfirm.js";
+import { colors, fonts, radius, surface, typeScale } from "../dashboard/theme.js";
 
 /**
  * P5-T06 token-elevation audit (typeScale/surface, per D-008/D-009):
@@ -363,12 +363,23 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                             // value strings, not `@keyframes` names, so there's no valid conversion
                             // target regardless of duration. 0.8s also doesn't match any `motion`
                             // step's duration. Left as the original literal; no conversion.
-                            <RefreshCw size={11} strokeWidth={2} style={{ animation: "scm-spin 0.8s linear infinite" }} />
+                            <RefreshCw size={11} strokeWidth={2} style={{ animation: "spin 0.8s linear infinite" }} />
                         ) : (
                             <Power size={11} strokeWidth={2} />
                         )}
                         {closingStream ? "CLOSING…" : "FORCE CLOSE STREAM"}
                     </button>
+                    {!isStreaming && !closingStream && (
+                      <span style={{
+                        fontSize: "10px",
+                        color: colors.inkFaint,
+                        fontFamily: fonts.mono,
+                        marginTop: "6px",
+                        display: "block",
+                      }}>
+                        No active stream
+                      </span>
+                    )}
                 </div>
 
                 {/* Paired clients */}
@@ -496,7 +507,7 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                         </div>
                     </div>
 
-                    <FieldLabel>PIN</FieldLabel>
+                    <FieldLabel htmlFor="scm-pin">PIN</FieldLabel>
                     <div style={{ position: "relative" }}>
                         <Key
                             size={11}
@@ -511,12 +522,12 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
                             }}
                         />
                         <input
+                            id="scm-pin"
+                            className="pcgo-input"
                             style={{ ...inputStyle, paddingLeft: "34px" }}
                             placeholder="4-digit PIN shown on the client"
                             aria-label="PIN"
                             value={pin}
-                            onFocus={focusBorder}
-                            onBlur={blurBorder}
                             onChange={(e) => setPin(e.target.value)}
                             onKeyDown={(e) => {
                                 if (e.key === "Enter" && pin.trim() && !pairing) handlePair();
@@ -549,7 +560,7 @@ export function SunshineClientManager({ hostStatus, streamStatus }) {
 
             </div>
 
-            <style>{`@keyframes scm-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } } @keyframes scm-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }`}</style>
+            {/* scm-spin/scm-pulse → global `spin`/`pulse` in base.css (1.2) */}
 
         </div>
     );
@@ -587,15 +598,15 @@ function ClientListLoadingState() {
     );
 }
 
-function FieldLabel({ children }) {
+function FieldLabel({ children, htmlFor }) {
     return (
         <label
+            htmlFor={htmlFor}
             style={{
                 display: "block",
                 fontSize: "9.5px",
                 color: colors.inkFaint,
                 letterSpacing: "0.13em",
-                textTransform: "uppercase",
                 fontFamily: fonts.mono,
                 fontWeight: 700,
                 marginBottom: "7px",
@@ -607,12 +618,7 @@ function FieldLabel({ children }) {
     );
 }
 
-const focusBorder = (e) => {
-    e.target.style.borderColor = colors.ink;
-};
-const blurBorder = (e) => {
-    e.target.style.borderColor = colors.border;
-};
+// 3.3: Focus/blur border change now handled by CSS .pcgo-input:focus in base.css.
 
 // ── Style primitives (matches UserPanel / GameManager / SettingsPanel) ─────
 
@@ -743,7 +749,6 @@ const sectionLabel = {
     fontSize: "9.5px",
     color: colors.inkFaint,
     letterSpacing: "0.15em",
-    textTransform: "uppercase",
     fontFamily: fonts.mono,
     fontWeight: 700,
 };

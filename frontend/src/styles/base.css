@@ -1,0 +1,176 @@
+/**
+ * src/styles/base.css
+ *
+ * Global stylesheet — imported once from main.jsx.
+ * Single source for:
+ *   • Canonical @keyframes (spin, pulse, badge-pulse, card-in)
+ *   • Reset and base element rules
+ *   • Utility classes (.pcgo-*)
+ *   • Accessibility (focus ring, reduced-motion)
+ *
+ * Phase 1 (1.1 + 1.2): defines badge-pulse and card-in (previously missing),
+ * and provides the canonical spin/pulse that component-level duplicates
+ * will be migrated to reference in Phase 2/3.
+ */
+
+/* ─── Canonical @keyframes ─────────────────────────────────────────────────── */
+
+/**
+ * spin — used by all loading spinners.
+ * Replaces: cgo-spin, gm-spin, hsp-spin, lp-spin, sa-spin,
+ *           scm-spin, sh-spin, pcgo-users-spin, pcgo-settings-spin
+ */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/**
+ * pulse — used by in-progress status indicators.
+ * Replaces: cgo-pulse, pcgo-pulse, pcgo-log-pulse, ssh-pulse,
+ *           scm-pulse, log-blink, dashboard-loading-pulse
+ */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.38; }
+}
+
+/**
+ * badge-pulse — used by StatusBadge, HostStatusPanel,
+ * RecoveryStats, RecoveryEvents for in-progress states.
+ * Previously used but never defined (bug 1.1).
+ */
+@keyframes badge-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.42; }
+}
+
+/**
+ * card-in — used by EventLog, SessionCard, StartSessionForm
+ * for the first row entrance.
+ * Previously used but never defined (bug 1.1).
+ */
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Reset ────────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ─── Accessibility ─────────────────────────────────────────────────────────── */
+
+/* 2.11: Focus ring — 2px solid white, 2px offset, :focus-visible only.
+   Covers all focusable elements in one rule. */
+:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* 2.11: Keep focused elements visible below sticky header */
+:focus-visible {
+  scroll-margin-top: 60px; /* matches DashboardHeader height */
+}
+
+/* Reduced-motion: disable all animations and transitions */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:       0.01ms !important;
+    animation-iteration-count: 1    !important;
+    transition-duration:      0.01ms !important;
+    scroll-behavior:          auto  !important;
+  }
+}
+
+/* ─── Text rules (2.5) ──────────────────────────────────────────────────────── */
+
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+p, .pcgo-description, .pcgo-banner, .pcgo-empty-text {
+  text-wrap: pretty;
+}
+
+/* 2.5: Tabular numerics for counters, timers, durations */
+.pcgo-tabular-nums,
+[data-tabular-nums] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 2.5: Touch targets — manipulation prevents 300ms tap delay */
+button, a, [role="button"], input, select, textarea {
+  touch-action: manipulation;
+}
+
+/* ─── Utility classes ───────────────────────────────────────────────────────── */
+
+/* Page-enter: opacity+slight-rise entrance */
+.pcgo-page-enter {
+  animation: card-in 220ms ease both;
+}
+
+/* Status dot used in badges */
+.pcgo-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+/* Mono text for machine data (IDs, timestamps, durations, paths, log lines) */
+.pcgo-mono {
+  font-family: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+
+/* Muted text */
+.pcgo-muted {
+  color: var(--color-ink-faint, #949494);
+}
+
+/* ─── Form controls (3.3) ───────────────────────────────────────────────────── */
+/* Canonical input/select/textarea rules. Use class="pcgo-input" on all fields.
+   Replaces onFocus/onBlur JS style mutation across the codebase. */
+.pcgo-input {
+  width: 100%;
+  background: var(--color-bg-inset, #111111);
+  border: 1.5px solid var(--color-border-control, rgba(255,255,255,0.40));
+  border-radius: 8px; /* radius.sm */
+  color: var(--color-ink, #f1f0ec);
+  font-family: 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 160ms ease, background 160ms ease;
+  /* Prevent iOS zoom on focus (inputs must be ≥16px at ≤768px) */
+}
+
+@media (max-width: 768px) {
+  .pcgo-input { font-size: 16px; }
+}
+
+.pcgo-input:focus {
+  border-color: var(--color-ink, #f1f0ec);
+  background: var(--color-bg-card-hover, #1d1c18);
+}
+
+.pcgo-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pcgo-input[aria-invalid="true"] {
+  border-color: var(--color-danger, #f07f83);
+}
+
+/* Select: inherits from input; custom arrow */
+select.pcgo-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23949494' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}

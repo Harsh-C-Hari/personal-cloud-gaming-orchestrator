@@ -37,8 +37,8 @@ export function DashboardLayout({ navItems, activeRoute, onNavigate, connected, 
   }, [mobileMenuOpen]);
 
   return (
-    <div className="pcgo-shell-root" style={{ overflow: "hidden", background: surface.l0, color: colors.ink, display: "flex", flexDirection: "column" }}>
-      <DashboardHeader connected={connected} lastUpdated={lastUpdated} username={username} role={role} onLogout={onLogout} mobileMenuButtonRef={mobileMenuButtonRef} onToggleMobileMenu={() => setMobileMenuOpen((value) => !value)} onLogoClick={onLogoClick} />
+    <div className="pcgo-shell-root" style={{ position: "relative", overflow: "hidden", /* background: surface.l0, (removed to show dot matrix) */ color: colors.ink, display: "flex", flexDirection: "column" }}>
+      <DashboardHeader connected={connected} lastUpdated={lastUpdated} username={username} role={role} onLogout={onLogout} mobileMenuButtonRef={mobileMenuButtonRef} menuOpen={mobileMenuOpen} onToggleMobileMenu={() => setMobileMenuOpen((value) => !value)} onLogoClick={() => { setMobileMenuOpen(false); onLogoClick?.(); }} />
       <MobileHeader open={mobileMenuOpen} items={navItems} activeRoute={activeRoute} closeButtonRef={mobileCloseButtonRef} onNavigate={onNavigate} onClose={() => setMobileMenuOpen(false)} />
       {mobileMenuOpen && <div aria-hidden="true" onClick={() => setMobileMenuOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40, background: "rgba(0,0,0,0.44)" }} />}
       <div style={{ flex: 1, display: "flex", minHeight: 0, overflow: "hidden" }}>

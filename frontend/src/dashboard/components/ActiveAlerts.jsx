@@ -19,10 +19,22 @@ export function ActiveAlerts({ alerts }) {
     <section
       className="pcgo-home-alert-strip"
       style={{
-        padding: "14px 16px",
-        borderRadius: `${radius.none}px`,
-        background: isWarning ? colors.accentYellowDim : colors.dangerDim,
-        border: `1.5px solid ${isWarning ? colors.warning : colors.danger}`,
+        padding: "16px 20px",
+        borderRadius: `${radius.md}px`,
+        backgroundColor: "rgba(0, 0, 0, 0.4)",
+        backgroundImage: `linear-gradient(90deg, ${
+          isWarning ? "rgba(235, 203, 115, 0.15)" : "rgba(240, 127, 131, 0.15)"
+        } 0%, transparent 100%)`,
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
+        border: `1px solid ${
+          isWarning ? "rgba(235, 203, 115, 0.15)" : "rgba(240, 127, 131, 0.15)"
+        }`,
+        borderLeft: `3px solid ${tint}`,
+        boxShadow: `0 8px 32px -8px ${
+          isWarning ? "rgba(235, 203, 115, 0.12)" : "rgba(240, 127, 131, 0.12)"
+        }`,
+        marginBottom: "32px",
       }}
     >
       <div
@@ -41,7 +53,6 @@ export function ActiveAlerts({ alerts }) {
           fontSize: "11px",
           fontWeight: 700,
           letterSpacing: "0.1em",
-          textTransform: "uppercase",
           fontFamily: fonts.body,
         }}
       >

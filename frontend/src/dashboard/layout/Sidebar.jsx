@@ -16,8 +16,6 @@
  */
 import { useEffect, useRef } from "react";
 import { colors, nav, radius, motion, surface, typeScale } from "../theme.js";
-import { initMotion } from "../../lib/motion/gsapSetup.js";
-import { prefersReducedMotion } from "../../lib/motion/reducedMotion.js";
 
 export function Sidebar({ items, activeRoute, onNavigate }) {
   const navRef = useRef(null);
@@ -38,22 +36,8 @@ export function Sidebar({ items, activeRoute, onNavigate }) {
     // Target position: button's offsetTop + centered vertically.
     const top = activeBtn.offsetTop + (activeBtn.offsetHeight - 20) / 2;
 
-    const firstRender = isFirstRender.current;
-    isFirstRender.current = false;
-
-    initMotion().then(({ gsap }) => {
-      pill.style.opacity = "1";
-      if (firstRender || prefersReducedMotion()) {
-        // No animation on first render or reduced-motion — jump immediately.
-        gsap.set(pill, { y: top });
-      } else {
-        gsap.to(pill, {
-          y: top,
-          duration: 0.35,
-          ease: "cubic-bezier(0.34, 1.15, 0.64, 1)",
-        });
-      }
-    });
+    pill.style.opacity = "1";
+    pill.style.transform = `translateY(${top}px)`;
   }, [activeRoute]);
 
   return (
@@ -70,7 +54,7 @@ export function Sidebar({ items, activeRoute, onNavigate }) {
         overflowY: "auto",
         padding: "18px 14px 20px",
         gap: "4px",
-        background: surface.l2,
+        /* background: surface.l2, (removed for transparent background) */
       }}
     >
       {/* Floating active indicator — GSAP-animated, single element */}
@@ -86,7 +70,7 @@ export function Sidebar({ items, activeRoute, onNavigate }) {
           background: colors.brand,
           borderRadius: 2,
           opacity: 0,
-          // y is controlled by GSAP — no inline transform here
+          transition: "transform 0.35s cubic-bezier(0.34, 1.15, 0.64, 1), opacity 0.2s",
         }}
       />
 

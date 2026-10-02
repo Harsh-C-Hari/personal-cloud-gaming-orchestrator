@@ -1,23 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { User, Lock, LogIn, ShieldCheck, Info, TriangleAlert, ArrowUpRight, Activity } from "lucide-react";
 import { login, setToken, bootstrapRequired, bootstrapAdmin } from "../api/client";
-import { useToast } from "../components/ui/Toast.jsx";
+import { useToast } from "../hooks/useToast.js";
 import { Button } from "../components/ui/primitives.jsx";
 import { BrandMark } from "../components/ui/BrandMark.jsx";
 import { colors, fonts, motion, radius, shadow } from "../dashboard/theme.js";
-import { createScopedLenis } from "../lib/motion/lenisSetup.js";
-import { initMotion } from "../lib/motion/gsapSetup.js";
-import { prefersReducedMotion } from "../lib/motion/reducedMotion.js";
 
 // P6-T07 motion audit: both properties on this transition were an exact
 // "160ms ease" match to motion.base (verified against theme.js's real,
 // current value), so this is a genuine token-alias conversion — same
-// precedent as PageHeader.jsx's motion.base template-literal conversion
-// (P6-T03). Same duration/easing, zero visual change.
-const inputStyle = { width: "100%", minHeight: 46, padding: "11px 13px 11px 39px", background: colors.bgInset, border: `1px solid ${colors.border}`, borderRadius: radius.sm, color: colors.ink, fontSize: 13.5, fontFamily: fonts.body, boxSizing: "border-box", transition: `border-color ${motion.base}, background ${motion.base}` };
+// inputStyle replaced by .pcgo-input class in base.css (3.3).
+// Left-pad keeps room for the icon decoration.
+const inputIconPad = { paddingLeft: "39px" };
 
-function FieldLabel({ icon, children }) {
-  return <span style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 10, fontWeight: 700, color: colors.inkFaint, letterSpacing: ".12em", textTransform: "uppercase", fontFamily: fonts.mono, marginBottom: 8 }}>{icon}{children}</span>;
+function FieldLabel({ icon, children, htmlFor }) {
+  const Tag = htmlFor ? "label" : "span";
+  // 3.3/2.3: 12px/500 IBM Plex Sans sentence case (was 10px mono uppercase)
+  return <Tag htmlFor={htmlFor} style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12, fontWeight: 500, color: colors.inkFaint, fontFamily: fonts.body, marginBottom: 8 }}>{icon}{children}</Tag>;
 }
 
 
@@ -25,12 +24,6 @@ function FieldLabel({ icon, children }) {
 export default function Login() {
   const toast = useToast();
   const mainRef = useRef(null);
-  // Refs for GSAP entrance timeline elements
-  const heroEyebrowRef = useRef(null);
-  const heroH1Ref = useRef(null);
-  const heroBodyRef = useRef(null);
-  const heroPillsRef = useRef(null);
-  const formPanelRef = useRef(null);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -66,82 +59,36 @@ export default function Login() {
     finally { setSubmitting(false); }
   }
 
-  // Lenis smooth scroll for the Login page's own <main> scroll area.
-  // Created on mount and destroyed on unmount (Login fully unmounts on auth).
-  useEffect(() => {
-    let lenis = null;
-    createScopedLenis(mainRef.current).then((instance) => { lenis = instance; });
-    return () => { lenis?.destroy(); };
-  }, []);
 
-  // Login entrance timeline — staggered reveal of hero + form panel.
-  useEffect(() => {
-    if (prefersReducedMotion()) return;
-    let tl = null;
-    // Set on cleanup so a stale (StrictMode first-pass) effect never builds a
-    // timeline after its own cleanup has already run.
-    let cancelled = false;
-    // The custom cubic-bezier used throughout the spec for "landing" motion.
-    const ease = "cubic-bezier(0.34, 1.15, 0.64, 1)";
-    const dur = 0.6;
-
-    initMotion().then(({ gsap }) => {
-      if (cancelled) return;
-      tl = gsap.timeline();
-
-      // Eyebrow
-      if (heroEyebrowRef.current) {
-        tl.fromTo(heroEyebrowRef.current, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: dur, ease }, 0);
-      }
-      // Headline
-      if (heroH1Ref.current) {
-        tl.fromTo(heroH1Ref.current, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: dur, ease }, 0.07);
-      }
-      // Body paragraph
-      if (heroBodyRef.current) {
-        tl.fromTo(heroBodyRef.current, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: dur, ease }, 0.14);
-      }
-      // Feature pills
-      if (heroPillsRef.current) {
-        tl.fromTo(heroPillsRef.current, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: dur, ease }, 0.20);
-      }
-      // Form card — slides in from right
-      if (formPanelRef.current) {
-        tl.fromTo(formPanelRef.current, { opacity: 0, x: 24 }, { opacity: 1, x: 0, duration: dur, ease }, 0.10);
-      }
-    });
-
-    return () => { cancelled = true; tl?.kill(); };
-  }, []); // once on mount
 
   return (
     <main ref={mainRef} style={{ minHeight: "100dvh", display: "grid", gridTemplateColumns: "minmax(0, 1.2fr) minmax(360px, 0.8fr)", background: colors.bg, color: colors.ink, overflowY: "auto" }}>
       <section style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "clamp(28px, 6vw, 84px)", borderRight: `1px solid ${colors.border}`, minHeight: "100%" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}><BrandMark scale="lg" /><span style={{ font: `700 16px/1 ${fonts.display}`, letterSpacing: ".06em" }}>CLOUD GAMING <span style={{ color: colors.brand }}>ORCHESTRATOR</span></span></div>
         <div style={{ maxWidth: 610, padding: "72px 0" }}>
-          <div ref={heroEyebrowRef} style={{ display: "inline-flex", alignItems: "center", gap: 8, color: colors.brand, font: `600 10px/1 ${fonts.mono}`, letterSpacing: ".14em", textTransform: "uppercase", marginBottom: 24 }}><Activity size={14} /> Personal gaming infrastructure</div>
-          <h1 ref={heroH1Ref} style={{ margin: 0, maxWidth: 580, font: `600 clamp(42px, 6vw, 82px)/.98 ${fonts.display}`, letterSpacing: "-.055em", color: colors.ink }}>Your games.<br /><span style={{ color: colors.brand }}>Your control plane.</span></h1>
-          <p ref={heroBodyRef} style={{ margin: "28px 0 0", maxWidth: 500, color: colors.inkDim, font: `400 clamp(15px, 1.7vw, 19px)/1.55 ${fonts.body}` }}>Orchestrate sessions, protect saves, monitor the host, and keep streaming infrastructure ready from one calm operational console.</p>
-          <div ref={heroPillsRef} style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 34 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, color: colors.brand, font: `500 12px/1 ${fonts.mono}`, letterSpacing: "0", marginBottom: 24 }}><Activity size={14} aria-hidden="true" /> Personal gaming infrastructure</div>
+          <h1 style={{ margin: 0, maxWidth: 580, font: `600 clamp(42px, 6vw, 82px)/.98 ${fonts.display}`, letterSpacing: "-.055em", color: colors.ink }}>Your games.<br /><span style={{ color: colors.brand }}>Your control plane.</span></h1>
+          <p style={{ margin: "28px 0 0", maxWidth: 500, color: colors.inkDim, font: `400 clamp(15px, 1.7vw, 19px)/1.55 ${fonts.body}` }}>Orchestrate sessions, protect saves, monitor the host, and keep streaming infrastructure ready from one calm operational console.</p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 34 }}>
             {["Session control", "Host health", "Recovery aware"].map((item) => <span key={item} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 10px", border: `1px solid ${colors.border}`, borderRadius: radius.sm, color: colors.inkDim, font: `500 11px/1 ${fonts.mono}` }}><span style={{ width: 6, height: 6, borderRadius: "50%", background: colors.brand }} />{item}</span>)}
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, color: colors.inkGhost, font: `500 10px/1.3 ${fonts.mono}`, letterSpacing: ".04em" }}>PCGO / SINGLE-HOST ORCHESTRATION <ArrowUpRight size={13} /></div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, color: colors.inkGhost, font: `500 10px/1.3 ${fonts.mono}`, letterSpacing: ".04em" }}>PCGO / SINGLE-HOST ORCHESTRATION <ArrowUpRight size={13} aria-hidden="true" /></div>
       </section>
 
-      <section ref={formPanelRef} style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "36px 24px", background: colors.bgElevated }}>
+      <section style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "36px 24px", background: colors.bgElevated }}>
         <form onSubmit={handleSubmit} style={{ width: "100%", maxWidth: 420, border: `1px solid ${colors.border}`, borderRadius: radius.lg, background: colors.bgCard, overflow: "hidden", boxShadow: shadow.overlay }}>
           <div style={{ padding: "28px 28px 24px", borderBottom: `1px solid ${colors.border}` }}>
-            <div style={{ color: colors.inkFaint, font: `600 10px/1 ${fonts.mono}`, letterSpacing: ".14em", textTransform: "uppercase", marginBottom: 15 }}>{bootstrapMode ? "First-run setup" : "Secure access"}</div>
+            <div style={{ color: colors.inkFaint, font: `500 12px/1 ${fonts.mono}`, letterSpacing: "0", marginBottom: 15 }}>{bootstrapMode ? "First-run setup" : "Secure access"}</div>
             <h2 style={{ margin: 0, font: `600 29px/1.08 ${fonts.display}`, letterSpacing: "-.03em" }}>{bootstrapMode ? "Create your admin" : "Welcome back"}</h2>
             <p style={{ margin: "10px 0 0", color: colors.inkFaint, font: `400 13px/1.55 ${fonts.body}` }}>{bootstrapMode ? "Create the first administrator for this host." : "Sign in to manage your gaming infrastructure."}</p>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 17, padding: 28 }}>
             {bootstrapMode && <div style={{ display: "flex", alignItems: "flex-start", gap: 9, padding: "11px 12px", borderRadius: radius.sm, background: colors.accentBlueDim, border: `1px solid rgba(140,196,232,0.3)`, color: colors.inkDim, font: `400 12px/1.45 ${fonts.body}` }}><Info size={14} style={{ marginTop: 1, flexShrink: 0, color: colors.accentBlue }} /> No admin account detected. Create the first administrator.</div>}
-            <div><FieldLabel icon={<User size={12} />}>Username</FieldLabel><div style={{ position: "relative" }}><User size={15} style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: colors.inkFaint, pointerEvents: "none" }} /><input aria-label="Username" type="text" placeholder="Enter your username" autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} style={inputStyle} onFocus={(event) => { event.target.style.borderColor = colors.brand; event.target.style.background = colors.bgCardHover; }} onBlur={(event) => { event.target.style.borderColor = colors.border; event.target.style.background = colors.bgInset; }} /></div></div>
-            <div><FieldLabel icon={<Lock size={12} />}>Password</FieldLabel><div style={{ position: "relative" }}><Lock size={15} style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: colors.inkFaint, pointerEvents: "none" }} /><input aria-label="Password" type="password" placeholder="Enter your password" autoComplete={bootstrapMode ? "new-password" : "current-password"} value={password} onChange={(event) => setPassword(event.target.value)} style={inputStyle} onFocus={(event) => { event.target.style.borderColor = colors.brand; event.target.style.background = colors.bgCardHover; }} onBlur={(event) => { event.target.style.borderColor = colors.border; event.target.style.background = colors.bgInset; }} /></div></div>
+            <div><FieldLabel icon={<User size={12} aria-hidden="true" />} htmlFor="login-username">Username</FieldLabel><div style={{ position: "relative" }}><User size={15} aria-hidden="true" style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: colors.inkFaint, pointerEvents: "none" }} /><input id="login-username" aria-label="Username" type="text" placeholder="Enter your username" autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} className="pcgo-input" style={{ minHeight: 46, ...inputIconPad }} /></div></div>
+            <div><FieldLabel icon={<Lock size={12} aria-hidden="true" />} htmlFor="login-password">Password</FieldLabel><div style={{ position: "relative" }}><Lock size={15} aria-hidden="true" style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: colors.inkFaint, pointerEvents: "none" }} /><input id="login-password" aria-label="Password" type="password" placeholder="Enter your password" autoComplete={bootstrapMode ? "new-password" : "current-password"} value={password} onChange={(event) => setPassword(event.target.value)} className="pcgo-input" style={{ minHeight: 46, ...inputIconPad }} /></div></div>
             {error && <div role="alert" style={{ display: "flex", alignItems: "flex-start", gap: 9, padding: "11px 12px", borderRadius: radius.sm, background: colors.dangerDim, border: `1px solid rgba(240,127,131,0.3)`, color: colors.danger, font: `400 12px/1.45 ${fonts.body}` }}><TriangleAlert size={14} style={{ marginTop: 1, flexShrink: 0 }} />{error}</div>}
-            <Button type="submit" variant="primary" disabled={submitting} style={{ width: "100%", minHeight: 46, marginTop: 3 }}>{bootstrapMode ? <ShieldCheck size={15} /> : <LogIn size={15} />}{submitting ? (bootstrapMode ? "Creating account…" : "Signing in…") : (bootstrapMode ? "Register Admin" : "Sign in")}</Button>
+            <Button type="submit" variant="primary" disabled={submitting} style={{ width: "100%", minHeight: 46, marginTop: 3 }}>{bootstrapMode ? <ShieldCheck size={15} aria-hidden="true" /> : <LogIn size={15} aria-hidden="true" />}{submitting ? (bootstrapMode ? "Creating account…" : "Signing in…") : (bootstrapMode ? "Register Admin" : "Sign in")}</Button>
           </div>
         </form>
       </section>

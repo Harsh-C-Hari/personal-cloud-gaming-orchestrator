@@ -16,8 +16,6 @@ import { LoadingState } from "../components/LoadingState.jsx";
 import { Eyebrow } from "../../components/ui/Eyebrow.jsx";
 import { colors, typeScale } from "../theme.js";
 import { useEffect, useRef } from "react";
-import { gsap } from "../../lib/motion/gsapSetup.js";
-import { prefersReducedMotion } from "../../lib/motion/reducedMotion.js";
 
 // eyebrowStyle removed — replaced by the shared <Eyebrow> component.
 // See Eyebrow.jsx: reuses typeScale.meta (10px/700/.12em/uppercase/mono),
@@ -62,29 +60,12 @@ export function Home({
   const hasActiveSession = activeSessions.length > 0;
   const containerRef = useRef(null);
 
-  useEffect(() => {
-    if (prefersReducedMotion()) return;
-
-    const ctx = gsap.context(() => {
-      gsap.from(".pcgo-dashboard-stat-tile", {
-        y: 15,
-        opacity: 0,
-        duration: 0.5,
-        stagger: 0.1,
-        ease: "power2.out",
-        clearProps: "all"
-      });
-    }, containerRef);
-    
-    return () => ctx.revert();
-  }, [loading]); // re-trigger if loading state changes because stats might be added
-
   return (
     <div className="pcgo-feature-page pcgo-home-page" ref={containerRef}>
       <ActiveAlerts alerts={activeAlerts} />
 
       <div className="pcgo-home-hero">
-        <main className="pcgo-home-primary">
+        <section className="pcgo-home-primary" aria-label="Session launch">
           <div className="pcgo-home-intro">
             <Eyebrow
               icon={<span className="pcgo-home-signal" aria-hidden="true" />}
@@ -108,7 +89,7 @@ export function Home({
           ) : (
             <StartSessionForm games={games} onLaunched={refresh} activeSessions={sessions} hostStatus={hostStatus} />
           )}
-        </main>
+        </section>
 
         <aside className="pcgo-home-rail" aria-label="Operational activity">
           <SessionSidebar

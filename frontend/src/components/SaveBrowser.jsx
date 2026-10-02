@@ -31,12 +31,7 @@ const inputStyle = {
     transition: "border-color 150ms ease",
 };
 
-function focusBorder(e) {
-    e.target.style.borderColor = colors.ink;
-}
-function blurBorder(e) {
-    e.target.style.borderColor = colors.border;
-}
+// 3.3: Focus/blur border change now handled by CSS .pcgo-input:focus in base.css.
 
 function FieldLabel({ icon, children }) {
     return (
@@ -48,7 +43,6 @@ function FieldLabel({ icon, children }) {
                 fontSize: "9.5px",
                 color: colors.inkFaint,
                 letterSpacing: "0.13em",
-                textTransform: "uppercase",
                 fontFamily: fonts.mono,
                 fontWeight: 700,
                 marginBottom: "8px",
@@ -111,11 +105,10 @@ export function SaveBrowser({
                 <div>
                     <FieldLabel icon={<Layers size={11} strokeWidth={2} />}>Save Source</FieldLabel>
                     <select
+                        className="pcgo-input"
                         style={inputStyle}
                         value={type}
                         onChange={(e) => onTypeChange(e.target.value)}
-                        onFocus={focusBorder}
-                        onBlur={blurBorder}
                         aria-label="Save Source"
                     >
                         {saves.latest_exists && <option value="latest">latest save</option>}
@@ -150,11 +143,10 @@ export function SaveBrowser({
                             Select {type === "archives" ? "Archive" : "Backup"}
                         </FieldLabel>
                         <select
+                            className="pcgo-input"
                             style={inputStyle}
                             value={name}
                             onChange={(e) => onNameChange(e.target.value)}
-                            onFocus={focusBorder}
-                            onBlur={blurBorder}
                             aria-label={`Select ${type === "archives" ? "Archive" : "Backup"}`}
                         >
                             <option value="">Select {type === "archives" ? "archive" : "backup"}</option>

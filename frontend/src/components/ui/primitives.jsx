@@ -1,190 +1,226 @@
-import { forwardRef, useRef, useState } from "react";
+/**
+ * components/ui/primitives.jsx
+ *
+ * Shared primitives: Button, IconButton, Card, Chip, EmptyState,
+ *                    StatCard, KeyValueRow, DataTable.
+ *
+ * 3.1: Button rebuilt — CSS-only states, no GSAP/magnetic, no JS style mutation.
+ *      radius.sm (8px), 14px/500, loading prop, scale(0.97) press.
+ * 3.6: Card updated — radius.md (12px), no translateY hover lift, no JS hover.
+ * 2.3: Chip updated — 12px sentence case (was 10px uppercase).
+ * 3.7: StatCard — label-above-value tile, 28px tabular, no boxed icon well.
+ * 3.8: KeyValueRow — spec-sheet row with dotted fill, compact variant.
+ * 3.9: DataTable — real <table> with scope="col", overflow wrapper, tabular-nums.
+ */
+
+import { forwardRef } from "react";
 import { Inbox } from "lucide-react";
 import { colors, fonts, radius, shadow, motion } from "../../dashboard/theme.js";
-import { initMotion } from "../../lib/motion/gsapSetup.js";
-import { prefersReducedMotion } from "../../lib/motion/reducedMotion.js";
+import { Spinner } from "./Spinner.jsx";
+// Re-export so existing `import { Spinner } from "./ui/primitives.jsx"` still works
+export { Spinner };
 
-// Per DESIGN.md §6.1: the hard offset-shadow is reserved for the
-// SINGLE primary action per view (primary + dangerFilled variants).
-// secondary/ghost/danger stay flat (shadow.flat) so the press signal
-// reads as a hierarchy cue, not ambient chrome on every button.
-const BUTTON_VARIANTS = {
-  primary: { background: colors.brand, color: colors.bg, border: "1px solid transparent", restingShadow: shadow.press },
-  secondary: { background: colors.bgElevated, color: colors.ink, border: `1px solid ${colors.borderStrong}`, restingShadow: shadow.flat },
-  ghost: { background: "transparent", color: colors.inkDim, border: "1px solid transparent", restingShadow: shadow.flat },
-  danger: { background: "transparent", color: colors.danger, border: `1px solid ${colors.danger}`, restingShadow: shadow.flat },
-  dangerFilled: { background: colors.danger, color: colors.bg, border: "1px solid transparent", restingShadow: shadow.press },
-};
+/* ─── CSS injected once ─────────────────────────────────────────────────── */
+// Injecting via a module-level side-effect so we don't pay a React render.
+if (typeof document !== "undefined" && !document.getElementById("pcgo-btn-styles")) {
+  const s = document.createElement("style");
+  s.id = "pcgo-btn-styles";
+  s.textContent = `
+    .pcgo-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 40px;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-family: 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1;
+      white-space: nowrap;
+      user-select: none;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition:
+        background-color 160ms ease,
+        border-color     160ms ease,
+        color            160ms ease,
+        transform        100ms ease,
+        opacity          160ms ease;
+    }
+    /* Sizes */
+    .pcgo-btn--sm {
+      min-height: 32px;
+      padding: 6px 12px;
+      font-size: 13px;
+      position: relative;
+    }
+    /* ::after expands hit area to 40px on small buttons */
+    .pcgo-btn--sm::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+    }
 
-const BUTTON_HOVER_BG = {
-  secondary: colors.bgCardHover,
-  ghost: "rgba(241,240,236,0.06)",
-  danger: "rgba(240,127,131,0.11)",
-};
+    /* Press */
+    @media (hover: hover) {
+      .pcgo-btn:not(:disabled):hover { opacity: 0.88; }
+    }
+    .pcgo-btn:not(:disabled):active {
+      transform: scale(0.97);
+      opacity: 1;
+    }
 
+    /* Disabled */
+    .pcgo-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Loading */
+    .pcgo-btn[aria-busy="true"] {
+      cursor: wait;
+      pointer-events: none;
+      opacity: 0.75;
+    }
+
+    /* Variants */
+    .pcgo-btn--primary   { background: #ffffff; color: #0a0a0a; border: 1px solid transparent; }
+    .pcgo-btn--secondary { background: transparent; color: #e8e6e1; border: 1px solid rgba(255,255,255,0.28); }
+    .pcgo-btn--ghost     { background: transparent; color: #a8a49e; border: 1px solid transparent; }
+    .pcgo-btn--danger    { background: transparent; color: #f07f83; border: 1px solid rgba(240,127,131,0.45); }
+    .pcgo-btn--danger-solid { background: #f07f83; color: #0a0a0a; border: 1px solid transparent; }
+
+    @media (hover: hover) {
+      .pcgo-btn--primary:not(:disabled):hover   { background: #f0ece4; opacity: 1; }
+      .pcgo-btn--secondary:not(:disabled):hover { background: rgba(241,240,236,0.08); border-color: rgba(255,255,255,0.45); opacity: 1; }
+      .pcgo-btn--ghost:not(:disabled):hover     { background: rgba(241,240,236,0.06); color: #e8e6e1; opacity: 1; }
+      .pcgo-btn--danger:not(:disabled):hover    { background: rgba(240,127,131,0.12); opacity: 1; }
+      .pcgo-btn--danger-solid:not(:disabled):hover { background: #e87077; opacity: 1; }
+    }
+
+    /* IconButton — square, centred icon */
+    .pcgo-icon-btn {
+      padding: 0;
+      border-radius: 8px;
+      position: relative;
+    }
+    /* sm IconButton: 32px visual, 40px hit area */
+    .pcgo-icon-btn--sm::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+    }
+  `;
+  document.head.appendChild(s);
+}
+
+/* ─── Button ────────────────────────────────────────────────────────────── */
+/**
+ * @param {{
+ *   variant?: "primary"|"secondary"|"ghost"|"danger"|"dangerFilled"|"danger-solid",
+ *   size?: "md"|"sm",
+ *   loading?: boolean,
+ *   disabled?: boolean,
+ *   children: React.ReactNode,
+ *   style?: React.CSSProperties,
+ *   onClick?: (e: MouseEvent) => void,
+ *   type?: string,
+ * }} props
+ */
 export const Button = forwardRef(function Button(
-  { variant = "primary", disabled = false, children, style, onClick, type = "button", ...rest },
+  { variant = "primary", size = "md", loading = false, disabled = false, children, style, onClick, type = "button", className = "", ...rest },
   ref,
 ) {
-  const base = BUTTON_VARIANTS[variant] ?? BUTTON_VARIANTS.primary;
-  const hoverBg = BUTTON_HOVER_BG[variant];
-  // Allow the consumer to override the resting shadow via style.
-  const restingShadow = style?.boxShadow ?? base.restingShadow;
-  const restingBackground = style?.background ?? base.background;
-  const restingFilter = style?.filter ?? "none";
-
-  // Magnetic hover — only for primary and dangerFilled variants.
-  // The GSAP tween moves the *inner span* (not the button), so it doesn’t
-  // conflict with the translateY(1px) press effect on the outer element.
-  const innerRef = useRef(null);
-  const isMagnetic = variant === "primary" || variant === "dangerFilled";
-
-  function handleMagneticMove(e) {
-    if (!isMagnetic || disabled || prefersReducedMotion()) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const dx = (e.clientX - cx) / (rect.width / 2);  // -1 to 1
-    const dy = (e.clientY - cy) / (rect.height / 2); // -1 to 1
-    const MAX = 6; // maximum pixel offset
-    initMotion().then(({ gsap }) => {
-      if (innerRef.current) {
-        gsap.to(innerRef.current, { x: dx * MAX, y: dy * MAX, duration: 0.2, ease: "power2.out" });
-      }
-    });
-  }
-
-  function handleMagneticLeave() {
-    if (!isMagnetic || !innerRef.current) return;
-    initMotion().then(({ gsap }) => {
-      gsap.to(innerRef.current, { x: 0, y: 0, duration: 0.3, ease: "power2.out" });
-    });
-  }
+  // Support legacy "dangerFilled" alias from call sites
+  const v = variant === "dangerFilled" ? "danger-solid" : variant;
+  const cls = [
+    "pcgo-btn",
+    `pcgo-btn--${v}`,
+    size === "sm" ? "pcgo-btn--sm" : "",
+    className,
+  ].filter(Boolean).join(" ");
 
   return (
     <button
       ref={ref}
       type={type}
-      disabled={disabled}
-      onClick={disabled ? undefined : onClick}
-      onMouseEnter={(e) => {
-        if (disabled) return;
-        if (variant === "primary" || variant === "dangerFilled") e.currentTarget.style.filter = "brightness(1.08)";
-        else if (hoverBg) e.currentTarget.style.background = hoverBg;
-      }}
-      onMouseMove={handleMagneticMove}
-      onMouseLeave={(e) => {
-        if (disabled) return;
-        e.currentTarget.style.filter = restingFilter;
-        e.currentTarget.style.background = restingBackground;
-        e.currentTarget.style.boxShadow = restingShadow;
-        handleMagneticLeave();
-      }}
-      onMouseDown={(e) => {
-        if (disabled) return;
-        e.currentTarget.style.transform = "translateY(1px)";
-        // Collapse the press shadow while pressed — the visible offset
-        // is what reads as "this button has been pushed down" per §6.1.
-        e.currentTarget.style.boxShadow = shadow.flat;
-      }}
-      onMouseUp={(e) => {
-        if (disabled) return;
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = restingShadow;
-      }}
-      onKeyDown={(e) => {
-        if (disabled) return;
-        if (e.key === "Enter" || e.key === " ") {
-          e.currentTarget.style.transform = "translateY(1px)";
-          e.currentTarget.style.boxShadow = shadow.flat;
-        }
-      }}
-      onKeyUp={(e) => {
-        if (disabled) return;
-        if (e.key === "Enter" || e.key === " ") {
-          e.currentTarget.style.transform = "translateY(0)";
-          e.currentTarget.style.boxShadow = restingShadow;
-        }
-      }}
-      onFocus={(e) => {
-        // shadow.focusRing stacks on top of the variant's resting shadow
-        // via box-shadow's comma-separated multi-shadow syntax. Stays in
-        // addition to the existing native focus outline, not replacing
-        // it (per §6.1's explicit instruction).
-        const baseShadow = e.currentTarget.style.boxShadow || restingShadow;
-        e.currentTarget.style.boxShadow = baseShadow === shadow.flat || baseShadow === "none"
-          ? shadow.focusRing
-          : `${baseShadow}, ${shadow.focusRing}`;
-      }}
-      onBlur={(e) => {
-        e.currentTarget.style.boxShadow = restingShadow;
-      }}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "8px",
-        minHeight: "40px",
-        padding: "10px 15px",
-        // Per §6.1: primary Button shape is `radius.none` (structural
-        // rectangle, not chip). Was `radius.sm` (8px).
-        borderRadius: `${radius.none}px`,
-        fontFamily: fonts.body,
-        fontSize: "13px",
-        fontWeight: 650,
-        lineHeight: 1,
-        cursor: disabled ? "not-allowed" : "pointer",
-        opacity: disabled ? 0.45 : 1,
-        boxShadow: restingShadow,
-        // Per §5.6: motion.press on the transform release, motion.hover
-        // on background/border-color/filter. The remaining transition
-        // slot is for the box-shadow release (no dedicated token, kept
-        // literal at motion.hover for consistency with the existing
-        // 160ms ease used for background/filter).
-        transition: `filter ${motion.hover}, background ${motion.hover}, transform ${motion.press}, border-color ${motion.hover}, box-shadow ${motion.hover}`,
-        userSelect: "none",
-        whiteSpace: "nowrap",
-        ...base,
-        ...style,
-      }}
+      disabled={disabled || loading}
+      aria-busy={loading ? "true" : undefined}
+      onClick={disabled || loading ? undefined : onClick}
+      className={cls}
+      style={style}
       {...rest}
     >
-      {/* Inner span carries the magnetic x/y offset — separate from the
-          outer button's translateY(1px) press effect so they don't conflict. */}
-      <span ref={innerRef} style={{ display: "contents" }}>{children}</span>
+      {loading ? <Spinner size={14} aria-hidden="true" /> : null}
+      {children}
     </button>
   );
 });
 
-export function Card({ children, hoverable = false, style, ...rest }) {
-  const [hover, setHover] = useState(false);
+/* ─── IconButton ─────────────────────────────────────────────────────────── */
+/**
+ * Square icon-only button. Always requires aria-label.
+ * Hit area is always ≥ 40px (visual may be 32px via ::after).
+ *
+ * @param {{
+ *   "aria-label": string,
+ *   variant?: "ghost"|"secondary"|"danger",
+ *   size?: "md"|"sm",
+ *   children: React.ReactNode,
+ *   disabled?: boolean,
+ *   style?: React.CSSProperties,
+ * }} props
+ */
+export const IconButton = forwardRef(function IconButton(
+  { "aria-label": label, variant = "ghost", size = "md", children, disabled = false, style, onClick, type = "button", ...rest },
+  ref,
+) {
+  if (import.meta.env.DEV && !label) {
+    console.warn("[IconButton] Missing aria-label. All icon-only buttons must have an accessible label.");
+  }
+  const dim = size === "sm" ? 32 : 40;
+  const v = variant === "dangerFilled" ? "danger-solid" : variant;
+  const cls = ["pcgo-btn", `pcgo-btn--${v}`, "pcgo-icon-btn", size === "sm" ? "pcgo-icon-btn--sm" : ""].filter(Boolean).join(" ");
+
+  return (
+    <button
+      ref={ref}
+      type={type}
+      aria-label={label}
+      disabled={disabled}
+      onClick={disabled ? undefined : onClick}
+      className={cls}
+      style={{
+        width:    dim,
+        height:   dim,
+        minHeight: dim,
+        padding:  0,
+        flexShrink: 0,
+        ...style,
+      }}
+      {...rest}
+    >
+      {children}
+    </button>
+  );
+});
+
+/* ─── Card ──────────────────────────────────────────────────────────────── */
+/**
+ * Base surface card. Cards separate with borders + surface steps, not shadows.
+ * Hover lift removed (3.6) — only genuinely clickable cards should lift.
+ */
+export function Card({ children, style, ...rest }) {
   return (
     <div
-      onMouseEnter={() => hoverable && setHover(true)}
-      onMouseLeave={() => hoverable && setHover(false)}
       style={{
-        background: hoverable && hover ? colors.bgCardHover : colors.bgCard,
-        border: `1px solid ${hover ? colors.borderStrong : colors.border}`,
-        // TCB-P3 followup: softened from `radius.none` (0px) back to
-        // `radius.lg` (16px) to match the StartSessionForm container
-        // edge (StartSessionForm.jsx line 599). The pure-binary
-        // rectangle read as too sharp at the page-level card scale —
-        // the 16px curve gives the card the same "soft framed tile"
-        // character as the start-session form, and the structural
-        // brutalist signal is now carried by the 1px `colors.border`
-        // stroke + the hard-offset `shadow.lift` on hoverable cards
-        // (when present) instead of a hard 0px rectangle. Consumers
-        // that want a non-zero radius override via the `style` prop —
-        // see ThemeSwatchCard in SettingsPage for the swatch-card case.
-        borderRadius: `${radius.lg}px`,
-        // Per §6.3: base Card primitive stays flat. `shadow.lift` is
-        // reserved for the "interactive/command card" sub-treatment and
-        // is layered on per-consumer (NavigationCard) rather than baked
-        // into the primitive — see §3.2.
-        boxShadow: shadow.flat,
-        padding: "20px",
-        transition: `background ${motion.hover}, border-color ${motion.hover}, transform ${motion.hover}, box-shadow ${motion.hover}`,
-        transform: hoverable && hover ? "translateY(-1px)" : "translateY(0)",
+        background:   colors.bgCard,
+        border:       `1px solid ${colors.border}`,
+        borderRadius: `${radius.md}px`,
+        boxShadow:    shadow.flat,
+        padding:      "20px",
         ...style,
       }}
       {...rest}
@@ -194,16 +230,16 @@ export function Card({ children, hoverable = false, style, ...rest }) {
   );
 }
 
+/* ─── Chip ──────────────────────────────────────────────────────────────── */
 const CHIP_TONES = {
-  neutral: { color: colors.inkDim, bg: "rgba(241,240,236,0.08)" },
-  // lilac and pink removed — no call site ever passed those tones (verified).
-  blue: { color: colors.accentBlue, bg: colors.accentBlueDim },
-  green: { color: colors.accentGreen, bg: colors.accentGreenDim },
-  yellow: { color: colors.accentYellow, bg: colors.accentYellowDim },
-  success: { color: colors.success, bg: "rgba(123,215,167,0.13)" },
-  warning: { color: colors.warning, bg: "rgba(235,203,115,0.13)" },
-  danger: { color: colors.danger, bg: "rgba(240,127,131,0.13)" },
-  info: { color: colors.info, bg: "rgba(140,196,232,0.13)" },
+  neutral: { color: colors.inkDim,       bg: "rgba(241,240,236,0.08)" },
+  blue:    { color: colors.accentBlue,   bg: colors.accentBlueDim     },
+  green:   { color: colors.accentGreen,  bg: colors.accentGreenDim    },
+  yellow:  { color: colors.accentYellow, bg: colors.accentYellowDim   },
+  success: { color: colors.success,      bg: "rgba(123,215,167,0.13)" },
+  warning: { color: colors.warning,      bg: "rgba(235,203,115,0.13)" },
+  danger:  { color: colors.danger,       bg: "rgba(240,127,131,0.13)" },
+  info:    { color: colors.info,         bg: "rgba(140,196,232,0.13)" },
 };
 
 export function Chip({ children, tone = "neutral", icon, style, ...rest }) {
@@ -211,24 +247,19 @@ export function Chip({ children, tone = "neutral", icon, style, ...rest }) {
   return (
     <span
       style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "6px",
-        padding: "4px 8px",
-        // Per §6.4: Chip is a `<span>`-scale element, not a structural
-        // panel — sanctioned `radius.tight` (4px) exception to the
-        // binary system. Was `radius.sm` (8px).
+        display:      "inline-flex",
+        alignItems:   "center",
+        gap:          "6px",
+        padding:      "3px 8px",
         borderRadius: `${radius.tight}px`,
-        background: t.bg,
-        color: t.color,
-        fontFamily: fonts.body,
-        fontSize: "10px",
-        fontWeight: 700,
-        letterSpacing: "0.09em",
-        textTransform: "uppercase",
-        userSelect: "none",
-        whiteSpace: "nowrap",
-        flexShrink: 0,
+        background:   t.bg,
+        color:        t.color,
+        fontFamily:   fonts.body,
+        fontSize:     "12px",
+        fontWeight:   500,
+        userSelect:   "none",
+        whiteSpace:   "nowrap",
+        flexShrink:   0,
         ...style,
       }}
       {...rest}
@@ -239,42 +270,243 @@ export function Chip({ children, tone = "neutral", icon, style, ...rest }) {
   );
 }
 
-export function Squiggle({ width = 120, style }) {
-  return <div aria-hidden="true" style={{ width, height: 1, background: colors.border, ...style }} />;
-}
-
-export function Spinner({ size = 20, style }) {
-  return (
-    <span
-      role="status"
-      aria-label="Loading"
-      style={{
-        display: "inline-block",
-        width: size,
-        height: size,
-        // "Round object" per §5.8's vocabulary — stays a literal 50%
-        // (functionally equivalent to radius.full on a square element).
-        // Not a violation, not a migration target.
-        borderRadius: "50%",
-        border: `2px solid ${colors.border}`,
-        borderTopColor: colors.brand,
-        animation: "cgo-spin 0.7s linear infinite",
-        flexShrink: 0,
-        ...style,
-      }}
-    />
-  );
-}
-
+/* ─── EmptyState ────────────────────────────────────────────────────────── */
 export function EmptyState({ icon: Icon = Inbox, message, subtext, actionLabel, onAction, style }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "44px 20px", gap: "12px", ...style }}>
-      <div style={{ width: 48, height: 48, borderRadius: `${radius.tight}px`, display: "flex", alignItems: "center", justifyContent: "center", background: colors.bgElevated, border: `1px solid ${colors.border}`, color: colors.inkDim }}>
-        <Icon size={21} strokeWidth={1.6} />
-      </div>
-      <div style={{ fontFamily: fonts.display, fontWeight: 650, fontSize: "15px", color: colors.ink }}>{message}</div>
-      {subtext && <div style={{ fontFamily: fonts.body, fontWeight: 500, fontSize: "12px", color: colors.inkFaint, maxWidth: "340px", lineHeight: 1.55 }}>{subtext}</div>}
-      {actionLabel && onAction && <Button variant="secondary" onClick={onAction} style={{ marginTop: "4px" }}>{actionLabel}</Button>}
+    <div
+      style={{
+        display:        "flex",
+        flexDirection:  "column",
+        alignItems:     "center",
+        justifyContent: "center",
+        textAlign:      "center",
+        padding:        "44px 20px",
+        gap:            "12px",
+        ...style,
+      }}
+    >
+      {/* Unboxed icon per 3.11 — remove icon wells in empty states */}
+      <Icon size={28} strokeWidth={1.75} aria-hidden="true" style={{ color: colors.inkFaint }} />
+      <div style={{ fontFamily: fonts.display, fontWeight: 600, fontSize: "15px", color: colors.ink }}>{message}</div>
+      {subtext && (
+        <div style={{ fontFamily: fonts.body, fontWeight: 400, fontSize: "13px", color: colors.inkFaint, maxWidth: "340px", lineHeight: 1.55 }}>
+          {subtext}
+        </div>
+      )}
+      {actionLabel && onAction && (
+        <Button variant="secondary" onClick={onAction} style={{ marginTop: "4px" }}>{actionLabel}</Button>
+      )}
     </div>
   );
 }
+
+/* ─── 3.7 StatCard ──────────────────────────────────────────────────────────
+ * Label (12px faint, sentence case) above value (28px tabular, sans).
+ * Optional unit suffix and sub-line. No boxed icon wells.
+ * Usage: <StatCard label="Sessions today" value={42} unit="sessions" />
+ * ────────────────────────────────────────────────────────────────────────── */
+export function StatCard({ label, value, unit, sub, style }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "4px", ...style }}>
+      <span
+        style={{
+          fontSize: "12px",
+          fontWeight: 500,
+          color: colors.inkFaint,
+          fontFamily: fonts.body,
+          lineHeight: 1.3,
+        }}
+      >
+        {label}
+      </span>
+      <div style={{ display: "flex", alignItems: "baseline", gap: "5px" }}>
+        <span
+          style={{
+            fontSize: "28px",
+            fontWeight: 600,
+            color: colors.ink,
+            fontFamily: fonts.body,
+            fontVariantNumeric: "tabular-nums",
+            lineHeight: 1,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          {value ?? "--"}
+        </span>
+        {unit && (
+          <span style={{ fontSize: "12px", fontWeight: 500, color: colors.inkFaint, fontFamily: fonts.body }}>
+            {unit}
+          </span>
+        )}
+      </div>
+      {sub && (
+        <span style={{ fontSize: "12px", fontWeight: 400, color: colors.inkFaint, fontFamily: fonts.body, lineHeight: 1.4 }}>
+          {sub}
+        </span>
+      )}
+    </div>
+  );
+}
+
+/* ─── 3.8 KeyValueRow ───────────────────────────────────────────────────────
+ * Spec-sheet row: label (mono, faint) — dotted fill — value (mono, ink).
+ * `compact` reduces font sizes for tight contexts (Host Monitor stat grids).
+ * Usage: <KeyValueRow label="Hostname" value="gaming-rig" />
+ * ────────────────────────────────────────────────────────────────────────── */
+export function KeyValueRow({ label, value, compact, action, style }) {
+  return (
+    <div
+      className="pcgo-kv-row"
+      style={{
+        display: "flex",
+        alignItems: "baseline",
+        gap: "8px",
+        minWidth: 0,
+        ...style,
+      }}
+    >
+      <span
+        style={{
+          fontSize: compact ? "10px" : "10.5px",
+          color: colors.inkFaint,
+          whiteSpace: "nowrap",
+          fontFamily: fonts.mono,
+          flexShrink: 0,
+        }}
+      >
+        {label}
+      </span>
+      <span
+        style={{
+          flex: 1,
+          borderBottom: `1px dotted ${colors.border}`,
+          marginBottom: "3px",
+        }}
+      />
+      <span
+        style={{
+          fontSize: compact ? "10.5px" : "11.5px",
+          fontWeight: 600,
+          color: colors.ink,
+          fontFamily: fonts.mono,
+          textAlign: "right",
+          maxWidth: "60%",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          fontVariantNumeric: "tabular-nums",
+        }}
+      >
+        {value ?? "--"}
+      </span>
+      {action && (
+        <span style={{ flexShrink: 0 }}>{action}</span>
+      )}
+    </div>
+  );
+}
+
+/* ─── 3.9 DataTable ─────────────────────────────────────────────────────────
+ * Real <table> with scope="col", right-aligned numerics, overflow scroll.
+ * Columns: [{ key, label, align?, render? }, ...]
+ * Usage: <DataTable columns={cols} rows={data} keyField="id" />
+ * ────────────────────────────────────────────────────────────────────────── */
+export const DataTable = forwardRef(function DataTable(
+  { columns, rows = [], keyField = "id", emptyMessage = "No data", "aria-label": ariaLabel, style },
+  ref
+) {
+  return (
+    <div
+      ref={ref}
+      tabIndex={0}
+      role="region"
+      aria-label={ariaLabel ?? "Data table"}
+      style={{
+        overflowX: "auto",
+        borderRadius: `${radius.md}px`,
+        border: `1px solid ${colors.borderSubtle}`,
+        ...style,
+      }}
+    >
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          fontFamily: fonts.body,
+          fontSize: "13px",
+        }}
+      >
+        <thead>
+          <tr>
+            {columns.map((col) => (
+              <th
+                key={col.key}
+                scope="col"
+                style={{
+                  padding: "10px 14px",
+                  textAlign: col.align === "right" ? "right" : "left",
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  color: colors.inkFaint,
+                  fontFamily: fonts.mono,
+                  borderBottom: `1px solid ${colors.borderSubtle}`,
+                  whiteSpace: "nowrap",
+                  background: colors.bgInset,
+                }}
+              >
+                {col.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.length === 0 ? (
+            <tr>
+              <td
+                colSpan={columns.length}
+                style={{
+                  padding: "32px 14px",
+                  textAlign: "center",
+                  color: colors.inkFaint,
+                  fontSize: "13px",
+                  fontFamily: fonts.body,
+                }}
+              >
+                {emptyMessage}
+              </td>
+            </tr>
+          ) : (
+            rows.map((row, i) => (
+              <tr
+                key={row[keyField] ?? i}
+                style={{
+                  borderBottom: i < rows.length - 1 ? `1px solid ${colors.borderSubtle}` : "none",
+                }}
+              >
+                {columns.map((col) => (
+                  <td
+                    key={col.key}
+                    style={{
+                      padding: "10px 14px",
+                      textAlign: col.align === "right" ? "right" : "left",
+                      color: colors.ink,
+                      fontVariantNumeric: col.align === "right" ? "tabular-nums" : undefined,
+                      verticalAlign: "middle",
+                      maxWidth: col.maxWidth ?? "240px",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {col.render ? col.render(row[col.key], row) : (row[col.key] ?? "--")}
+                  </td>
+                ))}
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+});
+

@@ -18,7 +18,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { getConfig, selectFile, updateConfig } from "../api/client";
-import { useToast } from "./ui/Toast.jsx";
+import { useToast } from "../hooks/useToast.js";
 import { Button, Spinner } from "./ui/primitives.jsx";
 
 export function SettingsPanel() {
@@ -213,7 +213,7 @@ export function SettingsPanel() {
         <strong>Configuration unavailable</strong>
         <p>{configError}</p>
         <Button variant="secondary" onClick={loadConfig} disabled={loadingConfig}>
-          <RefreshCw size={13} /> Retry loading settings
+          <RefreshCw size={13} aria-hidden="true" /> Retry loading settings
         </Button>
       </div>
     ) : (
@@ -243,25 +243,25 @@ export function SettingsPanel() {
 
       <div className="pcgo-settings__status-row" aria-label="Settings state">
         <div className={`pcgo-settings__state ${hasChanges ? "is-dirty" : "is-saved"}`}>
-          {hasChanges ? <CircleHelp size={13} /> : <CheckCircle2 size={13} />}
+          {hasChanges ? <CircleHelp size={13} aria-hidden="true" /> : <CheckCircle2 size={13} />}
           <span>{hasChanges ? "DRAFT CHANGES" : "SAVED SNAPSHOT"}</span>
         </div>
         <span className="pcgo-settings__state-help">
           {hasChanges ? "Changes stay local until Save Changes is applied." : "Values match the latest server snapshot."}
         </span>
-        {restartRequired && <span className="pcgo-settings__restart-tag"><AlertTriangle size={12} /> RESTART REQUIRED</span>}
+        {restartRequired && <span className="pcgo-settings__restart-tag"><AlertTriangle size={12} aria-hidden="true" /> RESTART REQUIRED</span>}
       </div>
 
       {configError && (
         <div className="pcgo-settings__stale-note" role="status">
-          <AlertTriangle size={13} />
+          <AlertTriangle size={13} aria-hidden="true" />
           <span>Refresh failed. The last loaded configuration remains visible.</span>
           <button type="button" onClick={loadConfig}>Retry</button>
         </div>
       )}
 
       <div className="pcgo-settings__groups">
-        <SettingsGroup icon={<Cloud size={14} />} title="Sunshine" description="Connection details for the Sunshine streaming service.">
+        <SettingsGroup icon={<Cloud size={14} aria-hidden="true" />} title="Sunshine" description="Connection details for the Sunshine streaming service.">
           <SettingRow label="Sunshine API URL" description="Endpoint used by PCGO to reach the Sunshine control API.">
             <input aria-label="Sunshine API URL" value={getValue(config.sunshine.api_url)} onChange={(event) => updateValue("sunshine", "api_url", event.target.value)} />
           </SettingRow>
@@ -278,13 +278,13 @@ export function SettingsPanel() {
           </div>
         </SettingsGroup>
 
-        <SettingsGroup icon={<Network size={14} />} title="Tailscale" description="Executable path used by the host networking integration.">
+        <SettingsGroup icon={<Network size={14} aria-hidden="true" />} title="Tailscale" description="Executable path used by the host networking integration.">
           <SettingRow label="Tailscale IPN executable" description="Windows executable path for the Tailscale IPN process.">
             <PathControl ariaLabel="Tailscale IPN executable path" value={getValue(config.tailscale.ipn_path)} onChange={(value) => updateValue("tailscale", "ipn_path", value)} onSelect={handleSelectTailscaleIPN} selectLabel="Select Tailscale IPN executable" />
           </SettingRow>
         </SettingsGroup>
 
-        <SettingsGroup icon={<Server size={14} />} title="Host agent" description="Identity and runtime environment for the host agent." >
+        <SettingsGroup icon={<Server size={14} aria-hidden="true" />} title="Host agent" description="Identity and runtime environment for the host agent." >
           <SettingRow label="Host name" description="Display name used to identify this host in the control plane.">
             <input aria-label="Host name" value={getValue(config.host_agent.host_name)} onChange={(event) => updateValue("host_agent", "host_name", event.target.value)} />
           </SettingRow>
@@ -307,10 +307,10 @@ export function SettingsPanel() {
               <input aria-label="Warning before minutes" type="number" min="0" value={getValue(config.session.warning_before_minutes)} onChange={(event) => updateValue("session", "warning_before_minutes", parseInt(event.target.value, 10) || 0)} />
             </SettingRow>
           </div>
-          <div className="pcgo-settings__info-note"><CircleHelp size={13} /> Warning time must remain below the default session duration.</div>
+          <div className="pcgo-settings__info-note"><CircleHelp size={13} aria-hidden="true" /> Warning time must remain below the default session duration.</div>
         </SettingsGroup>
 
-        <SettingsGroup icon={<ClipboardList size={14} />} title="Logging" description="Control the host-agent log stream and its runtime verbosity.">
+        <SettingsGroup icon={<ClipboardList size={14} aria-hidden="true" />} title="Logging" description="Control the host-agent log stream and its runtime verbosity.">
           <SettingRow label="Log level" description="The host-agent logger applies this level immediately." immediate>
             <SelectControl ariaLabel="Log level" value={getValue(config.logging.log_level)} onChange={(value) => updateValue("logging", "log_level", value)} options={["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]} />
           </SettingRow>
@@ -319,7 +319,7 @@ export function SettingsPanel() {
           </SettingRow>
         </SettingsGroup>
 
-        <SettingsGroup icon={<Database size={14} />} title="Storage" description="Retention controls and immutable server paths for save data.">
+        <SettingsGroup icon={<Database size={14} aria-hidden="true" />} title="Storage" description="Retention controls and immutable server paths for save data.">
           <div className="pcgo-settings__split-row">
             <SettingRow label="Backup retention" description="Number of backup sets retained by the host agent." restartRequired={requiresRestartChanged("storage", "backup_retention")}>
               <input aria-label="Backup retention" type="number" min="1" value={getValue(config.storage.backup_retention)} onChange={(event) => updateValue("storage", "backup_retention", parseInt(event.target.value, 10) || 0)} />
@@ -329,39 +329,39 @@ export function SettingsPanel() {
             </SettingRow>
           </div>
           <div className="pcgo-settings__readonly-block">
-            <div className="pcgo-settings__readonly-heading"><Lock size={12} /> SERVER PATHS <span>READ ONLY</span></div>
+            <div className="pcgo-settings__readonly-heading"><Lock size={12} aria-hidden="true" /> SERVER PATHS <span>READ ONLY</span></div>
             <ReadOnlyRow label="Save folder" value={getValue(config.storage.saves_root)} />
             <ReadOnlyRow label="Host backup folder" value={getValue(config.storage.temp_root)} />
             <ReadOnlyRow label="Game config file" value={getValue(config.storage.games_config_path)} />
           </div>
         </SettingsGroup>
 
-        <SettingsGroup icon={<Tags size={14} />} title="Metadata" description="Internal coordination files used by the host agent.">
+        <SettingsGroup icon={<Tags size={14} aria-hidden="true" />} title="Metadata" description="Internal coordination files used by the host agent.">
           <ReadOnlyRow label="Metadata lock file" value={getValue(config.metadata.lock_file)} />
         </SettingsGroup>
       </div>
 
       {(validationErrors.length > 0 || saveError) && (
         <div className="pcgo-settings__errors" role="alert">
-          {saveError && <div><XCircle size={13} /> {saveError}</div>}
-          {validationErrors.map((error) => <div key={error}><XCircle size={13} /> {error}</div>)}
+          {saveError && <div><XCircle size={13} aria-hidden="true" /> {saveError}</div>}
+          {validationErrors.map((error) => <div key={error}><XCircle size={13} aria-hidden="true" /> {error}</div>)}
         </div>
       )}
 
       {restartRequired && (
         <div className="pcgo-settings__restart-note" role="status">
-          <AlertTriangle size={14} />
+          <AlertTriangle size={14} aria-hidden="true" />
           <div><strong>Restart required</strong><span>Some saved changes take effect only after the backend is restarted.</span></div>
         </div>
       )}
 
       <div className="pcgo-settings__actions">
         <Button variant="primary" disabled={saving || !hasChanges} onClick={saveSettings} aria-busy={saving}>
-          {saving ? <RefreshCw size={13} className="pcgo-settings__spin" /> : <Save size={13} />}
+          {saving ? <RefreshCw size={13} className="pcgo-settings__spin" /> : <Save size={13} aria-hidden="true" />}
           {saving ? "Saving…" : "Save changes"}
         </Button>
         <Button variant="secondary" disabled={saving || !hasChanges} onClick={() => { setConfig(JSON.parse(JSON.stringify(originalConfig))); setValidationErrors([]); setSaveError(""); }}>
-          <RotateCcw size={12} /> Cancel draft
+          <RotateCcw size={12} aria-hidden="true" /> Cancel draft
         </Button>
         <span className="pcgo-settings__action-help">{hasChanges ? "Unsaved draft values" : "No pending changes"}</span>
       </div>
@@ -399,7 +399,7 @@ function ReadOnlyValue({ value }) {
 }
 
 function PathControl({ ariaLabel, value, onChange, onSelect, selectLabel }) {
-  return <div className="pcgo-settings-path-control"><input aria-label={ariaLabel} value={value || ""} onChange={(event) => onChange(event.target.value)} /><button type="button" aria-label={selectLabel} title={selectLabel} onClick={onSelect}><FileInput size={14} /></button></div>;
+  return <div className="pcgo-settings-path-control"><input aria-label={ariaLabel} value={value || ""} onChange={(event) => onChange(event.target.value)} /><button type="button" aria-label={selectLabel} title={selectLabel} onClick={onSelect}><FileInput size={14} aria-hidden="true" /></button></div>;
 }
 
 function SelectControl({ ariaLabel, value, onChange, options }) {

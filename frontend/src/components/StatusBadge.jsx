@@ -1,38 +1,22 @@
-/**
+﻿/**
  * components/StatusBadge.jsx
  *
- * Renders a styled badge for a session status string.
+ * 3.5: Renders a styled badge for a session/host status string.
+ * Uses the canonical STATUS_MAP from src/dashboard/status.js (D3).
  *
- * Status strings are the exact values set by session_service.py:
- *   "starting"   — registry entry created, thread not yet running
- *   "running"    — game launched, WS broadcasts this
- *   "completed"  — game exited cleanly, WS broadcasts this
- *   "failed"     — exception in _run_session, WS broadcasts this
- *   "stopped"    — stop_session() called, NO WS broadcast (poll only)
+ * Non-interactive (cursor: default, no role="button").
+ * Dot is aria-hidden; the label text carries the meaning.
+ * Pulse only for in-progress states (badge-pulse keyframe in base.css).
  */
 
-import { colors, radius, motion } from "../dashboard/theme.js";
-
-/** @type {Record<string, { label: string, color: string, wash: string, pulse: boolean }>} */
-const STATUS_CONFIG = {
-  starting:     { label: "STARTING",    color: colors.warning, wash: "rgba(245,215,110,0.14)", pulse: true  },
-  running:      { label: "RUNNING",     color: colors.success, wash: "rgba(110,231,176,0.14)", pulse: true  },
-  restarting:   { label: "RESTARTING",  color: colors.info,    wash: "rgba(126,200,242,0.14)", pulse: true  },
-  restarted:    { label: "RESTARTED",   color: colors.success, wash: "rgba(110,231,176,0.14)", pulse: true  },
-  stopping:     { label: "STOPPING",    color: colors.warning, wash: "rgba(245,215,110,0.14)", pulse: false },
-  cleaning:     { label: "CLEANING",    color: colors.info,    wash: "rgba(126,200,242,0.14)", pulse: false },
-  completed:    { label: "COMPLETED",   color: colors.neutral, wash: "rgba(185,183,174,0.14)", pulse: false },
-  failed:       { label: "FAILED",      color: colors.danger,  wash: "rgba(255,107,107,0.14)", pulse: false },
-  stopped:      { label: "STOPPED",     color: colors.inkDim,  wash: "rgba(185,183,174,0.10)", pulse: false },
-};
-
-const FALLBACK = { label: "UNKNOWN", color: colors.inkGhost, wash: "rgba(74,74,72,0.14)", pulse: false };
+import { getStatusTone } from "../dashboard/status.js";
+import { radius, motion } from "../dashboard/theme.js";
 
 /**
  * @param {{ status: string }} props
  */
 export function StatusBadge({ status }) {
-  const cfg = STATUS_CONFIG[status] ?? FALLBACK;
+  const cfg = getStatusTone(status);
 
   return (
     <span
@@ -45,35 +29,24 @@ export function StatusBadge({ status }) {
         background:    cfg.wash,
         border:        `1.5px solid ${cfg.color}4d`,
         color:         cfg.color,
-        fontSize:      "9.5px",
-        fontFamily:    "'JetBrains Mono', monospace",
-        fontWeight:    700,
-        letterSpacing: "0.13em",
+        fontSize:      "12px",
+        fontWeight:    500,
+        letterSpacing: "0",
         flexShrink:    0,
         userSelect:    "none",
-        // Per §3.7 / §8: state-transition swap. The `motion.transition`
-        // overshoot is intentionally reserved for tone flips (badge
-        // color changing), not hover (which would be motion.hover).
-        // A status change re-renders the entire span with the new
-        // config's color/wash/border, and the transition makes the
-        // swap read as a deliberate state change rather than a flicker.
+        cursor:        "default",
         transition:    `color ${motion.transition}, background ${motion.transition}, border-color ${motion.transition}`,
       }}
     >
-      {/* Dot indicator */}
+      {/* Decorative dot — aria-hidden, label carries the status meaning */}
       <span
+        aria-hidden="true"
         style={{
           width:        6,
           height:       6,
           borderRadius: "50%",
           background:   cfg.color,
           flexShrink:   0,
-          // P6-T05 motion audit: keyframe-based `animation:` (not `transition:`),
-          // same non-convertible category as primitives.jsx's Spinner (P6-T02) and
-          // LoadingState.jsx's pulse (P6-T04). `motion`'s tokens are transition
-          // timing strings ("<duration> <easing>"), not @keyframes names, so there
-          // is no equivalent to alias to here regardless of the 1.6s duration.
-          // Left as the original literal; no conversion.
           animation:    cfg.pulse ? "badge-pulse 1.6s ease-in-out infinite" : "none",
         }}
       />

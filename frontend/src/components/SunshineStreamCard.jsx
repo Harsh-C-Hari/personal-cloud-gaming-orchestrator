@@ -3,7 +3,7 @@
  *
  * Same props (streamStatus) and same formatStreamDuration/conditional
  * rendering logic as before (streaming vs idle branches, transport/
- * reconnect fields, last-disconnect/reconnect fields) — only the
+ * reconnect fields, last-disconnect/reconnect fields) � only the
  * presentation was reworked to match the StatRow/Badge "spec sheet" look
  * already used everywhere else inside its parent, HostStatusPanel.jsx,
  * using flat Chalkboard Neo-Brutalist tokens instead of bare, uncolored
@@ -11,7 +11,7 @@
  *
  * P5-T10 token-elevation audit (typeScale/surface, per D-008/D-009):
  *
- * Backgrounds: grepped fresh for `colors.bg*` — zero references. This
+ * Backgrounds: grepped fresh for `colors.bg*` � zero references. This
  * file only uses status/ink/border tokens
  * (`colors.success`/`warning`/`danger`/`inkDim`/`inkFaint`/`ink`/
  * `border`), never a background/elevation slot. Nothing to alias;
@@ -19,16 +19,16 @@
  * fresh-grep finding.
  *
  * Typography: all 4 `fontSize`/`fontWeight`/`fontFamily` groups checked
- * against `typeScale`'s six steps — none land cleanly:
+ * against `typeScale`'s six steps � none land cleanly:
  *   - `Badge` (9.5px/700/0.05em, no explicit `fontFamily`) is close to
  *     `typeScale.meta` (10px/1.3/700/0.12em/uppercase/mono) on
  *     size/weight, but has no font family set at all (inherits the
  *     surrounding UI font rather than mono) and no uppercase transform
- *     — two structural gaps, not a rounding difference.
+ *     � two structural gaps, not a rounding difference.
  *   - The sub-heading label ("Stream Status", 9px/0.13em/uppercase/
  *     mono, no explicit `fontWeight`) is close in spirit to `meta` but
  *     is missing the weight declaration entirely and sits 1px below
- *     meta's size — a bigger gap than the 0.5px/0.01em precedent
+ *     meta's size � a bigger gap than the 0.5px/0.01em precedent
  *     `HostStatusPanel.jsx`'s `sectionHeading` used for its clean
  *     conversion this same task.
  *   - `StatRow`'s label (10.5px mono, no weight) and value (11.5px/600/
@@ -42,7 +42,7 @@
  */
 
 import { RadioTower } from "lucide-react";
-import { colors, fonts } from "../dashboard/theme.js";
+import { colors, fonts, typeScale } from "../dashboard/theme.js";
 
 const TONE_COLORS = {
     ok: colors.success,
@@ -68,7 +68,7 @@ function Badge({ tone = "neutral", children }) {
                 // TCB-P3 followup: value-preserving rename from literal
                 // `"10px"` to `radius.full` (999px). Small 2px 8px
                 // padded status pill (the "live / idle / streaming"
-                // indicator Badge) — converting to `full` matches the
+                // indicator Badge) � converting to `full` matches the
                 // badge convention used by the streaming-duration
                 // pill in SunshineStreamHistory.jsx and other chip
                 // surfaces in HostStatusPanel. The 2:1+ aspect of the
@@ -117,7 +117,7 @@ function StatRow({ label, value }) {
     );
 }
 
-/* Mobile: same fix as HostStatusPanel's .hsp-grid rows — below 560px these
+/* Mobile: same fix as HostStatusPanel's .hsp-grid rows � below 560px these
    label/dotted-line/value rows don't have room for longer values (full
    date-times, "1920x1080", etc.), so they were being clipped with an
    ellipsis. Stack label above value and let it wrap instead of truncating. */
@@ -180,7 +180,7 @@ export function SunshineStreamCard({ streamStatus }) {
 
     return (
         <div>
-            {/* Sub-heading — separates this from the Sunshine service stats above */}
+            {/* Sub-heading � separates this from the Sunshine service stats above */}
             <div
                 style={{
                     display: "flex",
@@ -198,7 +198,6 @@ export function SunshineStreamCard({ streamStatus }) {
                         fontSize: "9px",
                         color: colors.inkFaint,
                         letterSpacing: "0.13em",
-                        textTransform: "uppercase",
                         fontFamily: fonts.mono,
                     }}
                 >

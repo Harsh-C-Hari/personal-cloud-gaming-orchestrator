@@ -193,9 +193,22 @@ The issue was resolved without requiring architectural changes to the monitoring
 
 ---
 
-# Design Goals
+# Design Goals & Layout Structure
 
-* Operational visibility
-* Real-time awareness
-* Administrative control
-* Monitoring efficiency
+* **Operational visibility:** High data density and immediate surfacing of alerts.
+* **Real-time awareness:** Minimal latency between backend events and UI reflection.
+* **Administrative control:** Quick access to critical host and session actions.
+* **Monitoring efficiency:** Reduced cognitive load through structural organization.
+
+## Layout Constraints
+
+The dashboard layout utilizes a widened fluid structure to maximize screen real estate on modern monitors while preserving readability:
+* The `MainContent` area scales elastically up to a maximum width of `1400px`.
+* This width is optimized for side-by-side data visualization (e.g., placing the Session Timer forms alongside the Live System Pulse in the Home view).
+
+## Visual Hierarchy
+
+The interface employs a distinct Z-axis visual hierarchy using transparency rather than heavy borders or shadows:
+* **Background:** A global radial dot matrix pattern establishes the underlying technical grid.
+* **Content Layer:** Cards and functional containers use ultra-dark, opaque surfaces (L1-L4 elevations) that physically block the dot matrix, grouping interactive elements into distinct functional blocks.
+* **Header Layer:** Sticky or overarching headers utilize "Liquid Glass" refraction to blur the dot matrix as it passes beneath them, ensuring navigational elements maintain prominence without feeling disconnected from the technical theme.

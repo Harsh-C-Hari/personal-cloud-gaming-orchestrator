@@ -1,5 +1,7 @@
-.pcgo-sidebar { display: flex; }
-.pcgo-mobile-menu-btn { display: none; }
+/* Sidebar column is gone — nav is always hamburger-triggered */
+.pcgo-sidebar { display: none !important; }
+/* Hamburger button is always visible */
+.pcgo-mobile-menu-btn { display: inline-flex !important; align-items: center; justify-content: center; }
 .pcgo-shell-root { height: 100vh; height: 100dvh; }
 .pcgo-shell-root { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
 .pcgo-header { padding-top: env(safe-area-inset-top, 0px); }
@@ -10,10 +12,9 @@
   .pcgo-logout-label { display: none; }
 }
 
+/* Subtitle still hides at narrow widths */
 @media (max-width: 880px) {
-  .pcgo-sidebar { display: none !important; }
-  .pcgo-mobile-menu-btn { display: inline-flex !important; align-items: center; justify-content: center; }
-  .pcgo-header-subtitle, .pcgo-header-optional { display: none !important; }
+  .pcgo-header-subtitle { display: none !important; }
 }
 
 @media (max-width: 540px) {

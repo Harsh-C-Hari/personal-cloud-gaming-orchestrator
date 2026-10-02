@@ -49,10 +49,7 @@
  * clean match" outcome Host Monitor/Game Manager found, not Recovery/
  * Sunshine's "zero matches" outcome.
  */
-import { useEffect, useRef, useState, useContext } from "react";
-import { gsap, ScrollTrigger } from "../lib/motion/gsapSetup.js";
-import { prefersReducedMotion } from "../lib/motion/reducedMotion.js";
-import { ScrollContainerContext } from "../lib/motion/scrollContainerContext.jsx";
+import { useEffect, useRef, useState } from "react";
 import {
   BarChart3,
   CheckCircle2,
@@ -70,6 +67,8 @@ import {
 } from "lucide-react";
 import { fetchSessionAnalytics } from "../api/client";
 import { colors, fonts, radius, surface, typeScale } from "../dashboard/theme.js";
+import { pluralize } from "../lib/pluralize.js";
+
 
 function formatPlayedTime(seconds) {
   if (seconds == null) return "--";
@@ -100,39 +99,8 @@ function getReliabilityColor(reliability) {
 }
 
 function AnimatedValue({ val, style }) {
-  const ref = useRef(null);
-
-  useEffect(() => {
-    if (prefersReducedMotion()) return;
-
-    let numStr = String(val);
-    let isPercent = numStr.endsWith("%");
-    if (isPercent) numStr = numStr.slice(0, -1);
-    
-    const num = Number(numStr);
-    
-    if (!isNaN(num) && typeof val !== "boolean" && val !== "" && numStr.trim() !== "" && ref.current) {
-      const obj = { v: 0 };
-      const suffix = isPercent ? "%" : "";
-
-      const ctx = gsap.context(() => {
-        gsap.to(obj, {
-          v: num,
-          duration: 1,
-          ease: "power2.out",
-          onUpdate: () => {
-            if (ref.current) {
-              ref.current.innerHTML = Math.floor(obj.v) + suffix;
-            }
-          },
-        });
-      });
-      return () => ctx.revert();
-    }
-  }, [val]);
-
   return (
-    <div style={style} ref={ref}>
+    <div style={style}>
       {val}
     </div>
   );
@@ -204,7 +172,7 @@ function StatList({ title: listTitle, items = [], labelKey, icon }) {
                   <span title={label}>{label}</span>
                 </div>
                 <span className="pcgo-analytics-breakdown__metrics">
-                  {item.sessions} sessions · {formatPlayedTime(item.played_seconds)} · avg {formatPlayedTime(item.average_played_seconds)}
+                  {pluralize(item.sessions, "session")} · {formatPlayedTime(item.played_seconds)} · avg {formatPlayedTime(item.average_played_seconds)}
                 </span>
               </div>
             );
@@ -256,29 +224,7 @@ export function SessionAnalytics({ refreshKey = 0 }) {
   const [loading, setLoading] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
   const loadingRef = useRef(false);
-
   const containerRef = useRef(null);
-  const scrollContainer = useContext(ScrollContainerContext);
-
-  useEffect(() => {
-    if (prefersReducedMotion() || !hasLoaded) return;
-
-    const ctx = gsap.context(() => {
-      ScrollTrigger.batch(".pcgo-analytics-breakdown__list > div", {
-        scroller: scrollContainer?.current || undefined,
-        interval: 0.1,
-        batchMax: 15,
-        onEnter: (batch) => {
-          gsap.fromTo(batch,
-            { opacity: 0, x: -10 },
-            { opacity: 1, x: 0, stagger: 0.05, duration: 0.4, ease: "power2.out", clearProps: "all" }
-          );
-        }
-      });
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, [hasLoaded, scrollContainer]);
 
   async function loadAnalytics() {
     if (loadingRef.current) return;
@@ -433,7 +379,7 @@ export function SessionAnalytics({ refreshKey = 0 }) {
         </>
       )}
 
-      <style>{`@keyframes sa-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      {/* sa-spin → global `spin` in base.css (1.2) */}
     </section>
   );
 }
@@ -554,7 +500,6 @@ const statLabel = {
   letterSpacing: "0.08em",
   fontFamily: fonts.mono,
   marginTop: "3px",
-  textTransform: "uppercase",
 };
 
 const listCard = {

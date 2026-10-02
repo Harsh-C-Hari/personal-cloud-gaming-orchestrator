@@ -14,11 +14,10 @@ import {
   XCircle,
 } from "lucide-react";
 import { getLogs, getLogSessions, getApiUrl, clearToken } from "../api/client";
-import { useToast } from "./ui/Toast.jsx";
-import { colors, fonts, radius, shadow, surface } from "../dashboard/theme.js";
+import { useToast } from "../hooks/useToast.js";
+import { colors, fonts, radius, shadow, surface, typeScale } from "../dashboard/theme.js";
 
-const focusBorder = (e) => { e.target.style.borderColor = colors.ink; };
-const blurBorder = (e) => { e.target.style.borderColor = colors.borderSubtle; };
+// 3.3: Focus/blur border change now handled by CSS .pcgo-input:focus in base.css.
 
 function getLogMeta(log) {
   if (log.includes("[ERROR]")) return { label: "ERROR", color: colors.danger, icon: <XCircle size={11} strokeWidth={2} />, key: "error" };
@@ -122,29 +121,9 @@ export function LogPanel() {
     return () => clearInterval(interval);
   }, [autoRefresh, level, sessionFilter, search]);
 
-  useEffect(() => {
-    const style = document.createElement("style");
-    // P6-T09 motion audit: `.scroll-btn`'s `animation: scrollBounce 2s
-    // infinite;` below is keyframe-based (not `transition:`), same non-
-    // convertible category as every other `animation:` audited in this
-    // project so far. `motion`'s four steps are transition timing strings
-    // ("<duration> <easing>"), not @keyframes names, so there is no
-    // equivalent to alias to here regardless of the 2s duration. This is
-    // a raw CSS-string template literal (not a JS inline-style object),
-    // but the same `${...}` interpolation used for `colors.borderInk`
-    // just below would work identically for a `motion` value if a genuine
-    // match existed — it doesn't, so this is left as the original
-    // literal; no conversion.
-    style.innerHTML = `
-      @keyframes lp-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      @keyframes pcgo-log-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
-      @keyframes scrollBounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(5px); } }
-      .scroll-btn { animation: scrollBounce 2s infinite; }
-      .scroll-btn:hover { transform: translateX(-50%) scale(1.08); border: 1.5px solid ${colors.borderInk}; }
-    `;
-    document.head.appendChild(style);
-    return () => document.head.removeChild(style);
-  }, []);
+  // Phase 5.2: scrollBounce keyframe and .scroll-btn rule deleted with GSAP/Lenis removal.
+  // lp-spin → global `spin`; pcgo-log-pulse → global `pulse` (both in src/styles/base.css).
+
 
   useEffect(() => {
     const timer = setTimeout(() => setSearch(searchInput), 400);
@@ -264,19 +243,19 @@ export function LogPanel() {
 
   const filterControls = (
     <>
-      <select aria-label="Filter logs by severity" value={level} onChange={(e) => setLevel(e.target.value)} style={selectStyle} onFocus={focusBorder} onBlur={blurBorder}>
+      <select aria-label="Filter logs by severity" value={level} onChange={(e) => setLevel(e.target.value)} className="pcgo-input" style={selectStyle}>
         <option value="ALL">ALL LEVELS</option>
         <option value="INFO">INFO</option>
         <option value="WARNING">WARNING</option>
         <option value="ERROR">ERROR</option>
       </select>
-      <select aria-label="Filter logs by session" value={sessionFilter} onChange={(e) => setSessionFilter(e.target.value)} style={selectStyle} onFocus={focusBorder} onBlur={blurBorder}>
+      <select aria-label="Filter logs by session" value={sessionFilter} onChange={(e) => setSessionFilter(e.target.value)} className="pcgo-input" style={selectStyle}>
         <option value="ALL">ALL SESSIONS</option>
         {sessions.map((session) => <option key={session} value={session}>{session}</option>)}
       </select>
       <div style={searchWrap}>
         <Search size={11} strokeWidth={2} style={searchIcon} />
-        <input aria-label="Search logs" placeholder="Search logs..." value={searchInput} onChange={(e) => setSearchInput(e.target.value)} style={searchInputStyle} onFocus={focusBorder} onBlur={blurBorder} />
+        <input aria-label="Search logs" placeholder="Search logs..." value={searchInput} onChange={(e) => setSearchInput(e.target.value)} className="pcgo-input" style={searchInputStyle} />
       </div>
     </>
   );
@@ -513,7 +492,7 @@ const statTile = { padding: "10px 12px", borderRadius: `${radius.lg}px`, backgro
 // the 4px "tight" step is the right scale.
 const statIconWrap = (tone) => ({ flexShrink: 0, width: "30px", height: "30px", borderRadius: `${radius.tight}px`, display: "flex", alignItems: "center", justifyContent: "center", background: `color-mix(in srgb, ${tone} 14%, transparent)`, border: `1px solid color-mix(in srgb, ${tone} 40%, transparent)`, color: tone, fontSize: "13px" });
 const statValue = { fontSize: "16px", fontWeight: 700, fontFamily: fonts.mono, lineHeight: 1.1, whiteSpace: "nowrap" };
-const statLabel = { fontSize: "8.5px", color: colors.inkFaint, letterSpacing: "0.08em", fontFamily: fonts.mono, marginTop: "3px", textTransform: "uppercase" };
+const statLabel = { fontSize: "12px", color: colors.inkFaint, letterSpacing: "0", fontFamily: fonts.mono, marginTop: "3px" };
 const logWrapper = { position: "relative" };
 const logContainer = { position: "relative", background: surface.l1, border: `1px solid ${colors.borderSubtle}`, borderRadius: `${radius.lg}px`, padding: "10px", minHeight: "200px", maxHeight: "min(600px, 65dvh)", overflowY: "auto", overflowX: "hidden" };
 const logStyle = { display: "grid", gridTemplateColumns: "92px minmax(0, 1fr)", alignItems: "start", gap: "10px", fontFamily: fonts.mono, fontSize: "11px", color: colors.inkDim, whiteSpace: "pre-wrap", overflowWrap: "anywhere", wordBreak: "break-word", width: "100%", boxSizing: "border-box", marginBottom: "5px", borderBottom: `1px solid ${colors.borderSubtle}`, borderLeft: `2px solid ${colors.inkDim}`, padding: "7px 7px 7px 9px" };

@@ -147,8 +147,9 @@ import {
   selectFile,
   selectFolder,
 } from "../api/client.js";
-import { useToast } from "./ui/Toast.jsx";
-import { useConfirm } from "./ui/ConfirmDialog.jsx";
+import { useToast } from "../hooks/useToast.js";
+import { useConfirm } from "../hooks/useConfirm.js";
+import { IconButton, Button } from "./ui/primitives.jsx";
 import { colors, fonts, radius, surface, typeScale } from "../dashboard/theme.js";
 
 const DEFAULT_GAME = {
@@ -374,26 +375,23 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
 
   // ── Shared style primitives (matches StartSessionForm / RecoveryStats) ──
 
-  function FieldLabel({ icon, children }) {
+  function FieldLabel({ icon, children, htmlFor }) {
+    const Tag = htmlFor ? "label" : "span";
     return (
-      <span
+      <Tag
+        htmlFor={htmlFor}
         style={{
           display: "flex",
           alignItems: "center",
           gap: "6px",
           color: colors.inkFaint,
-          // Clean fit within rounding (prior literal was 9.5px/700/
-          // 0.13em/uppercase/mono vs. typeScale.meta's 10px/700/0.12em/
-          // uppercase/mono) — byte-identical to StartSessionForm.jsx's
-          // own FieldLabel before its P4 elevation, so adopted directly
-          // rather than left literal, matching that precedent exactly.
           ...typeScale.meta,
           marginBottom: "8px",
         }}
       >
         {icon}
         {children}
-      </span>
+      </Tag>
     );
   }
 
@@ -423,13 +421,7 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
     );
   }
 
-  const focusBorder = (e) => {
-    e.target.style.borderColor = colors.ink;
-  };
-  const blurBorder = (e) => {
-    e.target.style.borderColor = colors.border;
-  };
-
+  // 3.3: Focus/blur border change now handled by CSS .pcgo-input:focus in base.css.`n
   return (
     <div className="pcgo-game-manager-config-panel" style={outerWrap}>
       {/* ── Header ─────────────────────────────────────────────── */}
@@ -447,37 +439,25 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
         </div>
 
         <div style={{ display: "flex", gap: "8px" }}>
-          <button
-            title="Add game"
+          <IconButton
             aria-label="Add game"
-            style={iconAddButton}
+            variant="ghost"
+            size="sm"
             onClick={openAddForm}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(110,231,176,0.22)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = colors.accentGreenDim)}
+            style={{ color: colors.success, border: `1.5px solid ${colors.success}66`, background: colors.accentGreenDim }}
           >
-            <Plus size={13} strokeWidth={2} />
-          </button>
+            <Plus size={14} strokeWidth={2} aria-hidden="true" />
+          </IconButton>
 
-          <button
-            title="Reload games"
+          <IconButton
             aria-label="Reload games"
+            variant="ghost"
+            size="sm"
             disabled={reloading}
-            style={{ ...iconGhostButton, opacity: reloading ? 0.5 : 1 }}
             onClick={handleReloadGames}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(237,235,227,0.08)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
-            {/* P6-T11 motion audit: keyframe-based `animation:` (not `transition:`), same
-                non-convertible category as SessionAnalytics.jsx's `sa-spin 0.8s` (P6-T08),
-                LogPanel.jsx's `lp-spin 0.8s` (P6-T09), HostStatusPanel.jsx's `hsp-spin 0.8s`
-                and SessionHistory.jsx's `sh-spin 0.8s` (P6-T10). `motion`'s four steps are
-                transition-timing strings ("<duration> <easing>"), not @keyframes names, so
-                there is no equivalent to alias to here regardless of the 0.8s duration. This
-                is one of four independent `gm-spin` instances in this file (reload/delete/
-                validate/save); each is documented separately. Left as the original literal;
-                no conversion. */}
-            <RefreshCw size={13} strokeWidth={2} style={reloading ? { animation: "gm-spin 0.8s linear infinite" } : undefined} />
-          </button>
+            <RefreshCw size={14} strokeWidth={2} aria-hidden="true" style={reloading ? { animation: "cgo-spin 0.8s linear infinite" } : undefined} />
+          </IconButton>
         </div>
       </div>
 
@@ -505,55 +485,35 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
               {entries.map(([gameId, game]) => (
                 <div
                   key={gameId}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Edit launch target ${game.name || gameId}`}
-                  onClick={() => openGameCard(gameId)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      openGameCard(gameId);
-                    }
-                  }}
                   style={card}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = colors.borderStrong;
-                    e.currentTarget.style.background = surface.l4;
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = colors.border;
-                    e.currentTarget.style.background = surface.l3;
-                    e.currentTarget.style.transform = "translateY(0)";
-                  }}
                 >
                   <div style={cardHeader}>
                     <div style={cardTitle}>{game.name || gameId}</div>
-                    <button
-                      title={`Delete ${game.name || gameId}`}
-                      aria-label={`Delete ${game.name || gameId}`}
-                      disabled={deleting === gameId}
-                      style={{ ...cardDeleteButton, opacity: deleting === gameId ? 0.5 : 1 }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteGameId(gameId);
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,107,107,0.15)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                    >
-                      {deleting === gameId ? (
-                        /* P6-T11 motion audit: keyframe-based `animation:` (not `transition:`),
-                           same non-convertible category as the "Reload games" spinner above in
-                           this file and SessionAnalytics.jsx's `sa-spin 0.8s` (P6-T08) /
-                           LogPanel.jsx's `lp-spin 0.8s` (P6-T09) / HostStatusPanel.jsx's
-                           `hsp-spin 0.8s` / SessionHistory.jsx's `sh-spin 0.8s` (P6-T10). No
-                           `motion` step is a @keyframes name, so no conversion applies here
-                           either. Left as the original literal; no conversion. */
-                        <RefreshCw size={11} strokeWidth={2} style={{ animation: "gm-spin 0.8s linear infinite" }} />
-                      ) : (
-                        <Trash2 size={12} strokeWidth={2} />
-                      )}
-                    </button>
+                    <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => openGameCard(gameId)}
+                      >
+                        Edit
+                      </Button>
+                      <IconButton
+                        aria-label={`Delete ${game.name || gameId}`}
+                        variant="danger"
+                        size="sm"
+                        disabled={deleting === gameId}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteGameId(gameId);
+                        }}
+                      >
+                        {deleting === gameId ? (
+                          <RefreshCw size={12} strokeWidth={2} aria-hidden="true" style={{ animation: "cgo-spin 0.8s linear infinite" }} />
+                        ) : (
+                          <Trash2 size={14} strokeWidth={2} aria-hidden="true" />
+                        )}
+                      </IconButton>
+                    </div>
                   </div>
 
                   <div style={cardMeta}>
@@ -566,6 +526,7 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                     <Cpu size={10} strokeWidth={2} style={{ opacity: 0.7 }} /> PROCESS: {game.process_name || "unknown"}
                   </div>
                 </div>
+
               ))}
             </div>
           ))}
@@ -591,42 +552,41 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   <div>
-                    <FieldLabel icon={<Hash size={10} strokeWidth={2} />}>Game ID</FieldLabel>
+                    <FieldLabel icon={<Hash size={10} strokeWidth={2} />} htmlFor="gm-game-id">Game ID</FieldLabel>
                     <input
+                      id="gm-game-id"
                       style={{ ...inputStyle, opacity: editingGame ? 0.6 : 1 }}
                       placeholder="e.g. god_of_war_ragnarok"
                       value={gameForm.id}
                       disabled={editingGame !== null}
                       aria-label="Game ID"
                       onChange={(e) => setField("id", e.target.value)}
-                      onFocus={focusBorder}
-                      onBlur={blurBorder}
                     />
                   </div>
 
                   <div>
-                    <FieldLabel icon={<Gamepad2 size={10} strokeWidth={2} />}>Game Name</FieldLabel>
+                    <FieldLabel icon={<Gamepad2 size={10} strokeWidth={2} />} htmlFor="gm-game-name">Game Name</FieldLabel>
                     <input
+                      id="gm-game-name"
+                      className="pcgo-input"
                       style={inputStyle}
                       placeholder="God of War Ragnarök"
                       value={gameForm.name}
                       aria-label="Game Name"
                       onChange={(e) => setField("name", e.target.value)}
-                      onFocus={focusBorder}
-                      onBlur={blurBorder}
                     />
                   </div>
 
                   <div>
-                    <FieldLabel icon={<FileInput size={10} strokeWidth={2} />}>Executable Name</FieldLabel>
+                    <FieldLabel icon={<FileInput size={10} strokeWidth={2} />} htmlFor="gm-exe-name">Executable Name</FieldLabel>
                     <input
+                      id="gm-exe-name"
+                      className="pcgo-input"
                       style={inputStyle}
                       placeholder="GoWR.exe"
                       value={gameForm.exe_name}
                       aria-label="Executable Name"
                       onChange={(e) => setField("exe_name", e.target.value)}
-                      onFocus={focusBorder}
-                      onBlur={blurBorder}
                     />
                   </div>
                 </div>
@@ -638,16 +598,15 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   <div>
-                    <FieldLabel icon={<FileInput size={10} strokeWidth={2} />}>Executable Path</FieldLabel>
+                    <FieldLabel icon={<FileInput size={10} strokeWidth={2} />} htmlFor="gm-exe-path">Executable Path</FieldLabel>
                     <div style={pathRow}>
                       <input
+                        id="gm-exe-path"
                         style={{ ...inputStyle, flex: 1, minWidth: 0 }}
                         placeholder="Executable Path"
                         value={gameForm.exe_path}
                         aria-label="Executable Path"
                         onChange={(e) => setField("exe_path", e.target.value)}
-                        onFocus={focusBorder}
-                        onBlur={blurBorder}
                       />
                       <button
                         style={{
@@ -670,16 +629,15 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                   </div>
 
                   <div>
-                    <FieldLabel icon={<FolderOpen size={10} strokeWidth={2} />}>Save Path</FieldLabel>
+                    <FieldLabel icon={<FolderOpen size={10} strokeWidth={2} />} htmlFor="gm-save-path">Save Path</FieldLabel>
                     <div style={pathRow}>
                       <input
+                        id="gm-save-path"
                         style={{ ...inputStyle, flex: 1, minWidth: 0 }}
                         placeholder="Save Path"
                         value={gameForm.save_path}
                         aria-label="Save Path"
                         onChange={(e) => setField("save_path", e.target.value)}
-                        onFocus={focusBorder}
-                        onBlur={blurBorder}
                       />
                       <button
                         style={{
@@ -702,15 +660,15 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                   </div>
 
                   <div>
-                    <FieldLabel icon={<Cpu size={10} strokeWidth={2} />}>Process Name</FieldLabel>
+                    <FieldLabel icon={<Cpu size={10} strokeWidth={2} />} htmlFor="gm-process-name">Process Name</FieldLabel>
                     <input
+                      id="gm-process-name"
+                      className="pcgo-input"
                       style={inputStyle}
                       placeholder="Process Name"
                       value={gameForm.process_name}
                       aria-label="Process Name"
                       onChange={(e) => setField("process_name", e.target.value)}
-                      onFocus={focusBorder}
-                      onBlur={blurBorder}
                     />
                   </div>
                 </div>
@@ -722,14 +680,14 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   <div>
-                    <FieldLabel>Match Mode</FieldLabel>
+                    <FieldLabel htmlFor="gm-match-mode">Match Mode</FieldLabel>
                     <select
+                      id="gm-match-mode"
+                      className="pcgo-input"
                       style={inputStyle}
                       value={gameForm.save_filters.mode}
                       aria-label="Match Mode"
                       onChange={(e) => updateSaveFilters("mode", e.target.value)}
-                      onFocus={focusBorder}
-                      onBlur={blurBorder}
                     >
                       <option value="or">OR - Match any filter</option>
                       <option value="and">AND - Match all filters</option>
@@ -737,8 +695,10 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                   </div>
 
                   <div>
-                    <FieldLabel>Prefix Filters</FieldLabel>
+                    <FieldLabel htmlFor="gm-prefix-filters">Prefix Filters</FieldLabel>
                     <input
+                      id="gm-prefix-filters"
+                      className="pcgo-input"
                       style={inputStyle}
                       placeholder="Prefix filters (comma separated)"
                       value={gameForm.save_filters.prefix.join(",")}
@@ -749,14 +709,14 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                           e.target.value.split(",").map((v) => v.trim()).filter(Boolean)
                         )
                       }
-                      onFocus={focusBorder}
-                      onBlur={blurBorder}
                     />
                   </div>
 
                   <div>
-                    <FieldLabel>Contains Filters</FieldLabel>
+                    <FieldLabel htmlFor="gm-contains-filters">Contains Filters</FieldLabel>
                     <input
+                      id="gm-contains-filters"
+                      className="pcgo-input"
                       style={inputStyle}
                       placeholder="Contains filters (comma separated)"
                       value={gameForm.save_filters.contains.join(",")}
@@ -767,14 +727,14 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                           e.target.value.split(",").map((v) => v.trim()).filter(Boolean)
                         )
                       }
-                      onFocus={focusBorder}
-                      onBlur={blurBorder}
                     />
                   </div>
 
                   <div>
-                    <FieldLabel>Suffix Filters</FieldLabel>
+                    <FieldLabel htmlFor="gm-suffix-filters">Suffix Filters</FieldLabel>
                     <input
+                      id="gm-suffix-filters"
+                      className="pcgo-input"
                       style={inputStyle}
                       placeholder="Suffix filters (.sav,.dat)"
                       value={gameForm.save_filters.suffix.join(",")}
@@ -785,8 +745,6 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
                           e.target.value.split(",").map((v) => v.trim()).filter(Boolean)
                         )
                       }
-                      onFocus={focusBorder}
-                      onBlur={blurBorder}
                     />
                   </div>
                 </div>
@@ -882,7 +840,7 @@ export function GameManager({ games, gamesLoading = false, refreshGames }) {
         )}
       </div>
 
-      <style>{`@keyframes gm-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      {/* gm-spin → global `spin` in base.css (1.2) */}
     </div>
   );
 }
@@ -1031,19 +989,18 @@ const card = {
 
 const cardHeader = {
   display: "flex",
-  alignItems: "flex-start",
-  justifyContent: "space-between",
-  flexWrap: "wrap",
-  rowGap: "6px",
-  gap: "8px",
+  flexDirection: "column",
+  // 5px keeps the buttons visually close to the title — tight enough
+  // that they read as a unit, not as two separate rows.
+  gap: "5px",
 };
 
 const cardTitle = {
   fontSize: "15px",
   fontWeight: 700,
-  marginBottom: "10px",
   color: colors.ink,
   fontFamily: fonts.display,
+  // marginBottom removed — parent cardHeader column gap handles spacing.
 };
 
 const cardMeta = {
@@ -1057,17 +1014,9 @@ const cardMeta = {
 };
 
 const cardDeleteButton = {
-  // P7-T09 (CC-10): widened from 24px to 44px to clear WCAG 2.2 2.5.8 Target
-  // Size (Minimum) AA comfortably, matching this app's own established
-  // comfortable-target convention (StartSessionForm.jsx's Skip Timer
-  // toggle wrapper, minHeight: "44px"). The Trash2 icon itself stays
-  // size={12} at its usage site below — only this container grows.
   width: "30px",
   height: "30px",
   flexShrink: 0,
-  // TCB-P3 followup: value-preserving rename from `radius.sm` (4px)
-  // to `radius.tight` (4px) — small chrome delete chip on the
-  // game card, the 4px "tight" step is the correct chip-scale.
   borderRadius: `${radius.tight}px`,
   background: "transparent",
   border: `1.5px solid ${colors.danger}66`,
@@ -1076,12 +1025,25 @@ const cardDeleteButton = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  // P6-T11 motion audit: real `transition:`, but 150ms does not exactly match any `motion`
-  // step (fast: 100ms, base: 160ms, cardIn: 220ms, pill: 180ms cubic-bezier). Byte-identical
-  // string to `iconAddButton`/`iconGhostButton` above and `pickerButton` below in this file,
-  // but documented independently per this project's per-object convention. Left as the
-  // original literal; no conversion.
   transition: "background 150ms ease",
+};
+
+const cardEditButton = {
+  height: "30px",
+  padding: "0 10px",
+  flexShrink: 0,
+  borderRadius: `${radius.tight}px`,
+  background: "transparent",
+  border: `1.5px solid ${colors.border}`,
+  color: colors.inkDim,
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: "11px",
+  fontFamily: fonts.body,
+  fontWeight: 500,
+  transition: "background 150ms ease, color 150ms ease",
 };
 
 const backButton = {
@@ -1105,7 +1067,6 @@ const backButton = {
   fontFamily: fonts.mono,
   fontWeight: 700,
   letterSpacing: "0.08em",
-  textTransform: "uppercase",
   cursor: "pointer",
   padding: 0,
   marginBottom: "10px",

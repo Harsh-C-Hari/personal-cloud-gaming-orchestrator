@@ -1,5 +1,76 @@
 # UI/UX Audit Progress Log
 
+---
+
+## Phase 0 Baseline — `ui/overhaul` branch (2026-10-01)
+
+### 0.1 Toolchain on branch creation
+
+| Command | Result |
+|---|---|
+| `git checkout -b ui/overhaul` | ✅ branch created |
+| `npm ci` | ✅ exit 0 |
+| `npm run lint` | ✅ exit 0 (0 warnings) |
+| `npm test` | ✅ exit 0 (all suites pass) |
+| `npm run build` | ✅ exit 0 |
+
+> Pre-existing failures: **none** — all four commands are clean on the baseline.
+
+### 0.3 Baseline counts
+
+| Metric | Count | Target (Phase 6.6) |
+|---|---|---|
+| `style={{` (inline styles) | **407** | no hard target — reduce via phases 3–4 |
+| `!important` | **142** | ≤ 10 |
+| `text-transform: uppercase` | **157** | 0 |
+| `rgba(` | **73** | 0 for status colours outside tokens |
+| `<label` (real labels) | **5** | every `<input>` covered |
+| `<table` | **0** | ≥ 4 after Phase 3.9 |
+| `transition: all` | **0** | 0 ✅ already clean |
+| Distinct `border-radius` values | **16** | ⊆ {4px, 8px, 12px, 50%, 999px} |
+| Distinct `z-index` values | **8** | ⊆ {0,10,20,40,100,1000} |
+
+**Distinct border-radius values (raw):**
+`0 !important`, `4px`, `4px !important`, `6px`, `7px`, `8px`, `9px`, `10px`, `12px`, `15px`, `16px`, `16px !important`, `50%`, `999px`
+(14 real values — target: 5)
+
+**Distinct z-index values (raw):** 19, 20, 40, 45, 50, 300, 9998, 9999
+(8 values — target mapped to: 20, 20, 40, 40/100, 100, 100, 1000, 1000)
+
+**Keyframes audit (23 found — target: 2 canonical + dialog/toast pair):**
+
+| Group | Names to merge |
+|---|---|
+| Spins (→ `spin`) | `cgo-spin`, `gm-spin`, `hsp-spin`, `lp-spin`, `sa-spin`, `scm-spin`, `sh-spin`, `pcgo-users-spin`, `pcgo-settings-spin` |
+| Pulses (→ `pulse`) | `cgo-pulse`, `pcgo-pulse`, `pcgo-log-pulse`, `ssh-pulse`, `scm-pulse`, `log-blink`, `dashboard-loading-pulse` |
+| Keep as-is | `spin` (global), `pulse` (global), `confirm-backdrop-in`, `confirm-card-in`, `toast-in` |
+| Delete (GSAP/Lenis artefacts) | `cgo-fade-up`, `scrollBounce` |
+| Noise (from CSS comment text) | `name`, `names`, `reference` — not real keyframes, just regex false-positives in comment lines |
+
+**Dependency audit:**
+
+| Package | Import count | Action |
+|---|---|---|
+| `react-icons` | 2 files | Phase 1.12: verify to 0, then `npm uninstall react-icons` |
+| `gsap` | 1 file (gsapSetup.js) | Phase 5.2: remove entirely |
+| `lenis` | 29 occurrences | Phase 5.1: remove entirely |
+
+### 0.4 Test-pinned strings (do not change without updating the test in the same commit)
+
+| Test file | Pinned strings / roles |
+|---|---|
+| `Login.test.jsx` | `getByRole("button", { name: /sign in/i })` · `getByRole("button", { name: /signing in/i })` · `getByRole("button", { name: /register admin/i })` · `getByPlaceholderText(/enter your username/i)` · `getByPlaceholderText(/enter your password/i)` · `findByText(/invalid username or password/i)` · `getByText(/no admin account detected/i)` |
+| `StartSessionForm.test.jsx` | `getByRole("combobox")` · `getByRole("button", { name: /launch session/i })` · `findByText(/Launched: sess-999/i)` |
+| `SessionCard.test.jsx` | `getByRole("button", { name: /stop session/i })` · `findByRole("button", { name: /stopping/i })` · `findByText(/host unreachable/i)` |
+| `EventLog.test.jsx` | `getByText(/waiting for activity/i)` · `getByText("0")` · `getByText("Running")` · `getByText("sess-1")` · `getByText("1")` |
+| `client.test.js` | (API mock only — no DOM assertions) |
+
+> **Rule:** placeholders `enter your username` / `enter your password`, button names `Sign in` / `Signing in…` / `Register admin` / `Launch session` / `Stop session` / `Stopping…`, and the text `Running` (capitalised) in EventLog are **frozen** until the corresponding test is updated in the same commit.
+
+---
+
+# UI/UX Audit Progress Log
+
 Working copy: /home/claude/work/frontend-FINAL/frontend
 Environment note: no network access / no node_modules in this sandbox, so
 `npm install`, `npm run build`, and `npm test` could NOT be executed here.

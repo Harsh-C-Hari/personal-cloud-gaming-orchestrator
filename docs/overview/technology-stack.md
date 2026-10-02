@@ -57,6 +57,19 @@ Vite provides frontend tooling and development infrastructure.
 
 ---
 
+### Pure CSS & Design Tokens
+
+Styling is implemented using pure CSS and a custom Javascript-based design token system (`theme.js`), eschewing large styling frameworks in favor of tight control over the "Tactical Console Brutalism" aesthetic.
+
+Responsibilities:
+
+* OLED surface elevation mapping (L0-L4)
+* Liquid Glass refraction (backdrop-filter) effects
+* Radial dot matrix background rendering
+* Standardized typographic and spacing scales
+
+---
+
 ## Gaming Infrastructure
 
 ### Sunshine

@@ -19,6 +19,8 @@ data/
 # Config
 config.json
 games.json
+.env
+.env.*
 
 # Frontend
 frontend/node_modules/

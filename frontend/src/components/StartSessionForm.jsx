@@ -45,8 +45,8 @@ import {
 import { deleteSave, fetchSaves, startSession, validateGame } from "../api/client.js";
 import { SaveBrowser } from "./SaveBrowser.jsx";
 import { GameLibrary } from "./GameLibrary.jsx";
-import { useConfirm } from "./ui/ConfirmDialog.jsx";
-import { useToast } from "./ui/Toast.jsx";
+import { useConfirm } from "../hooks/useConfirm.js";
+import { useToast } from "../hooks/useToast.js";
 import { Button } from "./ui/primitives.jsx";
 import { colors, fonts, radius, surface, typeScale } from "../dashboard/theme.js";
 
@@ -535,12 +535,8 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
   const validationOk = { ...validationText, color: colors.success };
   const validationBad = { ...validationText, color: colors.danger };
 
-  const focusBorder = (e) => {
-    e.target.style.borderColor = colors.ink;
-  };
-  const blurBorder = (e) => {
-    e.target.style.borderColor = colors.border;
-  };
+  // 3.3: Focus/blur border change now handled by CSS .pcgo-input:focus in base.css.
+  // Removed: focusBorder/blurBorder JS event handlers.
 
   function FieldLabel({ icon, children }) {
     return (
@@ -740,13 +736,12 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
                   LIBRARY" toggle below opens a separate GameLibrary picker, which
                   is a distinct, already-interactive component outside CC-9's scope. */}
               <select
+                className="pcgo-input"
                 style={{ ...inputStyle, cursor: "pointer", appearance: "none", paddingRight: "34px" }}
                 value={form.game_id}
                 disabled={!gamesReady}
                 aria-label="Select a game to launch"
                 onChange={(e) => set("game_id", e.target.value)}
-                onFocus={focusBorder}
-                onBlur={blurBorder}
               >
                 <option value="">Select a game to play</option>
 
@@ -878,8 +873,7 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
                 disabled={form.skip_timer}
                 aria-label="Duration (min)"
                 onChange={(e) => set("duration", e.target.value)}
-                onFocus={focusBorder}
-                onBlur={blurBorder}
+                className="pcgo-input"
               />
             </div>
             <div>
@@ -893,15 +887,14 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
                 disabled={form.skip_timer}
                 aria-label="Warning (min)"
                 onChange={(e) => set("warning", e.target.value)}
-                onFocus={focusBorder}
-                onBlur={blurBorder}
+                className="pcgo-input"
               />
             </div>
           </div>
 
-          {/* Skip Timer toggle */}
+          {/* Skip Timer toggle — role="switch" per ARIA spec for on/off controls (3.4) */}
           <div
-            role="checkbox"
+            role="switch"
             aria-checked={form.skip_timer}
             tabIndex={0}
             onClick={() => set("skip_timer", !form.skip_timer)}

@@ -31,24 +31,13 @@ export function LoadingState({ label = "Connecting to host agent…" }) {
           height: "7px",
           borderRadius: "50%",
           background: colors.brand,
-          // motion-audit (P6-T04): keyframe-based `animation:` (name +
-          // infinite iteration count), not a `transition:`. `motion`'s four
-          // steps are duration+easing pairs only, with no keyframe-name or
-          // iteration-count semantics — no equivalent exists, same
-          // non-convertible category as primitives.jsx's Spinner (P6-T02).
-          // Left as a literal, not converted.
-          animation: "dashboard-loading-pulse 1.6s ease-in-out infinite",
+          // Uses canonical `pulse` keyframe from src/styles/base.css (1.2).
+          animation: "pulse 1.6s ease-in-out infinite",
           flexShrink: 0,
         }}
       />
       {label}
-
-      <style>{`
-        @keyframes dashboard-loading-pulse {
-          0%, 100% { opacity: 1;   }
-          50%      { opacity: 0.3; }
-        }
-      `}</style>
     </div>
   );
 }
+
