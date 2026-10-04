@@ -66,7 +66,6 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
   const [submitting,  setSubmitting] = useState(false);
   const [launchedId,  setLaunchedId] = useState(null);
   const [launchedSeen, setLaunchedSeen] = useState(false);
-  const [lastLaunchUserId, setLastLaunchUserId] = useState("");
   const [lastLaunchGameId, setLastLaunchGameId] = useState("");
   const [saves, setSaves] = useState({
     latest_exists: false,
@@ -190,14 +189,12 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
     if (launchedSeen && !stillActive) {
       setLaunchedId(null);
       setLaunchedSeen(false);
-      setLastLaunchUserId("");
       setLastLaunchGameId("");
     }
   }, [activeSessions, launchedId, launchedSeen]);
 
   useEffect(() => {
     if (
-      !lastLaunchUserId ||
       !lastLaunchGameId ||
       !activeSessions
     ) {
@@ -214,16 +211,12 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
       return;
     }
 
-    fetchSaves(
-      lastLaunchUserId,
-      lastLaunchGameId
-    )
+    fetchSaves(lastLaunchGameId)
       .then(setSaves)
       .catch(() => {});
   }, [
     activeSessions,
     launchedId,
-    lastLaunchUserId,
     lastLaunchGameId,
   ]);
 

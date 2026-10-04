@@ -96,8 +96,8 @@ export function SaveBrowser({
 
     const hasSaves =
         saves?.latest_exists ||
-        saves.archives.length > 0 ||
-        saves.backups.length > 0;
+        archives.length > 0 ||
+        backups.length > 0;
 
     return (
         <div>
