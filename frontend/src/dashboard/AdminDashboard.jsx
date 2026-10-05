@@ -16,6 +16,7 @@ import {
   RefreshCw,
   Play,
   Gamepad2,
+  Save,
   UserCog,
   BarChart3,
   History,
@@ -36,6 +37,7 @@ import { HostMonitorPage } from "./pages/HostMonitorPage.jsx";
 import { RecoveryPage } from "./pages/RecoveryPage.jsx";
 import { SunshinePage } from "./pages/SunshinePage.jsx";
 import { GameManagerPage } from "./pages/GameManagerPage.jsx";
+import { SaveLibraryPage } from "./pages/SaveLibraryPage.jsx";
 import { UserManagementPage } from "./pages/UserManagementPage.jsx";
 import { AnalyticsPage } from "./pages/AnalyticsPage.jsx";
 import { SessionHistoryPage } from "./pages/SessionHistoryPage.jsx";
@@ -50,6 +52,7 @@ const NAV_ITEMS = [
   { route: "recovery", icon: <RefreshCw size={15} strokeWidth={2} />, label: "Recovery" },
   { route: "streams", icon: <Play size={15} strokeWidth={2} />, label: "Sunshine" },
   { route: "game-manager", icon: <Gamepad2 size={15} strokeWidth={2} />, label: "Game Manager" },
+  { route: "save-library", icon: <Save size={15} strokeWidth={2} />, label: "Save Library" },
   { route: "users", icon: <UserCog size={15} strokeWidth={2} />, label: "User Management" },
   { route: "analytics", icon: <BarChart3 size={15} strokeWidth={2} />, label: "Analytics" },
   { route: "history", icon: <History size={15} strokeWidth={2} />, label: "Session History" },
@@ -59,6 +62,7 @@ const NAV_ITEMS = [
 
 const HOME_NAV_CARDS = [
   { route: "game-manager", icon: <Gamepad2 size={20} strokeWidth={1.75} />, label: "Games", description: "Manage Games" },
+  { route: "save-library", icon: <Save size={20} strokeWidth={1.75} />, label: "Save Library", description: "Backups & archives" },
   { route: "monitor", icon: <Server size={20} strokeWidth={1.75} />, label: "Host Monitor", description: "Live host status" },
   { route: "recovery", icon: <RefreshCw size={20} strokeWidth={1.75} />, label: "Recovery", description: "Recovery stats & events" },
   { route: "streams", icon: <Play size={20} strokeWidth={1.75} />, label: "Sunshine", description: "Client pairing & stream history" },
@@ -280,6 +284,14 @@ export function AdminDashboard({ username }) {
         games={games}
         gamesLoading={gamesLoading}
         loadGames={loadGames}
+        onBack={goBack}
+      />
+    ),
+    "save-library": (
+      <SaveLibraryPage
+        games={games}
+        gamesLoading={gamesLoading}
+        refreshKey={historyRefreshKey}
         onBack={goBack}
       />
     ),

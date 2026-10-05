@@ -4185,3 +4185,278 @@
     font-size: 8.5px;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Save Library (components/SaveLibrary.jsx)
+   Uses only existing tokens: surface l1/l3/l4, border scale, brand-dim,
+   radius 12 (cards) / 4 (count chip), IBM Plex Sans + Mono. Status hues come
+   from the Chip primitive; the error callout reuses the danger fallback value
+   already used in base.css.
+   --------------------------------------------------------------------------- */
+.pcgo-save-library {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* Game picker */
+.pcgo-save-library__games {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr));
+  gap: 10px;
+}
+
+.pcgo-save-library__game {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+  padding: 12px 34px 12px 14px;
+  text-align: left;
+  font: inherit;
+  color: var(--color-ink);
+  background: var(--surface-l3);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+@media (hover: hover) {
+  .pcgo-save-library__game:not([aria-pressed="true"]):hover {
+    background: var(--surface-l4);
+    border-color: var(--color-border-strong);
+  }
+}
+
+.pcgo-save-library__game[aria-pressed="true"] {
+  background: var(--color-brand-dim);
+  border-color: var(--color-border-ink);
+}
+
+.pcgo-save-library__game:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+.pcgo-save-library__game-name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  font: 600 14px/1.3 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
+}
+
+.pcgo-save-library__game-id {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-ink-faint);
+  font: 400 12px/1.3 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+
+.pcgo-save-library__game-check {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: var(--color-brand);
+}
+
+/* Saves panel */
+.pcgo-save-library__hint {
+  max-width: 62ch;
+  margin: -6px 0 20px;
+  color: var(--color-ink-faint);
+  font: 400 13px/1.5 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
+}
+
+.pcgo-save-library__groups {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.pcgo-save-library__group {
+  min-width: 0;
+}
+
+.pcgo-save-library__group-head {
+  margin-bottom: 12px;
+}
+
+.pcgo-save-library__group-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pcgo-save-library__group-icon {
+  display: inline-flex;
+  color: var(--color-ink-faint);
+}
+
+.pcgo-save-library__group-title {
+  margin: 0;
+  color: var(--color-ink);
+  font: 600 15px/1.3 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
+}
+
+.pcgo-save-library__count {
+  min-width: 24px;
+  padding: 3px 7px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 4px;
+  color: var(--color-ink-faint);
+  font: 600 12px/1 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.pcgo-save-library__group-desc {
+  margin: 4px 0 0;
+  color: var(--color-ink-faint);
+  font: 400 12px/1.45 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
+}
+
+.pcgo-save-library__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Save cards */
+.pcgo-save-library__card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px;
+  background: var(--surface-l3);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.pcgo-save-library__card--latest {
+  border-color: rgba(123, 215, 167, 0.35);
+}
+
+.pcgo-save-library__card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 32px;
+}
+
+.pcgo-save-library__card-title {
+  margin: 0;
+  color: var(--color-ink);
+  font: 600 14px/1.35 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.pcgo-save-library__meta {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.pcgo-save-library__meta:empty {
+  display: none;
+}
+
+.pcgo-save-library__meta > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  min-width: 0;
+}
+
+.pcgo-save-library__meta dt {
+  flex: 0 0 auto;
+  color: var(--color-ink-faint);
+  font: 500 12px/1.4 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
+}
+
+.pcgo-save-library__meta dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-ink-dim);
+  font: 400 12px/1.4 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+
+/* Inline empty + error */
+.pcgo-save-library__empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px dashed var(--color-border);
+  border-radius: 12px;
+  color: var(--color-ink-faint);
+  font: 400 13px/1.45 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
+}
+
+.pcgo-save-library__error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(240, 127, 131, 0.45);
+  border-radius: 12px;
+  background: rgba(240, 127, 131, 0.08);
+  color: var(--color-danger, #f07f83);
+  font: 500 13px/1.45 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
+}
+
+.pcgo-save-library__error:not(:last-child) {
+  margin-bottom: 20px;
+}
+
+.pcgo-save-library__error-text {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.pcgo-save-library__error-text svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+@media (max-width: 700px) {
+  .pcgo-save-library {
+    gap: 16px;
+  }
+
+  .pcgo-save-library__games {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pcgo-save-library__groups {
+    gap: 24px;
+  }
+}
+
+@media (max-width: 380px) {
+  .pcgo-save-library__games {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

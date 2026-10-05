@@ -7,12 +7,12 @@
  * (adaptUserHostStatus) to the flat shape StartSessionForm/buildAlerts
  * already expect, so no shared component needed any code changes.
  *
- * Only renders Home, Analytics, Session History, and Logs — matching the
+ * Only renders Home, Save Library, Analytics, Session History, and Logs — matching the
  * requested user page list. Any other route falls back to Home.
  */
 
 import { useEffect, useMemo, useState } from "react";
-import { Home as HomeIcon, BarChart3, History, ClipboardList, Lock } from "lucide-react";
+import { Home as HomeIcon, Save, BarChart3, History, ClipboardList, Lock } from "lucide-react";
 import { useUserDashboardData } from "../hooks/useUserDashboardData.js";
 import { useSessionShell } from "./useSessionShell.js";
 import { useRoute } from "./hooks/useRoute.js";
@@ -21,6 +21,7 @@ import { logout } from "./utils/logout.js";
 import { adaptUserHostStatus, buildUserAlerts } from "./utils/adaptUserHostStatus.js";
 
 import { Home } from "./pages/Home.jsx";
+import { SaveLibraryPage } from "./pages/SaveLibraryPage.jsx";
 import { AnalyticsPage } from "./pages/AnalyticsPage.jsx";
 import { SessionHistoryPage } from "./pages/SessionHistoryPage.jsx";
 import { LogsPage } from "./pages/LogsPage.jsx";
@@ -29,6 +30,7 @@ import { NotFoundPage } from "./pages/NotFoundPage.jsx";
 
 const NAV_ITEMS = [
   { route: "home", icon: <HomeIcon size={15} strokeWidth={2} />, label: "Home" },
+  { route: "save-library", icon: <Save size={15} strokeWidth={2} />, label: "Save Library" },
   { route: "analytics", icon: <BarChart3 size={15} strokeWidth={2} />, label: "Analytics" },
   { route: "history", icon: <History size={15} strokeWidth={2} />, label: "Session History" },
   { route: "logs", icon: <ClipboardList size={15} strokeWidth={2} />, label: "Logs" },
@@ -36,6 +38,7 @@ const NAV_ITEMS = [
 ];
 
 const HOME_NAV_CARDS = [
+  { route: "save-library", icon: <Save size={20} strokeWidth={1.75} />, label: "Save Library", description: "Backups & archives" },
   { route: "analytics", icon: <BarChart3 size={20} strokeWidth={1.75} />, label: "Analytics", description: "Usage trends" },
   { route: "history", icon: <History size={20} strokeWidth={1.75} />, label: "History", description: "Past sessions" },
   { route: "logs", icon: <ClipboardList size={20} strokeWidth={1.75} />, label: "Logs", description: "Activity log" },
@@ -86,6 +89,7 @@ export function UserDashboard({ username }) {
         onNavigate={navigate}
       />
     ),
+    "save-library": <SaveLibraryPage games={games} refreshKey={historyRefreshKey} onBack={goBack} />,
     analytics: <AnalyticsPage refreshKey={historyRefreshKey} onBack={goBack} />,
     history: <SessionHistoryPage refreshKey={historyRefreshKey} onBack={goBack} />,
     logs: <LogsPage onBack={goBack} />,
