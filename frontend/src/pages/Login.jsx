@@ -62,7 +62,7 @@ export default function Login() {
 
 
   return (
-    <main ref={mainRef} style={{ minHeight: "100dvh", display: "grid", gridTemplateColumns: "minmax(0, 1.2fr) minmax(360px, 0.8fr)", background: colors.bg, color: colors.ink, overflowY: "auto" }}>
+    <main ref={mainRef} className="pcgo-login-root" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.2fr) minmax(360px, 0.8fr)", background: colors.bg, color: colors.ink }}>
       <section style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "clamp(28px, 6vw, 84px)", borderRight: `1px solid ${colors.border}`, minHeight: "100%" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}><BrandMark scale="lg" /><span style={{ font: `700 16px/1 ${fonts.display}`, letterSpacing: ".06em" }}>CLOUD GAMING <span style={{ color: colors.brand }}>ORCHESTRATOR</span></span></div>
         <div style={{ maxWidth: 610, padding: "72px 0" }}>
@@ -92,7 +92,7 @@ export default function Login() {
           </div>
         </form>
       </section>
-      <style>{`@media (max-width: 860px) { main { display: block !important; } main > section:first-child { min-height: auto !important; padding: 28px 24px 32px !important; border-right: 0 !important; border-bottom: 1px solid ${colors.border} !important; } main > section:first-child > div:nth-child(2) { padding: 50px 0 20px !important; } main > section:first-child h1 { font-size: 48px !important; } main > section:last-child { min-height: 560px; } } @media (max-width: 420px) { main > section:first-child h1 { font-size: 39px !important; } main > section:last-child { padding: 26px 16px !important; } form > div { padding-left: 20px !important; padding-right: 20px !important; } }`}</style>
+      <style>{`.pcgo-login-root { height: 100vh; height: 100dvh; width: 100%; max-width: 100vw; overflow-y: auto; overscroll-behavior-y: contain; } @media (max-width: 860px) { main { display: block !important; } main > section:first-child { min-height: auto !important; padding: 28px 24px 32px !important; border-right: 0 !important; border-bottom: 1px solid ${colors.border} !important; } main > section:first-child > div:nth-child(2) { padding: 50px 0 20px !important; } main > section:first-child h1 { font-size: 48px !important; } main > section:last-child { min-height: 560px; } } @media (max-width: 420px) { main > section:first-child h1 { font-size: 39px !important; } main > section:last-child { padding: 26px 16px !important; } form > div { padding-left: 20px !important; padding-right: 20px !important; } }`}</style>
     </main>
   );
 }
