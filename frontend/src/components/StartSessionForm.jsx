@@ -969,13 +969,11 @@ export function StartSessionForm({ games, gamesLoading = false, onLaunched, host
               saves={saves}
               loading={savesLoading}
               error={savesErr}
-              deleting={deletingSave}
               onTypeChange={(value) => {
                 set("save_type", value);
                 set("save_name", "");
               }}
               onNameChange={(value) => set("save_name", value)}
-              onDelete={handleDeleteSave}
             />
           ) : (
             // Judgment call (same status/warning-banner family as "No
