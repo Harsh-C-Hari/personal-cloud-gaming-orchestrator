@@ -87,6 +87,8 @@ export function UserDashboard({ username }) {
         wsEvents={wsEvents}
         navCards={HOME_NAV_CARDS}
         onNavigate={navigate}
+        username={username}
+        role="user"
       />
     ),
     "save-library": <SaveLibraryPage games={games} refreshKey={historyRefreshKey} onBack={goBack} />,

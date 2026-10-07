@@ -64,7 +64,7 @@ const microLabel = {
  *   onRefresh : () => void
  * }} props
  */
-export function SessionCard({ session, onRefresh }) {
+export function SessionCard({ session, onRefresh, canControl = false }) {
   const [stopping, setStopping] = useState(false);
   const [stopError, setStopError] = useState(null);
 
@@ -360,7 +360,7 @@ export function SessionCard({ session, onRefresh }) {
       </div>
 
       {/* Row 3 — Stop / Cleanup status */}
-      {!["completed", "failed", "stopped"].includes(session.status) && (
+      {canControl && !["completed", "failed", "stopped"].includes(session.status) && (
         <div>
           {stopError && (
             // Judgment call (same group as the PLAYED/error/warning

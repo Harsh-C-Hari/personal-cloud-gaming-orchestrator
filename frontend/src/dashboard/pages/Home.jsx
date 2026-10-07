@@ -56,8 +56,15 @@ export function Home({
   wsEvents,
   navCards,
   onNavigate,
+  username,
+  role,
 }) {
-  const hasActiveSession = activeSessions.length > 0;
+  const hasActiveSession = activeSessions.some(
+    (s) => s.user_id === username
+  );
+
+  const hasOtherActiveSession =
+    activeSessions.length > 0 && !hasActiveSession;
   const containerRef = useRef(null);
 
   return (
@@ -71,19 +78,34 @@ export function Home({
               icon={<span className="pcgo-home-signal" aria-hidden="true" />}
               style={{ marginBottom: "10px" }}
             >
-              {hasActiveSession ? "Current Session" : "Start a New Session"}
+              {hasActiveSession
+                ? "Current Session"
+                : hasOtherActiveSession
+                  ? "Host In Use"
+                  : "Start a New Session"
+              }
             </Eyebrow>
             <h1 style={headlineStyle}>
-              {hasActiveSession ? "Your session is live." : "Ready to launch."}
+              {hasActiveSession
+                ? "Your session is live."
+                : hasOtherActiveSession
+                  ? "The host is currently in use."
+                  : "Ready to launch."
+              }
             </h1>
           </div>
 
           {loading ? (
             <LoadingState />
-          ) : hasActiveSession ? (
+          ) : hasActiveSession || hasOtherActiveSession ? (
             <div className="pcgo-active-session-stack">
               {activeSessions.map((s) => (
-                <SessionCard key={s.session_id} session={s} onRefresh={refresh} />
+                <SessionCard
+                  key={s.session_id}
+                  session={s}
+                  onRefresh={refresh}
+                  canControl={role === "admin" || s.user_id === username}
+                />
               ))}
             </div>
           ) : (

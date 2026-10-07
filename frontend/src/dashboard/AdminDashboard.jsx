@@ -233,6 +233,8 @@ export function AdminDashboard({ username }) {
         wsEvents={wsEvents}
         navCards={HOME_NAV_CARDS}
         onNavigate={navigate}
+        username={username}
+        role="admin"
       />
     ),
     monitor: (
