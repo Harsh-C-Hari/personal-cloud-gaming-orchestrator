@@ -64,3 +64,11 @@ class SessionStatusResponse(BaseModel):
     played_seconds: float | None = None
 
     game_ended_at: float | None = None
+
+    restart_in_progress: bool = False
+
+    restart_count: int = 0
+
+    last_restart_time: float | None = None
+
+    restart_cooldown_remaining: int = 0
